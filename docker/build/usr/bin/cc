@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+ARTIFACTS="/usr/bin" \
+exec /lib/symbolica/cc "$@"
