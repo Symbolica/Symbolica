@@ -1,0 +1,17 @@
+mode: ContinuousDeployment
+
+branches:
+  master:
+    regex: master
+    tag: useBranchName
+    increment: Minor
+    prevent-increment-of-merged-branch-version: true
+  patch:
+    regex: patch[/-]
+    tag: useBranchName
+    increment: Patch
+    source-branches: ['release']
+  release:
+    regex: release[/-]
+    tag: rc
+    increment: Patch
