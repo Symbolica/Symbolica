@@ -1,19 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net5.0</TargetFramework>
-        <Platforms>x64</Platforms>
-        <LangVersion>9</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <AssemblyName>Symbolica.Application</AssemblyName>
-        <RootNamespace>Symbolica.Application</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>Symbolica.Application</AssemblyName>
+    <IsPackable>False</IsPackable>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Symbolica.Application</RootNamespace>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Computation\Computation.csproj" />
-        <ProjectReference Include="..\Deserialization\Deserialization.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Computation\Computation.csproj" />
+    <ProjectReference Include="..\Deserialization\Deserialization.csproj" />
+  </ItemGroup>
 
 </Project>

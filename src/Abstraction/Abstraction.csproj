@@ -1,17 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <Platforms>x64</Platforms>
-        <LangVersion>9</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <AssemblyName>Symbolica.Abstraction</AssemblyName>
-        <RootNamespace>Symbolica.Abstraction</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>Symbolica.Abstraction</AssemblyName>
+    <RootNamespace>Symbolica.Abstraction</RootNamespace>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Expression\Expression.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Expression\Expression.csproj" />
+  </ItemGroup>
 
 </Project>
