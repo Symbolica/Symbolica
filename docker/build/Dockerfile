@@ -26,4 +26,5 @@ RUN cd musl && \
     find obj/src -name "*.lo.bc" ! -path "obj/src/thread/x86_64/*" ! -name setjmp.lo.bc ! -name longjmp.lo.bc ! -name sigsetjmp.lo.bc ! -name restore.lo.bc -print0 | xargs -0 llvm-link-8 -o /lib/symbolica/libc.bc && \
     cd ..
 
-ENTRYPOINT [ "/code/build.sh", "/code" ]
+WORKDIR /code
+ENTRYPOINT [ "./build.sh" ]
