@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <Platforms>x64</Platforms>
+        <LangVersion>9</LangVersion>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <AssemblyName>Symbolica.Execution</AssemblyName>
+        <RootNamespace>Symbolica.Execution</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Implementation\Implementation.csproj" />
+        <ProjectReference Include="..\Representation\Representation.csproj" />
+    </ItemGroup>
+
+</Project>

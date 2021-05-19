@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+p="$@"
+set --
+
+xlinker="$XLINKER"
+extension=
+
+for x in $p
+do
+    case "$x" in
+        -o) set -- "$@" -o ; extension=".bc" ;;
+        -c) xlinker= ;&
+        *) set -- "$@" "$x$extension" ; extension= ;;
+    esac
+done
+
+if [ -z "$NO_LLVM" ];
+    then $ARTIFACTS/clang -emit-llvm -c "$@";
+fi
+
+if [ -n "$CODEGEN" ];
+    then exec $ARTIFACTS/clang $p $xlinker;
+fi
