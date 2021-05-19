@@ -1,13 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <Platforms>x64</Platforms>
-        <LangVersion>9</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <AssemblyName>Symbolica.Collection</AssemblyName>
         <RootNamespace>Symbolica.Collection</RootNamespace>
+        <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
 </Project>
