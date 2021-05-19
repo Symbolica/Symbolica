@@ -95,7 +95,7 @@ jobs:
           context: .
           file: docker/translate/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
-          push: true
+          push: false
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
