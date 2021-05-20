@@ -2,10 +2,10 @@
 
 ## Building the image
 
-From the root of this repository run the following command:
+From this directory run the following command:
 
 ```sh
-docker build . -f docker/build/Dockerfile -t symbolica/build:latest
+docker build . -t symbolica/build:latest
 ```
 
 ## Running the image

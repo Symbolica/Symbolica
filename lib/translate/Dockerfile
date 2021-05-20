@@ -14,7 +14,7 @@ RUN apt-get install -y clang-8 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY ./lib/translate/ /lib/symbolica
+COPY dis /lib/symbolica/dis
 RUN clang++-8 /lib/symbolica/dis/main.cpp -o /usr/bin/dis `llvm-config-8 --cxxflags --libs irreader support`
 
 FROM llvm-base as runtime

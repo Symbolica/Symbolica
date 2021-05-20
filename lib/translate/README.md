@@ -2,10 +2,10 @@
 
 ## Building the image
 
-From the root of this repository run the following command:
+From this directory run the following command:
 
 ```sh
-docker build . -f docker/translate/Dockerfile -t symbolica/translate:latest
+docker build . -t symbolica/translate:latest
 ```
 
 ## Running the image

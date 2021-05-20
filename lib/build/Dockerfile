@@ -13,8 +13,8 @@ RUN apt-get update && \
     echo '#!/bin/bash \n$(which llvm-link-8) "$@"' > /usr/bin/llvm-link && \
     chmod a+x /usr/bin/llvm-link
 
-COPY ./docker/build/ .
-COPY ./lib/build/ /lib/symbolica/
+COPY cc musl-clang /usr/bin/
+COPY atomic_arch.h /lib/symbolica/
 RUN git clone --depth 1 --branch v1.2.2 git://git.musl-libc.org/musl
 RUN cd musl && \
     touch crt/crtbegin.c crt/crtend.c crt/crtbeginS.c crt/crtendS.c crt/crtbeginT.c crt/crtendT.c && \
