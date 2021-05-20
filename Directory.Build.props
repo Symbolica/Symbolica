@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="True" PackagePath="" Visible="False" />
   </ItemGroup>
 
   <ItemGroup>
