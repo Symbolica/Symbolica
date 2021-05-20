@@ -41,8 +41,7 @@ jobs:
       - name: Build container
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: docker/build/Dockerfile
+          context: lib/build
           builder: ${{ steps.buildx.outputs.name }}
           push: false
           tags: ${{ steps.tags.outputs.tags }}
@@ -84,8 +83,7 @@ jobs:
       - name: Build container
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: docker/translate/Dockerfile
+          context: lib/translate
           builder: ${{ steps.buildx.outputs.name }}
           push: false
           tags: ${{ steps.tags.outputs.tags }}
