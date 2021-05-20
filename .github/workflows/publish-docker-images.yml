@@ -12,10 +12,6 @@ jobs:
         uses: actions/checkout@master
         with:
           fetch-depth: 0
-      - name: Setup dotnet SDK
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: "5.0.202"
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.9
         with:
@@ -59,10 +55,6 @@ jobs:
         uses: actions/checkout@master
         with:
           fetch-depth: 0
-      - name: Setup dotnet SDK
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: "5.0.202"
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.9
         with:
