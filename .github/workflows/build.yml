@@ -16,8 +16,9 @@ jobs:
           nugetPush: true
         - os: windows-2019
           nugetPush: false
-        - os: macos-latest
+        - os: macos-10.15
           nugetPush: false
+          buildArgs: '--runtime macos'
     steps:
     - name: Checkout code
       uses: actions/checkout@master
@@ -41,7 +42,7 @@ jobs:
         then
             version=${version}-${{ steps.gitversion.outputs.shortSha }}
         fi
-        dotnet build -c Release -p:Version=${version}
+        dotnet build -c Release -p:Version=${version} ${{ matrix.buildArgs }}
       shell: bash
     - name: Test
       run: dotnet test -c Release --no-build
