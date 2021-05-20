@@ -28,7 +28,8 @@ jobs:
     - name: Build
       run: | 
         version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
-        if [ "${{ github.event_name }}" == "pull_request" ] then
+        if [ "${{ github.event_name }}" == "pull_request" ]
+        then
             version=${version}-${{ steps.gitversion.outputs.shortSha }}
         fi
         dotnet build -c Release -p:Version=${version}
