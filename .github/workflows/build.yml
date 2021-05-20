@@ -26,7 +26,12 @@ jobs:
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0.9.9
     - name: Build
-      run: dotnet build -c Release -p:Version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      run: | 
+        version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+        if [ "${{ github.event_name }}" == "pull_request" ] then
+            version=$version-${{ steps.gitversion.outputs.shortSha }}
+        fi
+        dotnet build -c Release -p:Version=$version
     - name: Test
       run: dotnet test -c Release --no-build
     - name: NuGet Push
