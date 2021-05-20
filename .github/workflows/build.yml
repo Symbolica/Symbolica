@@ -16,7 +16,7 @@ jobs:
           nugetPush: true
         - os: windows-2019
           nugetPush: false
-        - os: macos-11.0
+        - os: macos-latest
           nugetPush: false
     steps:
     - name: Checkout code
