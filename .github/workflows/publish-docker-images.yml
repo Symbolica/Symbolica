@@ -19,7 +19,7 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.9
         with:
-          versionSpec: "5.6.0"
+          versionSpec: "5.6.9"
       - name: Run GitVersion
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.9
@@ -66,7 +66,7 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.9
         with:
-          versionSpec: "5.6.0"
+          versionSpec: "5.6.9"
       - name: Run GitVersion
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.9
