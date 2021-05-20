@@ -40,6 +40,7 @@ jobs:
             version=${version}-${{ steps.gitversion.outputs.shortSha }}
         fi
         dotnet build -c Release -p:Version=${version}
+      shell: bash
     - name: Test
       run: dotnet test -c Release --no-build
     - name: Archive NuGet Packages
