@@ -8,8 +8,15 @@ on:
   pull_request:
 jobs:
   build:
-   runs-on: ubuntu-20.04
-   steps:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+        - os: ubuntu-20.04
+          nugetPush: true
+        - os: windows-2019
+          nugetPush: false
+    steps:
     - name: Checkout code
       uses: actions/checkout@master
       with:
@@ -35,5 +42,22 @@ jobs:
         dotnet build -c Release -p:Version=${version}
     - name: Test
       run: dotnet test -c Release --no-build
+    - name: Archive NuGet Packages
+      uses: actions/upload-artifact@v2
+      if: ${{ matrix.nugetPush }}
+      with:
+        name: packages
+        path: |
+          **/*.nupkg
+          **/*.snupkg
+        retention-days: 1
+  nuget-push:
+    runs-on: ubuntu-20.04
+    needs: [build]
+    steps:
+    - name: Download NuGet Packages
+      uses: actions/download-artifact@v2
+      with:
+        name: packages
     - name: NuGet Push
       run: dotnet nuget push **/*.nupkg -s https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
