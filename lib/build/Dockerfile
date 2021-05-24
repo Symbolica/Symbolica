@@ -27,4 +27,4 @@ RUN cd musl && \
     cd ..
 
 WORKDIR /code
-ENTRYPOINT [ "./build.sh" ]
+ENTRYPOINT [ "./symbolica.sh" ]
