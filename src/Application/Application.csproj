@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Computation\Computation.csproj" />
     <ProjectReference Include="..\Deserialization\Deserialization.csproj" />
+    <ProjectReference Include="..\Implementation\Implementation.csproj" />
   </ItemGroup>
 
 </Project>

@@ -16,7 +16,7 @@ using Symbolica.Representation;
 
 return args.Contains("--extract-options")
     ? PrintExtractOptions()
-    : await Execute(new FileInfo(args[0]),
+    : await Execute(args[0],
         args.Contains("--use-symbolic-garbage"),
         args.Contains("--use-symbolic-addresses"),
         args.Contains("--use-symbolic-continuations"));
@@ -29,7 +29,7 @@ static int PrintExtractOptions()
     return 0;
 }
 
-static async Task<int> Execute(FileInfo file,
+static async Task<int> Execute(string path,
     bool useSymbolicGarbage, bool useSymbolicAddresses, bool useSymbolicContinuations)
 {
     IFileSystem fileSystem = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
@@ -42,10 +42,13 @@ static async Task<int> Execute(FileInfo file,
     var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
     var programFactory = new ProgramFactory(fileSystem, spaceFactory, collectionFactory);
 
-    var executor = new Executor(new Deserializer(), programFactory);
+    var executor = new Executor(programFactory);
+
+    await using var stream = File.OpenRead(path);
+    var module = await Deserializer.DeserializeModule(stream);
 
     using var programPool = new ProgramPool();
-    var result = await executor.Run(programPool, file,
+    var result = await executor.Run(programPool, module,
         useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations);
 
     if (result.IsSuccess)

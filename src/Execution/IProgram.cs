@@ -1,4 +1,4 @@
-﻿namespace Symbolica.Implementation
+﻿namespace Symbolica.Execution
 {
     public interface IProgram
     {

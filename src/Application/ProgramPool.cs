@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Symbolica.Execution;
-using Symbolica.Implementation;
 
 namespace Symbolica.Application
 {
