@@ -4,11 +4,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Symbolica.Abstraction;
 using Symbolica.Deserialization.DTOs;
-using Symbolica.Execution;
 
 namespace Symbolica.Deserialization
 {
-    public sealed class Deserializer : IDeserializer
+    public static class Deserializer
     {
         internal static readonly JsonSerializerOptions Options = new()
         {
@@ -16,7 +15,7 @@ namespace Symbolica.Deserialization
             MaxDepth = int.MaxValue
         };
 
-        public async Task<IModule> DeserializeModule(Stream stream)
+        public static async Task<IModule> DeserializeModule(Stream stream)
         {
             var dto = await JsonSerializer.DeserializeAsync<ModuleDto>(stream, Options);
 
