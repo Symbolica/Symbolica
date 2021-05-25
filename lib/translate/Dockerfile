@@ -28,3 +28,7 @@ RUN apt-get install -y llvm-8 && \
     chmod a+x /usr/bin/opt
 
 COPY --from=runtime-builder /usr/bin/dis /usr/bin/dis
+COPY translate.sh /lib/symbolica/
+
+WORKDIR /code
+ENTRYPOINT [ "/lib/symbolica/translate.sh" ]
