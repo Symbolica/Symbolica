@@ -43,7 +43,7 @@ namespace Symbolica.Application.Implementation
             public string[] GetNames()
             {
                 return DriveInfo.GetDrives()
-                    .Select(i => i.Name.Substring(0, 1).ToLowerInvariant())
+                    .Select(i => i.Name[..1].ToLowerInvariant())
                     .ToArray();
             }
         }
