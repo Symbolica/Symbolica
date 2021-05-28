@@ -17,19 +17,26 @@ IFileSystem fileSystem = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
     : RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
         ? new WslFileSystem(new FileSystem())
         : throw new Exception("Platform is unsupported.");
+
 var collectionFactory = new CollectionFactory();
 var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
 var programFactory = new ProgramFactory(fileSystem, spaceFactory, collectionFactory);
+
 var executor = new Executor(programFactory);
+
 await using var stream = File.OpenRead(args[0]);
 var module = await Deserializer.DeserializeModule(stream);
+
 using var programPool = new ProgramPool();
 var result = await executor.Run(programPool, module,
     args.Contains("--use-symbolic-garbage"),
     args.Contains("--use-symbolic-addresses"),
     args.Contains("--use-symbolic-continuations"));
+
 if (result.IsSuccess)
     return 0;
+
 Console.WriteLine(result.Message);
 Console.WriteLine(string.Join(", ", result.Example.Select(p => $"{p.Key}={p.Value}")));
+
 return 1;
