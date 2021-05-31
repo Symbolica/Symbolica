@@ -5,7 +5,7 @@ using Symbolica.Implementation;
 
 namespace Symbolica.Application.Implementation
 {
-    internal sealed class ProgramPool : IAwaitableProgramPool, IDisposable
+    internal sealed class ProgramPool : IProgramPool, IDisposable
     {
         private readonly CountdownEvent _countdownEvent;
         private Exception? _exception;
@@ -14,6 +14,11 @@ namespace Symbolica.Application.Implementation
         {
             _countdownEvent = new CountdownEvent(1);
             _exception = null;
+        }
+
+        public void Dispose()
+        {
+            _countdownEvent.Dispose();
         }
 
         public void Add(IProgram program)
@@ -46,11 +51,6 @@ namespace Symbolica.Application.Implementation
 
             if (_exception != null)
                 throw _exception;
-        }
-
-        public void Dispose()
-        {
-            _countdownEvent.Dispose();
         }
     }
 }

@@ -91,9 +91,7 @@ namespace Symbolica.Implementation
 
         private void Clone(ISpace space, Action<IState> action)
         {
-            var program = new Program(() => Create(space, action));
-
-            _programPool.Add(program);
+            _programPool.Add(new Program(() => Create(space, action)));
         }
 
         private IExecutableState Create(ISpace space, Action<IState> action)
