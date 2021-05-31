@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Symbolica.Execution;
+using Symbolica.Implementation;
 
-namespace Symbolica.Application
+namespace Symbolica.Application.Implementation
 {
     internal sealed class ProgramPool : IAwaitableProgramPool, IDisposable
     {

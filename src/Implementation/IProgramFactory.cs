@@ -1,6 +1,6 @@
 ﻿using Symbolica.Abstraction;
 
-namespace Symbolica.Execution
+namespace Symbolica.Implementation
 {
     public interface IProgramFactory
     {

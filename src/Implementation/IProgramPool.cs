@@ -1,4 +1,4 @@
-﻿namespace Symbolica.Execution
+﻿namespace Symbolica.Implementation
 {
     public interface IProgramPool
     {

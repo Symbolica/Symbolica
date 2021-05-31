@@ -1,5 +1,4 @@
 ﻿using System;
-using Symbolica.Execution;
 
 namespace Symbolica.Implementation
 {

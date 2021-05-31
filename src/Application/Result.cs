@@ -1,9 +1,9 @@
 ﻿using System;
 using Symbolica.Expression;
 
-namespace Symbolica.Execution
+namespace Symbolica.Application
 {
-    public sealed class Result
+    internal sealed class Result
     {
         private readonly IExample? _example;
         private readonly string? _message;

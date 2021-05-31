@@ -20,10 +20,6 @@
 
 [![NuGet Badge](https://buildstats.info/nuget/Symbolica.Deserialization)](https://www.nuget.org/packages/Symbolica.Deserialization/)
 
-### Symbolica.Execution
-
-[![NuGet Badge](https://buildstats.info/nuget/Symbolica.Execution)](https://www.nuget.org/packages/Symbolica.Execution/)
-
 ### Symbolica.Expression
 
 [![NuGet Badge](https://buildstats.info/nuget/Symbolica.Expression)](https://www.nuget.org/packages/Symbolica.Expression/)
