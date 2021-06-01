@@ -9,7 +9,7 @@ using Symbolica.Implementation.System;
 
 namespace Symbolica.Implementation
 {
-    public sealed class ProgramFactory : IProgramFactory
+    public sealed class ProgramFactory
     {
         private readonly ICollectionFactory _collectionFactory;
         private readonly IFileSystem _fileSystem;

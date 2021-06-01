@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Symbolica.Application;
+using Symbolica.Abstraction;
 using Symbolica.Application.Collection;
 using Symbolica.Application.Computation;
 using Symbolica.Application.Implementation;
@@ -21,21 +21,26 @@ var collectionFactory = new CollectionFactory();
 var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
 var programFactory = new ProgramFactory(fileSystem, spaceFactory, collectionFactory);
 
-var executor = new Executor(programFactory);
+using var programPool = new ProgramPool();
 
 await using var stream = File.OpenRead(args[0]);
 var module = await Deserializer.DeserializeModule(stream);
 
-using var programPool = new ProgramPool();
-var result = await executor.Run(programPool, module,
+programPool.Add(programFactory.CreateInitial(programPool, module,
     args.Contains("--use-symbolic-garbage"),
     args.Contains("--use-symbolic-addresses"),
-    args.Contains("--use-symbolic-continuations"));
+    args.Contains("--use-symbolic-continuations")));
 
-if (result.IsSuccess)
-    return 0;
+try
+{
+    await programPool.Wait();
+}
+catch (StateException stateException)
+{
+    Console.WriteLine(stateException.Message);
+    Console.WriteLine(string.Join(", ", stateException.Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
 
-Console.WriteLine(result.Message);
-Console.WriteLine(string.Join(", ", result.Example.Select(p => $"{p.Key}={p.Value}")));
+    return 1;
+}
 
-return 1;
+return 0;
