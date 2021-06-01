@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Abstraction\Abstraction.csproj" />
     <ProjectReference Include="..\Collection\Collection.csproj" />
-    <ProjectReference Include="..\Execution\Execution.csproj" />
   </ItemGroup>
 
 </Project>

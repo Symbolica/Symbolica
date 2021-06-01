@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Symbolica.Abstraction;
+using Symbolica.Application.Implementation;
+using Symbolica.Implementation;
 
-namespace Symbolica.Execution
+namespace Symbolica.Application
 {
-    public sealed class Executor
+    internal sealed class Executor
     {
         private readonly IProgramFactory _programFactory;
 
