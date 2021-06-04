@@ -10,7 +10,8 @@ RUN apt-get update && \
 
 FROM llvm-base as runtime-builder
 
-RUN apt-get install -y clang-8 && \
+RUN apt-get update && \
+    apt-get install -y clang-8 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -19,7 +20,8 @@ RUN clang++-8 /lib/symbolica/dis/main.cpp -o /usr/bin/dis `llvm-config-8 --cxxfl
 
 FROM llvm-base as runtime
 
-RUN apt-get install -y llvm-8 && \
+RUN apt-get update && \
+    apt-get install -y llvm-8 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     echo '#!/bin/bash \n$(which llvm-extract-8) "$@"' > /usr/bin/llvm-extract && \
