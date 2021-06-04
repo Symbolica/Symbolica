@@ -6,10 +6,10 @@
 namespace {
     struct Serializable {
         void Serialize() const {
-            out() << "{";
+            printf("{");
             firstProperty = true;
             SerializeProperties();
-            out() << "}";
+            printf("}");
         }
 
     protected:
@@ -18,10 +18,10 @@ namespace {
         template<typename T>
         void Serialize(const char *name, T value) const {
             if (!firstProperty) {
-                out() << ",";
+                printf(",");
             }
             Serialize(name);
-            out() << ":";
+            printf(":");
             firstProperty = false;
 
             Serialize(value);
@@ -30,30 +30,30 @@ namespace {
     private:
         mutable bool firstProperty = true;
 
-        void Serialize(const bool value) const { out() << (value ? "true" : "false"); }
+        void Serialize(const bool value) const { printf("%s", value ? "true" : "false"); }
 
-        void Serialize(const uint64_t value) const { out() << value; }
+        void Serialize(const uint64_t value) const { printf("%lu", value); }
 
-        void Serialize(const unsigned value) const { out() << value; }
+        void Serialize(const unsigned value) const { printf("%u", value); }
 
-        void Serialize(const char *value) const { out() << "\"" << value << "\""; }
+        void Serialize(const char *value) const { printf("\"%s\"", value); }
 
         void Serialize(const std::string &value) const { Serialize(value.c_str()); }
 
-        void Serialize(const Serializable *value) const { if (value) value->Serialize(); else out() << "null"; }
+        void Serialize(const Serializable *value) const { if (value) value->Serialize(); else printf("null"); }
 
         template<typename T>
         void Serialize(const std::vector<T> &values) const {
-            out() << "[";
+            printf("[");
             auto firstValue = true;
             for (auto &value : values) {
                 if (!firstValue) {
-                    out() << ",";
+                    printf(",");
                 }
                 Serialize(value);
                 firstValue = false;
             }
-            out() << "]";
+            printf("]");
         }
     };
 }

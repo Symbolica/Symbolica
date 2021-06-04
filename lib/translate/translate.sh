@@ -8,4 +8,4 @@ extractArgs="^__assert_fail$|^calloc$|^ceil$|^__clock_gettime$|^clock_gettime$|^
 
 llvm-extract -delete -ralias "$extractArgs" -rfunc "$extractArgs" "$1" |
 opt -disable-loop-vectorization -strip-debug -loweratomic -Oz -scalarizer |
-dis "$outDir/dis.json"
+dis > "$outDir/dis.json"
