@@ -45,7 +45,7 @@ jobs:
         then
             version=${version}-${{ steps.gitversion.outputs.shortSha }}
         fi
-        dotnet build -c Release -p:Version=${version}
+        dotnet build -c Release -p:Version=${version} --no-cache
       shell: bash
     - name: Test
       run: dotnet test -c Release --no-build
