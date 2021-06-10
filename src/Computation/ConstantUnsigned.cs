@@ -14,7 +14,12 @@ namespace Symbolica.Computation
             Integer = value;
         }
 
-        public override BigInteger Integer { get; }
+        public BigInteger Integer { get; }
+
+        public override BigInteger GetInteger(Context context)
+        {
+            return Integer;
+        }
 
         public override IProposition GetProposition(IPersistentSpace space, SymbolicBool[] constraints)
         {

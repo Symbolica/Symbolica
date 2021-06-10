@@ -14,7 +14,8 @@ namespace Symbolica.Computation
         }
 
         public Bits Size { get; }
-        public abstract BigInteger Integer { get; }
+
+        public abstract BigInteger GetInteger(Context context);
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)
         {

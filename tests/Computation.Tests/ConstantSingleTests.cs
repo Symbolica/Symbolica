@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using FluentAssertions;
+using Microsoft.Z3;
 using Symbolica.Expression;
 using Xunit;
 
@@ -9,250 +10,234 @@ namespace Symbolica.Computation
 {
     public class ConstantSingleTests
     {
+        private static readonly Context Context = new();
+
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatAdd(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatAdd(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatAdd(constantRight);
-            var symbolic = symbolicLeft.FloatAdd(symbolicRight);
+            var constant = constantLeft.FloatAdd(constantRight).GetNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatAdd(symbolicRight).GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(UnaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatCeiling(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatCeiling(
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatCeiling();
-            var symbolic = symbolicExpression.FloatCeiling();
+            var constant = constantExpression.FloatCeiling().GetNanNormalizedInteger(Context);
+            var symbolic = symbolicExpression.FloatCeiling().GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(FloatConvertTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatConvert(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatConvert(Bits size,
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatConvert(size);
-            var symbolic = symbolicExpression.FloatConvert(size);
+            var constant = constantExpression.FloatConvert(size).GetNanNormalizedInteger(Context);
+            var symbolic = symbolicExpression.FloatConvert(size).GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatDivide(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatDivide(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatDivide(constantRight);
-            var symbolic = symbolicLeft.FloatDivide(symbolicRight);
+            var constant = constantLeft.FloatDivide(constantRight).GetNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatDivide(symbolicRight).GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatEqual(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatEqual(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatEqual(constantRight);
-            var symbolic = symbolicLeft.FloatEqual(symbolicRight);
+            var constant = constantLeft.FloatEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.FloatEqual(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(UnaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatFloor(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatFloor(
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatFloor();
-            var symbolic = symbolicExpression.FloatFloor();
+            var constant = constantExpression.FloatFloor().GetNanNormalizedInteger(Context);
+            var symbolic = symbolicExpression.FloatFloor().GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatGreater(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatGreater(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatGreater(constantRight);
-            var symbolic = symbolicLeft.FloatGreater(symbolicRight);
+            var constant = constantLeft.FloatGreater(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.FloatGreater(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatGreaterOrEqual(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatGreaterOrEqual(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatGreaterOrEqual(constantRight);
-            var symbolic = symbolicLeft.FloatGreaterOrEqual(symbolicRight);
+            var constant = constantLeft.FloatGreaterOrEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.FloatGreaterOrEqual(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatLess(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatLess(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatLess(constantRight);
-            var symbolic = symbolicLeft.FloatLess(symbolicRight);
+            var constant = constantLeft.FloatLess(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.FloatLess(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatLessOrEqual(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatLessOrEqual(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatLessOrEqual(constantRight);
-            var symbolic = symbolicLeft.FloatLessOrEqual(symbolicRight);
+            var constant = constantLeft.FloatLessOrEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.FloatLessOrEqual(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatMultiply(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatMultiply(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatMultiply(constantRight);
-            var symbolic = symbolicLeft.FloatMultiply(symbolicRight);
+            var constant = constantLeft.FloatMultiply(constantRight).GetNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatMultiply(symbolicRight).GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(UnaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatNegate(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatNegate(
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatNegate();
-            var symbolic = symbolicExpression.FloatNegate();
+            var constant = constantExpression.FloatNegate().GetNanNormalizedInteger(Context);
+            var symbolic = symbolicExpression.FloatNegate().GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatNotEqual(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatNotEqual(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatNotEqual(constantRight);
-            var symbolic = symbolicLeft.FloatNotEqual(symbolicRight);
+            var constant = constantLeft.FloatNotEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.FloatNotEqual(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatOrdered(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatOrdered(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatOrdered(constantRight);
-            var symbolic = symbolicLeft.FloatOrdered(symbolicRight);
+            var constant = constantLeft.FloatOrdered(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.FloatOrdered(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatRemainder(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatRemainder(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatRemainder(constantRight);
-            var symbolic = symbolicLeft.FloatRemainder(symbolicRight);
+            var constant = constantLeft.FloatRemainder(constantRight).GetNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatRemainder(symbolicRight).GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatSubtract(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatSubtract(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatSubtract(constantRight);
-            var symbolic = symbolicLeft.FloatSubtract(symbolicRight);
+            var constant = constantLeft.FloatSubtract(constantRight).GetNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatSubtract(symbolicRight).GetNanNormalizedInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic, o => o
-                .Using<BigInteger>(c => c.Subject.NormalizeNaN().Should().Be(c.Expectation.NormalizeNaN()))
-                .WhenTypeIs<BigInteger>());
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(FloatToSignedTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatToSigned(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatToSigned(Bits size,
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatToSigned(size);
-            var symbolic = symbolicExpression.FloatToSigned(size);
+            var constant = constantExpression.FloatToSigned(size).GetInteger(Context);
+            var symbolic = symbolicExpression.FloatToSigned(size).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(FloatToUnsignedTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatToUnsigned(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatToUnsigned(Bits size,
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatToUnsigned(size);
-            var symbolic = symbolicExpression.FloatToUnsigned(size);
+            var constant = constantExpression.FloatToUnsigned(size).GetInteger(Context);
+            var symbolic = symbolicExpression.FloatToUnsigned(size).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForFloatUnordered(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatUnordered(
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatUnordered(constantRight);
-            var symbolic = symbolicLeft.FloatUnordered(symbolicRight);
+            var constant = constantLeft.FloatUnordered(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.FloatUnordered(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         private sealed class UnaryTestData : TheoryData<
@@ -451,16 +436,13 @@ namespace Symbolica.Computation
         }
     }
 
-    internal static class BigIntegerExtensions
+    internal static class ValueExtensions
     {
-        public static BigInteger NormalizeNaN(this BigInteger self)
+        public static BigInteger GetNanNormalizedInteger(this IValue self, Context context)
         {
-            var expression = ConstantUnsigned.Create((Bits) 32U, self);
-            var isNan = !expression.FloatNotEqual(expression).Integer.IsZero;
-
-            return isNan
-                ? new ConstantSingle(float.NaN).Integer
-                : self;
+            return self.FloatNotEqual(self).GetInteger(context).IsZero
+                ? self.GetInteger(context)
+                : new ConstantSingle(float.NaN).GetInteger(context);
         }
     }
 }

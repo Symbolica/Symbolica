@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using FluentAssertions;
+using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
 using Xunit;
@@ -13,388 +14,394 @@ namespace Symbolica.Computation
 {
     public class ConstantUnsignedTests
     {
+        private static readonly Context Context = new();
+
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForAdd(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForAdd(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Add(constantRight);
-            var symbolic = symbolicLeft.Add(symbolicRight);
+            var constant = constantLeft.Add(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.Add(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForAnd(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForAnd(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.And(constantRight);
-            var symbolic = symbolicLeft.And(symbolicRight);
+            var constant = constantLeft.And(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.And(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForArithmeticShiftRight(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForArithmeticShiftRight(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.ArithmeticShiftRight(constantRight);
-            var symbolic = symbolicLeft.ArithmeticShiftRight(symbolicRight);
+            var constant = constantLeft.ArithmeticShiftRight(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.ArithmeticShiftRight(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForEqual(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Equal(constantRight);
-            var symbolic = symbolicLeft.Equal(symbolicRight);
+            var constant = constantLeft.Equal(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.Equal(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForLogicalShiftRight(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForLogicalShiftRight(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.LogicalShiftRight(constantRight);
-            var symbolic = symbolicLeft.LogicalShiftRight(symbolicRight);
+            var constant = constantLeft.LogicalShiftRight(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.LogicalShiftRight(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForMultiply(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForMultiply(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Multiply(constantRight);
-            var symbolic = symbolicLeft.Multiply(symbolicRight);
+            var constant = constantLeft.Multiply(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.Multiply(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(UnaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForNot(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForNot(
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.Not();
-            var symbolic = symbolicExpression.Not();
+            var constant = constantExpression.Not().GetInteger(Context);
+            var symbolic = symbolicExpression.Not().GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForNotEqual(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForNotEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.NotEqual(constantRight);
-            var symbolic = symbolicLeft.NotEqual(symbolicRight);
+            var constant = constantLeft.NotEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.NotEqual(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForOr(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForOr(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Or(constantRight);
-            var symbolic = symbolicLeft.Or(symbolicRight);
+            var constant = constantLeft.Or(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.Or(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(ReadTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForRead(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForRead(Bits size,
             ConstantUnsigned constantBuffer, ConstantUnsigned constantOffset,
             SymbolicBitVector symbolicBuffer, SymbolicBitVector symbolicOffset)
         {
-            var constant = constantBuffer.Read(new CollectionFactory(), constantOffset, size);
-            var symbolic = symbolicBuffer.Read(new CollectionFactory(), symbolicOffset, size);
+            var collectionFactory = new CollectionFactory();
 
-            constant.Should().BeEquivalentTo(symbolic);
+            var constant = constantBuffer.Read(collectionFactory, constantOffset, size).GetInteger(Context);
+            var symbolic = symbolicBuffer.Read(collectionFactory, symbolicOffset, size).GetInteger(Context);
+
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForShiftLeft(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForShiftLeft(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.ShiftLeft(constantRight);
-            var symbolic = symbolicLeft.ShiftLeft(symbolicRight);
+            var constant = constantLeft.ShiftLeft(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.ShiftLeft(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSignedDivide(
-            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
-        {
-            if (constantRight.Integer == 0)
-                return;
-
-            var constant = constantLeft.SignedDivide(constantRight);
-            var symbolic = symbolicLeft.SignedDivide(symbolicRight);
-
-            constant.Should().BeEquivalentTo(symbolic);
-        }
-
-        [Theory]
-        [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSignedGreater(
-            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
-        {
-            var constant = constantLeft.SignedGreater(constantRight);
-            var symbolic = symbolicLeft.SignedGreater(symbolicRight);
-
-            constant.Should().BeEquivalentTo(symbolic);
-        }
-
-        [Theory]
-        [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSignedGreaterOrEqual(
-            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
-        {
-            var constant = constantLeft.SignedGreaterOrEqual(constantRight);
-            var symbolic = symbolicLeft.SignedGreaterOrEqual(symbolicRight);
-
-            constant.Should().BeEquivalentTo(symbolic);
-        }
-
-        [Theory]
-        [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSignedLess(
-            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
-        {
-            var constant = constantLeft.SignedLess(constantRight);
-            var symbolic = symbolicLeft.SignedLess(symbolicRight);
-
-            constant.Should().BeEquivalentTo(symbolic);
-        }
-
-        [Theory]
-        [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSignedLessOrEqual(
-            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
-        {
-            var constant = constantLeft.SignedLessOrEqual(constantRight);
-            var symbolic = symbolicLeft.SignedLessOrEqual(symbolicRight);
-
-            constant.Should().BeEquivalentTo(symbolic);
-        }
-
-        [Theory]
-        [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSignedRemainder(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedDivide(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
             if (constantRight.Integer == 0)
                 return;
 
-            var constant = constantLeft.SignedRemainder(constantRight);
-            var symbolic = symbolicLeft.SignedRemainder(symbolicRight);
+            var constant = constantLeft.SignedDivide(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.SignedDivide(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
+        }
+
+        [Theory]
+        [ClassData(typeof(BinaryTestData))]
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedGreater(
+            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
+            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+        {
+            var constant = constantLeft.SignedGreater(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.SignedGreater(symbolicRight).GetInteger(Context);
+
+            constant.Should().Be(symbolic);
+        }
+
+        [Theory]
+        [ClassData(typeof(BinaryTestData))]
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedGreaterOrEqual(
+            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
+            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+        {
+            var constant = constantLeft.SignedGreaterOrEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.SignedGreaterOrEqual(symbolicRight).GetInteger(Context);
+
+            constant.Should().Be(symbolic);
+        }
+
+        [Theory]
+        [ClassData(typeof(BinaryTestData))]
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedLess(
+            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
+            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+        {
+            var constant = constantLeft.SignedLess(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.SignedLess(symbolicRight).GetInteger(Context);
+
+            constant.Should().Be(symbolic);
+        }
+
+        [Theory]
+        [ClassData(typeof(BinaryTestData))]
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedLessOrEqual(
+            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
+            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+        {
+            var constant = constantLeft.SignedLessOrEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.SignedLessOrEqual(symbolicRight).GetInteger(Context);
+
+            constant.Should().Be(symbolic);
+        }
+
+        [Theory]
+        [ClassData(typeof(BinaryTestData))]
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedRemainder(
+            ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
+            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+        {
+            if (constantRight.Integer == 0)
+                return;
+
+            var constant = constantLeft.SignedRemainder(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.SignedRemainder(symbolicRight).GetInteger(Context);
+
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(ToFloatTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSignedToFloat(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedToFloat(Bits size,
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.SignedToFloat(size);
-            var symbolic = symbolicExpression.SignedToFloat(size);
+            var constant = constantExpression.SignedToFloat(size).GetInteger(Context);
+            var symbolic = symbolicExpression.SignedToFloat(size).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(ExtendTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSignExtend(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignExtend(Bits size,
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.SignExtend(size);
-            var symbolic = symbolicExpression.SignExtend(size);
+            var constant = constantExpression.SignExtend(size).GetInteger(Context);
+            var symbolic = symbolicExpression.SignExtend(size).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForSubtract(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForSubtract(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Subtract(constantRight);
-            var symbolic = symbolicLeft.Subtract(symbolicRight);
+            var constant = constantLeft.Subtract(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.Subtract(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(TruncateTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForTruncate(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForTruncate(Bits size,
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.Truncate(size);
-            var symbolic = symbolicExpression.Truncate(size);
+            var constant = constantExpression.Truncate(size).GetInteger(Context);
+            var symbolic = symbolicExpression.Truncate(size).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForUnsignedDivide(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedDivide(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
             if (constantRight.Integer == 0)
                 return;
 
-            var constant = constantLeft.UnsignedDivide(constantRight);
-            var symbolic = symbolicLeft.UnsignedDivide(symbolicRight);
+            var constant = constantLeft.UnsignedDivide(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.UnsignedDivide(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForUnsignedGreater(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedGreater(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.UnsignedGreater(constantRight);
-            var symbolic = symbolicLeft.UnsignedGreater(symbolicRight);
+            var constant = constantLeft.UnsignedGreater(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.UnsignedGreater(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForUnsignedGreaterOrEqual(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedGreaterOrEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.UnsignedGreaterOrEqual(constantRight);
-            var symbolic = symbolicLeft.UnsignedGreaterOrEqual(symbolicRight);
+            var constant = constantLeft.UnsignedGreaterOrEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.UnsignedGreaterOrEqual(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForUnsignedLess(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedLess(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.UnsignedLess(constantRight);
-            var symbolic = symbolicLeft.UnsignedLess(symbolicRight);
+            var constant = constantLeft.UnsignedLess(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.UnsignedLess(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForUnsignedLessOrEqual(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedLessOrEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.UnsignedLessOrEqual(constantRight);
-            var symbolic = symbolicLeft.UnsignedLessOrEqual(symbolicRight);
+            var constant = constantLeft.UnsignedLessOrEqual(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.UnsignedLessOrEqual(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForUnsignedRemainder(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedRemainder(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
             if (constantRight.Integer == 0)
                 return;
 
-            var constant = constantLeft.UnsignedRemainder(constantRight);
-            var symbolic = symbolicLeft.UnsignedRemainder(symbolicRight);
+            var constant = constantLeft.UnsignedRemainder(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.UnsignedRemainder(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(ToFloatTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForUnsignedToFloat(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedToFloat(Bits size,
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.UnsignedToFloat(size);
-            var symbolic = symbolicExpression.UnsignedToFloat(size);
+            var constant = constantExpression.UnsignedToFloat(size).GetInteger(Context);
+            var symbolic = symbolicExpression.UnsignedToFloat(size).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(WriteTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForWrite(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForWrite(
             ConstantUnsigned constantBuffer, ConstantUnsigned constantOffset, ConstantUnsigned constantValue,
             SymbolicBitVector symbolicBuffer, SymbolicBitVector symbolicOffset, SymbolicBitVector symbolicValue)
         {
-            var constant = constantBuffer.Write(new CollectionFactory(), constantOffset, constantValue);
-            var symbolic = symbolicBuffer.Write(new CollectionFactory(), symbolicOffset, symbolicValue);
+            var collectionFactory = new CollectionFactory();
 
-            constant.Should().BeEquivalentTo(symbolic);
+            var constant = constantBuffer.Write(collectionFactory, constantOffset, constantValue).GetInteger(Context);
+            var symbolic = symbolicBuffer.Write(collectionFactory, symbolicOffset, symbolicValue).GetInteger(Context);
+
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForXor(
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForXor(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Xor(constantRight);
-            var symbolic = symbolicLeft.Xor(symbolicRight);
+            var constant = constantLeft.Xor(constantRight).GetInteger(Context);
+            var symbolic = symbolicLeft.Xor(symbolicRight).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         [Theory]
         [ClassData(typeof(ExtendTestData))]
-        private void ShouldCreateEquivalentConstantAndSymbolicExpressionsForZeroExtend(Bits size,
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForZeroExtend(Bits size,
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.ZeroExtend(size);
-            var symbolic = symbolicExpression.ZeroExtend(size);
+            var constant = constantExpression.ZeroExtend(size).GetInteger(Context);
+            var symbolic = symbolicExpression.ZeroExtend(size).GetInteger(Context);
 
-            constant.Should().BeEquivalentTo(symbolic);
+            constant.Should().Be(symbolic);
         }
 
         private sealed class UnaryTestData : TheoryData<

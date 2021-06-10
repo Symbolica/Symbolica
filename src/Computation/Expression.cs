@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
@@ -11,6 +12,7 @@ namespace Symbolica.Computation
     {
         private readonly ICollectionFactory _collectionFactory;
         private readonly SymbolicBool[]? _constraints;
+        private readonly Lazy<BigInteger> _integer;
         private readonly IValue _value;
 
         private Expression(ICollectionFactory collectionFactory,
@@ -19,10 +21,11 @@ namespace Symbolica.Computation
             _collectionFactory = collectionFactory;
             _value = value;
             _constraints = constraints;
+            _integer = new Lazy<BigInteger>(ComputeInteger);
         }
 
         public Bits Size => _value.Size;
-        public BigInteger Integer => _value.Integer;
+        public BigInteger Integer => _integer.Value;
 
         public IExpression GetValue(ISpace space)
         {
@@ -288,6 +291,12 @@ namespace Symbolica.Computation
             return size > Size
                 ? Create(c => c.ZeroExtend(size))
                 : this;
+        }
+
+        private BigInteger ComputeInteger()
+        {
+            using var context = new Context();
+            return _value.GetInteger(context);
         }
 
         public static IExpression Create(ICollectionFactory collectionFactory,

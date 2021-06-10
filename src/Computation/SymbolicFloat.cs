@@ -9,17 +9,23 @@ namespace Symbolica.Computation
     internal sealed class SymbolicFloat : IValue
     {
         private readonly Func<Context, FPExpr> _func;
-        private readonly Lazy<BigInteger> _integer;
 
         public SymbolicFloat(Bits size, Func<Context, FPExpr> func)
         {
             Size = size;
             _func = func;
-            _integer = new Lazy<BigInteger>(ComputeInteger);
         }
 
         public Bits Size { get; }
-        public BigInteger Integer => _integer.Value;
+
+        public BigInteger GetInteger(Context context)
+        {
+            var expr = _func(context).Simplify();
+
+            return expr.IsFPNaN
+                ? GetNan(context)
+                : ToSymbolicBitVector().GetInteger(context);
+        }
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)
         {
@@ -329,17 +335,7 @@ namespace Symbolica.Computation
             return new SymbolicFloat(Size, c => func(c, _func(c), other.ToSymbolicFloat()._func(c)));
         }
 
-        private BigInteger ComputeInteger()
-        {
-            using var context = new Context();
-            var expr = _func(context).Simplify();
-
-            return expr.IsFPNaN
-                ? ComputeNan(context)
-                : ToSymbolicBitVector().Integer;
-        }
-
-        private BigInteger ComputeNan(Context context)
+        private BigInteger GetNan(Context context)
         {
             var sort = Sort(context, Size);
             var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);

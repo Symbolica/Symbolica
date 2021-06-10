@@ -16,7 +16,10 @@ namespace Symbolica.Computation
             _value = value;
         }
 
-        public override BigInteger Integer => _value ? BigInteger.One : BigInteger.Zero;
+        public override BigInteger GetInteger(Context context)
+        {
+            return ToConstantUnsigned().Integer;
+        }
 
         public override IProposition GetProposition(IPersistentSpace space, SymbolicBool[] constraints)
         {
@@ -205,12 +208,12 @@ namespace Symbolica.Computation
 
         public override ConstantUnsigned ToConstantUnsigned()
         {
-            return ConstantUnsigned.Create(Size, Integer);
+            return ConstantUnsigned.Create(Size, _value ? BigInteger.One : BigInteger.Zero);
         }
 
         public override ConstantSigned ToConstantSigned()
         {
-            return ConstantSigned.Create(Size, Integer);
+            return ToConstantUnsigned().ToConstantSigned();
         }
 
         public override ConstantBool ToConstantBool()
