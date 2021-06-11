@@ -18,7 +18,7 @@ namespace Symbolica.Computation
 
         public BigInteger GetInteger(Context context)
         {
-            return ToConstantUnsigned().Integer;
+            return Integer;
         }
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)
