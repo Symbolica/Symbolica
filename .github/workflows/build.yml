@@ -10,7 +10,6 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         include:
         - os: ubuntu-20.04
@@ -35,12 +34,8 @@ jobs:
     - name: Run GitVersion
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0.9.9
-    - name: Nuke the local NuGet package cache
-      run: dotnet nuget locals all -c
-      shell: bash
-    - name: Add GitHub NuGet Feed
-      run: dotnet nuget add source --name z3-prerelease "https://www.myget.org/F/z3-symbolica-test/api/v3/index.json"
-      shell: bash
+    - name: Add Test NuGet Feed
+      run: dotnet nuget add source --name symbolica-test "https://www.myget.org/F/symbolica-test/api/v3/index.json"
     - name: Build
       run: |
         version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
@@ -48,7 +43,7 @@ jobs:
         then
             version=${version}-${{ steps.gitversion.outputs.shortSha }}
         fi
-        dotnet build -c Release -p:Version=${version} --no-cache
+        dotnet build -c Release -p:Version=${version}
       shell: bash
     - name: Test
       run: dotnet test -c Release --no-build
