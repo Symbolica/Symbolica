@@ -9,17 +9,23 @@ namespace Symbolica.Computation
     internal sealed class SymbolicBitVector : IValue
     {
         private readonly Func<Context, BitVecExpr> _func;
-        private readonly Lazy<BigInteger> _integer;
 
         public SymbolicBitVector(Bits size, Func<Context, BitVecExpr> func)
         {
             Size = size;
             _func = func;
-            _integer = new Lazy<BigInteger>(ComputeInteger);
         }
 
         public Bits Size { get; }
-        public BigInteger Integer => _integer.Value;
+
+        public BigInteger GetInteger(Context context)
+        {
+            var expr = _func(context).Simplify();
+
+            return expr.IsNumeral
+                ? ((BitVecNum) expr).BigInteger
+                : throw new Exception("The bit-vector cannot be simplified to a constant.");
+        }
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)
         {
@@ -323,16 +329,6 @@ namespace Symbolica.Computation
         private IValue Create(IValue other, Func<Context, BitVecExpr, BitVecExpr, BoolExpr> func)
         {
             return new SymbolicBool(c => func(c, _func(c), other.ToSymbolicBitVector()._func(c)));
-        }
-
-        private BigInteger ComputeInteger()
-        {
-            using var context = new Context();
-            var expr = _func(context).Simplify();
-
-            return expr.IsNumeral
-                ? ((BitVecNum) expr).BigInteger
-                : throw new Exception("The bit-vector cannot be simplified to a constant.");
         }
     }
 }
