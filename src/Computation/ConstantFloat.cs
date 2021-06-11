@@ -14,6 +14,7 @@ namespace Symbolica.Computation
         }
 
         public Bits Size { get; }
+        public BigInteger Integer => ToConstantUnsigned().Integer;
 
         public BigInteger GetInteger(Context context)
         {

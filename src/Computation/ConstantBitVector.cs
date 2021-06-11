@@ -17,10 +17,7 @@ namespace Symbolica.Computation
             _value = value;
         }
 
-        public override BigInteger GetInteger(Context context)
-        {
-            return ToConstantUnsigned().Integer;
-        }
+        public override BigInteger Integer => ToConstantUnsigned().Integer;
 
         public override IProposition GetProposition(IPersistentSpace space, SymbolicBool[] constraints)
         {

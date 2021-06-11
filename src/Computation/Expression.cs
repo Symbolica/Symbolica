@@ -21,7 +21,7 @@ namespace Symbolica.Computation
             _collectionFactory = collectionFactory;
             _value = value;
             _constraints = constraints;
-            _integer = new Lazy<BigInteger>(ComputeInteger);
+            _integer = new Lazy<BigInteger>(AsInteger);
         }
 
         public Bits Size => _value.Size;
@@ -291,6 +291,13 @@ namespace Symbolica.Computation
             return size > Size
                 ? Create(c => c.ZeroExtend(size))
                 : this;
+        }
+
+        private BigInteger AsInteger()
+        {
+            return _value is IConstantValue c
+                ? c.Integer
+                : ComputeInteger();
         }
 
         private BigInteger ComputeInteger()
