@@ -9,8 +9,8 @@ namespace Symbolica.Computation
     internal interface IValue
     {
         Bits Size { get; }
-        BigInteger Integer { get; }
 
+        BigInteger GetInteger(Context context);
         IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints);
         IProposition GetProposition(IPersistentSpace space, SymbolicBool[] constraints);
         IValue Add(IValue value);

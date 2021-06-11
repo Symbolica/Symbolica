@@ -11,16 +11,24 @@ namespace Symbolica.Computation
     internal sealed class SymbolicBool : IValue
     {
         private readonly Func<Context, BoolExpr> _func;
-        private readonly Lazy<BigInteger> _integer;
 
         public SymbolicBool(Func<Context, BoolExpr> func)
         {
             _func = func;
-            _integer = new Lazy<BigInteger>(ComputeInteger);
         }
 
         public Bits Size => Bits.One;
-        public BigInteger Integer => _integer.Value;
+
+        public BigInteger GetInteger(Context context)
+        {
+            var expr = _func(context).Simplify();
+
+            return expr.IsFalse != expr.IsTrue
+                ? expr.IsTrue
+                    ? BigInteger.One
+                    : BigInteger.Zero
+                : throw new Exception("The boolean cannot be simplified to a constant.");
+        }
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)
         {
@@ -317,18 +325,6 @@ namespace Symbolica.Computation
         private IValue Create(IValue other, Func<Context, BoolExpr, BoolExpr, BoolExpr> func)
         {
             return new SymbolicBool(c => func(c, _func(c), other.ToSymbolicBool()._func(c)));
-        }
-
-        private BigInteger ComputeInteger()
-        {
-            using var context = new Context();
-            var expr = _func(context).Simplify();
-
-            return expr.IsFalse != expr.IsTrue
-                ? expr.IsTrue
-                    ? BigInteger.One
-                    : BigInteger.Zero
-                : throw new Exception("The boolean cannot be simplified to a constant.");
         }
 
         public bool IsSatisfiable(IModel model)

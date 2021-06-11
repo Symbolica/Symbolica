@@ -16,6 +16,11 @@ namespace Symbolica.Computation
         public Bits Size { get; }
         public BigInteger Integer => ToConstantUnsigned().Integer;
 
+        public BigInteger GetInteger(Context context)
+        {
+            return Integer;
+        }
+
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)
         {
             return this;
