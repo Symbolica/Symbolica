@@ -297,10 +297,10 @@ namespace Symbolica.Computation
         {
             return _value is IConstantValue c
                 ? c.Integer
-                : ComputeInteger();
+                : GetInteger();
         }
 
-        private BigInteger ComputeInteger()
+        private BigInteger GetInteger()
         {
             using var context = new Context();
             return _value.GetInteger(context);
