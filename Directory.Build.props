@@ -7,6 +7,7 @@
     <IncludeSymbols>True</IncludeSymbols>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
+    <PackageIcon>Icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/SymbolicaDev/Symbolica</PackageProjectUrl>
     <PackageTags>Symbolica;Symbolic;Execution</PackageTags>
@@ -16,13 +17,14 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="True" PackagePath="" Visible="False" />
+    <None Include="$(MSBuildThisFileDirectory)Icon.png" Pack="True" PackagePath="" Visible="False" />
   </ItemGroup>
 
   <ItemGroup>
