@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: ubuntu-20.04
+        - os: ubuntu-18.04
           nugetPush: true
         - os: windows-2019
           nugetPush: false
@@ -34,8 +34,6 @@ jobs:
     - name: Run GitVersion
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0.9.9
-    - name: Add Test NuGet Feed
-      run: dotnet nuget add source --name symbolica-test "https://www.myget.org/F/symbolica-test/api/v3/index.json"
     - name: Build
       run: |
         version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
@@ -57,7 +55,7 @@ jobs:
           **/*.snupkg
         retention-days: 1
   nuget-push:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     needs: [build]
     steps:
     - name: Download NuGet Packages
