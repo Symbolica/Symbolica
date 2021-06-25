@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Z3.x64" Version="4.8.10" />
+    <PackageReference Include="Symbolica.Z3" Version="0.1.0-master0001" />
   </ItemGroup>
 
 </Project>
