@@ -24,6 +24,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Setup WSL distribution
+      if: runner.os == 'Windows'
       run: |
         Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile Ubuntu.zip -UseBasicParsing
         Expand-Archive .\Ubuntu.zip .\Ubuntu
