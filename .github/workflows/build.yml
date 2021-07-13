@@ -23,6 +23,11 @@ jobs:
       uses: actions/checkout@master
       with:
         fetch-depth: 0
+    - name: Setup WSL distribution
+      run: |
+        Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile Ubuntu.zip -UseBasicParsing
+        Expand-Archive .\Ubuntu.zip .\Ubuntu
+        & .\Ubuntu\ubuntu.exe
     - name: Setup dotnet SDK
       uses: actions/setup-dotnet@v1
       with:
