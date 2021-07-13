@@ -31,7 +31,7 @@ jobs:
       shell: powershell
     - name: Test WSL distribution
       if: runner.os == 'Windows'
-      run: wsl apt-get update
+      run: wsl --list --all
       shell: bash
     - name: Setup dotnet SDK
       uses: actions/setup-dotnet@v1
