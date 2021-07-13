@@ -26,9 +26,9 @@ jobs:
     - name: Setup WSL distribution
       if: runner.os == 'Windows'
       run: |
-        Import-Module Appx
         Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile Ubuntu.appx -UseBasicParsing
         Add-AppxPackage Ubuntu.appx
+      shell: powershell
     - name: Test WSL distribution
       if: runner.os == 'Windows'
       run: wsl apt-get update
