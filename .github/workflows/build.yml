@@ -28,7 +28,7 @@ jobs:
       run: |
         Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile Ubuntu.zip -UseBasicParsing
         Expand-Archive .\Ubuntu.zip .\Ubuntu
-        & .\Ubuntu\ubuntu.exe
+        Start-Process -FilePath ".\Ubuntu\ubuntu.exe"
     - name: Setup dotnet SDK
       uses: actions/setup-dotnet@v1
       with:
