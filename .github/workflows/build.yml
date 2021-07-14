@@ -26,13 +26,12 @@ jobs:
     - name: Setup WSL distribution
       if: runner.os == 'Windows'
       run: |
-        Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile Ubuntu.appx -UseBasicParsing
-        Add-AppxPackage Ubuntu.appx
-      shell: powershell
+        Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile ubuntu.zip
+        Expand-Archive ubuntu.zip
+        .\ubuntu\ubuntu1804.exe install --root
     - name: Test WSL distribution
       if: runner.os == 'Windows'
-      run: wsl --list --all
-      shell: bash
+      run: wsl apt-get update
     - name: Setup dotnet SDK
       uses: actions/setup-dotnet@v1
       with:
