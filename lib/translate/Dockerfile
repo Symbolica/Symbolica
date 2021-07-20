@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR ~/.symbolica/translate
-COPY dis.sh dis ./
+COPY . .
 RUN ./dis.sh
 
 FROM llvm-base as runtime
@@ -26,7 +26,7 @@ RUN apt-get update && \
 
 WORKDIR ~/.symbolica/translate
 COPY --from=runtime-builder ~/.symbolica/translate/dis/dis dis/dis
-COPY translate ./
+COPY translate .
 
 WORKDIR /code
 ENTRYPOINT [ "~/.symbolica/translate/translate" ]
