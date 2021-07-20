@@ -105,10 +105,10 @@ namespace Symbolica.Representation
                 {"__get_tp", (id, parameters) => new GetThreadAddress(id, parameters)}
             };
 
-        public static IEnumerable<string> Patterns => Specials.Keys
+        public static string Pattern => string.Join('|', Specials.Keys
             .Concat(Internals.Keys)
             .Concat(Internals.Keys.Select(s => $@"{s}\.[0-9]+"))
-            .Select(s => $"^{s}$");
+            .Select(s => $"^{s}$"));
 
         public static IFunction Map(FunctionId id, string name, IParameters parameters)
         {

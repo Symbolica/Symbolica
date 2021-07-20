@@ -9,28 +9,24 @@ RUN apt-get update && \
     apt-get autoremove --purge -y
 
 FROM llvm-base as runtime-builder
-
 RUN apt-get update && \
     apt-get install -y clang-8 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY dis /lib/symbolica/dis
-RUN clang++-8 /lib/symbolica/dis/main.cpp -o /usr/bin/dis `llvm-config-8 --cxxflags --libs irreader support`
+WORKDIR ~/.symbolica/translate
+COPY dis.sh dis .
+RUN ./dis.sh
 
 FROM llvm-base as runtime
-
 RUN apt-get update && \
     apt-get install -y llvm-8 && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    echo '#!/bin/bash \n$(which llvm-extract-8) "$@"' > /usr/bin/llvm-extract && \
-    chmod a+x /usr/bin/llvm-extract && \
-    echo '#!/bin/bash \n$(which opt-8) "$@"' > /usr/bin/opt && \
-    chmod a+x /usr/bin/opt
+    rm -rf /var/lib/apt/lists/*
 
-COPY --from=runtime-builder /usr/bin/dis /usr/bin/dis
-COPY translate.sh /lib/symbolica/
+WORKDIR ~/.symbolica/translate
+COPY --from=runtime-builder ~/.symbolica/translate/dis/dis dis/dis
+COPY translate .
 
 WORKDIR /code
-ENTRYPOINT [ "/lib/symbolica/translate.sh" ]
+ENTRYPOINT [ "~/.symbolica/translate/translate" ]

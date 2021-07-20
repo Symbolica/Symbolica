@@ -1,3 +1,5 @@
+symbolica.json
+*.bc
 *.user
 .idea/
 bin/

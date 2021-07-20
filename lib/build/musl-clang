@@ -1,5 +1,0 @@
-#!/bin/bash
-set -e
-
-XLINKER="-Xlinker -lc -Xlinker -nostdlib -Xlinker -static" \
-exec cc -nostdinc -nodefaultlibs --sysroot /install -isystem /install/include -O0 -Xclang -disable-O0-optnone -fPIC "$@"
