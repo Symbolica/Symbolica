@@ -7,15 +7,11 @@ on:
     - "*"
   pull_request:
 jobs:
-  publish-images:
+  calculate-version:
     runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        include:
-        - imageName: build
-          dockerContext: lib/build
-        - imageName: translate
-          dockerContext: lib/translate
+    outputs:
+      nuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      shortSha: ${{ steps.gitversion.outputs.shortSha }}
     steps:
     - name: Checkout code
       uses: actions/checkout@master
@@ -28,6 +24,21 @@ jobs:
     - name: Run GitVersion
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0.9.9
+  publish-images:
+    runs-on: ubuntu-18.04
+    needs: [calculate-version]
+    strategy:
+      matrix:
+        include:
+        - imageName: build
+          dockerContext: lib/build
+        - imageName: translate
+          dockerContext: lib/translate
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+      with:
+        fetch-depth: 0
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
@@ -51,7 +62,7 @@ jobs:
         context: ${{ matrix.dockerContext }}
         builder: ${{ steps.buildx.outputs.name }}
         push: true
-        tags: symbolica/${{ matrix.imageName }}:${{ steps.gitversion.outputs.nuGetVersionV2 }}
+        tags: symbolica/${{ matrix.imageName }}:${{ needs.calculate-version.outputs.nuGetVersionV2 }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache
   build-application:
@@ -61,6 +72,7 @@ jobs:
       matrix:
         include:
         - os: ubuntu-18.04
+          setupEnv: echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: true
         - os: ubuntu-18.04
           setupEnv: ./lib/install-deps.sh && ./lib/install-local.sh
@@ -69,6 +81,7 @@ jobs:
           setupEnv: .\lib\Setup-WSL.ps1 && wsl ./lib/install-deps.sh && wsl ./lib/install-local.sh
           nugetPush: false
         - os: macos-10.15
+          setupEnv: echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: false
     steps:
     - name: Checkout code
@@ -79,22 +92,14 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: "5.0.300"
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.9
-      with:
-        versionSpec: "5.6.9"
-    - name: Run GitVersion
-      id: gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.9
     - name: Setup Environment
       run: ${{ matrix.setupEnv }}
-      if: ${{ matrix.setupEnv }}
     - name: Build
       run: |
-        version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+        version=${{ needs.calculate-version.outputs.nuGetVersionV2 }}
         if [ "${{ github.event_name }}" == "pull_request" ]
         then
-            version=${version}-${{ steps.gitversion.outputs.shortSha }}
+            version=${version}-${{ needs.calculate-version.outputs.shortSha }}
         fi
         dotnet build -c Release -p:Version=${version}
       shell: bash
