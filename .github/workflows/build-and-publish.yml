@@ -61,7 +61,6 @@ jobs:
       matrix:
         include:
         - os: ubuntu-18.04
-          setupEnv: echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ steps.gitversion.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ steps.gitversion.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: true
         - os: ubuntu-18.04
           setupEnv: ./lib/install-deps.sh && ./lib/install-local.sh
@@ -70,7 +69,6 @@ jobs:
           setupEnv: .\lib\Setup-WSL.ps1 && wsl ./lib/install-deps.sh && wsl ./lib/install-local.sh
           nugetPush: false
         - os: macos-10.15
-          setupEnv: echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ steps.gitversion.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ steps.gitversion.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: false
     steps:
     - name: Checkout code
@@ -90,6 +88,7 @@ jobs:
       uses: gittools/actions/gitversion/execute@v0.9.9
     - name: Setup Environment
       run: ${{ matrix.setupEnv }}
+      if: ${{ matrix.setupEnv }}
     - name: Build
       run: |
         version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
