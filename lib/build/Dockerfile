@@ -9,7 +9,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR ~/.symbolica/build
+WORKDIR $HOME/.symbolica/build
 COPY . .
 RUN ./musl.sh
 
