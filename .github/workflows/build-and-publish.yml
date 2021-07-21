@@ -75,7 +75,7 @@ jobs:
           setupEnv: echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: true
         - os: ubuntu-18.04
-          setupEnv: ./lib/install-deps.sh && ./lib/install-local.sh
+          setupEnv: sudo ./lib/install-deps.sh && ./lib/install-local.sh
           nugetPush: false
         - os: windows-2019
           setupEnv: .\lib\Setup-WSL.ps1 && wsl ./lib/install-deps.sh && wsl ./lib/install-local.sh
