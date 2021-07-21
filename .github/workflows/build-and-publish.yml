@@ -81,7 +81,7 @@ jobs:
           setupEnv: .\lib\Setup-WSL.ps1 && wsl ./lib/install-deps.sh && wsl ./lib/install-local.sh
           nugetPush: false
         - os: macos-10.15
-          setupEnv: curl -O https://download.docker.com/mac/stable/Docker.dmg > ./Docker.dmg && hdiutil attach Docker.dmg && cp -R /Volumes/Docker/Docker.app /Applications && hdiutil detach /Volumes/Docker && open /Applications/Docker.app && echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
+          setupEnv: curl -O https://download.docker.com/mac/stable/Docker.dmg > ./Docker.dmg && hdiutil mount Docker.dmg && cp -R /Volumes/Docker/Docker.app /Applications && hdiutil unmount /Volumes/Docker && open /Applications/Docker.app && echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: false
     steps:
     - name: Checkout code
