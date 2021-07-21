@@ -2,13 +2,12 @@
 set -e
 
 rm -rf ~/.symbolica
-mkdir ~/.symbolica
 
-cp -r lib/build ~/.symbolica/build
 cp -r lib/translate ~/.symbolica
-
-cd ~/.symbolica/build
-./musl.sh
+cp -r lib/build ~/.symbolica/build
 
 cd ~/.symbolica
 ./dis.sh
+
+cd ~/.symbolica/build
+./musl.sh
