@@ -5,10 +5,9 @@ rm -rf ~/.symbolica
 mkdir ~/.symbolica
 
 cp -r lib/build ~/.symbolica/build
-cp -r lib/translate ~/.symbolica/translate
-
 cd ~/.symbolica/build
 ./musl.sh
 
-cd ~/.symbolica/translate
+cp -r lib/translate ~/.symbolica
+cd ~/.symbolica
 ./dis.sh

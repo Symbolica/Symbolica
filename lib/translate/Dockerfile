@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ENV HOME /home/me
-WORKDIR $HOME/.symbolica/translate
+WORKDIR $HOME/.symbolica
 COPY . .
 RUN ./dis.sh
 
@@ -26,9 +26,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ENV HOME /home/me
-WORKDIR $HOME/.symbolica/translate
-COPY --from=runtime-builder $HOME/.symbolica/translate/dis/dis dis/dis
-COPY translate .
+WORKDIR $HOME/.symbolica
+COPY --from=runtime-builder $HOME/.symbolica/dis/dis dis/dis
+COPY translate /.symbolica/
 
 WORKDIR /code
-ENTRYPOINT [ "$HOME/.symbolica/translate/translate" ]
+ENTRYPOINT [ "/.symbolica/translate" ]

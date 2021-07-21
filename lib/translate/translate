@@ -3,4 +3,4 @@ set -e
 
 llvm-extract-8 -delete -ralias "$1" -rfunc "$1" symbolica.bc |
 opt-8 -disable-loop-vectorization -strip-debug -loweratomic -Oz -scalarizer |
-~/.symbolica/translate/dis/dis > symbolica.json
+~/.symbolica/dis/dis > symbolica.json
