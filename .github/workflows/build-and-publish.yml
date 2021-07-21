@@ -77,9 +77,6 @@ jobs:
         - os: ubuntu-18.04
           setupEnv: sudo ./lib/install-deps.sh && ./lib/install-local.sh
           nugetPush: false
-        - os: windows-2019
-          setupEnv: .\lib\Setup-WSL.ps1 && wsl ./lib/install-deps.sh && wsl ./lib/install-local.sh
-          nugetPush: false
     steps:
     - name: Checkout code
       uses: actions/checkout@master
