@@ -67,7 +67,7 @@ jobs:
         cache-to: type=local,dest=/tmp/.buildx-cache
   build-application:
     runs-on: ${{ matrix.os }}
-    needs: [publish-images]
+    needs: [calculate-version, publish-images]
     strategy:
       matrix:
         include:
