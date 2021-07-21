@@ -14,6 +14,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+ENV HOME /home/me
 WORKDIR $HOME/.symbolica/translate
 COPY . .
 RUN ./dis.sh
@@ -24,6 +25,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+ENV HOME /home/me
 WORKDIR $HOME/.symbolica/translate
 COPY --from=runtime-builder $HOME/.symbolica/translate/dis/dis dis/dis
 COPY translate .
