@@ -1,4 +1,4 @@
-brew install docker docker-compose
+brew install docker
 curl -O -sSL https://download.docker.com/mac/stable/31259/Docker.dmg
 open -W Docker.dmg
 cp -r /Volumes/Docker/Docker.app /Applications
