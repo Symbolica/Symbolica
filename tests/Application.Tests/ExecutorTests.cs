@@ -53,16 +53,10 @@ namespace Symbolica.Application
             protected TestData(string status)
             {
                 foreach (var directory in Directory.EnumerateDirectories(Path.Combine("..", "..", "..", "..", status)))
-                {
-                    Add(directory, false, false, false);
-                    Add(directory, false, false, true);
-                    Add(directory, false, true, false);
-                    Add(directory, false, true, true);
-                    Add(directory, true, false, false);
-                    Add(directory, true, false, true);
-                    Add(directory, true, true, false);
-                    Add(directory, true, true, true);
-                }
+                foreach (var useSymbolicGarbage in new[] {false, true})
+                foreach (var useSymbolicAddresses in new[] {false, true})
+                foreach (var useSymbolicContinuations in new[] {false, true})
+                    Add(directory, useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations);
             }
         }
     }
