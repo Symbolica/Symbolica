@@ -34,16 +34,32 @@
 
 ## Docker Images
 
-Note, we don't publish a `latest` tag because we prefer to use SemVer instead, even if Docker doesn't natively support it.
-Our stable images will be tagged according to the tags in this repository and the versions are aligned with the NuGet package versions.
-If you're using the docker images in conjunction with the NuGet packages it is best to make sure you're using a tag for the docker images that matches the NuGet package version you're using.
-
 ### symbolica/build
+
+```sh
+docker build lib/build -t symbolica/build:latest
+```
+
+```sh
+docker run -v <path-to-user-code>:/code symbolica/build:latest
+```
 
 [![Docker Image Version (latest semver)](https://img.shields.io/docker/v/symbolica/build?sort=semver&logo=Docker)](https://hub.docker.com/repository/docker/symbolica/build)
 [![Docker Pulls](https://img.shields.io/docker/pulls/symbolica/build?logo=Docker&label=pulls)](https://hub.docker.com/repository/docker/symbolica/build)
 
 ### symbolica/translate
 
+```sh
+docker build lib/translate -t symbolica/translate:latest
+```
+
+```sh
+docker run -v <path-to-user-code>:/code symbolica/translate:latest <delete-functions-regular-expr>
+```
+
 [![Docker Image Version (latest semver)](https://img.shields.io/docker/v/symbolica/translate?sort=semver&logo=Docker)](https://hub.docker.com/repository/docker/symbolica/translate)
 [![Docker Pulls](https://img.shields.io/docker/pulls/symbolica/translate?logo=Docker&label=pulls)](https://hub.docker.com/repository/docker/symbolica/translate)
+
+Note, we don't publish a `latest` tag because we prefer to use SemVer instead, even if Docker doesn't natively support it.
+Our stable images will be tagged according to the tags in this repository and the versions are aligned with the NuGet package versions.
+If you're using the docker images in conjunction with the NuGet packages, it's best to make sure you're using a tag for the docker images that matches the NuGet package version you're using.
