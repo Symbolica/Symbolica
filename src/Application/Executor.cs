@@ -27,11 +27,11 @@ namespace Symbolica.Application
 
             await CallExternalProcess(directory, buildImage == null
                 ? "./symbolica.sh"
-                : $"sudo docker run -v $(pwd):/code {buildImage}");
+                : $"docker run -v $(pwd):/code {buildImage}");
 
             await CallExternalProcess(directory, translateImage == null
                 ? $"~/.symbolica/translate \"{DeclarationMapper.Pattern}\""
-                : $"sudo docker run -v $(pwd):/code {translateImage} \"{DeclarationMapper.Pattern}\"");
+                : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationMapper.Pattern}\"");
 
             await using var stream = File.OpenRead(Path.Combine(directory, "symbolica.json"));
 
