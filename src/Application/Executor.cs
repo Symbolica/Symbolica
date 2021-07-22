@@ -20,8 +20,8 @@ namespace Symbolica.Application
         public static async Task<Result> Run(string directory,
             bool useSymbolicGarbage, bool useSymbolicAddresses, bool useSymbolicContinuations)
         {
-            var buildImage = Environment.GetEnvironmentVariable("DOCKER_BUILD_IMAGE");
-            var translateImage = Environment.GetEnvironmentVariable("DOCKER_TRANSLATE_IMAGE");
+            var buildImage = Environment.GetEnvironmentVariable("SYMBOLICA_BUILD_IMAGE");
+            var translateImage = Environment.GetEnvironmentVariable("SYMBOLICA_TRANSLATE_IMAGE");
 
             File.Delete(Path.Combine(directory, "symbolica.bc"));
 
