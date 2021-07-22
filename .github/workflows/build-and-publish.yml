@@ -72,16 +72,16 @@ jobs:
       matrix:
         include:
         - os: ubuntu-18.04
-          setupEnv: echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
+          setupScript: echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: true
         - os: ubuntu-18.04
-          setupEnv: sudo ./lib/install-deps.sh && ./lib/install-local.sh
+          setupScript: sudo ./lib/install-deps.sh && ./lib/install-local.sh
           nugetPush: false
         - os: windows-2019
-          setupEnv: .\lib\Setup-WSL.ps1 && wsl ./lib/install-deps.sh && wsl ./lib/install-local.sh
+          setupScript: .\lib\Setup-WSL.ps1 && wsl ./lib/install-deps.sh && wsl ./lib/install-local.sh
           nugetPush: false
         - os: macos-10.15
-          setupEnv: ./lib/setup-mac.sh && echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
+          setupScript: ./lib/setup-mac.sh && echo "DOCKER_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV && echo "DOCKER_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: false
     steps:
     - name: Checkout code
@@ -92,8 +92,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: "5.0.300"
-    - name: Setup Environment
-      run: ${{ matrix.setupEnv }}
+    - name: Setup test environment
+      run: ${{ matrix.setupScript }}
     - name: Build
       run: |
         version=${{ needs.calculate-version.outputs.nuGetVersionV2 }}
