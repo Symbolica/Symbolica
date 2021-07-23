@@ -54,7 +54,7 @@ docker build lib/translate -t symbolica/translate:latest
 ```
 
 ```sh
-docker run -v <path-to-user-code>:/code symbolica/translate:latest <delete-functions-regular-expr>
+docker run -v <path-to-user-code>:/code symbolica/translate:latest <declarations>
 ```
 
 [![Docker Image Version (latest semver)](https://img.shields.io/docker/v/symbolica/translate?sort=semver&logo=Docker)](https://hub.docker.com/repository/docker/symbolica/translate)
