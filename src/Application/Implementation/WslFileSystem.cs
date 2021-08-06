@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using Symbolica.Implementation.System;
 
 namespace Symbolica.Application.Implementation
@@ -20,32 +19,28 @@ namespace Symbolica.Application.Implementation
 
         public IDirectory? GetDirectory(string path)
         {
-            return path == "/mnt"
-                ? new WslMountProxy()
-                : _fileSystem.GetDirectory(ToWindowsPath(path));
+            return _fileSystem.GetDirectory(ToWindowsPath(path));
         }
 
         private static string ToWindowsPath(string path)
         {
-            var split = path.Split('/');
-
-            if (split.Length > 2 && split[0] == "" && split[1] == "mnt" && split[2].Length == 1)
-                split = split.Skip(3).Prepend($"{split[2]}:").ToArray();
-
-            return string.Join('\\', split);
-        }
-
-        private sealed class WslMountProxy : IDirectory
-        {
-            public long LastAccessTime => 0L;
-            public long LastModifiedTime => 0L;
-
-            public string[] GetNames()
+            using var process = new Process
             {
-                return DriveInfo.GetDrives()
-                    .Select(i => i.Name[..1].ToLowerInvariant())
-                    .ToArray();
-            }
+                StartInfo =
+                {
+                    FileName = "wsl",
+                    Arguments = $"wslpath -w {path}",
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                }
+            };
+
+            process.Start();
+            process.WaitForExit();
+
+            return process.StandardOutput.ReadToEnd().Trim();
         }
     }
 }
