@@ -4,13 +4,13 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main" && \
+    add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main" && \
     apt-get remove --purge -y software-properties-common wget && \
     apt-get autoremove --purge -y
 
 FROM llvm-base as runtime-builder
 RUN apt-get update && \
-    apt-get install -y clang-8 && \
+    apt-get install -y clang-12 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -21,7 +21,7 @@ RUN ./dis.sh
 
 FROM llvm-base as runtime
 RUN apt-get update && \
-    apt-get install -y llvm-8 && \
+    apt-get install -y llvm-12 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

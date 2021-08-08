@@ -34,6 +34,8 @@ namespace {
                 return new InstructionDto("CatchReturn", instruction, dataLayout);
             case Instruction::CatchSwitch:
                 return new InstructionDto("CatchSwitch", instruction, dataLayout);
+            case Instruction::CallBr:
+                return new InstructionDto("CallBranch", instruction, dataLayout);
             case Instruction::FNeg:
                 return new InstructionDto("FloatNegate", instruction, dataLayout);
             case Instruction::Add:
@@ -144,6 +146,8 @@ namespace {
                 return new AggregateDto("InsertValue", cast<InsertValueInst>(instruction), dataLayout);
             case Instruction::LandingPad:
                 return new InstructionDto("LandingPad", instruction, dataLayout);
+            case Instruction::Freeze:
+                return new InstructionDto("Freeze", instruction, dataLayout);
             default:
                 return new InstructionDto("Unknown", instruction, dataLayout);
         }

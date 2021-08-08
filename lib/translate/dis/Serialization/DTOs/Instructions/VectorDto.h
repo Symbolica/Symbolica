@@ -25,7 +25,7 @@ namespace {
         explicit VectorDto(const char *type, Instruction *instruction, DataLayout *dataLayout, VectorType *vectorType)
                 : InstructionDto(type, instruction, dataLayout),
                   elementSize(dataLayout->getTypeStoreSizeInBits(vectorType->getElementType())),
-                  elementCount(vectorType->getNumElements()) {}
+                  elementCount(cast<FixedVectorType>(vectorType)->getNumElements()) {}
     };
 }
 

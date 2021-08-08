@@ -24,6 +24,7 @@ namespace Symbolica.Deserialization
                 "CleanupReturn" => new Unsupported(id, dto.Type),
                 "CatchReturn" => new Unsupported(id, dto.Type),
                 "CatchSwitch" => new Unsupported(id, dto.Type),
+                "CallBranch" => new Unsupported(id, dto.Type),
                 "FloatNegate" => new FloatNegate(id, operands),
                 "Add" => new Add(id, operands),
                 "FloatAdd" => new FloatAdd(id, operands),
@@ -79,6 +80,7 @@ namespace Symbolica.Deserialization
                 "ExtractValue" => dto.As<AggregateDto>().ToExtractValue(id, operands),
                 "InsertValue" => dto.As<AggregateDto>().ToInsertValue(id, operands),
                 "LandingPad" => new Unsupported(id, dto.Type),
+                "Freeze" => new Unsupported(id, dto.Type),
                 "Unknown" => throw new Exception("Instruction type is unknown."),
                 _ => throw new Exception($"Instruction type {dto.Type} is unknown.")
             };

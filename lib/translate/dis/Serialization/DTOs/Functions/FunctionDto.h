@@ -15,7 +15,8 @@ namespace {
                   id(getId(function)),
                   name(function->getName()) {
             for (auto &argument : function->args()) {
-                parameters.push_back(new ParameterDto(dataLayout->getTypeStoreSizeInBits(argument.getType())));
+                auto *argumentType = argument.getType();
+                parameters.push_back(new ParameterDto(argumentType->isSized() ? dataLayout->getTypeStoreSizeInBits(argumentType) : 0));
             }
         }
 
