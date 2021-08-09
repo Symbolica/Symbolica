@@ -19,8 +19,10 @@ namespace {
                     indexedType = structType->getTypeAtIndex(indexConstant);
                     constantOffsets.push_back(structLayout->getElementOffset(indexConstant));
                 } else {
-                    if (auto *sequentialType = dyn_cast<SequentialType>(indexedType)) {
-                        indexedType = sequentialType->getTypeAtIndex(index.get());
+                    if (auto *arrayType = dyn_cast<ArrayType>(indexedType)) {
+                        indexedType = arrayType->getElementType();
+                    } else if (auto *vectorType = dyn_cast<VectorType>(indexedType)) {
+                        indexedType = vectorType->getElementType();
                     } else {
                         indexedType = cast<PointerType>(indexedType)->getElementType();
                     }

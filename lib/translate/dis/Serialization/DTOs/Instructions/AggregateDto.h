@@ -32,8 +32,10 @@ namespace {
                     indexedType = structType->getTypeAtIndex(index);
                     constantOffsets.push_back(structLayout->getElementOffsetInBits(index));
                 } else {
-                    if (auto *sequentialType = dyn_cast<SequentialType>(indexedType)) {
-                        indexedType = sequentialType->getTypeAtIndex(index);
+                    if (auto *arrayType = dyn_cast<ArrayType>(indexedType)) {
+                        indexedType = arrayType->getElementType();
+                    } else if (auto *vectorType = dyn_cast<VectorType>(indexedType)) {
+                        indexedType = vectorType->getElementType();
                     }
                     constantOffsets.push_back(index * dataLayout->getTypeStoreSizeInBits(indexedType));
                 }

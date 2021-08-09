@@ -11,8 +11,19 @@ namespace Symbolica.Representation
         private static readonly IReadOnlyDictionary<string, Func<FunctionId, IParameters, IFunction>> Intrinsics =
             new Dictionary<string, Func<FunctionId, IParameters, IFunction>>
             {
+                {"llvm.abs.i32", (id, parameters) => new Absolute(id, parameters)},
+                {"llvm.abs.i64", (id, parameters) => new Absolute(id, parameters)},
                 {"llvm.ceil.f64", (id, parameters) => new Ceiling(id, parameters)},
+                {"llvm.ctpop.i32", (id, parameters) => new CountOnes(id, parameters)},
+                {"llvm.experimental.constrained.ceil.f64", (id, parameters) => new Ceiling(id, parameters)},
+                {"llvm.experimental.constrained.fdiv.f32", (id, parameters) => new FloatDivide(id, parameters)},
+                {"llvm.experimental.constrained.fdiv.f64", (id, parameters) => new FloatDivide(id, parameters)},
+                {"llvm.experimental.constrained.fdiv.f80", (id, parameters) => new FloatDivide(id, parameters)},
+                {"llvm.experimental.constrained.fmul.f64", (id, parameters) => new FloatMultiply(id, parameters)},
+                {"llvm.experimental.constrained.fsub.f64", (id, parameters) => new FloatSubtract(id, parameters)},
+                {"llvm.experimental.constrained.sitofp.f64.i64", (id, parameters) => new SignedToFloat(id, parameters)},
                 {"llvm.floor.f64", (id, parameters) => new Floor(id, parameters)},
+                {"llvm.fshl.i64", (id, parameters) => new FunnelShiftLeft(id, parameters)},
                 {"llvm.memcpy.p0i8.p0i8.i64", (id, parameters) => new MemoryCopy(id, parameters)},
                 {"llvm.memmove.p0i8.p0i8.i64", (id, parameters) => new MemoryMove(id, parameters)},
                 {"llvm.memset.p0i8.i64", (id, parameters) => new MemorySet(id, parameters)},

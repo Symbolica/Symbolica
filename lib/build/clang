@@ -17,9 +17,9 @@ do
 done
 
 if [ -z "$NO_LLVM" ];
-    then clang-8 -emit-llvm -c "$@";
+    then clang-12 -emit-llvm -c "$@";
 fi
 
 if [ -n "$CODEGEN" ];
-    then exec clang-8 $p $xlinker;
+    then exec clang-12 $p $xlinker;
 fi

@@ -30,6 +30,8 @@ namespace {
                 return new BlockLabelDto("BlockAddress", cast<BlockAddress>(operand));
             case Value::ConstantExprVal:
                 return new ConstantExpressionDto("ConstantExpression", cast<ConstantExpr>(operand), dataLayout);
+            case Value::DSOLocalEquivalentVal:
+                return new OperandDto("DsoLocalEquivalent");
             case Value::ConstantArrayVal:
                 return new ConstantSequenceDto("ConstantArray", cast<ConstantArray>(operand), dataLayout);
             case Value::ConstantStructVal:
@@ -38,6 +40,8 @@ namespace {
                 return new ConstantSequenceDto("ConstantVector", cast<ConstantVector>(operand), dataLayout);
             case Value::UndefValueVal:
                 return new UndefinedDto("Undefined", cast<UndefValue>(operand), dataLayout);
+            case Value::PoisonValueVal:
+                return new OperandDto("Poison");
             case Value::ConstantAggregateZeroVal:
                 return new ConstantZeroDto("ConstantZero", cast<ConstantAggregateZero>(operand), dataLayout);
             case Value::ConstantDataArrayVal:
