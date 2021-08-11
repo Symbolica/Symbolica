@@ -7,20 +7,15 @@ namespace Symbolica.Representation.Functions
 {
     public class CountOnesTests
     {
-        private readonly CountOnes _function;
-
-        public CountOnesTests()
-        {
-            _function = new CountOnes((FunctionId) 456UL, MockParameters.Create());
-        }
-
         [Theory]
         [ClassData(typeof(TestData))]
         private void ShouldCountOnes(Nibble value)
         {
             Nibble? actual = null;
 
-            _function.Call(
+            var function = new CountOnes((FunctionId) 456UL, MockParameters.Create());
+
+            function.Call(
                 MockState.Create((InstructionId) 123UL, v => { actual = v; }),
                 MockCaller.Create((InstructionId) 123UL),
                 MockArguments.Create(value));

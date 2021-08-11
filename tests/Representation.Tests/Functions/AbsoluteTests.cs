@@ -7,20 +7,15 @@ namespace Symbolica.Representation.Functions
 {
     public class AbsoluteTests
     {
-        private readonly Absolute _function;
-
-        public AbsoluteTests()
-        {
-            _function = new Absolute((FunctionId) 456UL, MockParameters.Create());
-        }
-
         [Theory]
         [ClassData(typeof(TestData))]
         private void ShouldCalculateAbsoluteValue(Nibble value)
         {
             Nibble? actual = null;
 
-            _function.Call(
+            var function = new Absolute((FunctionId) 456UL, MockParameters.Create());
+
+            function.Call(
                 MockState.Create((InstructionId) 123UL, v => { actual = v; }),
                 MockCaller.Create((InstructionId) 123UL),
                 MockArguments.Create(value));

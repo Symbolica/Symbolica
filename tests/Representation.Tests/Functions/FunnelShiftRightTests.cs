@@ -8,20 +8,15 @@ namespace Symbolica.Representation.Functions
 {
     public class FunnelShiftRightTests
     {
-        private readonly FunnelShiftRight _function;
-
-        public FunnelShiftRightTests()
-        {
-            _function = new FunnelShiftRight((FunctionId) 456UL, MockParameters.Create());
-        }
-
         [Theory]
         [ClassData(typeof(TestData))]
         private void ShouldConcatenateThenShiftRightThenExtractLow(Nibble high, Nibble low, Nibble shift)
         {
             Nibble? actual = null;
 
-            _function.Call(
+            var function = new FunnelShiftRight((FunctionId) 456UL, MockParameters.Create());
+
+            function.Call(
                 MockState.Create((InstructionId) 123UL, v => { actual = v; }),
                 MockCaller.Create((InstructionId) 123UL),
                 MockArguments.Create(high, low, shift));
