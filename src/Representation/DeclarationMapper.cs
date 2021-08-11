@@ -24,7 +24,7 @@ namespace Symbolica.Representation
                 {"llvm.experimental.constrained.sitofp.f64.i64", (id, parameters) => new SignedToFloat(id, parameters)},
                 {"llvm.floor.f64", (id, parameters) => new Floor(id, parameters)},
                 {"llvm.fshl.i64", (id, parameters) => new FunnelShiftLeft(id, parameters)},
-                {"llvm.fshr.i64", (id, parameters) => new FunnelShiftLeft(id, parameters)},
+                {"llvm.fshr.i64", (id, parameters) => new FunnelShiftRight(id, parameters)},
                 {"llvm.memcpy.p0i8.p0i8.i64", (id, parameters) => new MemoryCopy(id, parameters)},
                 {"llvm.memmove.p0i8.p0i8.i64", (id, parameters) => new MemoryMove(id, parameters)},
                 {"llvm.memset.p0i8.i64", (id, parameters) => new MemorySet(id, parameters)},
