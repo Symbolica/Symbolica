@@ -1,15 +1,11 @@
-﻿using System;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
-    internal sealed class Unsupported : IFunction
+    internal sealed class FloatToSigned : IFunction
     {
-        private readonly string _name;
-
-        public Unsupported(string name, FunctionId id, IParameters parameters)
+        public FloatToSigned(FunctionId id, IParameters parameters)
         {
-            _name = name;
             Id = id;
             Parameters = parameters;
         }
@@ -19,7 +15,10 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            throw new Exception($"Function {_name} is unsupported.");
+            var expression = arguments.Get(0);
+            var result = expression.FloatToSigned(caller.Size);
+
+            state.Stack.SetVariable(caller.Id, result);
         }
     }
 }

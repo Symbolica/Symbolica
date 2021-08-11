@@ -14,7 +14,7 @@ namespace Symbolica.Deserialization
 
             return dto.Type switch
             {
-                "Declaration" => DeclarationMapper.Map(id, dto.Name, parameters),
+                "Declaration" => DeclarationMapper.Map(dto.Name, id, parameters),
                 "Definition" => dto.As<DefinitionDto>().To(id, parameters),
                 _ => throw new Exception($"Function type {dto.Type} is unknown.")
             };

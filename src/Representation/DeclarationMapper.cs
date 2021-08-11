@@ -11,23 +11,26 @@ namespace Symbolica.Representation
         private static readonly IReadOnlyDictionary<string, Func<FunctionId, IParameters, IFunction>> Intrinsics =
             new Dictionary<string, Func<FunctionId, IParameters, IFunction>>
             {
-                {"llvm.abs.i32", (id, parameters) => new Absolute(id, parameters)},
-                {"llvm.abs.i64", (id, parameters) => new Absolute(id, parameters)},
-                {"llvm.ceil.f64", (id, parameters) => new Ceiling(id, parameters)},
-                {"llvm.ctpop.i32", (id, parameters) => new CountOnes(id, parameters)},
-                {"llvm.experimental.constrained.ceil.f64", (id, parameters) => new Ceiling(id, parameters)},
-                {"llvm.experimental.constrained.fdiv.f32", (id, parameters) => new FloatDivide(id, parameters)},
-                {"llvm.experimental.constrained.fdiv.f64", (id, parameters) => new FloatDivide(id, parameters)},
-                {"llvm.experimental.constrained.fdiv.f80", (id, parameters) => new FloatDivide(id, parameters)},
-                {"llvm.experimental.constrained.fmul.f64", (id, parameters) => new FloatMultiply(id, parameters)},
-                {"llvm.experimental.constrained.fsub.f64", (id, parameters) => new FloatSubtract(id, parameters)},
-                {"llvm.experimental.constrained.sitofp.f64.i64", (id, parameters) => new SignedToFloat(id, parameters)},
-                {"llvm.floor.f64", (id, parameters) => new Floor(id, parameters)},
-                {"llvm.fshl.i64", (id, parameters) => new FunnelShiftLeft(id, parameters)},
-                {"llvm.fshr.i64", (id, parameters) => new FunnelShiftRight(id, parameters)},
-                {"llvm.memcpy.p0i8.p0i8.i64", (id, parameters) => new MemoryCopy(id, parameters)},
-                {"llvm.memmove.p0i8.p0i8.i64", (id, parameters) => new MemoryMove(id, parameters)},
-                {"llvm.memset.p0i8.i64", (id, parameters) => new MemorySet(id, parameters)},
+                {"llvm.abs", (id, parameters) => new Absolute(id, parameters)},
+                {"llvm.ceil", (id, parameters) => new Ceiling(id, parameters)},
+                {"llvm.ctpop", (id, parameters) => new CountOnes(id, parameters)},
+                {"llvm.experimental.constrained.ceil", (id, parameters) => new Ceiling(id, parameters)},
+                {"llvm.experimental.constrained.fadd", (id, parameters) => new FloatAdd(id, parameters)},
+                {"llvm.experimental.constrained.fdiv", (id, parameters) => new FloatDivide(id, parameters)},
+                {"llvm.experimental.constrained.floor", (id, parameters) => new Floor(id, parameters)},
+                {"llvm.experimental.constrained.fmul", (id, parameters) => new FloatMultiply(id, parameters)},
+                {"llvm.experimental.constrained.fptosi", (id, parameters) => new FloatToSigned(id, parameters)},
+                {"llvm.experimental.constrained.fptoui", (id, parameters) => new FloatToUnsigned(id, parameters)},
+                {"llvm.experimental.constrained.frem", (id, parameters) => new FloatRemainder(id, parameters)},
+                {"llvm.experimental.constrained.fsub", (id, parameters) => new FloatSubtract(id, parameters)},
+                {"llvm.experimental.constrained.sitofp", (id, parameters) => new SignedToFloat(id, parameters)},
+                {"llvm.experimental.constrained.uitofp", (id, parameters) => new UnsignedToFloat(id, parameters)},
+                {"llvm.floor", (id, parameters) => new Floor(id, parameters)},
+                {"llvm.fshl", (id, parameters) => new FunnelShiftLeft(id, parameters)},
+                {"llvm.fshr", (id, parameters) => new FunnelShiftRight(id, parameters)},
+                {"llvm.memcpy", (id, parameters) => new MemoryCopy(id, parameters)},
+                {"llvm.memmove", (id, parameters) => new MemoryMove(id, parameters)},
+                {"llvm.memset", (id, parameters) => new MemorySet(id, parameters)},
                 {"llvm.stackrestore", (id, parameters) => new StackRestore(id, parameters)},
                 {"llvm.stacksave", (id, parameters) => new StackSave(id, parameters)},
                 {"llvm.va_copy", (id, parameters) => new VariadicCopy(id, parameters)},
@@ -122,15 +125,29 @@ namespace Symbolica.Representation
             .Concat(Internals.Keys.Select(s => $@"{s}\.[0-9]+"))
             .Select(s => $"^{s}$"));
 
-        public static IFunction Map(FunctionId id, string name, IParameters parameters)
+        public static IFunction Map(string name, FunctionId id, IParameters parameters)
         {
-            return Intrinsics.TryGetValue(name, out var func)
-                ? func(id, parameters)
-                : Specials.TryGetValue(name, out func)
-                    ? func(id, parameters)
-                    : Internals.TryGetValue(name.Split('.').First(), out func)
-                        ? func(id, parameters)
-                        : new Unsupported(id, name, parameters);
+            var func = Specials.TryGetValue(name, out var constructor)
+                ? (_, i, p) => constructor(i, p)
+                : MapIntrinsicsAndInternals(name);
+
+            return func(name, id, parameters);
+        }
+
+        private static Func<string, FunctionId, IParameters, IFunction> MapIntrinsicsAndInternals(string name)
+        {
+            return Intrinsics.TryGetValue(name, out var constructor) || Internals.TryGetValue(name, out constructor)
+                ? (_, i, p) => constructor(i, p)
+                : MapOverloaded(name);
+        }
+
+        private static Func<string, FunctionId, IParameters, IFunction> MapOverloaded(string name)
+        {
+            var index = name.LastIndexOf('.');
+
+            return index == -1
+                ? (n, i, p) => new Unsupported(n, i, p)
+                : MapIntrinsicsAndInternals(name.Remove(index));
         }
     }
 }
