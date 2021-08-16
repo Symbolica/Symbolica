@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
@@ -12,14 +13,14 @@ namespace Symbolica.Implementation.Stack
         private readonly IPersistentContinuationFactory _continuationFactory;
         private readonly IPersistentFrame _currentFrame;
         private readonly IFrameFactory _frameFactory;
+        private readonly IModule _module;
         private readonly IPersistentStack<IPersistentFrame> _pushedFrames;
-        private readonly IStructTypes _structTypes;
 
-        private PersistentStack(IStructTypes structTypes, IFrameFactory frameFactory,
+        private PersistentStack(IModule module, IFrameFactory frameFactory,
             IPersistentContinuationFactory continuationFactory,
             IPersistentStack<IPersistentFrame> pushedFrames, IPersistentFrame currentFrame)
         {
-            _structTypes = structTypes;
+            _module = module;
             _frameFactory = frameFactory;
             _continuationFactory = continuationFactory;
             _pushedFrames = pushedFrames;
@@ -32,7 +33,7 @@ namespace Symbolica.Implementation.Stack
 
         public IPersistentStack Wind(ISpace space, IMemoryProxy memory, ICaller caller, IInvocation invocation)
         {
-            return new PersistentStack(_structTypes, _frameFactory,
+            return new PersistentStack(_module, _frameFactory,
                 _continuationFactory,
                 _pushedFrames.Push(_currentFrame), _frameFactory.Create(space, memory, caller, invocation));
         }
@@ -49,7 +50,7 @@ namespace Symbolica.Implementation.Stack
 
             memory.Write(address, continuation);
 
-            return new PersistentStack(_structTypes, _frameFactory,
+            return new PersistentStack(_module, _frameFactory,
                 continuationFactory,
                 _pushedFrames, _currentFrame.Save(continuation, useJumpBuffer));
         }
@@ -72,7 +73,7 @@ namespace Symbolica.Implementation.Stack
                     Free(memory, stack._currentFrame.GetAllocations()
                         .SkipLast(currentFrame.GetAllocations().Count()));
 
-                    return new PersistentStack(_structTypes, _frameFactory,
+                    return new PersistentStack(_module, _frameFactory,
                         _continuationFactory,
                         stack._pushedFrames, currentFrame);
                 }
@@ -86,14 +87,14 @@ namespace Symbolica.Implementation.Stack
 
         public IPersistentStack TransferBasicBlock(BasicBlockId basicBlockId)
         {
-            return new PersistentStack(_structTypes, _frameFactory,
+            return new PersistentStack(_module, _frameFactory,
                 _continuationFactory,
                 _pushedFrames, _currentFrame.TransferBasicBlock(basicBlockId));
         }
 
         public IPersistentStack MoveNextInstruction()
         {
-            return new PersistentStack(_structTypes, _frameFactory,
+            return new PersistentStack(_module, _frameFactory,
                 _continuationFactory,
                 _pushedFrames, _currentFrame.MoveNextInstruction());
         }
@@ -105,7 +106,9 @@ namespace Symbolica.Implementation.Stack
 
         public IExpression GetInitializedVaList(ISpace space)
         {
-            return _currentFrame.GetInitializedVaList(space, _structTypes.Get("struct.__va_list_tag"));
+            var vaListType = _module.VaListType ?? throw new Exception("Variadic list type was not found.");
+
+            return _currentFrame.GetInitializedVaList(space, vaListType);
         }
 
         public IExpression GetVariable(InstructionId instructionId, bool useIncomingValue)
@@ -115,7 +118,7 @@ namespace Symbolica.Implementation.Stack
 
         public IPersistentStack SetVariable(InstructionId instructionId, IExpression variable)
         {
-            return new PersistentStack(_structTypes, _frameFactory,
+            return new PersistentStack(_module, _frameFactory,
                 _continuationFactory,
                 _pushedFrames, _currentFrame.SetVariable(instructionId, variable));
         }
@@ -124,7 +127,7 @@ namespace Symbolica.Implementation.Stack
         {
             var address = memory.Allocate(Section.Stack, size);
 
-            return (address, new PersistentStack(_structTypes, _frameFactory,
+            return (address, new PersistentStack(_module, _frameFactory,
                 _continuationFactory,
                 _pushedFrames, _currentFrame.AddAllocation(address)));
         }
@@ -133,15 +136,17 @@ namespace Symbolica.Implementation.Stack
         {
             Free(memory, _currentFrame.GetAllocations());
 
-            return new PersistentStack(_structTypes, _frameFactory,
+            return new PersistentStack(_module, _frameFactory,
                 _continuationFactory,
                 _pushedFrames.Pop(out var currentFrame), currentFrame);
         }
 
         private Bits GetContinuationSize(bool useJumpBuffer)
         {
+            var jumpBufferType = _module.JumpBufferType ?? throw new Exception("Jump buffer type was not found.");
+
             return useJumpBuffer
-                ? _structTypes.Get("struct.__jmp_buf_tag").Size
+                ? jumpBufferType.Size
                 : Bytes.One.ToBits();
         }
 
@@ -151,11 +156,11 @@ namespace Symbolica.Implementation.Stack
                 memory.Free(Section.Stack, allocation);
         }
 
-        public static IPersistentStack Create(IStructTypes structTypes, IFrameFactory frameFactory,
+        public static IPersistentStack Create(IModule module, IFrameFactory frameFactory,
             IPersistentContinuationFactory continuationFactory,
             ICollectionFactory collectionFactory, IDefinition main)
         {
-            return new PersistentStack(structTypes, frameFactory,
+            return new PersistentStack(module, frameFactory,
                 continuationFactory,
                 collectionFactory.CreatePersistentStack<IPersistentFrame>(), frameFactory.CreateInitial(main));
         }

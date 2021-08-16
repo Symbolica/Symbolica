@@ -6,8 +6,8 @@
 namespace {
     class Serializer {
     public:
-        static void SerializeModule(Module *module) {
-            auto *dto = new ModuleDto(module, new DataLayout(module));
+        static void SerializeModule(LLVMContext &context, Module *module) {
+            auto *dto = new ModuleDto(context, module, new DataLayout(module));
             dto->Serialize();
         }
     };

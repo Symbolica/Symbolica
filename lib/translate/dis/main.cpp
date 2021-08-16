@@ -29,7 +29,7 @@ int main() {
         return 1;
     }
 
-    Serializer::SerializeModule(module.get());
+    Serializer::SerializeModule(context, module.get());
 
     return 0;
 }

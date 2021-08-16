@@ -8,14 +8,12 @@ namespace Symbolica.Representation
     {
         private readonly Bits[] _offsets;
 
-        public StructType(string name, Bits size, Bits[] offsets)
+        public StructType(Bits size, Bits[] offsets)
         {
-            Name = name;
             Size = size;
             _offsets = offsets;
         }
 
-        public string Name { get; }
         public Bits Size { get; }
 
         public Bits GetOffset(int index)
