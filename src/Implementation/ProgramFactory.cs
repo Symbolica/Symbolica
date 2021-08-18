@@ -25,8 +25,6 @@ namespace Symbolica.Implementation
         public IProgram CreateInitial(IProgramPool programPool, IModule module,
             bool useSymbolicGarbage, bool useSymbolicAddresses, bool useSymbolicContinuations)
         {
-            var structTypes = new StructTypes(module.StructTypes);
-
             var space = _spaceFactory.CreateInitial(module.PointerSize, useSymbolicGarbage);
 
             var alignment = module.PointerSize.ToBytes();
@@ -54,13 +52,13 @@ namespace Symbolica.Implementation
             var main = module.Functions.OfType<IDefinition>().SingleOrDefault(d => d.Name == "main")
                        ?? throw new Exception("No 'main' function is defined.");
 
-            var stack = PersistentStack.Create(structTypes, frameFactory,
+            var stack = PersistentStack.Create(module, frameFactory,
                 continuationFactory,
                 _collectionFactory, main);
 
             var descriptionFactory = new DescriptionFactory(_fileSystem);
 
-            var system = PersistentSystem.Create(structTypes, descriptionFactory, _collectionFactory);
+            var system = PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
 
             var functions = new Functions(module.Functions);
             var globals = PersistentGlobals.Create(module.Globals, _collectionFactory);

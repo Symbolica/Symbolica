@@ -7,12 +7,12 @@ using Symbolica.Representation;
 namespace Symbolica.Deserialization.DTOs
 {
     internal sealed record StructTypeDto(
-            string Name, uint Size, IEnumerable<uint> Offsets)
+            uint Size, IEnumerable<uint> Offsets)
         : Serializable<IStructType>
     {
         public override IStructType Convert()
         {
-            return new StructType(Name, (Bits) Size, Offsets.Select(o => (Bits) o).ToArray());
+            return new StructType((Bits) Size, Offsets.Select(o => (Bits) o).ToArray());
         }
     }
 }

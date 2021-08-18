@@ -8,21 +8,42 @@ namespace Symbolica.Representation
     {
         private readonly IFunction[] _functions;
         private readonly IGlobal[] _globals;
-        private readonly IStructType[] _structTypes;
 
-        public Module(string target, Bits pointerSize,
-            IStructType[] structTypes, IFunction[] functions, IGlobal[] globals)
+        public Module(
+            string target,
+            Bits pointerSize,
+            IStructType? directoryStreamType,
+            IStructType? directoryEntryType,
+            IStructType? jumpBufferType,
+            IStructType? localeType,
+            IStructType? statType,
+            IStructType? threadType,
+            IStructType? vaListType,
+            IFunction[] functions,
+            IGlobal[] globals)
         {
             Target = target;
             PointerSize = pointerSize;
-            _structTypes = structTypes;
+            DirectoryStreamType = directoryStreamType;
+            DirectoryEntryType = directoryEntryType;
+            JumpBufferType = jumpBufferType;
+            LocaleType = localeType;
+            StatType = statType;
+            ThreadType = threadType;
+            VaListType = vaListType;
             _functions = functions;
             _globals = globals;
         }
 
         public string Target { get; }
         public Bits PointerSize { get; }
-        public IEnumerable<IStructType> StructTypes => _structTypes;
+        public IStructType? DirectoryStreamType { get; }
+        public IStructType? DirectoryEntryType { get; }
+        public IStructType? JumpBufferType { get; }
+        public IStructType? LocaleType { get; }
+        public IStructType? StatType { get; }
+        public IStructType? ThreadType { get; }
+        public IStructType? VaListType { get; }
         public IEnumerable<IFunction> Functions => _functions;
         public IEnumerable<IGlobal> Globals => _globals;
     }

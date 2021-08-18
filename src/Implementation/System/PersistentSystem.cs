@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -11,13 +12,13 @@ namespace Symbolica.Implementation.System
         private readonly IDescriptionFactory _descriptionFactory;
         private readonly IPersistentList<Handle> _handles;
         private readonly IPersistentList<int> _indices;
-        private readonly IStructTypes _structTypes;
+        private readonly IModule _module;
         private readonly IExpression? _threadAddress;
 
-        private PersistentSystem(IStructTypes structTypes, IDescriptionFactory descriptionFactory,
+        private PersistentSystem(IModule module, IDescriptionFactory descriptionFactory,
             IExpression? threadAddress, IPersistentList<int> indices, IPersistentList<Handle> handles)
         {
-            _structTypes = structTypes;
+            _module = module;
             _descriptionFactory = descriptionFactory;
             _threadAddress = threadAddress;
             _indices = indices;
@@ -64,7 +65,7 @@ namespace Symbolica.Implementation.System
 
             var (result, description) = handle.Description.Seek(offset, whence);
 
-            return (result, new PersistentSystem(_structTypes, _descriptionFactory,
+            return (result, new PersistentSystem(_module, _descriptionFactory,
                 _threadAddress, _indices, _handles.SetItem(index, new Handle(handle.References, description))));
         }
 
@@ -77,18 +78,19 @@ namespace Symbolica.Implementation.System
 
         public IExpression ReadDirectory(ISpace space, IMemory memory, IExpression address)
         {
-            var directoryType = _structTypes.Get("struct.__dirstream");
-            var directory = directoryType.Create(memory.Read(address, directoryType.Size));
+            var streamType = _module.DirectoryStreamType ?? throw new Exception("Directory stream type was not found.");
+            var entryType = _module.DirectoryEntryType ?? throw new Exception("Directory entry type was not found.");
 
-            var tell = (int) directory.Read(space, 0).Integer;
-            var descriptor = (int) directory.Read(space, 1).Integer;
-            var buffer = address.Add(space.CreateConstant(address.Size, (uint) directoryType.GetOffset(5).ToBytes()));
+            var stream = streamType.Create(memory.Read(address, streamType.Size));
 
-            memory.Write(address, directory
+            var tell = (int) stream.Read(space, 0).Integer;
+            var descriptor = (int) stream.Read(space, 1).Integer;
+            var buffer = address.Add(space.CreateConstant(address.Size, (uint) streamType.GetOffset(5).ToBytes()));
+
+            memory.Write(address, stream
                 .Write(space, 0, tell + 1)
                 .Expression);
 
-            var entryType = _structTypes.Get("struct.dirent");
             var entry = entryType.Create(space.CreateGarbage(entryType.Size));
 
             var (_, handle) = Get(descriptor);
@@ -98,7 +100,8 @@ namespace Symbolica.Implementation.System
 
         public int GetStatus(ISpace space, IMemory memory, int descriptor, IExpression address)
         {
-            var statType = _structTypes.Get("struct.stat");
+            var statType = _module.StatType ?? throw new Exception("Stat type was not found.");
+
             var stat = statType.Create(space.CreateGarbage(statType.Size));
 
             var (_, handle) = Get(descriptor);
@@ -108,20 +111,21 @@ namespace Symbolica.Implementation.System
 
         private (IExpression, IPersistentSystem) AllocateThread(ISpace space, IMemoryProxy memory)
         {
-            var localeType = _structTypes.Get("struct.__locale_struct");
+            var localeType = _module.LocaleType ?? throw new Exception("Locale type was not found.");
+            var threadType = _module.ThreadType ?? throw new Exception("Thread type was not found.");
+
             var locale = localeType.Create(space.CreateGarbage(localeType.Size));
 
             var localeAddress = memory.Allocate(Section.Global, locale.Expression.Size);
             memory.Write(localeAddress, locale.Expression);
 
-            var threadType = _structTypes.Get("struct.__pthread");
             var thread = threadType.Create(space.CreateGarbage(threadType.Size))
                 .Write(space, 24, localeAddress);
 
             var threadAddress = memory.Allocate(Section.Global, thread.Expression.Size);
             memory.Write(threadAddress, thread.Expression);
 
-            return (threadAddress, new PersistentSystem(_structTypes, _descriptionFactory,
+            return (threadAddress, new PersistentSystem(_module, _descriptionFactory,
                 threadAddress, _indices, _handles));
         }
 
@@ -140,10 +144,10 @@ namespace Symbolica.Implementation.System
 
             foreach (var (value, descriptor) in _indices.Select((v, d) => (v, d)))
                 if (value == 0)
-                    return (descriptor, new PersistentSystem(_structTypes, _descriptionFactory,
+                    return (descriptor, new PersistentSystem(_module, _descriptionFactory,
                         _threadAddress, _indices.SetItem(descriptor, _handles.Count), _handles.Add(handle)));
 
-            return (_indices.Count, new PersistentSystem(_structTypes, _descriptionFactory,
+            return (_indices.Count, new PersistentSystem(_module, _descriptionFactory,
                 _threadAddress, _indices.Add(_handles.Count), _handles.Add(handle)));
         }
 
@@ -153,10 +157,10 @@ namespace Symbolica.Implementation.System
 
             foreach (var (value, descriptor) in _indices.Select((v, d) => (v, d)))
                 if (value == 0)
-                    return (descriptor, new PersistentSystem(_structTypes, _descriptionFactory,
+                    return (descriptor, new PersistentSystem(_module, _descriptionFactory,
                         _threadAddress, _indices.SetItem(descriptor, index), _handles.SetItem(index, handle)));
 
-            return (_indices.Count, new PersistentSystem(_structTypes, _descriptionFactory,
+            return (_indices.Count, new PersistentSystem(_module, _descriptionFactory,
                 _threadAddress, _indices.Add(index), _handles.SetItem(index, handle)));
         }
 
@@ -166,7 +170,7 @@ namespace Symbolica.Implementation.System
                 ? _descriptionFactory.CreateInvalid()
                 : description);
 
-            return new PersistentSystem(_structTypes, _descriptionFactory,
+            return new PersistentSystem(_module, _descriptionFactory,
                 _threadAddress, _indices.SetItem(descriptor, 0), _handles.SetItem(index, handle));
         }
 
@@ -177,12 +181,12 @@ namespace Symbolica.Implementation.System
             return system;
         }
 
-        public static IPersistentSystem Create(IStructTypes structTypes, IDescriptionFactory descriptionFactory,
+        public static IPersistentSystem Create(IModule module, IDescriptionFactory descriptionFactory,
             ICollectionFactory collectionFactory)
         {
             var invalidHandle = new Handle(0U, descriptionFactory.CreateInvalid());
 
-            var system = new PersistentSystem(structTypes, descriptionFactory,
+            var system = new PersistentSystem(module, descriptionFactory,
                 null,
                 collectionFactory.CreatePersistentList<int>(),
                 collectionFactory.CreatePersistentList<Handle>().Add(invalidHandle));
