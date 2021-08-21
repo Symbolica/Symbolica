@@ -7,18 +7,18 @@ using Xunit;
 
 namespace Symbolica.Computation
 {
-    public class ConstantSingleTests
+    public class ConstantDoubleTests
     {
         private static readonly Context Context = new();
 
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatAdd(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatAdd(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatAdd(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.FloatAdd(constantRight).GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatAdd(symbolicRight).GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -26,11 +26,11 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(UnaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatCeiling(
-            ConstantSingle constantExpression,
+            ConstantDouble constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatCeiling().GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicExpression.FloatCeiling().GetSingleNanNormalizedInteger(Context);
+            var constant = constantExpression.FloatCeiling().GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicExpression.FloatCeiling().GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -38,11 +38,11 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(FloatConvertTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatConvert(Bits size,
-            ConstantSingle constantExpression,
+            ConstantDouble constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatConvert(size).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicExpression.FloatConvert(size).GetSingleNanNormalizedInteger(Context);
+            var constant = constantExpression.FloatConvert(size).GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicExpression.FloatConvert(size).GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -50,11 +50,11 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatDivide(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatDivide(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatDivide(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.FloatDivide(constantRight).GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatDivide(symbolicRight).GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -62,7 +62,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatEqual(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
             var constant = constantLeft.FloatEqual(constantRight).GetInteger(Context);
@@ -74,11 +74,11 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(UnaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatFloor(
-            ConstantSingle constantExpression,
+            ConstantDouble constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatFloor().GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicExpression.FloatFloor().GetSingleNanNormalizedInteger(Context);
+            var constant = constantExpression.FloatFloor().GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicExpression.FloatFloor().GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -86,7 +86,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatGreater(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
             var constant = constantLeft.FloatGreater(constantRight).GetInteger(Context);
@@ -98,7 +98,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatGreaterOrEqual(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
             var constant = constantLeft.FloatGreaterOrEqual(constantRight).GetInteger(Context);
@@ -110,7 +110,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatLess(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
             var constant = constantLeft.FloatLess(constantRight).GetInteger(Context);
@@ -122,7 +122,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatLessOrEqual(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
             var constant = constantLeft.FloatLessOrEqual(constantRight).GetInteger(Context);
@@ -134,11 +134,11 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatMultiply(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatMultiply(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatMultiply(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.FloatMultiply(constantRight).GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatMultiply(symbolicRight).GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -146,11 +146,11 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(UnaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatNegate(
-            ConstantSingle constantExpression,
+            ConstantDouble constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatNegate().GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicExpression.FloatNegate().GetSingleNanNormalizedInteger(Context);
+            var constant = constantExpression.FloatNegate().GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicExpression.FloatNegate().GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -158,7 +158,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatNotEqual(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
             var constant = constantLeft.FloatNotEqual(constantRight).GetInteger(Context);
@@ -170,7 +170,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatOrdered(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
             var constant = constantLeft.FloatOrdered(constantRight).GetInteger(Context);
@@ -182,11 +182,11 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatRemainder(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatRemainder(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatRemainder(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.FloatRemainder(constantRight).GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatRemainder(symbolicRight).GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -194,11 +194,11 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatSubtract(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatSubtract(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatSubtract(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.FloatSubtract(constantRight).GetDoubleNanNormalizedInteger(Context);
+            var symbolic = symbolicLeft.FloatSubtract(symbolicRight).GetDoubleNanNormalizedInteger(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -206,7 +206,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(FloatToSignedTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatToSigned(Bits size,
-            ConstantSingle constantExpression,
+            ConstantDouble constantExpression,
             SymbolicFloat symbolicExpression)
         {
             var constant = constantExpression.FloatToSigned(size).GetInteger(Context);
@@ -218,7 +218,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(FloatToUnsignedTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatToUnsigned(Bits size,
-            ConstantSingle constantExpression,
+            ConstantDouble constantExpression,
             SymbolicFloat symbolicExpression)
         {
             var constant = constantExpression.FloatToUnsigned(size).GetInteger(Context);
@@ -230,7 +230,7 @@ namespace Symbolica.Computation
         [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatUnordered(
-            ConstantSingle constantLeft, ConstantSingle constantRight,
+            ConstantDouble constantLeft, ConstantDouble constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
             var constant = constantLeft.FloatUnordered(constantRight).GetInteger(Context);
@@ -240,80 +240,80 @@ namespace Symbolica.Computation
         }
 
         private sealed class UnaryTestData : TheoryData<
-            ConstantSingle,
+            ConstantDouble,
             SymbolicFloat>
         {
             public UnaryTestData()
             {
                 foreach (var value in Values())
-                    Add(new ConstantSingle(value),
-                        new SymbolicFloat((Bits) 32U, c => c.MkFP(value, c.MkFPSort32())));
+                    Add(new ConstantDouble(value),
+                        new SymbolicFloat((Bits) 64U, c => c.MkFP(value, c.MkFPSort64())));
             }
 
-            private static IEnumerable<float> Values()
+            private static IEnumerable<double> Values()
             {
-                yield return 0f;
-                yield return float.Epsilon;
-                yield return float.NaN;
-                yield return float.NegativeInfinity;
-                yield return float.MinValue;
-                yield return float.MaxValue;
-                yield return float.PositiveInfinity;
+                yield return 0d;
+                yield return double.Epsilon;
+                yield return double.NaN;
+                yield return double.NegativeInfinity;
+                yield return double.MinValue;
+                yield return double.MaxValue;
+                yield return double.PositiveInfinity;
 
                 foreach (var i in Enumerable.Range(-10, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
 
                 foreach (var i in Enumerable.Range(1, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
             }
         }
 
         private sealed class BinaryTestData : TheoryData<
-            ConstantSingle, ConstantSingle,
+            ConstantDouble, ConstantDouble,
             SymbolicFloat, SymbolicFloat>
         {
             public BinaryTestData()
             {
                 foreach (var left in Values())
                 foreach (var right in Values())
-                    Add(new ConstantSingle(left),
-                        new ConstantSingle(right),
-                        new SymbolicFloat((Bits) 32U, c => c.MkFP(left, c.MkFPSort32())),
-                        new SymbolicFloat((Bits) 32U, c => c.MkFP(right, c.MkFPSort32())));
+                    Add(new ConstantDouble(left),
+                        new ConstantDouble(right),
+                        new SymbolicFloat((Bits) 64U, c => c.MkFP(left, c.MkFPSort64())),
+                        new SymbolicFloat((Bits) 64U, c => c.MkFP(right, c.MkFPSort64())));
             }
 
-            private static IEnumerable<float> Values()
+            private static IEnumerable<double> Values()
             {
-                yield return 0f;
-                yield return float.Epsilon;
-                yield return float.NaN;
-                yield return float.NegativeInfinity;
-                yield return float.MinValue;
-                yield return float.MaxValue;
-                yield return float.PositiveInfinity;
+                yield return 0d;
+                yield return double.Epsilon;
+                yield return double.NaN;
+                yield return double.NegativeInfinity;
+                yield return double.MinValue;
+                yield return double.MaxValue;
+                yield return double.PositiveInfinity;
 
                 foreach (var i in Enumerable.Range(-10, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
 
                 foreach (var i in Enumerable.Range(1, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
             }
         }
 
         private sealed class FloatConvertTestData : TheoryData<Bits,
-            ConstantSingle,
+            ConstantDouble,
             SymbolicFloat>
         {
             public FloatConvertTestData()
@@ -321,8 +321,8 @@ namespace Symbolica.Computation
                 foreach (var size in Sizes())
                 foreach (var value in Values())
                     Add(size,
-                        new ConstantSingle(value),
-                        new SymbolicFloat((Bits) 32U, c => c.MkFP(value, c.MkFPSort32())));
+                        new ConstantDouble(value),
+                        new SymbolicFloat((Bits) 64U, c => c.MkFP(value, c.MkFPSort64())));
             }
 
             private static IEnumerable<Bits> Sizes()
@@ -334,32 +334,32 @@ namespace Symbolica.Computation
                 yield return (Bits) 128U;
             }
 
-            private static IEnumerable<float> Values()
+            private static IEnumerable<double> Values()
             {
-                yield return 0f;
-                yield return float.Epsilon;
-                yield return float.NaN;
-                yield return float.NegativeInfinity;
-                yield return float.MinValue;
-                yield return float.MaxValue;
-                yield return float.PositiveInfinity;
+                yield return 0d;
+                yield return double.Epsilon;
+                yield return double.NaN;
+                yield return double.NegativeInfinity;
+                yield return double.MinValue;
+                yield return double.MaxValue;
+                yield return double.PositiveInfinity;
 
                 foreach (var i in Enumerable.Range(-10, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
 
                 foreach (var i in Enumerable.Range(1, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
             }
         }
 
         private sealed class FloatToSignedTestData : TheoryData<Bits,
-            ConstantSingle,
+            ConstantDouble,
             SymbolicFloat>
         {
             public FloatToSignedTestData()
@@ -367,8 +367,8 @@ namespace Symbolica.Computation
                 foreach (var size in Sizes())
                 foreach (var value in Values())
                     Add(size,
-                        new ConstantSingle(value),
-                        new SymbolicFloat((Bits) 32U, c => c.MkFP(value, c.MkFPSort32())));
+                        new ConstantDouble(value),
+                        new SymbolicFloat((Bits) 64U, c => c.MkFP(value, c.MkFPSort64())));
             }
 
             private static IEnumerable<Bits> Sizes()
@@ -380,27 +380,27 @@ namespace Symbolica.Computation
                 yield return (Bits) 128U;
             }
 
-            private static IEnumerable<float> Values()
+            private static IEnumerable<double> Values()
             {
-                yield return 0f;
-                yield return float.Epsilon;
+                yield return 0d;
+                yield return double.Epsilon;
 
                 foreach (var i in Enumerable.Range(-10, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
 
                 foreach (var i in Enumerable.Range(1, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
             }
         }
 
         private sealed class FloatToUnsignedTestData : TheoryData<Bits,
-            ConstantSingle,
+            ConstantDouble,
             SymbolicFloat>
         {
             public FloatToUnsignedTestData()
@@ -408,8 +408,8 @@ namespace Symbolica.Computation
                 foreach (var size in Sizes())
                 foreach (var value in Values())
                     Add(size,
-                        new ConstantSingle(value),
-                        new SymbolicFloat((Bits) 32U, c => c.MkFP(value, c.MkFPSort32())));
+                        new ConstantDouble(value),
+                        new SymbolicFloat((Bits) 64U, c => c.MkFP(value, c.MkFPSort64())));
             }
 
             private static IEnumerable<Bits> Sizes()
@@ -421,15 +421,15 @@ namespace Symbolica.Computation
                 yield return (Bits) 128U;
             }
 
-            private static IEnumerable<float> Values()
+            private static IEnumerable<double> Values()
             {
-                yield return 0f;
-                yield return float.Epsilon;
+                yield return 0d;
+                yield return double.Epsilon;
 
                 foreach (var i in Enumerable.Range(1, 10))
                 {
-                    yield return i / 3f;
-                    yield return 3f / i;
+                    yield return i / 3d;
+                    yield return 3d / i;
                 }
             }
         }
