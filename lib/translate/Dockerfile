@@ -10,9 +10,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-ENV HOME /home/me
-WORKDIR $HOME/.symbolica
-COPY . .
+COPY . /.symbolica/
 
 WORKDIR /code
 ENTRYPOINT [ "/.symbolica/translate" ]
