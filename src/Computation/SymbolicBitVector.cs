@@ -231,7 +231,7 @@ namespace Symbolica.Computation
 
         public IValue SignedToFloat(Bits size)
         {
-            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), _func(c), SymbolicFloat.Sort(c, size), true));
+            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), _func(c), size.GetSort(c), true));
         }
 
         public IValue SignExtend(Bits size)
@@ -281,7 +281,7 @@ namespace Symbolica.Computation
 
         public IValue UnsignedToFloat(Bits size)
         {
-            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), _func(c), SymbolicFloat.Sort(c, size), false));
+            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), _func(c), size.GetSort(c), false));
         }
 
         public IValue Write(ICollectionFactory collectionFactory, IValue offset, IValue value)
@@ -318,7 +318,7 @@ namespace Symbolica.Computation
 
         public SymbolicFloat ToSymbolicFloat()
         {
-            return new(Size, c => c.MkFPToFP(_func(c), SymbolicFloat.Sort(c, Size)));
+            return new(Size, c => c.MkFPToFP(_func(c), Size.GetSort(c)));
         }
 
         private IValue Create(IValue other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> func)

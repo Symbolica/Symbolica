@@ -1,15 +1,14 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Operands
 {
-    public sealed class ConstantScalar : IOperand
+    public sealed class ConstantFloat : IOperand
     {
         private readonly Bits _size;
-        private readonly BigInteger _value;
+        private readonly string _value;
 
-        public ConstantScalar(Bits size, BigInteger value)
+        public ConstantFloat(Bits size, string value)
         {
             _size = size;
             _value = value;
@@ -17,7 +16,7 @@ namespace Symbolica.Representation.Operands
 
         public IExpression Evaluate(IState state)
         {
-            return state.Space.CreateConstant(_size, _value);
+            return state.Space.CreateConstantFloat(_size, _value);
         }
     }
 }

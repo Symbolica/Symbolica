@@ -52,6 +52,12 @@ namespace Symbolica.Computation
                 ConstantUnsigned.Create(size, value), null);
         }
 
+        public IExpression CreateConstantFloat(Bits size, string value)
+        {
+            return Expression.Create(_collectionFactory,
+                ConstantFloat.Create(size, value), null);
+        }
+
         public IExpression CreateGarbage(Bits size)
         {
             return _useSymbolicGarbage

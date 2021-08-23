@@ -250,6 +250,16 @@ namespace Symbolica.Computation
             return this;
         }
 
+        public static IValue Create(Bits size, string value)
+        {
+            return (uint) size switch
+            {
+                32U => new ConstantSingle(float.Parse(value)),
+                64U => new ConstantDouble(double.Parse(value)),
+                _ => new SymbolicFloat(size, c => size.ParseNormalFloat(c, value))
+            };
+        }
+
         public static IValue? Create(Bits size, BigInteger value)
         {
             return (uint) size switch

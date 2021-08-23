@@ -118,7 +118,7 @@ namespace Symbolica.Computation
 
         public override SymbolicFloat ToSymbolicFloat()
         {
-            return new(Size, c => c.MkFP(_value, SymbolicFloat.Sort(c, Size)));
+            return new(Size, c => c.MkFP(_value, Size.GetSort(c)));
         }
 
         public override ConstantSigned ToConstantSigned()

@@ -10,6 +10,7 @@ namespace Symbolica.Expression
 
         IExample GetExample();
         IExpression CreateConstant(Bits size, BigInteger value);
+        IExpression CreateConstantFloat(Bits size, string value);
         IExpression CreateGarbage(Bits size);
         IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>>? constraints);
     }

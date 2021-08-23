@@ -11,7 +11,7 @@ namespace Symbolica.Deserialization.DTOs.Operands
     {
         public IOperand To()
         {
-            return new ConstantScalar((Bits) Size, BigInteger.Parse(Value));
+            return new ConstantInteger((Bits) Size, BigInteger.Parse(Value));
         }
     }
 }

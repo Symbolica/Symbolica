@@ -23,7 +23,7 @@ namespace Symbolica.Computation
             var expr = _func(context).Simplify();
 
             return expr.IsFPNaN
-                ? GetNan(context)
+                ? Size.GetNan(context)
                 : ToSymbolicBitVector().GetInteger(context);
         }
 
@@ -69,7 +69,7 @@ namespace Symbolica.Computation
 
         public IValue FloatConvert(Bits size)
         {
-            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), _func(c), Sort(c, size)));
+            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), _func(c), size.GetSort(c)));
         }
 
         public IValue FloatDivide(IValue value)
@@ -312,19 +312,6 @@ namespace Symbolica.Computation
             return this;
         }
 
-        public static FPSort Sort(Context context, Bits size)
-        {
-            return (uint) size switch
-            {
-                16U => context.MkFPSort16(),
-                32U => context.MkFPSort32(),
-                64U => context.MkFPSort64(),
-                80U => context.MkFPSort(15U, 65U),
-                128U => context.MkFPSort128(),
-                _ => throw new Exception($"Floating-point size {size} is unsupported.")
-            };
-        }
-
         private IValue Create(IValue other, Func<Context, FPExpr, FPExpr, BoolExpr> func)
         {
             return new SymbolicBool(c => func(c, _func(c), other.ToSymbolicFloat()._func(c)));
@@ -333,14 +320,6 @@ namespace Symbolica.Computation
         private IValue Create(IValue other, Func<Context, FPExpr, FPExpr, FPExpr> func)
         {
             return new SymbolicFloat(Size, c => func(c, _func(c), other.ToSymbolicFloat()._func(c)));
-        }
-
-        private BigInteger GetNan(Context context)
-        {
-            var sort = Sort(context, Size);
-            var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);
-
-            return ConstantUnsigned.Create(Size, nan).Integer;
         }
     }
 }
