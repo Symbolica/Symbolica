@@ -5,6 +5,7 @@
     <IsPackable>False</IsPackable>
     <OutputType>Exe</OutputType>
     <RootNamespace>Symbolica.Application</RootNamespace>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 

@@ -52,7 +52,7 @@ namespace Symbolica.Application
         {
             protected TestData(string status)
             {
-                foreach (var directory in Directory.EnumerateDirectories(Path.Combine("..", "..", "..", "..", status)))
+                foreach (var directory in Directory.EnumerateDirectories(Path.Combine("..", "..", "..", "..", "..", status)))
                 foreach (var useSymbolicGarbage in new[] {false, true})
                 foreach (var useSymbolicAddresses in new[] {false, true})
                 foreach (var useSymbolicContinuations in new[] {false, true})
