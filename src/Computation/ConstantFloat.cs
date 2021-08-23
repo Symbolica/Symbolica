@@ -256,7 +256,7 @@ namespace Symbolica.Computation
             {
                 32U => new ConstantSingle(float.Parse(value)),
                 64U => new ConstantDouble(double.Parse(value)),
-                _ => new SymbolicFloat(size, c => c.MakeFloat(value, SymbolicFloat.Sort(c, size)))
+                _ => new SymbolicFloat(size, c => size.ParseNormalFloat(c, value))
             };
         }
 
