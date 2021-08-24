@@ -3,7 +3,6 @@
   <PropertyGroup>
     <AssemblyName>Symbolica.Application.Tests</AssemblyName>
     <RootNamespace>Symbolica.Application</RootNamespace>
-    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
