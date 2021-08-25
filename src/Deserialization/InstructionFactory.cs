@@ -214,7 +214,7 @@ namespace Symbolica.Deserialization
                 else
                 {
                     indexedType = indexedType.ElementType;
-                    yield return (Bits) (index * (uint) indexedType.GetStoreSize(_targetData).ToBits());
+                    yield return indexedType.GetStoreSize(_targetData).ToBits() * index;
                 }
         }
     }
