@@ -21,7 +21,7 @@ namespace Symbolica.Representation
             return _offsets[index];
         }
 
-        public IStruct Create(IExpression expression)
+        public IStruct CreateStruct(IExpression expression)
         {
             var sizes = _offsets
                 .Skip(1)

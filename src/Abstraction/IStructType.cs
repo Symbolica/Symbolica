@@ -7,6 +7,6 @@ namespace Symbolica.Abstraction
         Bits Size { get; }
 
         Bits GetOffset(int index);
-        IStruct Create(IExpression expression);
+        IStruct CreateStruct(IExpression expression);
     }
 }
