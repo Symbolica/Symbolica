@@ -3,13 +3,10 @@ using Symbolica.Expression;
 
 namespace Symbolica.Representation
 {
-    public sealed class Global : IGlobal
+    public sealed class UninitializedGlobal : IGlobal
     {
-        private readonly IOperand _initializer;
-
-        public Global(GlobalId id, Bits size, IOperand initializer)
+        public UninitializedGlobal(GlobalId id, Bits size)
         {
-            _initializer = initializer;
             Id = id;
             Size = size;
         }
@@ -19,9 +16,6 @@ namespace Symbolica.Representation
 
         public void Initialize(IState state, IExpression address)
         {
-            var value = _initializer.Evaluate(state);
-
-            state.Memory.Write(address, value);
         }
     }
 }

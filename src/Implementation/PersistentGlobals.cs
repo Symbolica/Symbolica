@@ -33,14 +33,8 @@ namespace Symbolica.Implementation
         {
             var address = memory.Allocate(Section.Global, global.Size);
 
-            return (address, s => Initialize(s, address, global), new PersistentGlobals(_globals,
+            return (address, s => global.Initialize(s, address), new PersistentGlobals(_globals,
                 _addresses.SetItem(global.Id, address)));
-        }
-
-        private static void Initialize(IState state, IExpression address, IGlobal global)
-        {
-            if (global.Initializer != null)
-                state.Memory.Write(address, global.Initializer.Evaluate(state));
         }
 
         public static IPersistentGlobals Create(IEnumerable<IGlobal> globals, ICollectionFactory collectionFactory)

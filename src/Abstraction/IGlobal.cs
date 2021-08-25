@@ -6,6 +6,7 @@ namespace Symbolica.Abstraction
     {
         GlobalId Id { get; }
         Bits Size { get; }
-        IOperand? Initializer { get; }
+
+        void Initialize(IState state, IExpression address);
     }
 }
