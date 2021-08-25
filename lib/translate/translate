@@ -2,5 +2,4 @@
 set -e
 
 llvm-extract-12 --delete --ralias="$1" --rfunc="$1" symbolica.bc |
-opt-12 --strip-debug --loweratomic --Oz --scalarizer |
-~/.symbolica/dis/dis > symbolica.json
+opt-12 --strip-debug --loweratomic --Oz --scalarizer -o=.symbolica.bc

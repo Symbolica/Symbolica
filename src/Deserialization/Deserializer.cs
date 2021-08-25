@@ -1,26 +1,34 @@
-﻿using System;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using LLVMSharp.Interop;
 using Symbolica.Abstraction;
-using Symbolica.Deserialization.DTOs;
+using Symbolica.Expression;
 
 namespace Symbolica.Deserialization
 {
     public static class Deserializer
     {
-        internal static readonly JsonSerializerOptions Options = new()
+        public static IModule DeserializeModule(byte[] bytes)
         {
-            PropertyNameCaseInsensitive = true,
-            MaxDepth = int.MaxValue
-        };
+            return DeserializeModule(new UnsafeContext(), bytes);
+        }
 
-        public static async Task<IModule> DeserializeModule(Stream stream)
+        private static IModule DeserializeModule(IUnsafeContext unsafeContext, byte[] bytes)
         {
-            var dto = await JsonSerializer.DeserializeAsync<ModuleDto>(stream, Options);
+            var memoryBuffer = unsafeContext.GetMemoryBuffer(bytes);
+            using var module = LLVMContextRef.Create().ParseBitcode(memoryBuffer);
+            var targetData = unsafeContext.GetTargetData(module);
 
-            return dto?.Convert()
-                   ?? throw new Exception("Module cannot be null.");
+            var idFactory = new IdFactory();
+
+            var operandFactory = new OperandFactory(targetData, idFactory, unsafeContext);
+            var instructionFactory = new InstructionFactory(targetData, idFactory, unsafeContext, operandFactory);
+
+            var structTypeFactory = new StructTypeFactory(targetData);
+            var functionFactory = new FunctionFactory(targetData, idFactory, instructionFactory);
+            var globalFactory = new GlobalFactory(targetData, idFactory, instructionFactory, operandFactory);
+
+            var moduleFactory = new ModuleFactory(structTypeFactory, functionFactory, globalFactory);
+
+            return moduleFactory.Create(module, (Bytes) unsafeContext.GetPointerSize(targetData));
         }
     }
 }

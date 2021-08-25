@@ -24,6 +24,7 @@ namespace Symbolica.Application
             var translateImage = Environment.GetEnvironmentVariable("SYMBOLICA_TRANSLATE_IMAGE");
 
             File.Delete(Path.Combine(directory, "symbolica.bc"));
+            File.Delete(Path.Combine(directory, ".symbolica.bc"));
 
             await CallExternalProcess(directory, buildImage == null
                 ? "./symbolica.sh"
@@ -33,15 +34,14 @@ namespace Symbolica.Application
                 ? $"~/.symbolica/translate \"{DeclarationMapper.Pattern}\""
                 : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationMapper.Pattern}\"");
 
-            await using var stream = File.OpenRead(Path.Combine(directory, "symbolica.json"));
+            var bytes = await File.ReadAllBytesAsync(Path.Combine(directory, ".symbolica.bc"));
+            var module = Deserializer.DeserializeModule(bytes);
 
             var collectionFactory = new CollectionFactory();
             var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
             var programFactory = new ProgramFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
             using var programPool = new ProgramPool();
-            var module = await Deserializer.DeserializeModule(stream);
-
             programPool.Add(programFactory.CreateInitial(programPool, module,
                 useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations));
 

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <AssemblyName>Symbolica.Deserialization</AssemblyName>
     <RootNamespace>Symbolica.Deserialization</RootNamespace>
     <TargetFramework>net5.0</TargetFramework>
@@ -8,6 +9,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Representation\Representation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Symbolica.LLVMSharp" Version="0.1.0-master0001" />
   </ItemGroup>
 
 </Project>
