@@ -17,7 +17,7 @@ namespace Symbolica.Representation.Instructions
 
         public void Execute(IState state)
         {
-            throw new Exception($"Instruction {_type} is unsupported.");
+            throw new Exception($"Instruction '{_type}' is unsupported.");
         }
     }
 }
