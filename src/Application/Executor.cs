@@ -31,8 +31,8 @@ namespace Symbolica.Application
                 : $"docker run -v $(pwd):/code {buildImage}");
 
             await CallExternalProcess(directory, translateImage == null
-                ? $"~/.symbolica/translate \"{DeclarationMapper.Pattern}\""
-                : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationMapper.Pattern}\"");
+                ? $"~/.symbolica/translate \"{DeclarationFactory.Pattern}\""
+                : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationFactory.Pattern}\"");
 
             var bytes = await File.ReadAllBytesAsync(Path.Combine(directory, ".symbolica.bc"));
             var module = Deserializer.DeserializeModule(bytes);
