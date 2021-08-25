@@ -10,18 +10,22 @@ namespace Symbolica.Representation.Instructions
         private readonly IOperand[] _operands;
         private readonly IAttributes[] _parameterAttributes;
 
-        public Call(InstructionId id, IOperand[] operands,
-            Bits size, IAttributes attributes, IAttributes[] parameterAttributes)
+        public Call(
+            InstructionId id,
+            IOperand[] operands,
+            Bits size,
+            IAttributes returnAttributes,
+            IAttributes[] parameterAttributes)
         {
             Id = id;
             _operands = operands;
             Size = size;
-            Attributes = attributes;
+            ReturnAttributes = returnAttributes;
             _parameterAttributes = parameterAttributes;
         }
 
         public Bits Size { get; }
-        public IAttributes Attributes { get; }
+        public IAttributes ReturnAttributes { get; }
 
         public void Return(IState state)
         {

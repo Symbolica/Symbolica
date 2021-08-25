@@ -49,13 +49,13 @@ namespace Symbolica.Implementation.Stack
         {
             public InstructionId Id => throw new Exception("The initial 'main' function has no Caller.");
             public Bits Size => (Bits) 16U;
-            public IAttributes Attributes => new InitialAttributes();
+            public IAttributes ReturnAttributes => new InitialReturnAttributes();
 
             public void Return(IState state)
             {
             }
 
-            private sealed class InitialAttributes : IAttributes
+            private sealed class InitialReturnAttributes : IAttributes
             {
                 public bool IsSignExtended => false;
             }
