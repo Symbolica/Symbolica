@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using LLVMSharp.Interop;
+﻿using LLVMSharp.Interop;
 
 namespace Symbolica.Deserialization
 {
@@ -9,7 +8,7 @@ namespace Symbolica.Deserialization
         LLVMTargetDataRef GetTargetData(LLVMModuleRef module);
         uint GetPointerSize(LLVMTargetDataRef targetData);
         LLVMTypeRef GetAllocatedType(LLVMValueRef instruction);
-        IEnumerable<uint> GetIndices(LLVMValueRef instruction);
+        uint[] GetIndices(LLVMValueRef instruction);
         LLVMValueRef GetAlias(LLVMValueRef operand);
         uint GetEnumAttributeKind(LLVMAttributeRef attribute);
         uint GetEnumAttributeKind(string name);

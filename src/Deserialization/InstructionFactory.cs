@@ -69,7 +69,10 @@ namespace Symbolica.Deserialization
                     _unsafeContext.GetAllocatedType(instruction).GetAllocSize(_targetData).ToBits()),
                 LLVMOpcode.LLVMLoad => new Load(id, operands, instruction.TypeOf.GetSize(_targetData)),
                 LLVMOpcode.LLVMStore => new Store(id, operands),
-                LLVMOpcode.LLVMGetElementPtr => CreateGep(id, operands, instruction),
+                LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(
+                    id,
+                    operands,
+                    GetGepOffsets(instruction, operands)),
                 LLVMOpcode.LLVMTrunc => new Truncate(id, operands, instruction.TypeOf.GetSize(_targetData)),
                 LLVMOpcode.LLVMZExt => new ZeroExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
                 LLVMOpcode.LLVMSExt => new SignExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
@@ -135,11 +138,11 @@ namespace Symbolica.Deserialization
                     id,
                     operands,
                     instruction.TypeOf.GetStoreSize(_targetData).ToBits(),
-                    GetConstantOffsets(instruction).ToArray()),
+                    GetAggregateOffsets(instruction)),
                 LLVMOpcode.LLVMInsertValue => new InsertValue(
                     id,
                     operands,
-                    GetConstantOffsets(instruction).ToArray()),
+                    GetAggregateOffsets(instruction)),
                 LLVMOpcode.LLVMFreeze => new Unsupported(id, "freeze"),
                 LLVMOpcode.LLVMFence => throw new Exception("The loweratomic pass should lower fence."),
                 LLVMOpcode.LLVMAtomicCmpXchg => throw new Exception("The loweratomic pass should lower cmpxchg."),
@@ -177,44 +180,40 @@ namespace Symbolica.Deserialization
             return new Attributes(isSignExtended);
         }
 
-        private IInstruction CreateGep(InstructionId id, IOperand[] operands, LLVMValueRef instruction)
+        private IOperand[] GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
         {
-            var constantOffsets = new List<Bytes>();
-            var offsets = new List<Offset>();
-
-            var indexedType = instruction.GetOperand(0U).TypeOf;
-
-            foreach (var (operand, index) in instruction.GetOperands().Select((o, i) => (o, i)).Skip(1))
-                if (indexedType.Kind == LLVMTypeKind.LLVMStructTypeKind)
-                {
-                    var element = (uint) operand.ConstIntZExt;
-
-                    constantOffsets.Add(indexedType.GetElementOffset(_targetData, element));
-                    indexedType = indexedType.StructGetTypeAtIndex(element);
-                }
-                else
-                {
-                    indexedType = indexedType.ElementType;
-                    offsets.Add(new Offset(index, indexedType.GetStoreSize(_targetData)));
-                }
-
-            return new GetElementPointer(id, operands, constantOffsets.ToArray(), offsets.ToArray());
+            return GetOffsets<IOperand, IOperand>(instruction,
+                    instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt), operands.Skip(1),
+                    o => new ConstantOffset(o), (o, i) => new Offset(o, i))
+                .ToArray();
         }
 
-        private IEnumerable<Bits> GetConstantOffsets(LLVMValueRef instruction)
+        private Bits[] GetAggregateOffsets(LLVMValueRef instruction)
+        {
+            var indices = _unsafeContext.GetIndices(instruction);
+
+            return GetOffsets(instruction,
+                    indices, indices,
+                    o => o.ToBits(), (o, i) => o.ToBits() * i)
+                .ToArray();
+        }
+
+        private IEnumerable<TOffset> GetOffsets<TIndex, TOffset>(LLVMValueRef instruction,
+            IEnumerable<uint> constantIndices, IEnumerable<TIndex> indices,
+            Func<Bytes, TOffset> constantOffset, Func<Bytes, TIndex, TOffset> offset)
         {
             var indexedType = instruction.GetOperand(0U).TypeOf;
 
-            foreach (var index in _unsafeContext.GetIndices(instruction))
+            foreach (var (constantIndex, index) in constantIndices.Zip(indices))
                 if (indexedType.Kind == LLVMTypeKind.LLVMStructTypeKind)
                 {
-                    yield return indexedType.GetElementOffset(_targetData, index).ToBits();
-                    indexedType = indexedType.StructGetTypeAtIndex(index);
+                    yield return constantOffset(indexedType.GetElementOffset(_targetData, constantIndex));
+                    indexedType = indexedType.StructGetTypeAtIndex(constantIndex);
                 }
                 else
                 {
                     indexedType = indexedType.ElementType;
-                    yield return indexedType.GetStoreSize(_targetData).ToBits() * index;
+                    yield return offset(indexedType.GetStoreSize(_targetData), index);
                 }
         }
     }
