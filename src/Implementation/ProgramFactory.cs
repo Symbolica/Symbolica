@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -40,7 +39,7 @@ namespace Symbolica.Implementation
             {
                 "x86_64" => new X64VariadicAbi(),
                 "x86" => new X86VariadicAbi(),
-                _ => throw new Exception($"Architecture {architecture} is unsupported.")
+                _ => throw new ImplementationException($"Architecture {architecture} is unsupported.")
             };
 
             var frameFactory = new FrameFactory(variadicAbi, _collectionFactory);
@@ -50,7 +49,7 @@ namespace Symbolica.Implementation
                 : ConstantContinuationFactory.Create();
 
             var main = module.Functions.OfType<IDefinition>().SingleOrDefault(d => d.Name == "main")
-                       ?? throw new Exception("No 'main' function is defined.");
+                       ?? throw new ImplementationException("No 'main' function is defined.");
 
             var stack = PersistentStack.Create(module, frameFactory,
                 continuationFactory,

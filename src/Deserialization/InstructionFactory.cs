@@ -98,7 +98,7 @@ namespace Symbolica.Deserialization
                     LLVMIntPredicate.LLVMIntSGE => new SignedGreaterOrEqual(id, operands),
                     LLVMIntPredicate.LLVMIntSLT => new SignedLess(id, operands),
                     LLVMIntPredicate.LLVMIntSLE => new SignedLessOrEqual(id, operands),
-                    _ => throw new Exception("Comparison type is unknown.")
+                    _ => throw new Exception($"Comparison type {instruction.ICmpPredicate} is unknown.")
                 },
                 LLVMOpcode.LLVMFCmp => instruction.FCmpPredicate switch
                 {
@@ -118,7 +118,7 @@ namespace Symbolica.Deserialization
                     LLVMRealPredicate.LLVMRealULE => new FloatUnorderedOrLessOrEqual(id, operands),
                     LLVMRealPredicate.LLVMRealUNE => new FloatUnorderedOrNotEqual(id, operands),
                     LLVMRealPredicate.LLVMRealPredicateTrue => new FloatFalse(id),
-                    _ => throw new Exception("Float comparison type is unknown.")
+                    _ => throw new Exception($"Float comparison type {instruction.FCmpPredicate} is unknown.")
                 },
                 LLVMOpcode.LLVMPHI => new Phi(
                     id,
@@ -155,7 +155,7 @@ namespace Symbolica.Deserialization
                 LLVMOpcode.LLVMCatchPad => new Unsupported(id, "catchpad"),
                 LLVMOpcode.LLVMCleanupPad => new Unsupported(id, "cleanuppad"),
                 LLVMOpcode.LLVMCatchSwitch => new Unsupported(id, "catchswitch"),
-                _ => throw new Exception("Instruction type is unknown.")
+                _ => throw new Exception($"Instruction type {opcode} is unknown.")
             };
         }
 

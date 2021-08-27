@@ -1,5 +1,4 @@
-﻿using System;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Instructions
 {
@@ -17,7 +16,7 @@ namespace Symbolica.Representation.Instructions
 
         public void Execute(IState state)
         {
-            throw new Exception($"Instruction '{_type}' is unsupported.");
+            throw new RepresentationException($"Instruction '{_type}' is unsupported.");
         }
     }
 }

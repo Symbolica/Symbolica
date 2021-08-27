@@ -29,7 +29,7 @@ namespace Symbolica.Application.Computation
             {
                 Status.UNSATISFIABLE => false,
                 Status.SATISFIABLE => true,
-                _ => throw new Exception("Satisfiability is unknown.")
+                _ => throw new ComputationException("Satisfiability is unknown.")
             };
         }
 
@@ -37,7 +37,7 @@ namespace Symbolica.Application.Computation
         {
             return _solver.Check() == Status.SATISFIABLE
                 ? _solver.Model.Eval(func(_context))
-                : throw new Exception("The model cannot be evaluated.");
+                : throw new ComputationException("The model cannot be evaluated.");
         }
 
         public IEnumerable<KeyValuePair<string, string>> Evaluate()

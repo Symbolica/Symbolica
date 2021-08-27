@@ -65,7 +65,7 @@ namespace Symbolica.Implementation.Stack
         {
             public IExpression Get(int index)
             {
-                throw new Exception("The 'main' function cannot take any Arguments.");
+                throw new ImplementationException("The 'main' function cannot access any Arguments.");
             }
 
             public IEnumerator<IExpression> GetEnumerator()

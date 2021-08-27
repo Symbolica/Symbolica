@@ -81,7 +81,7 @@ namespace Symbolica.Deserialization
                 LLVMValueKind.LLVMPoisonValueValueKind =>
                     new Unsupported("poison"),
                 _ =>
-                    throw new Exception("Operand type is unknown.")
+                    throw new Exception($"Operand type {operand.Kind} is unknown.")
             };
         }
 
