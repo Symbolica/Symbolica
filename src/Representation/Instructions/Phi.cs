@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Representation.Operands;
@@ -21,7 +22,10 @@ namespace Symbolica.Representation.Instructions
 
         public void Execute(IState state)
         {
-            var index = _indices[state.Stack.PredecessorId];
+            var index = _indices.TryGetValue(state.Stack.PredecessorId, out var value)
+                ? value
+                : throw new Exception($"Basic block {state.Stack.PredecessorId} was not found.");
+
             var result = Evaluate(state, _operands[index]);
 
             state.Stack.SetVariable(Id, result);

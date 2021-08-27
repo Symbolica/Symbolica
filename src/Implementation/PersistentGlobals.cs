@@ -26,7 +26,7 @@ namespace Symbolica.Implementation
                 ? (address, _ => { }, this)
                 : Allocate(memory, _globals.TryGetValue(globalId, out var global)
                     ? global
-                    : throw new Exception("Global was not found."));
+                    : throw new Exception($"Global {globalId} was not found."));
         }
 
         private (IExpression, Action<IState>, IPersistentGlobals) Allocate(IMemoryProxy memory, IGlobal global)

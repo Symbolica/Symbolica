@@ -31,11 +31,13 @@ namespace Symbolica.Representation.Functions
         public FunctionId Id { get; }
         public IParameters Parameters { get; }
         public string Name { get; }
-        public IBasicBlock Entry => _basicBlocks[_entryId];
+        public IBasicBlock Entry => GetBasicBlock(_entryId);
 
         public IBasicBlock GetBasicBlock(BasicBlockId basicBlockId)
         {
-            return _basicBlocks[basicBlockId];
+            return _basicBlocks.TryGetValue(basicBlockId, out var basicBlock)
+                ? basicBlock
+                : throw new Exception($"Basic block {basicBlockId} was not found.");
         }
 
         public void Call(IState state, ICaller caller, IArguments arguments)
