@@ -121,8 +121,9 @@ namespace Symbolica.Deserialization
                     id,
                     operands,
                     instruction.GetIncomingBasicBlocks()
-                        .Select(b => (BasicBlockId) _idFactory.GetOrCreate(b.Handle))
-                        .ToArray()),
+                        .Select((b, i) => new {b, i})
+                        .ToLookup(p => (BasicBlockId) _idFactory.GetOrCreate(p.b.Handle), p => p.i)
+                        .ToDictionary(g => g.Key, g => g.First())),
                 LLVMOpcode.LLVMCall => CreateCall(id, operands, instruction),
                 LLVMOpcode.LLVMSelect => new Select(id, operands),
                 LLVMOpcode.LLVMUserOp1 => throw new Exception("User op 1 should only be used internally in passes."),

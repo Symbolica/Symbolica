@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Representation.Operands;
@@ -11,11 +10,11 @@ namespace Symbolica.Representation.Instructions
         private readonly IReadOnlyDictionary<BasicBlockId, int> _indices;
         private readonly IOperand[] _operands;
 
-        public Phi(InstructionId id, IOperand[] operands, IEnumerable<BasicBlockId> predecessorIds)
+        public Phi(InstructionId id, IOperand[] operands, IReadOnlyDictionary<BasicBlockId, int> indices)
         {
             Id = id;
             _operands = operands;
-            _indices = GetIndices(predecessorIds);
+            _indices = indices;
         }
 
         public InstructionId Id { get; }
@@ -33,16 +32,6 @@ namespace Symbolica.Representation.Instructions
             return operand is Variable variable
                 ? variable.Evaluate(state, true)
                 : operand.Evaluate(state);
-        }
-
-        private static IReadOnlyDictionary<BasicBlockId, int> GetIndices(IEnumerable<BasicBlockId> predecessorIds)
-        {
-            var indices = new Dictionary<BasicBlockId, int>();
-
-            foreach (var (predecessorId, index) in predecessorIds.Select((p, i) => (p, i)))
-                indices.TryAdd(predecessorId, index);
-
-            return indices;
         }
     }
 }

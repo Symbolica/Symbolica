@@ -39,7 +39,7 @@ namespace Symbolica.Implementation.Stack
         public static IPersistentProgramCounter Create(IDefinition definition)
         {
             return new PersistentProgramCounter(definition,
-                definition.Start, null, -1);
+                definition.Entry, null, -1);
         }
     }
 }
