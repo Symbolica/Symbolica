@@ -5,21 +5,21 @@ namespace Symbolica.Representation
 {
     public sealed class Offset : IOperand
     {
-        private readonly Bytes _elementSize;
-        private readonly IOperand _operand;
+        private readonly IOperand _elementSize;
+        private readonly IOperand _index;
 
-        public Offset(Bytes elementSize, IOperand operand)
+        public Offset(IOperand elementSize, IOperand index)
         {
             _elementSize = elementSize;
-            _operand = operand;
+            _index = index;
         }
 
         public IExpression Evaluate(IState state)
         {
-            var elementCount = _operand.Evaluate(state);
+            var count = _index.Evaluate(state);
+            var size = _elementSize.Evaluate(state);
 
-            return elementCount.SignExtend(state.Space.PointerSize)
-                .Multiply(state.Space.CreateConstant(state.Space.PointerSize, (uint) _elementSize));
+            return count.SignExtend(state.Space.PointerSize).Multiply(size);
         }
     }
 }

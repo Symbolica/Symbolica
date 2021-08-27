@@ -184,7 +184,7 @@ namespace Symbolica.Deserialization
         {
             return GetOffsets<IOperand, IOperand>(instruction,
                     instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt), operands.Skip(1),
-                    o => new ConstantOffset(o), (o, i) => new Offset(o, i))
+                    s => new ConstantOffset(s), (s, i) => new Offset(new ConstantOffset(s), i))
                 .ToArray();
         }
 
@@ -194,7 +194,7 @@ namespace Symbolica.Deserialization
 
             return GetOffsets(instruction,
                     indices, indices,
-                    o => o.ToBits(), (o, i) => o.ToBits() * i)
+                    s => s.ToBits(), (s, i) => s.ToBits() * i)
                 .ToArray();
         }
 
