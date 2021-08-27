@@ -9,27 +9,35 @@ namespace Symbolica.Representation.Functions
     public sealed class Definition : IDefinition
     {
         private readonly IReadOnlyDictionary<BasicBlockId, IBasicBlock> _basicBlocks;
+        private readonly BasicBlockId _entryId;
         private readonly bool _isVariadic;
 
-        public Definition(FunctionId id, string name, IParameters parameters,
-            bool isVariadic, IBasicBlock[] basicBlocks)
+        public Definition(
+            FunctionId id,
+            string name,
+            IParameters parameters,
+            bool isVariadic,
+            BasicBlockId entryId,
+            IReadOnlyDictionary<BasicBlockId, IBasicBlock> basicBlocks)
         {
             Id = id;
             Name = name;
             Parameters = parameters;
             _isVariadic = isVariadic;
-            Start = basicBlocks.First();
-            _basicBlocks = basicBlocks.ToDictionary(b => b.Id);
+            _entryId = entryId;
+            _basicBlocks = basicBlocks;
         }
 
         public FunctionId Id { get; }
         public IParameters Parameters { get; }
         public string Name { get; }
-        public IBasicBlock Start { get; }
+        public IBasicBlock Entry => GetBasicBlock(_entryId);
 
         public IBasicBlock GetBasicBlock(BasicBlockId basicBlockId)
         {
-            return _basicBlocks[basicBlockId];
+            return _basicBlocks.TryGetValue(basicBlockId, out var basicBlock)
+                ? basicBlock
+                : throw new Exception($"Basic block {basicBlockId} was not found.");
         }
 
         public void Call(IState state, ICaller caller, IArguments arguments)

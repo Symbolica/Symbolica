@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Representation.Operands;
@@ -11,18 +11,21 @@ namespace Symbolica.Representation.Instructions
         private readonly IReadOnlyDictionary<BasicBlockId, int> _indices;
         private readonly IOperand[] _operands;
 
-        public Phi(InstructionId id, IOperand[] operands, IEnumerable<BasicBlockId> predecessorIds)
+        public Phi(InstructionId id, IOperand[] operands, IReadOnlyDictionary<BasicBlockId, int> indices)
         {
             Id = id;
             _operands = operands;
-            _indices = GetIndices(predecessorIds);
+            _indices = indices;
         }
 
         public InstructionId Id { get; }
 
         public void Execute(IState state)
         {
-            var index = _indices[state.Stack.PredecessorId];
+            var index = _indices.TryGetValue(state.Stack.PredecessorId, out var value)
+                ? value
+                : throw new Exception($"Basic block {state.Stack.PredecessorId} was not found.");
+
             var result = Evaluate(state, _operands[index]);
 
             state.Stack.SetVariable(Id, result);
@@ -33,16 +36,6 @@ namespace Symbolica.Representation.Instructions
             return operand is Variable variable
                 ? variable.Evaluate(state, true)
                 : operand.Evaluate(state);
-        }
-
-        private static IReadOnlyDictionary<BasicBlockId, int> GetIndices(IEnumerable<BasicBlockId> predecessorIds)
-        {
-            var indices = new Dictionary<BasicBlockId, int>();
-
-            foreach (var (predecessorId, index) in predecessorIds.Select((p, i) => (p, i)))
-                indices.TryAdd(predecessorId, index);
-
-            return indices;
         }
     }
 }

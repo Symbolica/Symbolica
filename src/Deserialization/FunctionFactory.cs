@@ -40,9 +40,10 @@ namespace Symbolica.Deserialization
                 function.Name,
                 parameters,
                 function.TypeOf.ElementType.IsFunctionVarArg,
+                (BasicBlockId) _idFactory.GetOrCreate(function.EntryBasicBlock.Handle),
                 function.BasicBlocks
                     .Select(CreateBasicBlock)
-                    .ToArray());
+                    .ToDictionary(b => b.Id));
         }
 
         private IBasicBlock CreateBasicBlock(LLVMBasicBlockRef basicBlock)

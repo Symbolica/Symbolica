@@ -18,7 +18,7 @@ namespace Symbolica.Implementation
         {
             return _functions.TryGetValue(functionId, out var function)
                 ? function
-                : throw new Exception("Function was not found.");
+                : throw new Exception($"Function {functionId} was not found.");
         }
     }
 }

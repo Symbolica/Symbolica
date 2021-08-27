@@ -3,7 +3,7 @@
     public interface IDefinition : IFunction
     {
         string Name { get; }
-        IBasicBlock Start { get; }
+        IBasicBlock Entry { get; }
 
         IBasicBlock GetBasicBlock(BasicBlockId basicBlockId);
     }
