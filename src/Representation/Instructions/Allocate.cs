@@ -19,7 +19,7 @@ namespace Symbolica.Representation.Instructions
 
         public void Execute(IState state)
         {
-            var size = (Bits) ((uint) _elementSize * (uint) _operands[0].Evaluate(state).Integer);
+            var size = _elementSize * (uint) _operands[0].Evaluate(state).Integer;
             var address = state.Stack.Allocate(size);
 
             state.Stack.SetVariable(Id, address);

@@ -39,6 +39,11 @@ namespace Symbolica.Expression
             return (Bits) (left._value - right._value);
         }
 
+        public static Bits operator *(Bits left, uint right)
+        {
+            return (Bits) (left._value * right);
+        }
+
         public bool Equals(Bits other)
         {
             return _value == other._value;

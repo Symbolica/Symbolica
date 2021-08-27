@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LLVMSharp.Interop;
@@ -31,7 +30,7 @@ namespace Symbolica.Deserialization
             return LLVM.GetAllocatedType(instruction);
         }
 
-        public IEnumerable<uint> GetIndices(LLVMValueRef instruction)
+        public uint[] GetIndices(LLVMValueRef instruction)
         {
             var count = LLVM.GetNumIndices(instruction);
             var p = LLVM.GetIndices(instruction);
