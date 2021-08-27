@@ -76,7 +76,17 @@ jobs:
             echo "SYMBOLICA_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
             echo "SYMBOLICA_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: true
+        - os: ubuntu-20.04
+          setupScript: |
+            echo "SYMBOLICA_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
+            echo "SYMBOLICA_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
+          nugetPush: true
         - os: ubuntu-18.04
+          setupScript: |
+            sudo ./lib/install-deps.sh
+            ./lib/install-symbolica.sh
+          nugetPush: false
+        - os: ubuntu-20.04
           setupScript: |
             sudo ./lib/install-deps.sh
             ./lib/install-symbolica.sh
