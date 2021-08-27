@@ -38,7 +38,7 @@ namespace Symbolica.Implementation.Stack
 
         public IExpression CreateVaList(ISpace space, IStructType vaListType, IExpression address)
         {
-            return vaListType.Create(space.CreateConstant(vaListType.Size, BigInteger.Zero))
+            return vaListType.CreateStruct(space.CreateConstant(vaListType.Size, BigInteger.Zero))
                 .Write(space, 0, 48U)
                 .Write(space, 1, 304U)
                 .Write(space, 2, address)

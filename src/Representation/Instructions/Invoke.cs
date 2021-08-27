@@ -15,7 +15,7 @@ namespace Symbolica.Representation.Instructions
         }
 
         public Bits Size => _call.Size;
-        public IAttributes Attributes => _call.Attributes;
+        public IAttributes ReturnAttributes => _call.ReturnAttributes;
 
         public void Return(IState state)
         {

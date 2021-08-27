@@ -29,7 +29,7 @@ namespace Symbolica.Deserialization
                 .ToArray());
 
             return function.IsDeclaration
-                ? DeclarationMapper.Map(function.Name, id, parameters)
+                ? DeclarationFactory.Create(function.Name, id, parameters)
                 : CreateDefinition(id, parameters, function);
         }
 

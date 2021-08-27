@@ -19,7 +19,7 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            throw new Exception($"Function {_name} is unsupported.");
+            throw new Exception($"Function '{_name}' is unsupported.");
         }
     }
 }

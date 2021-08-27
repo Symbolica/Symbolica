@@ -59,7 +59,7 @@ namespace Symbolica.Representation.Instructions
 
         private static IExpression Coerce(IExpression expression, ICaller caller)
         {
-            return caller.Attributes.IsSignExtended
+            return caller.ReturnAttributes.IsSignExtended
                 ? expression.SignExtend(caller.Size)
                 : expression.ZeroExtend(caller.Size);
         }

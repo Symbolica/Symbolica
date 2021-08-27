@@ -15,7 +15,7 @@ namespace Symbolica.Representation.Operands
 
         public IExpression Evaluate(IState state)
         {
-            throw new Exception($"Operand {_type} is unsupported.");
+            throw new Exception($"Operand '{_type}' is unsupported.");
         }
     }
 }

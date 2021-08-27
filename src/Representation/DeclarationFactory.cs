@@ -6,7 +6,7 @@ using Symbolica.Representation.Functions;
 
 namespace Symbolica.Representation
 {
-    public static class DeclarationMapper
+    public static class DeclarationFactory
     {
         private static readonly IReadOnlyDictionary<string, Func<FunctionId, IParameters, IFunction>> Intrinsics =
             new Dictionary<string, Func<FunctionId, IParameters, IFunction>>
@@ -125,29 +125,29 @@ namespace Symbolica.Representation
             .Concat(Internals.Keys.Select(s => $@"{s}\.[0-9]+"))
             .Select(s => $"^{s}$"));
 
-        public static IFunction Map(string name, FunctionId id, IParameters parameters)
+        public static IFunction Create(string name, FunctionId id, IParameters parameters)
         {
             var func = Specials.TryGetValue(name, out var constructor)
                 ? (_, i, p) => constructor(i, p)
-                : MapIntrinsicsAndInternals(name);
+                : CreateIntrinsicsAndInternals(name);
 
             return func(name, id, parameters);
         }
 
-        private static Func<string, FunctionId, IParameters, IFunction> MapIntrinsicsAndInternals(string name)
+        private static Func<string, FunctionId, IParameters, IFunction> CreateIntrinsicsAndInternals(string name)
         {
             return Intrinsics.TryGetValue(name, out var constructor) || Internals.TryGetValue(name, out constructor)
                 ? (_, i, p) => constructor(i, p)
-                : MapOverloaded(name);
+                : CreateOverloaded(name);
         }
 
-        private static Func<string, FunctionId, IParameters, IFunction> MapOverloaded(string name)
+        private static Func<string, FunctionId, IParameters, IFunction> CreateOverloaded(string name)
         {
             var index = name.LastIndexOf('.');
 
             return index == -1
                 ? (n, i, p) => new Unsupported(n, i, p)
-                : MapIntrinsicsAndInternals(name.Remove(index));
+                : CreateIntrinsicsAndInternals(name.Remove(index));
         }
     }
 }

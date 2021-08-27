@@ -6,7 +6,7 @@ namespace Symbolica.Abstraction
     {
         InstructionId Id { get; }
         Bits Size { get; }
-        IAttributes Attributes { get; }
+        IAttributes ReturnAttributes { get; }
 
         void Return(IState state);
     }

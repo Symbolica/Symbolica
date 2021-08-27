@@ -81,7 +81,7 @@ namespace Symbolica.Implementation.System
             var streamType = _module.DirectoryStreamType ?? throw new Exception("Directory stream type was not found.");
             var entryType = _module.DirectoryEntryType ?? throw new Exception("Directory entry type was not found.");
 
-            var stream = streamType.Create(memory.Read(address, streamType.Size));
+            var stream = streamType.CreateStruct(memory.Read(address, streamType.Size));
 
             var tell = (int) stream.Read(space, 0).Integer;
             var descriptor = (int) stream.Read(space, 1).Integer;
@@ -91,7 +91,7 @@ namespace Symbolica.Implementation.System
                 .Write(space, 0, tell + 1)
                 .Expression);
 
-            var entry = entryType.Create(space.CreateGarbage(entryType.Size));
+            var entry = entryType.CreateStruct(space.CreateGarbage(entryType.Size));
 
             var (_, handle) = Get(descriptor);
 
@@ -102,7 +102,7 @@ namespace Symbolica.Implementation.System
         {
             var statType = _module.StatType ?? throw new Exception("Stat type was not found.");
 
-            var stat = statType.Create(space.CreateGarbage(statType.Size));
+            var stat = statType.CreateStruct(space.CreateGarbage(statType.Size));
 
             var (_, handle) = Get(descriptor);
 
@@ -114,12 +114,12 @@ namespace Symbolica.Implementation.System
             var localeType = _module.LocaleType ?? throw new Exception("Locale type was not found.");
             var threadType = _module.ThreadType ?? throw new Exception("Thread type was not found.");
 
-            var locale = localeType.Create(space.CreateGarbage(localeType.Size));
+            var locale = localeType.CreateStruct(space.CreateGarbage(localeType.Size));
 
             var localeAddress = memory.Allocate(Section.Global, locale.Expression.Size);
             memory.Write(localeAddress, locale.Expression);
 
-            var thread = threadType.Create(space.CreateGarbage(threadType.Size))
+            var thread = threadType.CreateStruct(space.CreateGarbage(threadType.Size))
                 .Write(space, 24, localeAddress);
 
             var threadAddress = memory.Allocate(Section.Global, thread.Expression.Size);
