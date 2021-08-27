@@ -23,12 +23,12 @@ namespace Symbolica.Deserialization
 
         public IGlobal Create(LLVMValueRef global)
         {
-            return new Global(
-                (GlobalId) _idFactory.GetOrCreate(global.Handle),
-                global.TypeOf.ElementType.GetStoreSize(_targetData).ToBits(),
-                global.Initializer == default
-                    ? null
-                    : _operandFactory.Create(global.Initializer, _instructionFactory));
+            var id = (GlobalId) _idFactory.GetOrCreate(global.Handle);
+            var size = global.TypeOf.ElementType.GetStoreSize(_targetData).ToBits();
+
+            return global.Initializer == default
+                ? new UninitializedGlobal(id, size)
+                : new Global(id, size, _operandFactory.Create(global.Initializer, _instructionFactory));
         }
     }
 }
