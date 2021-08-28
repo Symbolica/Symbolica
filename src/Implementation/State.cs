@@ -17,18 +17,17 @@ namespace Symbolica.Implementation
         private IPersistentGlobals _globals;
         private bool _isComplete;
 
-        public State(IProgramPool programPool, ISpace space,
-            IMemoryProxy memory, IStackProxy stack, ISystemProxy system,
-            IModule module, IPersistentGlobals globals)
+        public State(IProgramPool programPool, IModule module, ISpace space,
+            IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
         {
             _isComplete = false;
             _programPool = programPool;
+            _module = module;
             Space = space;
+            _globals = globals;
             _memory = memory;
             _stack = stack;
             _system = system;
-            _module = module;
-            _globals = globals;
         }
 
         public bool TryExecuteNextInstruction()
@@ -100,9 +99,8 @@ namespace Symbolica.Implementation
             var stack = _stack.Clone(space, memory);
             var system = _system.Clone(space, memory);
 
-            var state = new State(_programPool, space,
-                memory, stack, system,
-                _module, _globals);
+            var state = new State(_programPool, _module, space,
+                _globals, memory, stack, system);
 
             action(state);
 

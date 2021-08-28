@@ -53,18 +53,15 @@ namespace Symbolica.Implementation
                 continuationFactory, _collectionFactory);
 
             var descriptionFactory = new DescriptionFactory(_fileSystem);
-
             var system = PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
 
             var globals = PersistentGlobals.Create(module, _collectionFactory);
-
             var memoryProxy = new MemoryProxy(space, memory);
             var stackProxy = new StackProxy(space, memoryProxy, stack);
             var systemProxy = new SystemProxy(space, memoryProxy, system);
 
-            var state = new State(programPool, space,
-                memoryProxy, stackProxy, systemProxy,
-                module, globals);
+            var state = new State(programPool, module, space,
+                globals, memoryProxy, stackProxy, systemProxy);
 
             return new Program(() => state);
         }
