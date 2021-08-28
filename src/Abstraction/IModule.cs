@@ -7,13 +7,13 @@ namespace Symbolica.Abstraction
     {
         string Target { get; }
         Bits PointerSize { get; }
-        IStructType? DirectoryStreamType { get; }
-        IStructType? DirectoryEntryType { get; }
-        IStructType? JumpBufferType { get; }
-        IStructType? LocaleType { get; }
-        IStructType? StatType { get; }
-        IStructType? ThreadType { get; }
-        IStructType? VaListType { get; }
+        IStructType DirectoryStreamType { get; }
+        IStructType DirectoryEntryType { get; }
+        IStructType JumpBufferType { get; }
+        IStructType LocaleType { get; }
+        IStructType StatType { get; }
+        IStructType ThreadType { get; }
+        IStructType VaListType { get; }
         IEnumerable<IFunction> Functions { get; }
         IEnumerable<IGlobal> Globals { get; }
     }

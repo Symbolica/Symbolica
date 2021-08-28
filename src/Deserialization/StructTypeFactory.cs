@@ -15,15 +15,17 @@ namespace Symbolica.Deserialization
             _targetData = targetData;
         }
 
-        public IStructType Create(LLVMModuleRef module, string name)
+        public IStructType? Create(LLVMModuleRef module, string name)
         {
             var type = module.GetTypeByName(name);
 
-            return new StructType(
-                type.GetStoreSize(_targetData).ToBits(),
-                type.StructElementTypes
-                    .Select((_, i) => type.GetElementOffset(_targetData, (uint) i).ToBits())
-                    .ToArray());
+            return type == null
+                ? null
+                : new StructType(
+                    type.GetStoreSize(_targetData).ToBits(),
+                    type.StructElementTypes
+                        .Select((_, i) => type.GetElementOffset(_targetData, (uint) i).ToBits())
+                        .ToArray());
         }
     }
 }

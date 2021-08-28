@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
@@ -106,9 +105,7 @@ namespace Symbolica.Implementation.Stack
 
         public IExpression GetInitializedVaList(ISpace space)
         {
-            var vaListType = _module.VaListType ?? throw new Exception("Variadic list type was not found.");
-
-            return _currentFrame.GetInitializedVaList(space, vaListType);
+            return _currentFrame.GetInitializedVaList(space, _module.VaListType);
         }
 
         public IExpression GetVariable(InstructionId instructionId, bool useIncomingValue)
@@ -143,10 +140,8 @@ namespace Symbolica.Implementation.Stack
 
         private Bits GetContinuationSize(bool useJumpBuffer)
         {
-            var jumpBufferType = _module.JumpBufferType ?? throw new Exception("Jump buffer type was not found.");
-
             return useJumpBuffer
-                ? jumpBufferType.Size
+                ? _module.JumpBufferType.Size
                 : Bytes.One.ToBits();
         }
 

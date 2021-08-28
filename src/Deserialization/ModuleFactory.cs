@@ -26,19 +26,24 @@ namespace Symbolica.Deserialization
             return new Module(
                 module.Target,
                 pointerSize.ToBits(),
-                _structTypeFactory.Create(module, "struct.__dirstream"),
-                _structTypeFactory.Create(module, "struct.dirent"),
-                _structTypeFactory.Create(module, "struct.__jmp_buf_tag"),
-                _structTypeFactory.Create(module, "struct.__locale_struct"),
-                _structTypeFactory.Create(module, "struct.stat"),
-                _structTypeFactory.Create(module, "struct.__pthread"),
-                _structTypeFactory.Create(module, "struct.__va_list_tag"),
+                CreateStructType(module, "struct.__dirstream"),
+                CreateStructType(module, "struct.dirent"),
+                CreateStructType(module, "struct.__jmp_buf_tag"),
+                CreateStructType(module, "struct.__locale_struct"),
+                CreateStructType(module, "struct.stat"),
+                CreateStructType(module, "struct.__pthread"),
+                CreateStructType(module, "struct.__va_list_tag"),
                 module.GetFunctions()
                     .Select(_functionFactory.Create)
                     .ToArray(),
                 module.GetGlobals()
                     .Select(_globalFactory.Create)
                     .ToArray());
+        }
+
+        private (string, IStructType?) CreateStructType(LLVMModuleRef module, string name)
+        {
+            return (name, _structTypeFactory.Create(module, name));
         }
     }
 }
