@@ -15,6 +15,7 @@ namespace Symbolica.Abstraction
         IStructType ThreadType { get; }
         IStructType VaListType { get; }
         IEnumerable<IFunction> Functions { get; }
-        IEnumerable<IGlobal> Globals { get; }
+
+        IGlobal GetGlobal(GlobalId globalId);
     }
 }

@@ -38,7 +38,7 @@ namespace Symbolica.Deserialization
                     .ToArray(),
                 module.GetGlobals()
                     .Select(_globalFactory.Create)
-                    .ToArray());
+                    .ToDictionary(g => g.Id));
         }
 
         private (string, IStructType?) CreateStructType(LLVMModuleRef module, string name)

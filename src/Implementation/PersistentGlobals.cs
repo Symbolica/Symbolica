@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -11,12 +9,12 @@ namespace Symbolica.Implementation
     internal sealed class PersistentGlobals : IPersistentGlobals
     {
         private readonly IPersistentDictionary<GlobalId, IExpression> _addresses;
-        private readonly IReadOnlyDictionary<GlobalId, IGlobal> _globals;
+        private readonly IModule _module;
 
-        private PersistentGlobals(IReadOnlyDictionary<GlobalId, IGlobal> globals,
+        private PersistentGlobals(IModule module,
             IPersistentDictionary<GlobalId, IExpression> addresses)
         {
-            _globals = globals;
+            _module = module;
             _addresses = addresses;
         }
 
@@ -24,22 +22,20 @@ namespace Symbolica.Implementation
         {
             return _addresses.TryGetValue(globalId, out var address)
                 ? (address, _ => { }, this)
-                : Allocate(memory, _globals.TryGetValue(globalId, out var global)
-                    ? global
-                    : throw new Exception($"Global {globalId} was not found."));
+                : Allocate(memory, _module.GetGlobal(globalId));
         }
 
         private (IExpression, Action<IState>, IPersistentGlobals) Allocate(IMemoryProxy memory, IGlobal global)
         {
             var address = memory.Allocate(Section.Global, global.Size);
 
-            return (address, s => global.Initialize(s, address), new PersistentGlobals(_globals,
+            return (address, s => global.Initialize(s, address), new PersistentGlobals(_module,
                 _addresses.SetItem(global.Id, address)));
         }
 
-        public static IPersistentGlobals Create(IEnumerable<IGlobal> globals, ICollectionFactory collectionFactory)
+        public static IPersistentGlobals Create(IModule module, ICollectionFactory collectionFactory)
         {
-            return new PersistentGlobals(globals.ToDictionary(g => g.Id),
+            return new PersistentGlobals(module,
                 collectionFactory.CreatePersistentDictionary<GlobalId, IExpression>());
         }
     }

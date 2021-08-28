@@ -61,7 +61,7 @@ namespace Symbolica.Implementation
             var system = PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
 
             var functions = new Functions(module.Functions);
-            var globals = PersistentGlobals.Create(module.Globals, _collectionFactory);
+            var globals = PersistentGlobals.Create(module, _collectionFactory);
 
             var memoryProxy = new MemoryProxy(space, memory);
             var stackProxy = new StackProxy(space, memoryProxy, stack);

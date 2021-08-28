@@ -10,7 +10,7 @@ namespace Symbolica.Representation
         private readonly (string, IStructType?) _directoryEntryType;
         private readonly (string, IStructType?) _directoryStreamType;
         private readonly IFunction[] _functions;
-        private readonly IGlobal[] _globals;
+        private readonly IReadOnlyDictionary<GlobalId, IGlobal> _globals;
         private readonly (string, IStructType?) _jumpBufferType;
         private readonly (string, IStructType?) _localeType;
         private readonly (string, IStructType?) _statType;
@@ -28,7 +28,7 @@ namespace Symbolica.Representation
             (string, IStructType?) threadType,
             (string, IStructType?) vaListType,
             IFunction[] functions,
-            IGlobal[] globals)
+            IReadOnlyDictionary<GlobalId, IGlobal> globals)
         {
             Target = target;
             PointerSize = pointerSize;
@@ -53,7 +53,13 @@ namespace Symbolica.Representation
         public IStructType ThreadType => GetStructType(_threadType);
         public IStructType VaListType => GetStructType(_vaListType);
         public IEnumerable<IFunction> Functions => _functions;
-        public IEnumerable<IGlobal> Globals => _globals;
+
+        public IGlobal GetGlobal(GlobalId globalId)
+        {
+            return _globals.TryGetValue(globalId, out var global)
+                ? global
+                : throw new Exception($"Global {globalId} was not found.");
+        }
 
         private static IStructType GetStructType((string, IStructType?) namedStructType)
         {
