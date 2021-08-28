@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -9,7 +10,7 @@ namespace Symbolica.Representation
     {
         private readonly (string, IStructType?) _directoryEntryType;
         private readonly (string, IStructType?) _directoryStreamType;
-        private readonly IFunction[] _functions;
+        private readonly IReadOnlyDictionary<FunctionId, IFunction> _functions;
         private readonly IReadOnlyDictionary<GlobalId, IGlobal> _globals;
         private readonly (string, IStructType?) _jumpBufferType;
         private readonly (string, IStructType?) _localeType;
@@ -27,7 +28,7 @@ namespace Symbolica.Representation
             (string, IStructType?) statType,
             (string, IStructType?) threadType,
             (string, IStructType?) vaListType,
-            IFunction[] functions,
+            IReadOnlyDictionary<FunctionId, IFunction> functions,
             IReadOnlyDictionary<GlobalId, IGlobal> globals)
         {
             Target = target;
@@ -52,7 +53,19 @@ namespace Symbolica.Representation
         public IStructType StatType => GetStructType(_statType);
         public IStructType ThreadType => GetStructType(_threadType);
         public IStructType VaListType => GetStructType(_vaListType);
-        public IEnumerable<IFunction> Functions => _functions;
+
+        public IDefinition GetMain()
+        {
+            return _functions.Values.OfType<IDefinition>().SingleOrDefault(d => d.Name == "main")
+                   ?? throw new Exception("No 'main' function is defined.");
+        }
+
+        public IFunction GetFunction(FunctionId functionId)
+        {
+            return _functions.TryGetValue(functionId, out var function)
+                ? function
+                : throw new Exception($"Function {functionId} was not found.");
+        }
 
         public IGlobal GetGlobal(GlobalId globalId)
         {

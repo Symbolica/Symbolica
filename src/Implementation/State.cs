@@ -9,8 +9,8 @@ namespace Symbolica.Implementation
 {
     internal sealed class State : IState, IExecutableState
     {
-        private readonly IFunctions _functions;
         private readonly IMemoryProxy _memory;
+        private readonly IModule _module;
         private readonly IProgramPool _programPool;
         private readonly IStackProxy _stack;
         private readonly ISystemProxy _system;
@@ -19,7 +19,7 @@ namespace Symbolica.Implementation
 
         public State(IProgramPool programPool, ISpace space,
             IMemoryProxy memory, IStackProxy stack, ISystemProxy system,
-            IFunctions functions, IPersistentGlobals globals)
+            IModule module, IPersistentGlobals globals)
         {
             _isComplete = false;
             _programPool = programPool;
@@ -27,7 +27,7 @@ namespace Symbolica.Implementation
             _memory = memory;
             _stack = stack;
             _system = system;
-            _functions = functions;
+            _module = module;
             _globals = globals;
         }
 
@@ -48,7 +48,7 @@ namespace Symbolica.Implementation
 
         public IFunction GetFunction(FunctionId functionId)
         {
-            return _functions.Get(functionId);
+            return _module.GetFunction(functionId);
         }
 
         public IExpression GetGlobalAddress(GlobalId globalId)
@@ -102,7 +102,7 @@ namespace Symbolica.Implementation
 
             var state = new State(_programPool, space,
                 memory, stack, system,
-                _functions, _globals);
+                _module, _globals);
 
             action(state);
 

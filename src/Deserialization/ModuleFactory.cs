@@ -35,7 +35,7 @@ namespace Symbolica.Deserialization
                 CreateStructType(module, "struct.__va_list_tag"),
                 module.GetFunctions()
                     .Select(_functionFactory.Create)
-                    .ToArray(),
+                    .ToDictionary(f => f.Id),
                 module.GetGlobals()
                     .Select(_globalFactory.Create)
                     .ToDictionary(g => g.Id));

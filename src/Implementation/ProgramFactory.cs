@@ -49,18 +49,13 @@ namespace Symbolica.Implementation
                 ? new SymbolicContinuationFactory()
                 : ConstantContinuationFactory.Create();
 
-            var main = module.Functions.OfType<IDefinition>().SingleOrDefault(d => d.Name == "main")
-                       ?? throw new Exception("No 'main' function is defined.");
-
             var stack = PersistentStack.Create(module, frameFactory,
-                continuationFactory,
-                _collectionFactory, main);
+                continuationFactory, _collectionFactory);
 
             var descriptionFactory = new DescriptionFactory(_fileSystem);
 
             var system = PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
 
-            var functions = new Functions(module.Functions);
             var globals = PersistentGlobals.Create(module, _collectionFactory);
 
             var memoryProxy = new MemoryProxy(space, memory);
@@ -69,7 +64,7 @@ namespace Symbolica.Implementation
 
             var state = new State(programPool, space,
                 memoryProxy, stackProxy, systemProxy,
-                functions, globals);
+                module, globals);
 
             return new Program(() => state);
         }
