@@ -12,7 +12,7 @@ namespace Symbolica.Representation.Functions
         private readonly BasicBlockId _entryId;
         private readonly bool _isVariadic;
 
-        public Definition(
+        private Definition(
             FunctionId id,
             string name,
             IParameters parameters,
@@ -49,6 +49,23 @@ namespace Symbolica.Representation.Functions
                 : new Invocation(this,
                     arguments,
                     new Arguments(Array.Empty<IExpression>())));
+        }
+
+        public static IFunction Create(
+            FunctionId id,
+            string name,
+            IParameters parameters,
+            bool isVariadic,
+            BasicBlockId entryId,
+            IEnumerable<IBasicBlock> basicBlocks)
+        {
+            return new Definition(
+                id,
+                name,
+                parameters,
+                isVariadic,
+                entryId,
+                basicBlocks.ToDictionary(b => b.Id));
         }
     }
 }

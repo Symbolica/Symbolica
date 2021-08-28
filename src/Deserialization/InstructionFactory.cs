@@ -120,13 +120,10 @@ namespace Symbolica.Deserialization
                     LLVMRealPredicate.LLVMRealPredicateTrue => new FloatFalse(id),
                     _ => throw new Exception("Float comparison type is unknown.")
                 },
-                LLVMOpcode.LLVMPHI => new Phi(
+                LLVMOpcode.LLVMPHI => Phi.Create(
                     id,
                     operands,
-                    instruction.GetIncomingBasicBlocks()
-                        .Select((b, i) => new {b, i})
-                        .ToLookup(p => (BasicBlockId) _idFactory.GetOrCreate(p.b.Handle), p => p.i)
-                        .ToDictionary(g => g.Key, g => g.First())),
+                    instruction.GetIncomingBasicBlocks().Select(b => (BasicBlockId) _idFactory.GetOrCreate(b.Handle))),
                 LLVMOpcode.LLVMCall => CreateCall(id, operands, instruction),
                 LLVMOpcode.LLVMSelect => new Select(id, operands),
                 LLVMOpcode.LLVMUserOp1 => throw new Exception("User op 1 should only be used internally in passes."),

@@ -35,15 +35,13 @@ namespace Symbolica.Deserialization
 
         private IFunction CreateDefinition(FunctionId id, IParameters parameters, LLVMValueRef function)
         {
-            return new Definition(
+            return Definition.Create(
                 id,
                 function.Name,
                 parameters,
                 function.TypeOf.ElementType.IsFunctionVarArg,
                 (BasicBlockId) _idFactory.GetOrCreate(function.EntryBasicBlock.Handle),
-                function.BasicBlocks
-                    .Select(CreateBasicBlock)
-                    .ToDictionary(b => b.Id));
+                function.BasicBlocks.Select(CreateBasicBlock));
         }
 
         private IBasicBlock CreateBasicBlock(LLVMBasicBlockRef basicBlock)

@@ -18,7 +18,7 @@ namespace Symbolica.Representation
         private readonly (string, IStructType?) _threadType;
         private readonly (string, IStructType?) _vaListType;
 
-        public Module(
+        private Module(
             string target,
             Bits pointerSize,
             (string, IStructType?) directoryStreamType,
@@ -79,6 +79,33 @@ namespace Symbolica.Representation
             var (name, structType) = namedStructType;
 
             return structType ?? throw new Exception($"Struct type {name} was not found.");
+        }
+
+        public static IModule Create(
+            string target,
+            Bits pointerSize,
+            (string, IStructType?) directoryStreamType,
+            (string, IStructType?) directoryEntryType,
+            (string, IStructType?) jumpBufferType,
+            (string, IStructType?) localeType,
+            (string, IStructType?) statType,
+            (string, IStructType?) threadType,
+            (string, IStructType?) vaListType,
+            IEnumerable<IFunction> functions,
+            IEnumerable<IGlobal> globals)
+        {
+            return new Module(
+                target,
+                pointerSize,
+                directoryStreamType,
+                directoryEntryType,
+                jumpBufferType,
+                localeType,
+                statType,
+                threadType,
+                vaListType,
+                functions.ToDictionary(f => f.Id),
+                globals.ToDictionary(g => g.Id));
         }
     }
 }
