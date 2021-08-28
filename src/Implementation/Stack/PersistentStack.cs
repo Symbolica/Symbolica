@@ -152,9 +152,10 @@ namespace Symbolica.Implementation.Stack
         }
 
         public static IPersistentStack Create(IModule module, IFrameFactory frameFactory,
-            IPersistentContinuationFactory continuationFactory,
-            ICollectionFactory collectionFactory, IDefinition main)
+            IPersistentContinuationFactory continuationFactory, ICollectionFactory collectionFactory)
         {
+            var main = module.GetMain();
+
             return new PersistentStack(module, frameFactory,
                 continuationFactory,
                 collectionFactory.CreatePersistentStack<IPersistentFrame>(), frameFactory.CreateInitial(main));

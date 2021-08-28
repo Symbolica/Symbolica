@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Abstraction
 {
@@ -14,7 +13,9 @@ namespace Symbolica.Abstraction
         IStructType StatType { get; }
         IStructType ThreadType { get; }
         IStructType VaListType { get; }
-        IEnumerable<IFunction> Functions { get; }
-        IEnumerable<IGlobal> Globals { get; }
+
+        IDefinition GetMain();
+        IFunction GetFunction(FunctionId functionId);
+        IGlobal GetGlobal(GlobalId globalId);
     }
 }

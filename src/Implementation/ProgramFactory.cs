@@ -27,13 +27,29 @@ namespace Symbolica.Implementation
         {
             var space = _spaceFactory.CreateInitial(module.PointerSize, useSymbolicGarbage);
 
+            var globals = PersistentGlobals.Create(module, _collectionFactory);
+            var memory = new MemoryProxy(space, CreateMemory(module, useSymbolicAddresses));
+            var stack = new StackProxy(space, memory, CreateStack(module, useSymbolicContinuations));
+            var system = new SystemProxy(space, memory, CreateSystem(module));
+
+            var state = new State(programPool, module, space,
+                globals, memory, stack, system);
+
+            return new Program(() => state);
+        }
+
+        private IPersistentMemory CreateMemory(IModule module, bool useSymbolicAddresses)
+        {
             var alignment = module.PointerSize.ToBytes();
             var blockFactory = new BlockFactory();
 
-            var memory = useSymbolicAddresses
+            return useSymbolicAddresses
                 ? SymbolicMemory.Create(alignment, blockFactory, _collectionFactory)
                 : ConstantMemory.Create(alignment, blockFactory, _collectionFactory);
+        }
 
+        private IPersistentStack CreateStack(IModule module, bool useSymbolicContinuations)
+        {
             var architecture = module.Target.Split('-').First();
 
             IVariadicAbi variadicAbi = architecture switch
@@ -49,29 +65,15 @@ namespace Symbolica.Implementation
                 ? new SymbolicContinuationFactory()
                 : ConstantContinuationFactory.Create();
 
-            var main = module.Functions.OfType<IDefinition>().SingleOrDefault(d => d.Name == "main")
-                       ?? throw new Exception("No 'main' function is defined.");
+            return PersistentStack.Create(module, frameFactory,
+                continuationFactory, _collectionFactory);
+        }
 
-            var stack = PersistentStack.Create(module, frameFactory,
-                continuationFactory,
-                _collectionFactory, main);
-
+        private IPersistentSystem CreateSystem(IModule module)
+        {
             var descriptionFactory = new DescriptionFactory(_fileSystem);
 
-            var system = PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
-
-            var functions = new Functions(module.Functions);
-            var globals = PersistentGlobals.Create(module.Globals, _collectionFactory);
-
-            var memoryProxy = new MemoryProxy(space, memory);
-            var stackProxy = new StackProxy(space, memoryProxy, stack);
-            var systemProxy = new SystemProxy(space, memoryProxy, system);
-
-            var state = new State(programPool, space,
-                memoryProxy, stackProxy, systemProxy,
-                functions, globals);
-
-            return new Program(() => state);
+            return PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
         }
     }
 }

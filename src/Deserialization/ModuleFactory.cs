@@ -35,10 +35,10 @@ namespace Symbolica.Deserialization
                 CreateStructType(module, "struct.__va_list_tag"),
                 module.GetFunctions()
                     .Select(_functionFactory.Create)
-                    .ToArray(),
+                    .ToDictionary(f => f.Id),
                 module.GetGlobals()
                     .Select(_globalFactory.Create)
-                    .ToArray());
+                    .ToDictionary(g => g.Id));
         }
 
         private (string, IStructType?) CreateStructType(LLVMModuleRef module, string name)
