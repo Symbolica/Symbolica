@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -78,8 +77,8 @@ namespace Symbolica.Implementation.System
 
         public IExpression ReadDirectory(ISpace space, IMemory memory, IExpression address)
         {
-            var streamType = _module.DirectoryStreamType ?? throw new Exception("Directory stream type was not found.");
-            var entryType = _module.DirectoryEntryType ?? throw new Exception("Directory entry type was not found.");
+            var streamType = _module.DirectoryStreamType;
+            var entryType = _module.DirectoryEntryType;
 
             var stream = streamType.CreateStruct(memory.Read(address, streamType.Size));
 
@@ -100,7 +99,7 @@ namespace Symbolica.Implementation.System
 
         public int GetStatus(ISpace space, IMemory memory, int descriptor, IExpression address)
         {
-            var statType = _module.StatType ?? throw new Exception("Stat type was not found.");
+            var statType = _module.StatType;
 
             var stat = statType.CreateStruct(space.CreateGarbage(statType.Size));
 
@@ -111,8 +110,8 @@ namespace Symbolica.Implementation.System
 
         private (IExpression, IPersistentSystem) AllocateThread(ISpace space, IMemoryProxy memory)
         {
-            var localeType = _module.LocaleType ?? throw new Exception("Locale type was not found.");
-            var threadType = _module.ThreadType ?? throw new Exception("Thread type was not found.");
+            var localeType = _module.LocaleType;
+            var threadType = _module.ThreadType;
 
             var locale = localeType.CreateStruct(space.CreateGarbage(localeType.Size));
 
