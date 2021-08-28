@@ -5,12 +5,12 @@ namespace Symbolica.Representation.TestUtils
 {
     internal static class MockCaller
     {
-        public static ICaller Create(InstructionId instructionId)
+        public static ICaller Create(InstructionId id)
         {
             var mockCaller = new Mock<ICaller>(MockBehavior.Strict);
             mockCaller
                 .SetupGet(c => c.Id)
-                .Returns(instructionId);
+                .Returns(id);
 
             return mockCaller.Object;
         }

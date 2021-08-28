@@ -16,14 +16,14 @@ namespace Symbolica.Representation.Instructions
 
         public void Execute(IState state)
         {
-            var basicBlockId = _operands[0].Evaluate(state);
+            var successorId = _operands[0].Evaluate(state);
 
-            state.ForkAll(basicBlockId, (s, v) => Execute(s, (BasicBlockId) (ulong) v));
+            state.ForkAll(successorId, (s, v) => Execute(s, (BasicBlockId) (ulong) v));
         }
 
-        private static void Execute(IState state, BasicBlockId basicBlockId)
+        private static void Execute(IState state, BasicBlockId successorId)
         {
-            state.Stack.TransferBasicBlock(basicBlockId);
+            state.Stack.TransferBasicBlock(successorId);
         }
     }
 }

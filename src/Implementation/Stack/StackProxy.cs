@@ -56,9 +56,9 @@ namespace Symbolica.Implementation.Stack
             return _stack.Instruction.Id;
         }
 
-        public void TransferBasicBlock(BasicBlockId basicBlockId)
+        public void TransferBasicBlock(BasicBlockId id)
         {
-            _stack = _stack.TransferBasicBlock(basicBlockId);
+            _stack = _stack.TransferBasicBlock(id);
         }
 
         public IExpression GetFormal(int index)
@@ -71,14 +71,14 @@ namespace Symbolica.Implementation.Stack
             return _stack.GetInitializedVaList(_space);
         }
 
-        public IExpression GetVariable(InstructionId instructionId, bool useIncomingValue)
+        public IExpression GetVariable(InstructionId id, bool useIncomingValue)
         {
-            return _stack.GetVariable(instructionId, useIncomingValue);
+            return _stack.GetVariable(id, useIncomingValue);
         }
 
-        public void SetVariable(InstructionId instructionId, IExpression variable)
+        public void SetVariable(InstructionId id, IExpression variable)
         {
-            _stack = _stack.SetVariable(instructionId, variable);
+            _stack = _stack.SetVariable(id, variable);
         }
 
         public IExpression Allocate(Bits size)

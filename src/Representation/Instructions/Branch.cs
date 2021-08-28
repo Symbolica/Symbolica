@@ -24,9 +24,9 @@ namespace Symbolica.Representation.Instructions
 
         private void BranchUnconditional(IState state)
         {
-            var basicBlockId = (BasicBlockId) (ulong) _operands[0].Evaluate(state).Integer;
+            var successorId = (BasicBlockId) (ulong) _operands[0].Evaluate(state).Integer;
 
-            state.Stack.TransferBasicBlock(basicBlockId);
+            state.Stack.TransferBasicBlock(successorId);
         }
 
         private void BranchConditional(IState state)

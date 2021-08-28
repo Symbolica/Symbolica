@@ -11,11 +11,11 @@ namespace Symbolica.Abstraction
         ICaller Unwind();
         void Save(IExpression address, bool useJumpBuffer);
         InstructionId Restore(IExpression address, bool useJumpBuffer);
-        void TransferBasicBlock(BasicBlockId basicBlockId);
+        void TransferBasicBlock(BasicBlockId id);
         IExpression GetFormal(int index);
         IExpression GetInitializedVaList();
-        IExpression GetVariable(InstructionId instructionId, bool useIncomingValue);
-        void SetVariable(InstructionId instructionId, IExpression variable);
+        IExpression GetVariable(InstructionId id, bool useIncomingValue);
+        void SetVariable(InstructionId id, IExpression variable);
         IExpression Allocate(Bits size);
     }
 }

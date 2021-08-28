@@ -24,10 +24,10 @@ namespace Symbolica.Implementation.Stack
 
         public IInstruction Instruction => _basicBlock.GetInstruction(_index);
 
-        public IPersistentProgramCounter TransferBasicBlock(BasicBlockId basicBlockId)
+        public IPersistentProgramCounter TransferBasicBlock(BasicBlockId id)
         {
             return new PersistentProgramCounter(_definition,
-                _definition.GetBasicBlock(basicBlockId), _basicBlock.Id, -1);
+                _definition.GetBasicBlock(id), _basicBlock.Id, -1);
         }
 
         public IPersistentProgramCounter MoveNextInstruction()

@@ -48,10 +48,10 @@ namespace Symbolica.Implementation.Stack
                 : Result<IPersistentFrame>.Failure();
         }
 
-        public IPersistentFrame TransferBasicBlock(BasicBlockId basicBlockId)
+        public IPersistentFrame TransferBasicBlock(BasicBlockId id)
         {
             return new PersistentFrame(Caller, _formals, _vaList,
-                _jumps, _programCounter.TransferBasicBlock(basicBlockId),
+                _jumps, _programCounter.TransferBasicBlock(id),
                 _variables.TransferBasicBlock(), _allocations);
         }
 
@@ -72,16 +72,16 @@ namespace Symbolica.Implementation.Stack
             return _vaList(space, vaListType);
         }
 
-        public IExpression GetVariable(InstructionId instructionId, bool useIncomingValue)
+        public IExpression GetVariable(InstructionId id, bool useIncomingValue)
         {
-            return _variables.Get(instructionId, useIncomingValue);
+            return _variables.Get(id, useIncomingValue);
         }
 
-        public IPersistentFrame SetVariable(InstructionId instructionId, IExpression variable)
+        public IPersistentFrame SetVariable(InstructionId id, IExpression variable)
         {
             return new PersistentFrame(Caller, _formals, _vaList,
                 _jumps, _programCounter,
-                _variables.Set(instructionId, variable), _allocations);
+                _variables.Set(id, variable), _allocations);
         }
 
         public IPersistentFrame AddAllocation(IExpression allocation)

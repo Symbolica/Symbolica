@@ -17,15 +17,15 @@ namespace Symbolica.Implementation.Stack
             _variables = variables;
         }
 
-        public IExpression Get(InstructionId instructionId, bool useIncomingValue)
+        public IExpression Get(InstructionId id, bool useIncomingValue)
         {
             var variables = useIncomingValue
                 ? _incomingVariables
                 : _variables;
 
-            return variables.TryGetValue(instructionId, out var variable)
+            return variables.TryGetValue(id, out var variable)
                 ? variable
-                : throw new Exception($"Variable {instructionId} is undefined.");
+                : throw new Exception($"Variable {id} is undefined.");
         }
 
         public IPersistentVariables Set(InstructionId instructionId, IExpression variable)

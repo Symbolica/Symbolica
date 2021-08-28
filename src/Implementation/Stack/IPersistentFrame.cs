@@ -11,12 +11,12 @@ namespace Symbolica.Implementation.Stack
 
         IPersistentFrame Save(IExpression continuation, bool useJumpBuffer);
         Result<IPersistentFrame> TryRestore(ISpace space, IExpression continuation, bool useJumpBuffer);
-        IPersistentFrame TransferBasicBlock(BasicBlockId basicBlockId);
+        IPersistentFrame TransferBasicBlock(BasicBlockId id);
         IPersistentFrame MoveNextInstruction();
         IExpression GetFormal(int index);
         IExpression GetInitializedVaList(ISpace space, IStructType vaListType);
-        IExpression GetVariable(InstructionId instructionId, bool useIncomingValue);
-        IPersistentFrame SetVariable(InstructionId instructionId, IExpression variable);
+        IExpression GetVariable(InstructionId id, bool useIncomingValue);
+        IPersistentFrame SetVariable(InstructionId id, IExpression variable);
         IPersistentFrame AddAllocation(IExpression allocation);
         IAllocations GetAllocations();
     }

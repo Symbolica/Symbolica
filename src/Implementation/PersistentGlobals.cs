@@ -18,11 +18,11 @@ namespace Symbolica.Implementation
             _addresses = addresses;
         }
 
-        public (IExpression, Action<IState>, IPersistentGlobals) GetAddress(IMemoryProxy memory, GlobalId globalId)
+        public (IExpression, Action<IState>, IPersistentGlobals) GetAddress(IMemoryProxy memory, GlobalId id)
         {
-            return _addresses.TryGetValue(globalId, out var address)
+            return _addresses.TryGetValue(id, out var address)
                 ? (address, _ => { }, this)
-                : Allocate(memory, _module.GetGlobal(globalId));
+                : Allocate(memory, _module.GetGlobal(id));
         }
 
         private (IExpression, Action<IState>, IPersistentGlobals) Allocate(IMemoryProxy memory, IGlobal global)

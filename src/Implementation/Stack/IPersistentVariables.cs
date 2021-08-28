@@ -5,8 +5,8 @@ namespace Symbolica.Implementation.Stack
 {
     internal interface IPersistentVariables
     {
-        IExpression Get(InstructionId instructionId, bool useIncomingValue);
-        IPersistentVariables Set(InstructionId instructionId, IExpression variable);
+        IExpression Get(InstructionId id, bool useIncomingValue);
+        IPersistentVariables Set(InstructionId id, IExpression variable);
         IPersistentVariables TransferBasicBlock();
     }
 }
