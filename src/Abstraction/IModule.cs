@@ -15,7 +15,7 @@ namespace Symbolica.Abstraction
         IStructType VaListType { get; }
 
         IDefinition GetMain();
-        IFunction GetFunction(FunctionId functionId);
-        IGlobal GetGlobal(GlobalId globalId);
+        IFunction GetFunction(FunctionId id);
+        IGlobal GetGlobal(GlobalId id);
     }
 }

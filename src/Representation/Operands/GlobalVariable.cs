@@ -5,16 +5,16 @@ namespace Symbolica.Representation.Operands
 {
     public sealed class GlobalVariable : IOperand
     {
-        private readonly GlobalId _globalId;
+        private readonly GlobalId _id;
 
-        public GlobalVariable(GlobalId globalId)
+        public GlobalVariable(GlobalId id)
         {
-            _globalId = globalId;
+            _id = id;
         }
 
         public IExpression Evaluate(IState state)
         {
-            return state.GetGlobalAddress(_globalId);
+            return state.GetGlobalAddress(_id);
         }
     }
 }

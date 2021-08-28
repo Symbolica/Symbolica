@@ -5,16 +5,16 @@ namespace Symbolica.Representation.Operands
 {
     public sealed class Function : IOperand
     {
-        private readonly FunctionId _functionId;
+        private readonly FunctionId _id;
 
-        public Function(FunctionId functionId)
+        public Function(FunctionId id)
         {
-            _functionId = functionId;
+            _id = id;
         }
 
         public IExpression Evaluate(IState state)
         {
-            return state.Space.CreateConstant(state.Space.PointerSize, (ulong) _functionId);
+            return state.Space.CreateConstant(state.Space.PointerSize, (ulong) _id);
         }
     }
 }

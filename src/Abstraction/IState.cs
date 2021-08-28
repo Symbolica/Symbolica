@@ -10,8 +10,8 @@ namespace Symbolica.Abstraction
         IStack Stack { get; }
         ISystem System { get; }
 
-        IFunction GetFunction(FunctionId functionId);
-        IExpression GetGlobalAddress(GlobalId globalId);
+        IFunction GetFunction(FunctionId id);
+        IExpression GetGlobalAddress(GlobalId id);
         void Complete();
         void Fork(IExpression condition, Action<IState> trueAction, Action<IState> falseAction);
     }

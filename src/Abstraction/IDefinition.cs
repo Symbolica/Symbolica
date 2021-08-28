@@ -5,6 +5,6 @@
         string Name { get; }
         IBasicBlock Entry { get; }
 
-        IBasicBlock GetBasicBlock(BasicBlockId basicBlockId);
+        IBasicBlock GetBasicBlock(BasicBlockId id);
     }
 }

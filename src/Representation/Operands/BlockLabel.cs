@@ -5,16 +5,16 @@ namespace Symbolica.Representation.Operands
 {
     public sealed class BlockLabel : IOperand
     {
-        private readonly BasicBlockId _basicBlockId;
+        private readonly BasicBlockId _id;
 
-        public BlockLabel(BasicBlockId basicBlockId)
+        public BlockLabel(BasicBlockId id)
         {
-            _basicBlockId = basicBlockId;
+            _id = id;
         }
 
         public IExpression Evaluate(IState state)
         {
-            return state.Space.CreateConstant(state.Space.PointerSize, (ulong) _basicBlockId);
+            return state.Space.CreateConstant(state.Space.PointerSize, (ulong) _id);
         }
     }
 }

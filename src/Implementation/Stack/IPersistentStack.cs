@@ -14,12 +14,12 @@ namespace Symbolica.Implementation.Stack
         (ICaller, IPersistentStack) Unwind(IMemoryProxy memory);
         IPersistentStack Save(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer);
         IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression address, bool useJumpBuffer);
-        IPersistentStack TransferBasicBlock(BasicBlockId basicBlockId);
+        IPersistentStack TransferBasicBlock(BasicBlockId id);
         IPersistentStack MoveNextInstruction();
         IExpression GetFormal(int index);
         IExpression GetInitializedVaList(ISpace space);
-        IExpression GetVariable(InstructionId instructionId, bool useIncomingValue);
-        IPersistentStack SetVariable(InstructionId instructionId, IExpression variable);
+        IExpression GetVariable(InstructionId id, bool useIncomingValue);
+        IPersistentStack SetVariable(InstructionId id, IExpression variable);
         (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Bits size);
     }
 }

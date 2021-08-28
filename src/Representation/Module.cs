@@ -60,18 +60,18 @@ namespace Symbolica.Representation
                    ?? throw new Exception("No 'main' function is defined.");
         }
 
-        public IFunction GetFunction(FunctionId functionId)
+        public IFunction GetFunction(FunctionId id)
         {
-            return _functions.TryGetValue(functionId, out var function)
+            return _functions.TryGetValue(id, out var function)
                 ? function
-                : throw new Exception($"Function {functionId} was not found.");
+                : throw new Exception($"Function {id} was not found.");
         }
 
-        public IGlobal GetGlobal(GlobalId globalId)
+        public IGlobal GetGlobal(GlobalId id)
         {
-            return _globals.TryGetValue(globalId, out var global)
+            return _globals.TryGetValue(id, out var global)
                 ? global
-                : throw new Exception($"Global {globalId} was not found.");
+                : throw new Exception($"Global {id} was not found.");
         }
 
         private static IStructType GetStructType((string, IStructType?) namedStructType)

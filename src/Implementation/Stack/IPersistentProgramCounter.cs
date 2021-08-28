@@ -7,7 +7,7 @@ namespace Symbolica.Implementation.Stack
         BasicBlockId PredecessorId { get; }
         IInstruction Instruction { get; }
 
-        IPersistentProgramCounter TransferBasicBlock(BasicBlockId basicBlockId);
+        IPersistentProgramCounter TransferBasicBlock(BasicBlockId id);
         IPersistentProgramCounter MoveNextInstruction();
     }
 }

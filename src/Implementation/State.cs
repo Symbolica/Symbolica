@@ -45,14 +45,14 @@ namespace Symbolica.Implementation
         public IStack Stack => _stack;
         public ISystem System => _system;
 
-        public IFunction GetFunction(FunctionId functionId)
+        public IFunction GetFunction(FunctionId id)
         {
-            return _module.GetFunction(functionId);
+            return _module.GetFunction(id);
         }
 
-        public IExpression GetGlobalAddress(GlobalId globalId)
+        public IExpression GetGlobalAddress(GlobalId id)
         {
-            var (address, action, globals) = _globals.GetAddress(_memory, globalId);
+            var (address, action, globals) = _globals.GetAddress(_memory, id);
             _globals = globals;
 
             action(this);

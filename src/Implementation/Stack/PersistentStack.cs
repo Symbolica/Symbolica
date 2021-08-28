@@ -84,11 +84,11 @@ namespace Symbolica.Implementation.Stack
             }
         }
 
-        public IPersistentStack TransferBasicBlock(BasicBlockId basicBlockId)
+        public IPersistentStack TransferBasicBlock(BasicBlockId id)
         {
             return new PersistentStack(_module, _frameFactory,
                 _continuationFactory,
-                _pushedFrames, _currentFrame.TransferBasicBlock(basicBlockId));
+                _pushedFrames, _currentFrame.TransferBasicBlock(id));
         }
 
         public IPersistentStack MoveNextInstruction()
@@ -108,16 +108,16 @@ namespace Symbolica.Implementation.Stack
             return _currentFrame.GetInitializedVaList(space, _module.VaListType);
         }
 
-        public IExpression GetVariable(InstructionId instructionId, bool useIncomingValue)
+        public IExpression GetVariable(InstructionId id, bool useIncomingValue)
         {
-            return _currentFrame.GetVariable(instructionId, useIncomingValue);
+            return _currentFrame.GetVariable(id, useIncomingValue);
         }
 
-        public IPersistentStack SetVariable(InstructionId instructionId, IExpression variable)
+        public IPersistentStack SetVariable(InstructionId id, IExpression variable)
         {
             return new PersistentStack(_module, _frameFactory,
                 _continuationFactory,
-                _pushedFrames, _currentFrame.SetVariable(instructionId, variable));
+                _pushedFrames, _currentFrame.SetVariable(id, variable));
         }
 
         public (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Bits size)
