@@ -23,7 +23,7 @@ namespace Symbolica.Deserialization
 
         public IModule Create(LLVMModuleRef module, Bytes pointerSize)
         {
-            return new Module(
+            return Module.Create(
                 module.Target,
                 pointerSize.ToBits(),
                 CreateStructType(module, "struct.__dirstream"),
@@ -33,12 +33,8 @@ namespace Symbolica.Deserialization
                 CreateStructType(module, "struct.stat"),
                 CreateStructType(module, "struct.__pthread"),
                 CreateStructType(module, "struct.__va_list_tag"),
-                module.GetFunctions()
-                    .Select(_functionFactory.Create)
-                    .ToDictionary(f => f.Id),
-                module.GetGlobals()
-                    .Select(_globalFactory.Create)
-                    .ToDictionary(g => g.Id));
+                module.GetFunctions().Select(_functionFactory.Create),
+                module.GetGlobals().Select(_globalFactory.Create));
         }
 
         private (string, IStructType?) CreateStructType(LLVMModuleRef module, string name)
