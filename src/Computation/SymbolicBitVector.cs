@@ -24,7 +24,7 @@ namespace Symbolica.Computation
 
             return expr.IsNumeral
                 ? ((BitVecNum) expr).BigInteger
-                : throw new Exception("The bit-vector cannot be simplified to a constant.");
+                : throw new IrreducibleSymbolicExpressionException();
         }
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)

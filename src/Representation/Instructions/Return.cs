@@ -37,7 +37,7 @@ namespace Symbolica.Representation.Instructions
             using var proposition = result.GetProposition(state.Space);
 
             if (proposition.CanBeTrue)
-                throw new StateException("Return could be non-zero.", proposition.TrueSpace);
+                throw new NonZeroExitCodeException(proposition.TrueSpace);
 
             state.Complete();
         }

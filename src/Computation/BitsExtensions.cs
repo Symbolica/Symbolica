@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -16,7 +15,7 @@ namespace Symbolica.Computation
                 64U => context.MkFPSort64(),
                 80U => context.MkFPSort(15U, 65U),
                 128U => context.MkFPSort128(),
-                _ => throw new Exception($"Floating-point size {self} is unsupported.")
+                _ => throw new UnsupportedFloatingPointTypeException(self)
             };
         }
 

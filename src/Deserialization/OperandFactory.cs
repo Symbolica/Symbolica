@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using LLVMSharp.Interop;
@@ -81,7 +80,7 @@ namespace Symbolica.Deserialization
                 LLVMValueKind.LLVMPoisonValueValueKind =>
                     new Unsupported("poison"),
                 _ =>
-                    throw new Exception("Operand type is unknown.")
+                    throw new UnsupportedOperandException(operand.Kind.ToString())
             };
         }
 

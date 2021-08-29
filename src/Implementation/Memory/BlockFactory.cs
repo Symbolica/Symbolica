@@ -1,5 +1,4 @@
-﻿using System;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory
 {
@@ -24,8 +23,8 @@ namespace Symbolica.Implementation.Memory
             public static IPersistentBlock Instance => new InvalidBlock();
 
             public bool IsValid => false;
-            public IExpression Address => throw new Exception("Invalid block has no address.");
-            public Bytes Size => throw new Exception("Invalid block has no size.");
+            public IExpression Address => throw new ImplementationException("Invalid block has no address.");
+            public Bytes Size => throw new ImplementationException("Invalid block has no size.");
 
             public IPersistentBlock Move(IExpression address, Bits size)
             {

@@ -3,10 +3,10 @@ using Symbolica.Expression;
 
 namespace Symbolica.Abstraction
 {
+    [Serializable]
     public class StateException : Exception
     {
-        public StateException(string message, ISpace space)
-            : base(message)
+        protected StateException(ISpace space)
         {
             Space = space;
         }

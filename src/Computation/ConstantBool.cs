@@ -231,7 +231,7 @@ namespace Symbolica.Computation
                 ? other is IConstantValue c
                     ? new ConstantBool(func(_value, c.ToConstantBool()._value))
                     : symbolic(ToSymbolicBool(), other)
-                : throw new Exception("Expression sizes are different.");
+                : throw new InconsistentExpressionSizesException(Size, other.Size);
         }
     }
 }

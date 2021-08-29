@@ -13,7 +13,7 @@ namespace Symbolica.Application
         }
 
         public bool IsSuccess => _exception == null;
-        public StateException Exception => _exception ?? throw new Exception("Success result has no exception.");
+        public StateException Exception => _exception ?? throw new Exception("Success has no exception.");
 
         public static Result Failure(StateException exception)
         {

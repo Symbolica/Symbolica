@@ -1,5 +1,4 @@
-﻿using System;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 
 namespace Symbolica.Implementation.Stack
 {
@@ -19,9 +18,7 @@ namespace Symbolica.Implementation.Stack
             _index = index;
         }
 
-        public BasicBlockId PredecessorId => _predecessorId
-                                             ?? throw new Exception("Predecessor is undefined before transfer.");
-
+        public BasicBlockId PredecessorId => _predecessorId ?? throw new UndefinedPredecessorException();
         public IInstruction Instruction => _basicBlock.GetInstruction(_index);
 
         public IPersistentProgramCounter TransferBasicBlock(BasicBlockId id)

@@ -19,7 +19,7 @@ namespace Symbolica.Representation.Functions
             using var proposition = code.GetProposition(state.Space);
 
             if (proposition.CanBeTrue)
-                throw new StateException("Exit code could be non-zero.", proposition.TrueSpace);
+                throw new NonZeroExitCodeException(proposition.TrueSpace);
 
             state.Complete();
         }

@@ -78,7 +78,7 @@ namespace Symbolica.Implementation.Stack
                 }
 
                 if (stack.IsInitialFrame)
-                    throw new StateException("Attempted to jump to invalid point.", space);
+                    throw new InvalidJumpException(space);
 
                 stack = stack.Pop(memory);
             }

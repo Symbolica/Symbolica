@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -50,13 +49,11 @@ namespace Symbolica.Implementation
 
         private IPersistentStack CreateStack(IModule module, bool useSymbolicContinuations)
         {
-            var architecture = module.Target.Split('-').First();
-
-            IVariadicAbi variadicAbi = architecture switch
+            IVariadicAbi variadicAbi = module.Target.Split('-').First() switch
             {
                 "x86_64" => new X64VariadicAbi(),
                 "x86" => new X86VariadicAbi(),
-                _ => throw new Exception($"Architecture {architecture} is unsupported.")
+                _ => throw new UnsupportedArchitectureException(module.Target)
             };
 
             var frameFactory = new FrameFactory(variadicAbi, _collectionFactory);

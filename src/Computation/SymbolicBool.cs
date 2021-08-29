@@ -27,7 +27,7 @@ namespace Symbolica.Computation
                 ? expr.IsTrue
                     ? BigInteger.One
                     : BigInteger.Zero
-                : throw new Exception("The boolean cannot be simplified to a constant.");
+                : throw new IrreducibleSymbolicExpressionException();
         }
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)

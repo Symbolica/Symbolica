@@ -22,7 +22,7 @@ namespace Symbolica.Representation.Instructions
             using var proposition = right.GetProposition(state.Space);
 
             if (proposition.CanBeFalse)
-                throw new StateException("Divisor could be zero.", proposition.FalseSpace);
+                throw new ZeroDivisorException(proposition.FalseSpace);
 
             var result = left.UnsignedDivide(right);
 

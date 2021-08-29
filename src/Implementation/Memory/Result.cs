@@ -1,5 +1,4 @@
-﻿using System;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory
 {
@@ -15,10 +14,10 @@ namespace Symbolica.Implementation.Memory
             _value = value;
         }
 
-        public ISpace FailureSpace => _failureSpace ?? throw new Exception("Success result has no failure space.");
+        public ISpace FailureSpace => _failureSpace ?? throw new ImplementationException("Success has no space.");
         public bool CanBeFailure => _failureSpace != null;
         public bool CanBeSuccess => _value != null;
-        public TValue Value => _value ?? throw new Exception("Failure result has no value.");
+        public TValue Value => _value ?? throw new ImplementationException("Failure has no value.");
 
         public static Result<TValue> Failure(ISpace failureSpace)
         {

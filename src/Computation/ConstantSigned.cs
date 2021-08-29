@@ -263,7 +263,7 @@ namespace Symbolica.Computation
                 ? other is IConstantValue c
                     ? constructor(func(_value, conversion(c)))
                     : symbolic(ToSymbolicBitVector(), other)
-                : throw new Exception("Expression sizes are different.");
+                : throw new InconsistentExpressionSizesException(Size, other.Size);
         }
     }
 }
