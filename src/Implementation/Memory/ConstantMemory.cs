@@ -38,7 +38,7 @@ namespace Symbolica.Implementation.Memory
             var (index, allocation) = GetAllocation(space, address);
 
             if (!allocation.Block.CanFree(space, section, address))
-                throw new StateException("Attempted to move invalid Memory.", space);
+                throw new StateException(StateError.InvalidMemoryMove, space);
 
             var freedAllocation = new Allocation(allocation.Address, _blockFactory.CreateInvalid());
 
@@ -55,7 +55,7 @@ namespace Symbolica.Implementation.Memory
             var (index, allocation) = GetAllocation(space, address);
 
             if (!allocation.Block.CanFree(space, section, address))
-                throw new StateException("Attempted to free invalid Memory.", space);
+                throw new StateException(StateError.InvalidMemoryFree, space);
 
             var freedAllocation = new Allocation(allocation.Address, _blockFactory.CreateInvalid());
 
@@ -73,7 +73,7 @@ namespace Symbolica.Implementation.Memory
                 var result = allocation.Block.TryWrite(space, address, value);
 
                 if (!result.CanBeSuccess)
-                    throw new StateException("Attempted to write to invalid Memory.", space);
+                    throw new StateException(StateError.InvalidMemoryWrite, space);
 
                 newAllocations.Add(KeyValuePair.Create(index, new Allocation(allocation.Address, result.Value)));
 
@@ -95,7 +95,7 @@ namespace Symbolica.Implementation.Memory
                 var result = allocation.Block.TryRead(space, address, size);
 
                 if (!result.CanBeSuccess)
-                    throw new StateException("Attempted to read from invalid Memory.", space);
+                    throw new StateException(StateError.InvalidMemoryRead, space);
 
                 expression = expression.Or(result.Value);
 

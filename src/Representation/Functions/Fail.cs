@@ -15,7 +15,7 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            throw new StateException("Assertion could fail.", state.Space);
+            throw new StateException(StateError.FailingAssertion, state.Space);
         }
     }
 }

@@ -10,7 +10,7 @@ var result = await Executor.Run(args[0],
 if (result.IsSuccess)
     return 0;
 
-Console.WriteLine(result.Exception.Message);
+Console.WriteLine(result.Exception.Error);
 Console.WriteLine(string.Join(", ", result.Exception.Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
 
 return 1;

@@ -26,7 +26,7 @@ namespace Symbolica.Representation.Functions
             using var proposition = isInvalid.GetProposition(state.Space);
 
             if (proposition.CanBeTrue)
-                throw new StateException("Memory copy could overlap.", state.Space);
+                throw new StateException(StateError.OverlappingMemoryCopy, state.Space);
 
             state.ForkAll(length, (s, v) => Call(s, destination, source, (Bytes) (uint) v));
         }
