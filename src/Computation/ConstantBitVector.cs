@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
+using Symbolica.Computation.Exceptions;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
@@ -75,7 +76,7 @@ namespace Symbolica.Computation
                 ? offset is IConstantValue co
                     ? new ConstantBitVector(size, _value.GetRange(GetIndex(co), GetCount(size)))
                     : ToSymbolicBitVector().Read(collectionFactory, offset, size)
-                : throw new Exception("Expression sizes are different.");
+                : throw new InconsistentExpressionSizesException(Size, offset.Size);
         }
 
         public override IValue Select(IValue trueValue, IValue falseValue)
@@ -184,7 +185,7 @@ namespace Symbolica.Computation
                 ? offset is IConstantValue co && value is IConstantValue cv
                     ? new ConstantBitVector(Size, _value.SetRange(GetIndex(co), GetBytes(collectionFactory, cv)))
                     : ToSymbolicBitVector().Write(collectionFactory, offset, value)
-                : throw new Exception("Expression sizes are different.");
+                : throw new InconsistentExpressionSizesException(Size, offset.Size);
         }
 
         public override IValue Xor(IValue value)

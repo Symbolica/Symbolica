@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using LLVMSharp.Interop;
 using Symbolica.Abstraction;
+using Symbolica.Deserialization.Exceptions;
 using Symbolica.Deserialization.Extensions;
 using Symbolica.Expression;
 using Symbolica.Representation;
+using Symbolica.Representation.Exceptions;
 using Symbolica.Representation.Instructions;
 
 namespace Symbolica.Deserialization
@@ -98,7 +100,7 @@ namespace Symbolica.Deserialization
                     LLVMIntPredicate.LLVMIntSGE => new SignedGreaterOrEqual(id, operands),
                     LLVMIntPredicate.LLVMIntSLT => new SignedLess(id, operands),
                     LLVMIntPredicate.LLVMIntSLE => new SignedLessOrEqual(id, operands),
-                    _ => throw new Exception("Comparison type is unknown.")
+                    _ => throw new UnsupportedInstructionException(instruction.ICmpPredicate.ToString())
                 },
                 LLVMOpcode.LLVMFCmp => instruction.FCmpPredicate switch
                 {
@@ -118,7 +120,7 @@ namespace Symbolica.Deserialization
                     LLVMRealPredicate.LLVMRealULE => new FloatUnorderedOrLessOrEqual(id, operands),
                     LLVMRealPredicate.LLVMRealUNE => new FloatUnorderedOrNotEqual(id, operands),
                     LLVMRealPredicate.LLVMRealPredicateTrue => new FloatFalse(id),
-                    _ => throw new Exception("Float comparison type is unknown.")
+                    _ => throw new UnsupportedInstructionException(instruction.FCmpPredicate.ToString())
                 },
                 LLVMOpcode.LLVMPHI => Phi.Create(
                     id,
@@ -126,12 +128,12 @@ namespace Symbolica.Deserialization
                     instruction.GetIncomingBasicBlocks().Select(b => (BasicBlockId) _idFactory.GetOrCreate(b.Handle))),
                 LLVMOpcode.LLVMCall => CreateCall(id, operands, instruction),
                 LLVMOpcode.LLVMSelect => new Select(id, operands),
-                LLVMOpcode.LLVMUserOp1 => throw new Exception("User op 1 should only be used internally in passes."),
-                LLVMOpcode.LLVMUserOp2 => throw new Exception("User op 2 should only be used internally in passes."),
-                LLVMOpcode.LLVMVAArg => throw new Exception("The front-end should lower va_arg."),
+                LLVMOpcode.LLVMUserOp1 => throw new UnsupportedInstructionException("UserOp1"),
+                LLVMOpcode.LLVMUserOp2 => throw new UnsupportedInstructionException("UserOp2"),
+                LLVMOpcode.LLVMVAArg => throw new UnsupportedInstructionException("va_arg"),
                 LLVMOpcode.LLVMExtractElement => new Unsupported(id, "extractelement"),
                 LLVMOpcode.LLVMInsertElement => new Unsupported(id, "insertelement"),
-                LLVMOpcode.LLVMShuffleVector => throw new Exception("The scalarizer pass should lower shufflevector."),
+                LLVMOpcode.LLVMShuffleVector => throw new UnexpectedInstructionException("shufflevector", "scalarizer"),
                 LLVMOpcode.LLVMExtractValue => new ExtractValue(
                     id,
                     operands,
@@ -142,9 +144,9 @@ namespace Symbolica.Deserialization
                     operands,
                     GetAggregateOffsets(instruction)),
                 LLVMOpcode.LLVMFreeze => new Unsupported(id, "freeze"),
-                LLVMOpcode.LLVMFence => throw new Exception("The loweratomic pass should lower fence."),
-                LLVMOpcode.LLVMAtomicCmpXchg => throw new Exception("The loweratomic pass should lower cmpxchg."),
-                LLVMOpcode.LLVMAtomicRMW => throw new Exception("The loweratomic pass should lower atomicrmw."),
+                LLVMOpcode.LLVMFence => throw new UnexpectedInstructionException("fence", "loweratomic"),
+                LLVMOpcode.LLVMAtomicCmpXchg => throw new UnexpectedInstructionException("cmpxchg", "loweratomic"),
+                LLVMOpcode.LLVMAtomicRMW => throw new UnexpectedInstructionException("atomicrmw", "loweratomic"),
                 LLVMOpcode.LLVMResume => new Unsupported(id, "resume"),
                 LLVMOpcode.LLVMLandingPad => new Unsupported(id, "landingpad"),
                 LLVMOpcode.LLVMCleanupRet => new Unsupported(id, "cleanupret"),
@@ -152,7 +154,7 @@ namespace Symbolica.Deserialization
                 LLVMOpcode.LLVMCatchPad => new Unsupported(id, "catchpad"),
                 LLVMOpcode.LLVMCleanupPad => new Unsupported(id, "cleanuppad"),
                 LLVMOpcode.LLVMCatchSwitch => new Unsupported(id, "catchswitch"),
-                _ => throw new Exception("Instruction type is unknown.")
+                _ => throw new UnsupportedInstructionException(opcode.ToString())
             };
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
+using Symbolica.Computation.Exceptions;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
@@ -27,7 +28,7 @@ namespace Symbolica.Computation
                 ? expr.IsTrue
                     ? BigInteger.One
                     : BigInteger.Zero
-                : throw new Exception("The boolean cannot be simplified to a constant.");
+                : throw new IrreducibleSymbolicExpressionException();
         }
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)

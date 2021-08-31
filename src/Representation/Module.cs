@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation
 {
@@ -57,28 +57,28 @@ namespace Symbolica.Representation
         public IDefinition GetMain()
         {
             return _functions.Values.OfType<IDefinition>().SingleOrDefault(d => d.Name == "main")
-                   ?? throw new Exception("No 'main' function is defined.");
+                   ?? throw new MissingMainFunctionException();
         }
 
         public IFunction GetFunction(FunctionId id)
         {
             return _functions.TryGetValue(id, out var function)
                 ? function
-                : throw new Exception($"Function {id} was not found.");
+                : throw new MissingFunctionException(id);
         }
 
         public IGlobal GetGlobal(GlobalId id)
         {
             return _globals.TryGetValue(id, out var global)
                 ? global
-                : throw new Exception($"Global {id} was not found.");
+                : throw new MissingGlobalException(id);
         }
 
         private static IStructType GetStructType((string, IStructType?) namedStructType)
         {
             var (name, structType) = namedStructType;
 
-            return structType ?? throw new Exception($"Struct type {name} was not found.");
+            return structType ?? throw new MissingStructTypeException(name);
         }
 
         public static IModule Create(

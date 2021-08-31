@@ -6,6 +6,7 @@ using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Implementation.Exceptions;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack
@@ -47,7 +48,7 @@ namespace Symbolica.Implementation.Stack
 
         private sealed class InitialCaller : ICaller
         {
-            public InstructionId Id => throw new Exception("The initial 'main' function has no Caller.");
+            public InstructionId Id => throw new ImplementationException("The initial 'main' call has no caller.");
             public Bits Size => (Bits) 16U;
             public IAttributes ReturnAttributes => new InitialReturnAttributes();
 
@@ -65,7 +66,7 @@ namespace Symbolica.Implementation.Stack
         {
             public IExpression Get(int index)
             {
-                throw new Exception("The 'main' function cannot take any Arguments.");
+                throw new UnboundMainArgumentsException();
             }
 
             public IEnumerator<IExpression> GetEnumerator()

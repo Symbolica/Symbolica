@@ -1,7 +1,7 @@
-﻿using System;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Implementation.Exceptions;
 
 namespace Symbolica.Implementation.Stack
 {
@@ -25,7 +25,7 @@ namespace Symbolica.Implementation.Stack
 
             return variables.TryGetValue(id, out var variable)
                 ? variable
-                : throw new Exception($"Variable {id} is undefined.");
+                : throw new UndefinedVariableException(id);
         }
 
         public IPersistentVariables Set(InstructionId instructionId, IExpression variable)

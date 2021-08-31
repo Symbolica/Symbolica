@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Functions
 {
@@ -37,7 +38,7 @@ namespace Symbolica.Representation.Functions
         {
             return _basicBlocks.TryGetValue(id, out var basicBlock)
                 ? basicBlock
-                : throw new Exception($"Basic block {id} was not found.");
+                : throw new MissingBasicBlockException(id);
         }
 
         public void Call(IState state, ICaller caller, IArguments arguments)

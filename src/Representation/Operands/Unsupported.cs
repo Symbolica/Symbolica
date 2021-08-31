@@ -1,6 +1,6 @@
-﻿using System;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Operands
 {
@@ -15,7 +15,7 @@ namespace Symbolica.Representation.Operands
 
         public IExpression Evaluate(IState state)
         {
-            throw new Exception($"Operand '{_type}' is unsupported.");
+            throw new UnsupportedOperandException(_type);
         }
     }
 }

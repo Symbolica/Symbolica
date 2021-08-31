@@ -1,5 +1,5 @@
-﻿using System;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
+using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Functions
 {
@@ -19,7 +19,7 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            throw new Exception($"Function '{_name}' is unsupported.");
+            throw new UnsupportedFunctionException(_name);
         }
     }
 }
