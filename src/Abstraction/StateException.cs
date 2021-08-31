@@ -4,7 +4,7 @@ using Symbolica.Expression;
 namespace Symbolica.Abstraction
 {
     [Serializable]
-    public class StateException : Exception
+    public class StateException : ErrorException
     {
         public StateException(StateError error, ISpace space)
             : base(error.ToString())

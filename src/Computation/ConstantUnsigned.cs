@@ -2,6 +2,7 @@
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
+using Symbolica.Computation.Exceptions;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
@@ -257,7 +258,7 @@ namespace Symbolica.Computation
                 ? other is IConstantValue c
                     ? constructor(func(Integer, c.ToConstantUnsigned().Integer))
                     : symbolic(ToSymbolicBitVector(), other)
-                : throw new Exception("Expression sizes are different.");
+                : throw new InconsistentExpressionSizesException(Size, other.Size);
         }
     }
 }

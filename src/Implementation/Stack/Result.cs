@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Symbolica.Implementation.Exceptions;
 
 namespace Symbolica.Implementation.Stack
 {
@@ -13,7 +13,7 @@ namespace Symbolica.Implementation.Stack
         }
 
         public bool IsSuccess => _value != null;
-        public TValue Value => _value ?? throw new Exception("Failure result has no value.");
+        public TValue Value => _value ?? throw new ImplementationException("Failure has no value.");
 
         public static Result<TValue> Failure()
         {

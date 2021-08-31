@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Symbolica.Abstraction;
 using Xunit;
 
 namespace Symbolica.Application
@@ -17,8 +18,9 @@ namespace Symbolica.Application
                 useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations);
 
             result.IsSuccess.Should().BeFalse();
-            result.Exception.Space.GetExample().Select(p => p.Key).Should().BeEquivalentTo(
-                await File.ReadAllLinesAsync(Path.Combine(directory, "symbols")));
+            result.Exception.Should().BeOfType<StateException>()
+                .Which.Space.GetExample().Select(p => p.Key).Should().BeEquivalentTo(
+                    await File.ReadAllLinesAsync(Path.Combine(directory, "symbols")));
         }
 
         [Theory]

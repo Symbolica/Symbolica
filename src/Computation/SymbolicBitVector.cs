@@ -2,6 +2,7 @@
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
+using Symbolica.Computation.Exceptions;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
@@ -24,7 +25,7 @@ namespace Symbolica.Computation
 
             return expr.IsNumeral
                 ? ((BitVecNum) expr).BigInteger
-                : throw new Exception("The bit-vector cannot be simplified to a constant.");
+                : throw new IrreducibleSymbolicExpressionException();
         }
 
         public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)
