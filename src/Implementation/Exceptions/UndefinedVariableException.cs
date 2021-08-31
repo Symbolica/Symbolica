@@ -5,7 +5,7 @@ using Symbolica.Expression;
 namespace Symbolica.Implementation.Exceptions
 {
     [Serializable]
-    public class UndefinedVariableException : SymbolicaException
+    public class UndefinedVariableException : ErrorException
     {
         public UndefinedVariableException(InstructionId id)
             : base($"Variable {id} is undefined.")

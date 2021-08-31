@@ -5,7 +5,7 @@ using Symbolica.Expression;
 namespace Symbolica.Representation.Exceptions
 {
     [Serializable]
-    public class MissingBasicBlockException : SymbolicaException
+    public class MissingBasicBlockException : ErrorException
     {
         public MissingBasicBlockException(BasicBlockId id)
             : base($"Basic block {id} was not found.")

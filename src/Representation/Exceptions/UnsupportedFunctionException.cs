@@ -4,7 +4,7 @@ using Symbolica.Expression;
 namespace Symbolica.Representation.Exceptions
 {
     [Serializable]
-    public class UnsupportedFunctionException : SymbolicaException
+    public class UnsupportedFunctionException : ErrorException
     {
         public UnsupportedFunctionException(string name)
             : base($"Function '{name}' is unsupported.")

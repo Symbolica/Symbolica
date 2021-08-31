@@ -3,9 +3,9 @@
 namespace Symbolica.Expression
 {
     [Serializable]
-    public class SymbolicaRuntimeException : SymbolicaException
+    public abstract class ErrorException : SymbolicaException
     {
-        protected SymbolicaRuntimeException(string message)
+        protected ErrorException(string message)
             : base(message)
         {
         }

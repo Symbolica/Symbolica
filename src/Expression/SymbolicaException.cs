@@ -3,7 +3,7 @@
 namespace Symbolica.Expression
 {
     [Serializable]
-    public class SymbolicaException : Exception
+    public abstract class SymbolicaException : Exception
     {
         protected SymbolicaException(string message)
             : base(message)
