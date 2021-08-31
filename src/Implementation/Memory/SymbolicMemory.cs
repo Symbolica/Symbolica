@@ -43,7 +43,7 @@ namespace Symbolica.Implementation.Memory
                         _blocks.SetItem(index, newBlock)));
                 }
 
-            throw new StateException("Attempted to move invalid Memory.", space);
+            throw new StateException(StateError.InvalidMemoryMove, space);
         }
 
         public IPersistentMemory Free(ISpace space, Section section, IExpression address)
@@ -53,7 +53,7 @@ namespace Symbolica.Implementation.Memory
                     return new SymbolicMemory(_alignment, _blockFactory,
                         _blocks.SetItem(index, _blockFactory.CreateInvalid()));
 
-            throw new StateException("Attempted to free invalid Memory.", space);
+            throw new StateException(StateError.InvalidMemoryFree, space);
         }
 
         public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
@@ -76,7 +76,7 @@ namespace Symbolica.Implementation.Memory
                 space = result.FailureSpace;
             }
 
-            throw new StateException("Attempted to write to invalid Memory.", space);
+            throw new StateException(StateError.InvalidMemoryWrite, space);
         }
 
         public IExpression Read(ISpace space, IExpression address, Bits size)
@@ -98,7 +98,7 @@ namespace Symbolica.Implementation.Memory
                 space = result.FailureSpace;
             }
 
-            throw new StateException("Attempted to read from invalid Memory.", space);
+            throw new StateException(StateError.InvalidMemoryRead, space);
         }
 
         private IExpression CreateAddress(ISpace space, Bytes size)

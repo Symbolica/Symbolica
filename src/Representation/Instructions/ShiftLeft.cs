@@ -23,7 +23,7 @@ namespace Symbolica.Representation.Instructions
             using var proposition = isUndefined.GetProposition(state.Space);
 
             if (proposition.CanBeTrue)
-                throw new StateException("Shift could be undefined.", proposition.FalseSpace);
+                throw new StateException(StateError.UndefinedShift, proposition.FalseSpace);
 
             var result = left.ShiftLeft(right);
 
