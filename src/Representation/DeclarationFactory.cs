@@ -97,6 +97,7 @@ namespace Symbolica.Representation
                 {"mmap64", (id, parameters) => new MemoryMap(id, parameters)},
                 {"open", (id, parameters) => new Open(id, parameters)},
                 {"open64", (id, parameters) => new Open(id, parameters)},
+                {"printf", (id, parameters) => new PrintFormatted(id, parameters)},
                 {"__pthread_testcancel", (id, parameters) => new NoOp(id, parameters)},
                 {"pthread_testcancel", (id, parameters) => new NoOp(id, parameters)},
                 {"read", (id, parameters) => new Read(id, parameters)},
