@@ -9,16 +9,18 @@ namespace Symbolica.Deserialization
 {
     internal sealed class FunctionFactory : IFunctionFactory
     {
+        private readonly IDeclarationFactory _declarationFactory;
         private readonly IIdFactory _idFactory;
         private readonly IInstructionFactory _instructionFactory;
         private readonly LLVMTargetDataRef _targetData;
 
         public FunctionFactory(LLVMTargetDataRef targetData, IIdFactory idFactory,
-            IInstructionFactory instructionFactory)
+            IInstructionFactory instructionFactory, IDeclarationFactory declarationFactory)
         {
             _targetData = targetData;
             _idFactory = idFactory;
             _instructionFactory = instructionFactory;
+            _declarationFactory = declarationFactory;
         }
 
         public IFunction Create(LLVMValueRef function)
@@ -29,7 +31,7 @@ namespace Symbolica.Deserialization
                 .ToArray());
 
             return function.IsDeclaration
-                ? DeclarationFactory.Create(function.Name, id, parameters)
+                ? _declarationFactory.Create(function.Name, id, parameters)
                 : CreateDefinition(id, parameters, function);
         }
 

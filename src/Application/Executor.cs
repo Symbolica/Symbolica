@@ -34,8 +34,10 @@ namespace Symbolica.Application
                 ? $"~/.symbolica/translate \"{DeclarationFactory.Pattern}\""
                 : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationFactory.Pattern}\"");
 
+            var deserializer = DeserializerFactory.Create(new DeclarationFactory());
+
             var bytes = await File.ReadAllBytesAsync(Path.Combine(directory, ".symbolica.bc"));
-            var module = Deserializer.DeserializeModule(bytes);
+            var module = deserializer.DeserializeModule(bytes);
 
             var collectionFactory = new CollectionFactory();
             var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);

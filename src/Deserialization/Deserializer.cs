@@ -1,34 +1,39 @@
 ﻿using LLVMSharp.Interop;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Representation;
 
 namespace Symbolica.Deserialization
 {
-    public static class Deserializer
+    internal sealed class Deserializer : IDeserializer
     {
-        public static IModule DeserializeModule(byte[] bytes)
+        private readonly IDeclarationFactory _declarationFactory;
+        private readonly IUnsafeContext _unsafeContext;
+
+        public Deserializer(IUnsafeContext unsafeContext, IDeclarationFactory declarationFactory)
         {
-            return DeserializeModule(new UnsafeContext(), bytes);
+            _unsafeContext = unsafeContext;
+            _declarationFactory = declarationFactory;
         }
 
-        private static IModule DeserializeModule(IUnsafeContext unsafeContext, byte[] bytes)
+        public IModule DeserializeModule(byte[] bytes)
         {
-            var memoryBuffer = unsafeContext.GetMemoryBuffer(bytes);
+            var memoryBuffer = _unsafeContext.GetMemoryBuffer(bytes);
             using var module = LLVMContextRef.Create().ParseBitcode(memoryBuffer);
-            var targetData = unsafeContext.GetTargetData(module);
+            var targetData = _unsafeContext.GetTargetData(module);
 
             var idFactory = new IdFactory();
 
-            var operandFactory = new OperandFactory(targetData, idFactory, unsafeContext);
-            var instructionFactory = new InstructionFactory(targetData, idFactory, unsafeContext, operandFactory);
+            var operandFactory = new OperandFactory(targetData, idFactory, _unsafeContext);
+            var instructionFactory = new InstructionFactory(targetData, idFactory, _unsafeContext, operandFactory);
 
             var structTypeFactory = new StructTypeFactory(targetData);
-            var functionFactory = new FunctionFactory(targetData, idFactory, instructionFactory);
+            var functionFactory = new FunctionFactory(targetData, idFactory, instructionFactory, _declarationFactory);
             var globalFactory = new GlobalFactory(targetData, idFactory, instructionFactory, operandFactory);
 
             var moduleFactory = new ModuleFactory(structTypeFactory, functionFactory, globalFactory);
 
-            return moduleFactory.Create(module, (Bytes) unsafeContext.GetPointerSize(targetData));
+            return moduleFactory.Create(module, (Bytes) _unsafeContext.GetPointerSize(targetData));
         }
     }
 }
