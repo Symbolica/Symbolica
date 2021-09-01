@@ -6,7 +6,7 @@ using Symbolica.Representation.Functions;
 
 namespace Symbolica.Representation
 {
-    public static class DeclarationFactory
+    public sealed class DeclarationFactory : IDeclarationFactory
     {
         private static readonly IReadOnlyDictionary<string, Func<FunctionId, IParameters, IFunction>> Intrinsics =
             new Dictionary<string, Func<FunctionId, IParameters, IFunction>>
@@ -125,29 +125,36 @@ namespace Symbolica.Representation
             .Concat(Internals.Keys.Select(s => $@"{s}\.[0-9]+"))
             .Select(s => $"^{s}$"));
 
-        public static IFunction Create(string name, FunctionId id, IParameters parameters)
+        public IFunction Create(string name, FunctionId id, IParameters parameters)
         {
-            var func = Specials.TryGetValue(name, out var constructor)
-                ? (_, i, p) => constructor(i, p)
-                : CreateIntrinsicsAndInternals(name);
+            var func = GetDeclaration(name);
 
-            return func(name, id, parameters);
+            return func == null
+                ? new Unsupported(name, id, parameters)
+                : func(id, parameters);
         }
 
-        private static Func<string, FunctionId, IParameters, IFunction> CreateIntrinsicsAndInternals(string name)
+        private static Func<FunctionId, IParameters, IFunction>? GetDeclaration(string name)
         {
-            return Intrinsics.TryGetValue(name, out var constructor) || Internals.TryGetValue(name, out constructor)
-                ? (_, i, p) => constructor(i, p)
-                : CreateOverloaded(name);
+            return Specials.TryGetValue(name, out var func)
+                ? func
+                : GetIntrinsicOrInternal(name);
         }
 
-        private static Func<string, FunctionId, IParameters, IFunction> CreateOverloaded(string name)
+        private static Func<FunctionId, IParameters, IFunction>? GetIntrinsicOrInternal(string name)
+        {
+            return Intrinsics.TryGetValue(name, out var func) || Internals.TryGetValue(name, out func)
+                ? func
+                : GetOverload(name);
+        }
+
+        private static Func<FunctionId, IParameters, IFunction>? GetOverload(string name)
         {
             var index = name.LastIndexOf('.');
 
             return index == -1
-                ? (n, i, p) => new Unsupported(n, i, p)
-                : CreateIntrinsicsAndInternals(name.Remove(index));
+                ? null
+                : GetIntrinsicOrInternal(name.Remove(index));
         }
     }
 }
