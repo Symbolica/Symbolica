@@ -33,21 +33,11 @@ namespace Symbolica.Application
                 ? $"~/.symbolica/translate \"{DeclarationFactory.Pattern}\""
                 : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationFactory.Pattern}\"");
 
-            var deserializer = DeserializerFactory.Create(new DeclarationFactory());
-
             var bytes = await File.ReadAllBytesAsync(Path.Combine(directory, ".symbolica.bc"));
-            var module = deserializer.DeserializeModule(bytes);
-
-            var collectionFactory = new CollectionFactory();
-            var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
-            var programFactory = new ProgramFactory(CreateFileSystem(), spaceFactory, collectionFactory);
-
-            using var programPool = new ProgramPool();
-            programPool.Add(programFactory.CreateInitial(programPool, module, options));
 
             try
             {
-                await programPool.Wait();
+                await Run(bytes, options);
             }
             catch (SymbolicaException exception)
             {
@@ -55,6 +45,24 @@ namespace Symbolica.Application
             }
 
             return Result.Success();
+        }
+
+        private static async Task Run(byte[] bytes, Options options)
+        {
+            var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
+
+            using var programPool = new ProgramPool();
+            programPool.Add(CreateProgramFactory().CreateInitial(programPool, module, options));
+
+            await programPool.Wait();
+        }
+
+        private static ProgramFactory CreateProgramFactory()
+        {
+            var collectionFactory = new CollectionFactory();
+            var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
+
+            return new ProgramFactory(CreateFileSystem(), spaceFactory, collectionFactory);
         }
 
         private static IFileSystem CreateFileSystem()
