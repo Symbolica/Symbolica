@@ -17,8 +17,7 @@ namespace Symbolica.Application
 {
     internal static class Executor
     {
-        public static async Task<Result> Run(string directory,
-            bool useSymbolicGarbage, bool useSymbolicAddresses, bool useSymbolicContinuations)
+        public static async Task<Result> Run(string directory, Options options)
         {
             var buildImage = Environment.GetEnvironmentVariable("SYMBOLICA_BUILD_IMAGE");
             var translateImage = Environment.GetEnvironmentVariable("SYMBOLICA_TRANSLATE_IMAGE");
@@ -44,8 +43,7 @@ namespace Symbolica.Application
             var programFactory = new ProgramFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
             using var programPool = new ProgramPool();
-            programPool.Add(programFactory.CreateInitial(programPool, module,
-                useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations));
+            programPool.Add(programFactory.CreateInitial(programPool, module, options));
 
             try
             {

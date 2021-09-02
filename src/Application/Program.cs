@@ -2,11 +2,12 @@
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Application;
+using Symbolica.Implementation;
 
-var result = await Executor.Run(args[0],
+var result = await Executor.Run(args[0], new Options(
     args.Contains("--use-symbolic-garbage"),
     args.Contains("--use-symbolic-addresses"),
-    args.Contains("--use-symbolic-continuations"));
+    args.Contains("--use-symbolic-continuations")));
 
 if (result.IsSuccess)
     return 0;
