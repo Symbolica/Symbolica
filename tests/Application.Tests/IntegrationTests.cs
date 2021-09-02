@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Symbolica.Application
 {
-    public class ExecutorTests
+    public class IntegrationTests
     {
         [Theory]
         [ClassData(typeof(FailTestData))]
