@@ -2,19 +2,27 @@
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Application;
+using Symbolica.Expression;
 using Symbolica.Implementation;
 
-var result = await Executor.Run(args[0], new Options(
+var bytes = await Serializer.Serialize(args[0]);
+var executor = new Executor(new Options(
     args.Contains("--use-symbolic-garbage"),
     args.Contains("--use-symbolic-addresses"),
     args.Contains("--use-symbolic-continuations")));
 
-if (result.IsSuccess)
-    return 0;
+try
+{
+    await executor.Run(bytes);
+}
+catch (SymbolicaException exception)
+{
+    Console.WriteLine(exception.Message);
 
-Console.WriteLine(result.Exception.Message);
+    if (exception is StateException stateException)
+        Console.WriteLine(string.Join(", ", stateException.Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
 
-if (result.Exception is StateException stateException)
-    Console.WriteLine(string.Join(", ", stateException.Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
+    return 1;
+}
 
-return 1;
+return 0;

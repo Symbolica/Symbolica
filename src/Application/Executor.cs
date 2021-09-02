@@ -5,37 +5,27 @@ using Symbolica.Application.Computation;
 using Symbolica.Application.Implementation;
 using Symbolica.Computation;
 using Symbolica.Deserialization;
-using Symbolica.Expression;
 using Symbolica.Implementation;
 using Symbolica.Implementation.System;
 using Symbolica.Representation;
 
 namespace Symbolica.Application
 {
-    internal static class Executor
+    internal sealed class Executor
     {
-        public static async Task<Result> Run(string directory, Options options)
+        private readonly Options _options;
+
+        public Executor(Options options)
         {
-            var bytes = await Serializer.Serialize(directory);
-
-            try
-            {
-                await Run(bytes, options);
-            }
-            catch (SymbolicaException exception)
-            {
-                return Result.Failure(exception);
-            }
-
-            return Result.Success();
+            _options = options;
         }
 
-        private static async Task Run(byte[] bytes, Options options)
+        public async Task Run(byte[] bytes)
         {
             var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
             using var programPool = new ProgramPool();
-            programPool.Add(CreateProgramFactory().CreateInitial(programPool, module, options));
+            programPool.Add(CreateProgramFactory().CreateInitial(programPool, module, _options));
 
             await programPool.Wait();
         }

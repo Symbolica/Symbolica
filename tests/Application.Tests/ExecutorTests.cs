@@ -14,10 +14,10 @@ namespace Symbolica.Application
         [ClassData(typeof(FailTestData))]
         private async Task ShouldFail(string directory, Options options)
         {
-            var result = await Executor.Run(directory, options);
+            var bytes = await Serializer.Serialize(directory);
+            var executor = new Executor(options);
 
-            result.IsSuccess.Should().BeFalse();
-            result.Exception.Should().BeOfType<StateException>()
+            executor.Awaiting(e => e.Run(bytes)).Should().Throw<StateException>()
                 .Which.Space.GetExample().Select(p => p.Key).Should().BeEquivalentTo(
                     await File.ReadAllLinesAsync(Path.Combine(directory, "symbols")));
         }
@@ -26,9 +26,10 @@ namespace Symbolica.Application
         [ClassData(typeof(PassTestData))]
         private async Task ShouldPass(string directory, Options options)
         {
-            var result = await Executor.Run(directory, options);
+            var bytes = await Serializer.Serialize(directory);
+            var executor = new Executor(options);
 
-            result.IsSuccess.Should().BeTrue();
+            executor.Awaiting(e => e.Run(bytes)).Should().NotThrow();
         }
 
         private sealed class FailTestData : TestData
