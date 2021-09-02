@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Symbolica.Abstraction;
+using Symbolica.Implementation;
 using Xunit;
 
 namespace Symbolica.Application
@@ -11,11 +12,9 @@ namespace Symbolica.Application
     {
         [Theory]
         [ClassData(typeof(FailTestData))]
-        private async Task ShouldFail(string directory,
-            bool useSymbolicGarbage, bool useSymbolicAddresses, bool useSymbolicContinuations)
+        private async Task ShouldFail(string directory, Options options)
         {
-            var result = await Executor.Run(directory,
-                useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations);
+            var result = await Executor.Run(directory, options);
 
             result.IsSuccess.Should().BeFalse();
             result.Exception.Should().BeOfType<StateException>()
@@ -25,11 +24,9 @@ namespace Symbolica.Application
 
         [Theory]
         [ClassData(typeof(PassTestData))]
-        private async Task ShouldPass(string directory,
-            bool useSymbolicGarbage, bool useSymbolicAddresses, bool useSymbolicContinuations)
+        private async Task ShouldPass(string directory, Options options)
         {
-            var result = await Executor.Run(directory,
-                useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations);
+            var result = await Executor.Run(directory, options);
 
             result.IsSuccess.Should().BeTrue();
         }
@@ -50,7 +47,7 @@ namespace Symbolica.Application
             }
         }
 
-        private class TestData : TheoryData<string, bool, bool, bool>
+        private class TestData : TheoryData<string, Options>
         {
             protected TestData(string status)
             {
@@ -58,7 +55,7 @@ namespace Symbolica.Application
                 foreach (var useSymbolicGarbage in new[] {false, true})
                 foreach (var useSymbolicAddresses in new[] {false, true})
                 foreach (var useSymbolicContinuations in new[] {false, true})
-                    Add(directory, useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations);
+                    Add(directory, new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations));
             }
         }
     }
