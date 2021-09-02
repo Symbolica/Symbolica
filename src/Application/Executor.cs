@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Symbolica.Application.Collection;
 using Symbolica.Application.Computation;
@@ -19,21 +16,7 @@ namespace Symbolica.Application
     {
         public static async Task<Result> Run(string directory, Options options)
         {
-            var buildImage = Environment.GetEnvironmentVariable("SYMBOLICA_BUILD_IMAGE");
-            var translateImage = Environment.GetEnvironmentVariable("SYMBOLICA_TRANSLATE_IMAGE");
-
-            File.Delete(Path.Combine(directory, "symbolica.bc"));
-            File.Delete(Path.Combine(directory, ".symbolica.bc"));
-
-            await CallExternalProcess(directory, buildImage == null
-                ? "./symbolica.sh"
-                : $"docker run -v $(pwd):/code {buildImage}");
-
-            await CallExternalProcess(directory, translateImage == null
-                ? $"~/.symbolica/translate \"{DeclarationFactory.Pattern}\""
-                : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationFactory.Pattern}\"");
-
-            var bytes = await File.ReadAllBytesAsync(Path.Combine(directory, ".symbolica.bc"));
+            var bytes = await Serializer.Serialize(directory);
 
             try
             {
@@ -67,37 +50,9 @@ namespace Symbolica.Application
 
         private static IFileSystem CreateFileSystem()
         {
-            return IsWindows()
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? new WslFileSystem(new FileSystem())
                 : new FileSystem();
-        }
-
-        private static async Task CallExternalProcess(string directory, string command)
-        {
-            using var process = new Process
-            {
-                StartInfo =
-                {
-                    WorkingDirectory = directory,
-                    FileName = IsWindows() ? "wsl" : "bash",
-                    Arguments = IsWindows() ? command : $"-c \"{command.Replace("\"", "\\\"")}\"",
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                }
-            };
-
-            process.Start();
-            await process.WaitForExitAsync();
-
-            if (process.ExitCode != 0)
-                throw new Exception($"{await process.StandardError.ReadToEndAsync()}");
-        }
-
-        private static bool IsWindows()
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         }
     }
 }
