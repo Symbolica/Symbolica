@@ -1,95 +1,48 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Symbolica.Application.Collection;
 using Symbolica.Application.Computation;
 using Symbolica.Application.Implementation;
 using Symbolica.Computation;
 using Symbolica.Deserialization;
-using Symbolica.Expression;
 using Symbolica.Implementation;
 using Symbolica.Implementation.System;
 using Symbolica.Representation;
 
 namespace Symbolica.Application
 {
-    internal static class Executor
+    internal sealed class Executor
     {
-        public static async Task<Result> Run(string directory, Options options)
+        private readonly Options _options;
+
+        public Executor(Options options)
         {
-            var buildImage = Environment.GetEnvironmentVariable("SYMBOLICA_BUILD_IMAGE");
-            var translateImage = Environment.GetEnvironmentVariable("SYMBOLICA_TRANSLATE_IMAGE");
+            _options = options;
+        }
 
-            File.Delete(Path.Combine(directory, "symbolica.bc"));
-            File.Delete(Path.Combine(directory, ".symbolica.bc"));
-
-            await CallExternalProcess(directory, buildImage == null
-                ? "./symbolica.sh"
-                : $"docker run -v $(pwd):/code {buildImage}");
-
-            await CallExternalProcess(directory, translateImage == null
-                ? $"~/.symbolica/translate \"{DeclarationFactory.Pattern}\""
-                : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationFactory.Pattern}\"");
-
-            var deserializer = DeserializerFactory.Create(new DeclarationFactory());
-
-            var bytes = await File.ReadAllBytesAsync(Path.Combine(directory, ".symbolica.bc"));
-            var module = deserializer.DeserializeModule(bytes);
-
-            var collectionFactory = new CollectionFactory();
-            var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
-            var programFactory = new ProgramFactory(CreateFileSystem(), spaceFactory, collectionFactory);
+        public async Task Run(byte[] bytes)
+        {
+            var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
             using var programPool = new ProgramPool();
-            programPool.Add(programFactory.CreateInitial(programPool, module, options));
+            programPool.Add(CreateProgramFactory().CreateInitial(programPool, module, _options));
 
-            try
-            {
-                await programPool.Wait();
-            }
-            catch (SymbolicaException exception)
-            {
-                return Result.Failure(exception);
-            }
+            await programPool.Wait();
+        }
 
-            return Result.Success();
+        private static ProgramFactory CreateProgramFactory()
+        {
+            var collectionFactory = new CollectionFactory();
+            var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
+
+            return new ProgramFactory(CreateFileSystem(), spaceFactory, collectionFactory);
         }
 
         private static IFileSystem CreateFileSystem()
         {
-            return IsWindows()
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? new WslFileSystem(new FileSystem())
                 : new FileSystem();
-        }
-
-        private static async Task CallExternalProcess(string directory, string command)
-        {
-            using var process = new Process
-            {
-                StartInfo =
-                {
-                    WorkingDirectory = directory,
-                    FileName = IsWindows() ? "wsl" : "bash",
-                    Arguments = IsWindows() ? command : $"-c \"{command.Replace("\"", "\\\"")}\"",
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                }
-            };
-
-            process.Start();
-            await process.WaitForExitAsync();
-
-            if (process.ExitCode != 0)
-                throw new Exception($"{await process.StandardError.ReadToEndAsync()}");
-        }
-
-        private static bool IsWindows()
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         }
     }
 }
