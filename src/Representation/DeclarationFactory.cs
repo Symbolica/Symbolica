@@ -22,6 +22,7 @@ namespace Symbolica.Representation
                 {"llvm.experimental.constrained.fpext", (id, parameters) => new FloatExtend(id, parameters)},
                 {"llvm.experimental.constrained.fptosi", (id, parameters) => new FloatToSigned(id, parameters)},
                 {"llvm.experimental.constrained.fptoui", (id, parameters) => new FloatToUnsigned(id, parameters)},
+                {"llvm.experimental.constrained.fptrunc", (id, parameters) => new FloatTruncate(id, parameters)},
                 {"llvm.experimental.constrained.frem", (id, parameters) => new FloatRemainder(id, parameters)},
                 {"llvm.experimental.constrained.fsub", (id, parameters) => new FloatSubtract(id, parameters)},
                 {"llvm.experimental.constrained.sitofp", (id, parameters) => new SignedToFloat(id, parameters)},
