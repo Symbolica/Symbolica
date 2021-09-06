@@ -190,12 +190,7 @@ namespace Symbolica.Computation
 
         public IValue Select(IValue trueValue, IValue falseValue)
         {
-            return trueValue.Select(_func, falseValue);
-        }
-
-        public IValue Select(Func<Context, BoolExpr> predicate, IValue falseValue)
-        {
-            return Create(falseValue, (c, t, f) => (BoolExpr) c.MkITE(predicate(c), t, f));
+            return trueValue.IfElse(_func, falseValue);
         }
 
         public IValue ShiftLeft(IValue value)
@@ -301,6 +296,11 @@ namespace Symbolica.Computation
         public IValue ZeroExtend(Bits size)
         {
             return ToSymbolicBitVector().ZeroExtend(size);
+        }
+
+        public IValue IfElse(Func<Context, BoolExpr> predicate, IValue falseValue)
+        {
+            return Create(falseValue, (c, t, f) => (BoolExpr) c.MkITE(predicate(c), t, f));
         }
 
         public SymbolicBitVector ToSymbolicBitVector()
