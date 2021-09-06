@@ -19,6 +19,7 @@ namespace Symbolica.Representation
                 {"llvm.experimental.constrained.fdiv", (id, parameters) => new FloatDivide(id, parameters)},
                 {"llvm.experimental.constrained.floor", (id, parameters) => new Floor(id, parameters)},
                 {"llvm.experimental.constrained.fmul", (id, parameters) => new FloatMultiply(id, parameters)},
+                {"llvm.experimental.constrained.fpext", (id, parameters) => new FloatExtend(id, parameters)},
                 {"llvm.experimental.constrained.fptosi", (id, parameters) => new FloatToSigned(id, parameters)},
                 {"llvm.experimental.constrained.fptoui", (id, parameters) => new FloatToUnsigned(id, parameters)},
                 {"llvm.experimental.constrained.frem", (id, parameters) => new FloatRemainder(id, parameters)},

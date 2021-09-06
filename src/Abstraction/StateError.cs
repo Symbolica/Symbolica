@@ -3,12 +3,12 @@
     public enum StateError
     {
         DivideByZero,
+        FailingAssertion,
         InvalidJump,
         InvalidMemoryFree,
         InvalidMemoryMove,
         InvalidMemoryRead,
         InvalidMemoryWrite,
-        FailingAssertion,
         NonZeroExitCode,
         OverlappingMemoryCopy,
         UndefinedShift
