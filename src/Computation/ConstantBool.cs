@@ -79,11 +79,6 @@ namespace Symbolica.Computation
             return _value ? trueValue : falseValue;
         }
 
-        public override IValue Select(Func<Context, BoolExpr> predicate, IValue falseValue)
-        {
-            return ToSymbolicBool().Select(predicate, falseValue);
-        }
-
         public override IValue ShiftLeft(IValue value)
         {
             return ToConstantUnsigned().ShiftLeft(value);
@@ -187,6 +182,11 @@ namespace Symbolica.Computation
         public override IValue ZeroExtend(Bits size)
         {
             return ToConstantUnsigned().ZeroExtend(size);
+        }
+
+        public override IValue IfElse(Func<Context, BoolExpr> predicate, IValue falseValue)
+        {
+            return ToSymbolicBool().IfElse(predicate, falseValue);
         }
 
         public override SymbolicBitVector ToSymbolicBitVector()

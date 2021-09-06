@@ -106,11 +106,6 @@ namespace Symbolica.Computation
             return ToConstantBool().Select(trueValue, falseValue);
         }
 
-        public IValue Select(Func<Context, BoolExpr> predicate, IValue falseValue)
-        {
-            return ToSymbolicFloat().Select(predicate, falseValue);
-        }
-
         public IValue ShiftLeft(IValue value)
         {
             return ToConstantUnsigned().ShiftLeft(value);
@@ -214,6 +209,11 @@ namespace Symbolica.Computation
         public IValue ZeroExtend(Bits size)
         {
             return ToConstantUnsigned().ZeroExtend(size);
+        }
+
+        public IValue IfElse(Func<Context, BoolExpr> predicate, IValue falseValue)
+        {
+            return ToSymbolicFloat().IfElse(predicate, falseValue);
         }
 
         public SymbolicBitVector ToSymbolicBitVector()

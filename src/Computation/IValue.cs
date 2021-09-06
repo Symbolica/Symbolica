@@ -43,7 +43,6 @@ namespace Symbolica.Computation
         IValue Or(IValue value);
         IValue Read(ICollectionFactory collectionFactory, IValue offset, Bits size);
         IValue Select(IValue trueValue, IValue falseValue);
-        IValue Select(Func<Context, BoolExpr> predicate, IValue falseValue);
         IValue ShiftLeft(IValue value);
         IValue SignedDivide(IValue value);
         IValue SignedGreater(IValue value);
@@ -65,6 +64,7 @@ namespace Symbolica.Computation
         IValue Write(ICollectionFactory collectionFactory, IValue offset, IValue value);
         IValue Xor(IValue value);
         IValue ZeroExtend(Bits size);
+        IValue IfElse(Func<Context, BoolExpr> predicate, IValue falseValue);
         SymbolicBitVector ToSymbolicBitVector();
         SymbolicBool ToSymbolicBool();
         SymbolicFloat ToSymbolicFloat();

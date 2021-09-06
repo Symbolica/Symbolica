@@ -134,7 +134,6 @@ namespace Symbolica.Computation
         public abstract IValue Or(IValue value);
         public abstract IValue Read(ICollectionFactory collectionFactory, IValue offset, Bits size);
         public abstract IValue Select(IValue trueValue, IValue falseValue);
-        public abstract IValue Select(Func<Context, BoolExpr> predicate, IValue falseValue);
         public abstract IValue ShiftLeft(IValue value);
         public abstract IValue SignedDivide(IValue value);
         public abstract IValue SignedGreater(IValue value);
@@ -156,6 +155,7 @@ namespace Symbolica.Computation
         public abstract IValue Write(ICollectionFactory collectionFactory, IValue offset, IValue value);
         public abstract IValue Xor(IValue value);
         public abstract IValue ZeroExtend(Bits size);
+        public abstract IValue IfElse(Func<Context, BoolExpr> predicate, IValue falseValue);
 
         public abstract SymbolicBitVector ToSymbolicBitVector();
         public abstract SymbolicBool ToSymbolicBool();
