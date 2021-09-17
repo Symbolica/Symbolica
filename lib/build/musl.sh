@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 set -e
 
 git clone --depth 1 --branch v1.2.2 git://git.musl-libc.org/musl
