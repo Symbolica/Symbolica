@@ -15,7 +15,7 @@ FROM base
 LABEL maintainer "Symbolica <dev@symbolica.dev>"
 
 # TODO: Only copy across the built musl artifacts
-COPY --from=musl-builder $HOME/.symbolica/build .
+COPY --from=musl-builder $HOME/.symbolica/build $HOME/.symbolica/build
 
 WORKDIR /code
 ENTRYPOINT [ "./symbolica.sh" ]
