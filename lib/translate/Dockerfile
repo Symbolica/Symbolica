@@ -1,14 +1,8 @@
-FROM ubuntu:18.04
-RUN apt-get update && \
-    apt-get install -y software-properties-common wget && \
-    wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main" && \
-    apt-get update && \
-    apt-get install -y llvm-12 && \
-    apt-get remove --purge -y software-properties-common wget && \
-    apt-get autoremove --purge -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+FROM alpine:3.14.2
+LABEL maintainer "Symbolica <dev@symbolica.dev>"
+RUN apk add --no-cache binutils
+COPY --from=symbolica/clang-builder /tmp/clang/install/bin/llvm-extract-12 /usr/local/bin/
+COPY --from=symbolica/clang-builder /tmp/clang/install/bin/opt /usr/local/bin/
 
 COPY . /.symbolica/
 

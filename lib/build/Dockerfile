@@ -1,30 +1,21 @@
-FROM ubuntu:18.04 as base
-RUN apt-get update && \
-    apt-get install -y software-properties-common wget && \
-    wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main" && \
-    apt-get update && \
-    apt-get install -y clang-12 make && \
-    apt-get remove --purge -y software-properties-common wget && \
-    apt-get autoremove --purge -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-FROM base as builder
-RUN apt-get update && \
-    apt-get install -y apt-transport-https git gnupg && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
+FROM alpine:3.14.2 as base
 ENV HOME /home/me
+RUN apk add --no-cache binutils
+COPY --from=symbolica/clang-builder /tmp/clang/install/bin/clang-12 /usr/local/bin/
+COPY --from=symbolica/clang-builder /tmp/clang/install/bin/llvm-link /usr/local/bin/
+
+FROM base as musl-builder
+RUN apk add --no-cache git make
+
 WORKDIR $HOME/.symbolica/build
 COPY . .
 RUN ./musl.sh
 
 FROM base
-ENV HOME /home/me
-WORKDIR $HOME/.symbolica/build
-COPY --from=builder /home/me/.symbolica/build .
+LABEL maintainer "Symbolica <dev@symbolica.dev>"
+
+# TODO: Only copy across the built musl artifacts
+COPY --from=musl-builder $HOME/.symbolica/build .
 
 WORKDIR /code
 ENTRYPOINT [ "./symbolica.sh" ]
