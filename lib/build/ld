@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 set -e
 
-exec llvm-link-12 ~/.symbolica/build/musl/libc.bc "$@"
+exec llvm-link ~/.symbolica/build/musl/libc.bc "$@"
