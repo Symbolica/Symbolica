@@ -1,17 +1,15 @@
-FROM alpine:3.14.2 as base
-RUN apk add --no-cache clang make
-
-FROM base as builder
-RUN apk add --no-cache git
-
+FROM symbolica/clang:latest as clang
+# RUN apk add --no-cache clang make
 ENV HOME /home/me
+
+FROM clang as builder
+RUN apk add --no-cache git make
+
 WORKDIR $HOME/.symbolica/build
 COPY . .
 RUN ./musl.sh
 
-FROM base
-ENV HOME /home/me
-WORKDIR $HOME/.symbolica/build
+FROM clang
 COPY --from=builder /home/me/.symbolica/build .
 
 WORKDIR /code

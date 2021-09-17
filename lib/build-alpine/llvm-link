@@ -1,4 +1,4 @@
 #!/bin/sh
 set -e
 
-exec llvm-link-12 "$@"
+exec llvm-link "$@"
