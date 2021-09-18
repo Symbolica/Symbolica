@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 set -e
 
 wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
