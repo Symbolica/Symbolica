@@ -5,10 +5,9 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
     installPrefix="/usr/local" && \
     apk add --no-cache binutils && \
     apk add --no-cache --virtual build-deps build-base cmake git ninja python3 && \
-    mkdir -p /tmp/clang/install && \
+    mkdir -p /tmp/clang/build && \
     cd /tmp/clang && \
     git clone --depth 1 --branch llvmorg-12.0.1 https://github.com/llvm/llvm-project.git && \
-    mkdir build && \
     cd build && \
     cmake -G Ninja \
         -Wno-dev \
