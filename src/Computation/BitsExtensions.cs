@@ -20,12 +20,12 @@ namespace Symbolica.Computation
             };
         }
 
-        public static IUnsigned GetNan(this Bits self, Context context)
+        public static BigInteger GetNan(this Bits self, Context context)
         {
             var sort = self.GetSort(context);
             var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);
 
-            return ConstantUnsigned.Create(self, nan);
+            return ConstantUnsigned.Create(self, nan).Constant;
         }
 
         public static IFloat ParseFloat(this Bits self, string value)

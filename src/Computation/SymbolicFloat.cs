@@ -20,11 +20,9 @@ namespace Symbolica.Computation
         {
             var expr = Symbolic(context).Simplify();
 
-            var value = expr.IsFPNaN
+            return expr.IsFPNaN
                 ? Size.GetNan(context)
-                : AsUnsigned();
-
-            return value.AsConstant(context);
+                : AsUnsigned().AsConstant(context);
         }
 
         public IValue GetValue(IPersistentSpace space, IBool[] constraints)
