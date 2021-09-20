@@ -5,7 +5,7 @@ using Symbolica.Application;
 using Symbolica.Expression;
 using Symbolica.Implementation;
 
-var bytes = await Serializer.Serialize(args[0]);
+var bytes = await Serializer.Serialize(args[0], args.Last(a => a.StartsWith("--O")));
 var executor = new Executor(new Options(
     args.Contains("--use-symbolic-garbage"),
     args.Contains("--use-symbolic-addresses"),
