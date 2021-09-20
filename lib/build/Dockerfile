@@ -28,21 +28,19 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
     rm -rf /tmp && \
     apk --purge del build-deps
 
-FROM base as musl-builder
 WORKDIR $HOME/.symbolica/build
 COPY . .
 
 # Install findutils because the default busybox xargs doesnt handle large inputs well
 # and it ends up batching the calls to llvm-link which results in us only producing
 # a libc.bc file with the contents of the final invocation in it.
-RUN apk add --no-cache git make findutils && \
-    ./musl.sh
+RUN apk add --no-cache --virtual musl-build-deps git make findutils && \
+    cd install &&  \
+    ./musl.sh && \
+    cd .. && \
+    rm -rf ./install && \
+    apk --purge del musl-build-deps
 
-FROM base
 LABEL maintainer "Symbolica <dev@symbolica.dev>"
-
-# TODO: Only copy across the built musl artifacts
-COPY --from=musl-builder $HOME/.symbolica/build $HOME/.symbolica/build
-
 WORKDIR /code
 ENTRYPOINT [ "./symbolica.sh" ]
