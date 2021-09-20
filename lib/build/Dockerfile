@@ -2,7 +2,6 @@ FROM alpine:3.14.2 as base
 ENV HOME /home/me
 ARG clangParallelJobs
 RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
-    installPrefix="/usr/local" && \
     apk add --no-cache binutils && \
     apk add --no-cache --virtual build-deps build-base cmake git ninja python3 && \
     mkdir -p /tmp/clang/build && \
@@ -11,7 +10,6 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
     cd build && \
     cmake -G Ninja \
         -Wno-dev \
-        -DCMAKE_INSTALL_PREFIX="${installPrefix}" \
         -DCLANG_VENDOR=Alpine \
         -DLLVM_ENABLE_PROJECTS=clang \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
@@ -25,10 +23,10 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
         -DLLVM_ENABLE_RTTI=YES \
         /tmp/clang/llvm-project/llvm && \
     ninja -j ${clangParallelJobs} install-llvm-link install-clang && \
-    mv "${installPrefix}"/bin/llvm-link "${installPrefix}"/bin/llvm-link-12 && \
+    mv /usr/local/bin/llvm-link /usr/local/bin/llvm-link-12 && \
     cd / && \
     rm -rf /tmp && \
-    apk del build-deps
+    apk --purge del build-deps
 
 FROM base as musl-builder
 WORKDIR $HOME/.symbolica/build
