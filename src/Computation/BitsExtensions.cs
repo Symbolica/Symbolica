@@ -20,12 +20,22 @@ namespace Symbolica.Computation
             };
         }
 
-        public static BigInteger GetNan(this Bits self, Context context)
+        public static IUnsigned GetNan(this Bits self, Context context)
         {
             var sort = self.GetSort(context);
             var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);
 
-            return ConstantUnsigned.Create(self, nan).Integer;
+            return ConstantUnsigned.Create(self, nan);
+        }
+
+        public static IFloat ParseFloat(this Bits self, string value)
+        {
+            return (uint) self switch
+            {
+                32U => new ConstantSingle(float.Parse(value)),
+                64U => new ConstantDouble(double.Parse(value)),
+                _ => new SymbolicFloat(self, c => self.ParseNormalFloat(c, value))
+            };
         }
 
         public static FPExpr ParseNormalFloat(this Bits self, Context context, string value)

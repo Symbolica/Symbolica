@@ -22,8 +22,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Add(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.Add(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Add(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Add(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -34,8 +34,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.And(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.And(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.And(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.And(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -46,8 +46,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.ArithmeticShiftRight(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.ArithmeticShiftRight(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.AsSigned().ArithmeticShiftRight(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.ArithmeticShiftRight(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -58,8 +58,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Equal(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.Equal(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Equal(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Equal(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -70,8 +70,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.LogicalShiftRight(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.LogicalShiftRight(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.LogicalShiftRight(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.LogicalShiftRight(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -82,8 +82,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Multiply(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.Multiply(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Multiply(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Multiply(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -94,8 +94,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.Not().GetInteger(Context);
-            var symbolic = symbolicExpression.Not().GetInteger(Context);
+            var constant = constantExpression.Not().AsConstant(Context);
+            var symbolic = symbolicExpression.Not().AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -106,8 +106,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.NotEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.NotEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.NotEqual(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.NotEqual(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -118,8 +118,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Or(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.Or(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Or(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Or(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -132,8 +132,9 @@ namespace Symbolica.Computation
         {
             var collectionFactory = new CollectionFactory();
 
-            var constant = constantBuffer.Read(collectionFactory, constantOffset, size).GetInteger(Context);
-            var symbolic = symbolicBuffer.Read(collectionFactory, symbolicOffset, size).GetInteger(Context);
+            var constant = constantBuffer.AsBitVector(collectionFactory)
+                .Read(constantOffset, size).AsConstant(Context);
+            var symbolic = symbolicBuffer.Read(symbolicOffset, size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -144,8 +145,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.ShiftLeft(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.ShiftLeft(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.ShiftLeft(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.ShiftLeft(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -156,11 +157,11 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            if (constantRight.Integer == 0)
+            if (constantRight.Constant == 0)
                 return;
 
-            var constant = constantLeft.SignedDivide(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.SignedDivide(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.AsSigned().Divide(constantRight.AsSigned()).AsConstant(Context);
+            var symbolic = symbolicLeft.Divide(symbolicRight.AsSigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -171,8 +172,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.SignedGreater(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.SignedGreater(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.AsSigned().Greater(constantRight.AsSigned()).AsConstant(Context);
+            var symbolic = symbolicLeft.Greater(symbolicRight.AsSigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -183,8 +184,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.SignedGreaterOrEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.SignedGreaterOrEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.AsSigned().GreaterOrEqual(constantRight.AsSigned()).AsConstant(Context);
+            var symbolic = symbolicLeft.GreaterOrEqual(symbolicRight.AsSigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -195,8 +196,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.SignedLess(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.SignedLess(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.AsSigned().Less(constantRight.AsSigned()).AsConstant(Context);
+            var symbolic = symbolicLeft.Less(symbolicRight.AsSigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -207,8 +208,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.SignedLessOrEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.SignedLessOrEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.AsSigned().LessOrEqual(constantRight.AsSigned()).AsConstant(Context);
+            var symbolic = symbolicLeft.LessOrEqual(symbolicRight.AsSigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -219,11 +220,11 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            if (constantRight.Integer == 0)
+            if (constantRight.Constant == 0)
                 return;
 
-            var constant = constantLeft.SignedRemainder(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.SignedRemainder(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.AsSigned().Remainder(constantRight.AsSigned()).AsConstant(Context);
+            var symbolic = symbolicLeft.Remainder(symbolicRight.AsSigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -234,8 +235,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.SignedToFloat(size).GetInteger(Context);
-            var symbolic = symbolicExpression.SignedToFloat(size).GetInteger(Context);
+            var constant = constantExpression.AsSigned().SignedToFloat(size).AsConstant(Context);
+            var symbolic = symbolicExpression.SignedToFloat(size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -246,8 +247,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.SignExtend(size).GetInteger(Context);
-            var symbolic = symbolicExpression.SignExtend(size).GetInteger(Context);
+            var constant = constantExpression.AsSigned().SignExtend(size).AsConstant(Context);
+            var symbolic = symbolicExpression.SignExtend(size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -258,8 +259,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Subtract(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.Subtract(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Subtract(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Subtract(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -270,8 +271,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.Truncate(size).GetInteger(Context);
-            var symbolic = symbolicExpression.Truncate(size).GetInteger(Context);
+            var constant = constantExpression.Truncate(size).AsConstant(Context);
+            var symbolic = symbolicExpression.Truncate(size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -282,11 +283,11 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            if (constantRight.Integer == 0)
+            if (constantRight.Constant == 0)
                 return;
 
-            var constant = constantLeft.UnsignedDivide(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.UnsignedDivide(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Divide(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Divide(symbolicRight.AsUnsigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -297,8 +298,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.UnsignedGreater(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.UnsignedGreater(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Greater(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Greater(symbolicRight.AsUnsigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -309,8 +310,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.UnsignedGreaterOrEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.UnsignedGreaterOrEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.GreaterOrEqual(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.GreaterOrEqual(symbolicRight.AsUnsigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -321,8 +322,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.UnsignedLess(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.UnsignedLess(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Less(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Less(symbolicRight.AsUnsigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -333,8 +334,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.UnsignedLessOrEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.UnsignedLessOrEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.LessOrEqual(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.LessOrEqual(symbolicRight.AsUnsigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -345,11 +346,11 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            if (constantRight.Integer == 0)
+            if (constantRight.Constant == 0)
                 return;
 
-            var constant = constantLeft.UnsignedRemainder(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.UnsignedRemainder(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Remainder(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Remainder(symbolicRight.AsUnsigned()).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -360,8 +361,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.UnsignedToFloat(size).GetInteger(Context);
-            var symbolic = symbolicExpression.UnsignedToFloat(size).GetInteger(Context);
+            var constant = constantExpression.UnsignedToFloat(size).AsConstant(Context);
+            var symbolic = symbolicExpression.UnsignedToFloat(size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -374,8 +375,9 @@ namespace Symbolica.Computation
         {
             var collectionFactory = new CollectionFactory();
 
-            var constant = constantBuffer.Write(collectionFactory, constantOffset, constantValue).GetInteger(Context);
-            var symbolic = symbolicBuffer.Write(collectionFactory, symbolicOffset, symbolicValue).GetInteger(Context);
+            var constant = constantBuffer.AsBitVector(collectionFactory)
+                .Write(constantOffset, constantValue.AsBitVector(collectionFactory)).AsConstant(Context);
+            var symbolic = symbolicBuffer.Write(symbolicOffset, symbolicValue).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -386,8 +388,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
             SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
         {
-            var constant = constantLeft.Xor(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.Xor(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Xor(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Xor(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -398,8 +400,8 @@ namespace Symbolica.Computation
             ConstantUnsigned constantExpression,
             SymbolicBitVector symbolicExpression)
         {
-            var constant = constantExpression.ZeroExtend(size).GetInteger(Context);
-            var symbolic = symbolicExpression.ZeroExtend(size).GetInteger(Context);
+            var constant = constantExpression.ZeroExtend(size).AsConstant(Context);
+            var symbolic = symbolicExpression.ZeroExtend(size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }

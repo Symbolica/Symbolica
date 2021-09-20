@@ -1,153 +1,191 @@
 ﻿using System;
 using System.Numerics;
+using Microsoft.Z3;
+using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal sealed class ConstantSingle : ConstantFloat
+    internal sealed class ConstantSingle : IFloat, IConstantSingle
     {
-        private readonly float _value;
-
-        public ConstantSingle(float value)
-            : base((Bits) 32U)
+        public ConstantSingle(float constant)
         {
-            _value = value;
+            Constant = constant;
         }
 
-        public override IValue FloatAdd(IValue value)
+        public float Constant { get; }
+        public Bits Size => (Bits) 32U;
+
+        public BigInteger AsConstant(Context context)
         {
-            return Create(value, (l, r) => l.FloatAdd(r), (l, r) => l + r);
+            return AsUnsigned().AsConstant(context);
         }
 
-        public override IValue FloatCeiling()
+        public IValue GetValue(IPersistentSpace space, IBool[] constraints)
         {
-            return new ConstantSingle(MathF.Ceiling(_value));
+            return this;
         }
 
-        public override IValue FloatConvert(Bits size)
+        public IBitwise AsBitwise()
+        {
+            return AsUnsigned();
+        }
+
+        public IBitVector AsBitVector(ICollectionFactory collectionFactory)
+        {
+            return AsUnsigned().AsBitVector(collectionFactory);
+        }
+
+        public IUnsigned AsUnsigned()
+        {
+            return AsSigned().AsUnsigned();
+        }
+
+        public ISigned AsSigned()
+        {
+            return ConstantSigned.Create(Size, BitConverter.SingleToInt32Bits(Constant));
+        }
+
+        public IBool AsBool()
+        {
+            return AsUnsigned().AsBool();
+        }
+
+        public IFloat AsFloat()
+        {
+            return this;
+        }
+
+        public IValue IfElse(IBool predicate, IValue falseValue)
+        {
+            return new SymbolicFloat(Size, Symbolic).IfElse(predicate, falseValue);
+        }
+
+        public Func<Context, FPExpr> Symbolic => c => c.MkFP(Constant, Size.GetSort(c));
+
+        public IFloat Add(IFloat value)
+        {
+            return Create(value, (l, r) => l.Add(r), (l, r) => l + r);
+        }
+
+        public IFloat Ceiling()
+        {
+            return new ConstantSingle(MathF.Ceiling(Constant));
+        }
+
+        public IFloat Convert(Bits size)
         {
             return (uint) size switch
             {
                 32U => this,
-                64U => new ConstantDouble(_value),
-                _ => ToSymbolicFloat().FloatConvert(size)
+                64U => new ConstantDouble(Constant),
+                _ => new SymbolicFloat(Size, Symbolic).Convert(size)
             };
         }
 
-        public override IValue FloatDivide(IValue value)
+        public IFloat Divide(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatDivide(r), (l, r) => l / r);
+            return Create(value, (l, r) => l.Divide(r), (l, r) => l / r);
         }
 
-        public override IValue FloatEqual(IValue value)
+        public IBool Equal(IFloat value)
         {
             // ReSharper disable once CompareOfFloatsByEqualityOperator
-            return Create(value, (l, r) => l.FloatEqual(r), (l, r) => l == r);
+            return Create(value, (l, r) => l.Equal(r), (l, r) => l == r);
         }
 
-        public override IValue FloatFloor()
+        public IFloat Floor()
         {
-            return new ConstantSingle(MathF.Floor(_value));
+            return new ConstantSingle(MathF.Floor(Constant));
         }
 
-        public override IValue FloatGreater(IValue value)
+        public IBool Greater(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatGreater(r), (l, r) => l > r);
+            return Create(value, (l, r) => l.Greater(r), (l, r) => l > r);
         }
 
-        public override IValue FloatGreaterOrEqual(IValue value)
+        public IBool GreaterOrEqual(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatGreaterOrEqual(r), (l, r) => l >= r);
+            return Create(value, (l, r) => l.GreaterOrEqual(r), (l, r) => l >= r);
         }
 
-        public override IValue FloatLess(IValue value)
+        public IBool Less(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatLess(r), (l, r) => l < r);
+            return Create(value, (l, r) => l.Less(r), (l, r) => l < r);
         }
 
-        public override IValue FloatLessOrEqual(IValue value)
+        public IBool LessOrEqual(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatLessOrEqual(r), (l, r) => l <= r);
+            return Create(value, (l, r) => l.LessOrEqual(r), (l, r) => l <= r);
         }
 
-        public override IValue FloatMultiply(IValue value)
+        public IFloat Multiply(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatMultiply(r), (l, r) => l * r);
+            return Create(value, (l, r) => l.Multiply(r), (l, r) => l * r);
         }
 
-        public override IValue FloatNegate()
+        public IFloat Negate()
         {
-            return new ConstantSingle(-_value);
+            return new ConstantSingle(-Constant);
         }
 
-        public override IValue FloatNotEqual(IValue value)
+        public IBool NotEqual(IFloat value)
         {
             // ReSharper disable once CompareOfFloatsByEqualityOperator
-            return Create(value, (l, r) => l.FloatNotEqual(r), (l, r) => l != r);
+            return Create(value, (l, r) => l.NotEqual(r), (l, r) => l != r);
         }
 
-        public override IValue FloatOrdered(IValue value)
+        public IBool Ordered(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatOrdered(r), (l, r) => !(float.IsNaN(l) || float.IsNaN(r)));
+            return Create(value, (l, r) => l.Ordered(r), (l, r) => !(float.IsNaN(l) || float.IsNaN(r)));
         }
 
-        public override IValue FloatRemainder(IValue value)
+        public IFloat Remainder(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatRemainder(r), MathF.IEEERemainder);
+            return Create(value, (l, r) => l.Remainder(r), MathF.IEEERemainder);
         }
 
-        public override IValue FloatSubtract(IValue value)
+        public IFloat Subtract(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatSubtract(r), (l, r) => l - r);
+            return Create(value, (l, r) => l.Subtract(r), (l, r) => l - r);
         }
 
-        public override IValue FloatToSigned(Bits size)
+        public ISigned ToSigned(Bits size)
         {
-            return ConstantUnsigned.Create(size, (BigInteger) _value);
+            return ConstantSigned.Create(size, (BigInteger) Constant);
         }
 
-        public override IValue FloatToUnsigned(Bits size)
+        public IUnsigned ToUnsigned(Bits size)
         {
-            return ConstantUnsigned.Create(size, (BigInteger) _value);
+            return ConstantUnsigned.Create(size, (BigInteger) Constant);
         }
 
-        public override IValue FloatUnordered(IValue value)
+        public IBool Unordered(IFloat value)
         {
-            return Create(value, (l, r) => l.FloatUnordered(r), (l, r) => float.IsNaN(l) || float.IsNaN(r));
+            return Create(value, (l, r) => l.Unordered(r), (l, r) => float.IsNaN(l) || float.IsNaN(r));
         }
 
-        public override SymbolicFloat ToSymbolicFloat()
+        private IFloat Create(IFloat other,
+            Func<SymbolicFloat, IFloat, IFloat> symbolic,
+            Func<float, float, float> constant)
         {
-            return new(Size, c => c.MkFP(_value, Size.GetSort(c)));
+            return Create(other, symbolic, (l, r) => new ConstantSingle(constant(l, r)));
         }
 
-        public override ConstantSigned ToConstantSigned()
+        private IBool Create(IFloat other,
+            Func<SymbolicFloat, IFloat, IBool> symbolic,
+            Func<float, float, bool> constant)
         {
-            return ConstantSigned.Create(Size, BitConverter.SingleToInt32Bits(_value));
+            return Create(other, symbolic, (l, r) => new ConstantBool(constant(l, r)));
         }
 
-        private IValue Create(IValue other,
-            Func<SymbolicFloat, IValue, IValue> symbolic,
-            Func<float, float, float> func)
+        private TValue Create<TValue>(IFloat other,
+            Func<SymbolicFloat, IFloat, TValue> symbolic,
+            Func<float, float, TValue> constant)
         {
-            return Create(other, symbolic, func, c => new ConstantSingle(c));
-        }
-
-        private IValue Create(IValue other,
-            Func<SymbolicFloat, IValue, IValue> symbolic,
-            Func<float, float, bool> func)
-        {
-            return Create(other, symbolic, func, c => new ConstantBool(c));
-        }
-
-        private IValue Create<TConstant>(IValue other,
-            Func<SymbolicFloat, IValue, IValue> symbolic,
-            Func<float, float, TConstant> func,
-            Func<TConstant, IValue> constructor)
-        {
-            return other is IConstantValue c && c.ToConstantFloat() is ConstantSingle cs
-                ? constructor(func(_value, cs._value))
-                : symbolic(ToSymbolicFloat(), other);
+            return other is IConstantSingle c
+                ? constant(Constant, c.Constant)
+                : symbolic(new SymbolicFloat(Size, Symbolic), other);
         }
     }
 }
