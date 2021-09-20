@@ -1,19 +1,44 @@
-FROM ubuntu:18.04
-RUN apt-get update && \
-    apt-get install -y apt-transport-https git gnupg software-properties-common wget && \
-    wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main" && \
-    apt-get update && \
-    apt-get install -y clang-12 make && \
-    apt-get remove --purge -y software-properties-common wget && \
-    apt-get autoremove --purge -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
+FROM alpine:3.14.2 as base
 ENV HOME /home/me
+ARG clangParallelJobs
+RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
+    apk add --no-cache binutils && \
+    apk add --no-cache --virtual build-deps build-base cmake git ninja python3 && \
+    mkdir -p /tmp/clang/build && \
+    cd /tmp/clang && \
+    git clone --depth 1 --branch llvmorg-12.0.1 https://github.com/llvm/llvm-project.git && \
+    cd build && \
+    cmake -G Ninja \
+        -Wno-dev \
+        -DCLANG_VENDOR=Alpine \
+        -DLLVM_ENABLE_PROJECTS=clang \
+        -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DLLVM_TARGETS_TO_BUILD=Native \
+        -DLLVM_PARALLEL_LINK_JOBS=${clangParallelJobs} \
+        -DLIBCLANG_BUILD_STATIC=ON \
+        -DLLVM_ENABLE_EH=ON \
+        -DLLVM_ENABLE_FFI=NO \
+        -DLLVM_ENABLE_LIBCXX=NO \
+        -DLLVM_ENABLE_PIC=YES \
+        -DLLVM_ENABLE_RTTI=YES \
+        /tmp/clang/llvm-project/llvm && \
+    ninja -j ${clangParallelJobs} install-llvm-link install-clang && \
+    mv /usr/local/bin/llvm-link /usr/local/bin/llvm-link-12 && \
+    cd / && \
+    rm -rf /tmp && \
+    apk --purge del build-deps
+
+FROM base as musl-builder
 WORKDIR $HOME/.symbolica/build
 COPY . .
-RUN ./musl.sh
+RUN apk add --no-cache git make && \
+    ./musl.sh
+
+FROM base
+LABEL maintainer "Symbolica <dev@symbolica.dev>"
+
+# TODO: Only copy across the built musl artifacts
+COPY --from=musl-builder $HOME/.symbolica/build $HOME/.symbolica/build
 
 WORKDIR /code
 ENTRYPOINT [ "./symbolica.sh" ]
