@@ -1,5 +1,5 @@
 FROM alpine:3.14.2
-RUN apk add --no-cache clang git make
+RUN apk add --no-cache binutils clang git make
 
 ENV HOME /home/me
 WORKDIR $HOME/.symbolica/build
