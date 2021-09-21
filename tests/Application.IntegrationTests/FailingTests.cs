@@ -30,6 +30,7 @@ namespace Symbolica.Application
             public TestData()
             {
                 Add(SignCases());
+                Add(BufferCases());
             }
 
             private static IEnumerable<(string, string, Options, StateError, string[])> SignCases()
@@ -45,6 +46,20 @@ namespace Symbolica.Application
                         new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
                         StateError.FailingAssertion,
                         new[] {"x"});
+            }
+
+            private static IEnumerable<(string, string, Options, StateError, string[])> BufferCases()
+            {
+                return
+                    from useSymbolicGarbage in new[] {false, true}
+                    from useSymbolicAddresses in new[] {false, true}
+                    from useSymbolicContinuations in new[] {false, true}
+                    select (
+                        "buffer",
+                        "--O0",
+                        new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
+                        StateError.InvalidMemoryWrite,
+                        Array.Empty<string>());
             }
 
             private void Add(IEnumerable<(string, string, Options, StateError, string[])> cases)
