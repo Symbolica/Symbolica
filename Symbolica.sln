@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src\Applicat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Tests", "tests\Application.Tests\Application.Tests.csproj", "{438E4A0C-615B-4A8F-9F35-A061B4A4FC30}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.IntegrationTests", "tests\Application.IntegrationTests\Application.IntegrationTests.csproj", "{F409960B-6574-4A80-9864-DB603E53DFAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -49,6 +51,7 @@ Global
 		{A21B3F62-B861-4885-B5B1-F2D156F8D6C2} = {D31C471B-BC9B-46DD-901A-400AFA1656CC}
 		{9DBA5223-8FB2-4240-89E7-EC4CB382703C} = {11AB1280-FD82-4CEA-B6EA-91BE7805A4E8}
 		{438E4A0C-615B-4A8F-9F35-A061B4A4FC30} = {D31C471B-BC9B-46DD-901A-400AFA1656CC}
+		{F409960B-6574-4A80-9864-DB603E53DFAE} = {D31C471B-BC9B-46DD-901A-400AFA1656CC}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{7A2FAF0A-B129-4207-BBE1-E026B0C121CC}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -103,5 +106,9 @@ Global
 		{438E4A0C-615B-4A8F-9F35-A061B4A4FC30}.Debug|x64.Build.0 = Debug|x64
 		{438E4A0C-615B-4A8F-9F35-A061B4A4FC30}.Release|x64.ActiveCfg = Release|x64
 		{438E4A0C-615B-4A8F-9F35-A061B4A4FC30}.Release|x64.Build.0 = Release|x64
+		{F409960B-6574-4A80-9864-DB603E53DFAE}.Debug|x64.ActiveCfg = Debug|x64
+		{F409960B-6574-4A80-9864-DB603E53DFAE}.Debug|x64.Build.0 = Debug|x64
+		{F409960B-6574-4A80-9864-DB603E53DFAE}.Release|x64.ActiveCfg = Release|x64
+		{F409960B-6574-4A80-9864-DB603E53DFAE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 EndGlobal

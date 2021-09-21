@@ -9,7 +9,7 @@ namespace Symbolica.Application
 {
     internal static class Serializer
     {
-        public static async Task<byte[]> Serialize(string directory)
+        public static async Task<byte[]> Serialize(string directory, string optimization)
         {
             var buildImage = Environment.GetEnvironmentVariable("SYMBOLICA_BUILD_IMAGE");
             var translateImage = Environment.GetEnvironmentVariable("SYMBOLICA_TRANSLATE_IMAGE");
@@ -22,8 +22,8 @@ namespace Symbolica.Application
                 : $"docker run -v $(pwd):/code {buildImage}");
 
             await CallExternalProcess(directory, translateImage == null
-                ? $"~/.symbolica/translate \"{DeclarationFactory.Pattern}\""
-                : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationFactory.Pattern}\"");
+                ? $"~/.symbolica/translate \"{DeclarationFactory.Pattern}\" {optimization}"
+                : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationFactory.Pattern}\" {optimization}");
 
             return await File.ReadAllBytesAsync(Path.Combine(directory, ".symbolica.bc"));
         }
