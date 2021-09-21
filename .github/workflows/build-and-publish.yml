@@ -81,32 +81,6 @@ jobs:
             echo "SYMBOLICA_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
             echo "SYMBOLICA_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
           nugetPush: false
-        - os: ubuntu-18.04
-          setupScript: |
-            sudo ./lib/install-bionic.sh
-            ./lib/install-symbolica.sh
-          nugetPush: false
-        - os: ubuntu-20.04
-          setupScript: |
-            sudo ./lib/install-focal.sh
-            ./lib/install-symbolica.sh
-          nugetPush: false
-        - os: windows-2019
-          setupScript: |
-            Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile ubuntu.zip
-            Expand-Archive ubuntu.zip
-            .\ubuntu\ubuntu1804.exe install --root
-            wsl ./lib/install-bionic.sh
-            wsl ./lib/install-symbolica.sh
-          nugetPush: false
-        - os: windows-2019
-          setupScript: |
-            Invoke-WebRequest -Uri https://aka.ms/wslubuntu2004 -OutFile ubuntu.zip
-            Expand-Archive ubuntu.zip
-            .\ubuntu\ubuntu2004.exe install --root
-            wsl ./lib/install-focal.sh
-            wsl ./lib/install-symbolica.sh
-          nugetPush: false
         - os: macos-10.15
           setupScript: |
             mkdir -p ~/.docker/machine/cache
