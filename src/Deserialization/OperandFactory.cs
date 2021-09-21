@@ -78,8 +78,6 @@ namespace Symbolica.Deserialization
                     new Unsupported("asm"),
                 LLVMValueKind.LLVMInstructionValueKind =>
                     new Variable((InstructionId) _idFactory.GetOrCreate(operand.Handle)),
-                LLVMValueKind.LLVMPoisonValueValueKind =>
-                    new Unsupported("poison"),
                 _ =>
                     throw new UnsupportedOperandException(operand.Kind.ToString())
             };

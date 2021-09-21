@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 set -e
 
-llvm-extract-12 --delete --ralias="$1" --rfunc="$1" symbolica.bc |
-opt-12 --strip-debug --loweratomic "$2" --scalarizer -o=.symbolica.bc
+llvm-extract-11 --delete --ralias="$1" --rfunc="$1" symbolica.bc |
+opt-11 --strip-debug --loweratomic "$2" --scalarizer -o=.symbolica.bc

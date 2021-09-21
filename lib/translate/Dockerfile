@@ -7,7 +7,7 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
     apk add --no-cache --virtual build-deps build-base cmake git ninja python3 && \
     mkdir -p /tmp/clang/build && \
     cd /tmp/clang && \
-    git clone --depth 1 --branch llvmorg-12.0.1 https://github.com/llvm/llvm-project.git && \
+    git clone --depth 1 --branch llvmorg-11.1.0 https://github.com/llvm/llvm-project.git && \
     cd build && \
     cmake -G Ninja \
         -Wno-dev \
@@ -23,8 +23,8 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
         -DLLVM_ENABLE_RTTI=YES \
         /tmp/clang/llvm-project/llvm && \
     ninja -j ${clangParallelJobs} install-opt install-llvm-extract && \
-    mv /usr/local/bin/opt /usr/local/bin/opt-12 && \
-    mv /usr/local/bin/llvm-extract /usr/local/bin/llvm-extract-12 && \
+    mv /usr/local/bin/opt /usr/local/bin/opt-11 && \
+    mv /usr/local/bin/llvm-extract /usr/local/bin/llvm-extract-11 && \
     cd / && \
     rm -rf /tmp && \
     apk --purge del build-deps
