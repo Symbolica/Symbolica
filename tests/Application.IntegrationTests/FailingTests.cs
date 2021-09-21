@@ -35,7 +35,7 @@ namespace Symbolica.Application
             private static IEnumerable<(string, string, Options, StateError, string[])> SignCases()
             {
                 return
-                    from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                    from optimization in new[] {"--Oz"}
                     from useSymbolicGarbage in new[] {false, true}
                     from useSymbolicAddresses in new[] {false, true}
                     from useSymbolicContinuations in new[] {false, true}
