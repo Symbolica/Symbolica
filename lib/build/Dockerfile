@@ -48,8 +48,7 @@ RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
 FROM base as musl-builder
 WORKDIR $HOME/.symbolica/build
 COPY . .
-RUN apk add --no-cache git make && \
-    ./musl.sh
+RUN apk add --no-cache git make
 
 FROM base
 LABEL maintainer "Symbolica <dev@symbolica.dev>"
