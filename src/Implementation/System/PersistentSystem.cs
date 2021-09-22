@@ -82,8 +82,8 @@ namespace Symbolica.Implementation.System
 
             var stream = streamType.CreateStruct(memory.Read(address, streamType.Size));
 
-            var tell = (int) stream.Read(space, 0).Integer;
-            var descriptor = (int) stream.Read(space, 1).Integer;
+            var tell = (int) stream.Read(space, 0).Constant;
+            var descriptor = (int) stream.Read(space, 1).Constant;
             var buffer = address.Add(space.CreateConstant(address.Size, (uint) streamType.GetOffset(5).ToBytes()));
 
             memory.Write(address, stream

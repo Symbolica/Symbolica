@@ -33,7 +33,7 @@ namespace Symbolica.Representation.Instructions
         private void Transfer(IState state, IExpression expression, int index)
         {
             var value = _operands[index].Evaluate(state);
-            var successorId = (BasicBlockId) (ulong) _operands[index + 1].Evaluate(state).Integer;
+            var successorId = (BasicBlockId) (ulong) _operands[index + 1].Evaluate(state).Constant;
 
             var isEqual = expression.Equal(value);
 
@@ -44,7 +44,7 @@ namespace Symbolica.Representation.Instructions
 
         private void TransferDefault(IState state)
         {
-            var successorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).Integer;
+            var successorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).Constant;
 
             state.Stack.TransferBasicBlock(successorId);
         }

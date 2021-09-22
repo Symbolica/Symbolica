@@ -15,7 +15,7 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            var descriptor = (int) arguments.Get(0).Integer;
+            var descriptor = (int) arguments.Get(0).Constant;
             var address = arguments.Get(1);
 
             var result = state.System.GetStatus(descriptor, address);

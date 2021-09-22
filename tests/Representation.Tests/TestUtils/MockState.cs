@@ -18,7 +18,7 @@ namespace Symbolica.Representation.TestUtils
             var mockStack = new Mock<IStack>(MockBehavior.Strict);
             mockStack
                 .Setup(s => s.SetVariable(instructionId, It.IsAny<IExpression>()))
-                .Callback<InstructionId, IExpression>((_, e) => callback((Nibble) e.Integer));
+                .Callback<InstructionId, IExpression>((_, e) => callback((Nibble) e.Constant));
 
             var mockState = new Mock<IState>(MockBehavior.Strict);
             mockState
