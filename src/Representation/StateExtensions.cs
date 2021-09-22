@@ -15,7 +15,7 @@ namespace Symbolica.Representation
             var isEqual = expression.Equal(value);
 
             self.Fork(isEqual,
-                s => action(s, value.Integer),
+                s => action(s, value.Constant),
                 s => ForkAll(s, expression, action));
         }
 
@@ -28,7 +28,7 @@ namespace Symbolica.Representation
         {
             while (true)
             {
-                var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).Integer;
+                var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).Constant;
                 if (character == default)
                     yield break;
 

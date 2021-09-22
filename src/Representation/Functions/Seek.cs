@@ -15,9 +15,9 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            var descriptor = (int) arguments.Get(0).Integer;
-            var offset = (long) arguments.Get(1).Integer;
-            var whence = (uint) arguments.Get(2).Integer;
+            var descriptor = (int) arguments.Get(0).Constant;
+            var offset = (long) arguments.Get(1).Constant;
+            var whence = (uint) arguments.Get(2).Constant;
 
             var result = state.System.Seek(descriptor, offset, whence);
 

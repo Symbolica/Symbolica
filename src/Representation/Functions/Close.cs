@@ -15,7 +15,7 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            var descriptor = (int) arguments.Get(0).Integer;
+            var descriptor = (int) arguments.Get(0).Constant;
 
             var result = state.System.Close(descriptor);
 

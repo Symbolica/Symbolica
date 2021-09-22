@@ -17,7 +17,7 @@ namespace Symbolica.Representation.Functions
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
             var address = arguments.Get(0);
-            var size = (Bytes) (uint) arguments.Get(1).Integer;
+            var size = (Bytes) (uint) arguments.Get(1).Constant;
             var name = state.ReadString(arguments.Get(2));
 
             state.Memory.Write(address, state.Space.CreateSymbolic(size.ToBits(), name, null));

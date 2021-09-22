@@ -11,8 +11,8 @@ namespace Symbolica.Computation
     internal sealed class Expression : IExpression
     {
         private readonly ICollectionFactory _collectionFactory;
+        private readonly Lazy<BigInteger> _constant;
         private readonly IBool[]? _constraints;
-        private readonly Lazy<BigInteger> _integer;
         private readonly IValue _value;
 
         private Expression(ICollectionFactory collectionFactory,
@@ -21,11 +21,11 @@ namespace Symbolica.Computation
             _collectionFactory = collectionFactory;
             _value = value;
             _constraints = constraints;
-            _integer = new Lazy<BigInteger>(GetConstant);
+            _constant = new Lazy<BigInteger>(GetConstant);
         }
 
         public Bits Size => _value.Size;
-        public BigInteger Integer => _integer.Value;
+        public BigInteger Constant => _constant.Value;
 
         public IExpression GetValue(ISpace space)
         {
