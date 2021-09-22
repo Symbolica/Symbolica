@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Symbolica.Computation
 {
-    public class BitsExtensionsTests
+    public class FloatParserTests
     {
         private static readonly Context Context = new();
 
@@ -36,7 +36,7 @@ namespace Symbolica.Computation
         [InlineData("3.402823466E+38")]
         private void ShouldCreateEquivalentRepresentationForSinglePrecision(string value)
         {
-            var expr = ((Bits) 32U).ParseNormalFloat(Context, value);
+            var expr = FloatParser.ParseNormal(Context, (Bits) 32U, value);
 
             var actual = BitConverter.GetBytes(((BitVecNum) Context.MkFPToIEEEBV(expr).Simplify()).UInt);
             var expected = BitConverter.GetBytes(float.Parse(value));
@@ -70,7 +70,7 @@ namespace Symbolica.Computation
         [InlineData("1.7976931348623158E+308")]
         private void ShouldCreateEquivalentRepresentationForDoublePrecision(string value)
         {
-            var expr = ((Bits) 64U).ParseNormalFloat(Context, value);
+            var expr = FloatParser.ParseNormal(Context, (Bits) 64U, value);
 
             var actual = BitConverter.GetBytes(((BitVecNum) Context.MkFPToIEEEBV(expr).Simplify()).UInt64);
             var expected = BitConverter.GetBytes(double.Parse(value));
