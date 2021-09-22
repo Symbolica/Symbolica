@@ -7,224 +7,117 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal sealed class ConstantSigned : ConstantInteger
+    internal sealed class ConstantSigned : ISigned, IConstantInteger
     {
-        private readonly BigInteger _value;
-
-        private ConstantSigned(Bits size, BigInteger value)
-            : base(size)
+        private ConstantSigned(Bits size, BigInteger constant)
         {
-            _value = value;
+            Size = size;
+            Constant = constant;
         }
 
-        public override BigInteger Integer => ToConstantUnsigned().Integer;
+        public BigInteger Constant { get; }
+        public Bits Size { get; }
 
-        public override IProposition GetProposition(IPersistentSpace space, SymbolicBool[] constraints)
+        public BigInteger AsConstant(Context context)
         {
-            return ToConstantBool().GetProposition(space, constraints);
+            return AsUnsigned().AsConstant(context);
         }
 
-        public override IValue Add(IValue value)
-        {
-            return ToConstantUnsigned().Add(value);
-        }
-
-        public override IValue And(IValue value)
-        {
-            return ToConstantUnsigned().And(value);
-        }
-
-        public override IValue ArithmeticShiftRight(IValue value)
-        {
-            return Create(value, (l, r) => l.ArithmeticShiftRight(r), (l, r) => l >> (int) r,
-                e => e.ToConstantUnsigned().Integer, c => Create(Size, c));
-        }
-
-        public override IValue Equal(IValue value)
-        {
-            return ToConstantUnsigned().Equal(value);
-        }
-
-        public override IValue LogicalShiftRight(IValue value)
-        {
-            return ToConstantUnsigned().LogicalShiftRight(value);
-        }
-
-        public override IValue Multiply(IValue value)
-        {
-            return ToConstantUnsigned().Multiply(value);
-        }
-
-        public override IValue Not()
-        {
-            return ToConstantUnsigned().Not();
-        }
-
-        public override IValue NotEqual(IValue value)
-        {
-            return ToConstantUnsigned().NotEqual(value);
-        }
-
-        public override IValue Or(IValue value)
-        {
-            return ToConstantUnsigned().Or(value);
-        }
-
-        public override IValue Read(ICollectionFactory collectionFactory, IValue offset, Bits size)
-        {
-            return ToConstantBitVector(collectionFactory).Read(collectionFactory, offset, size);
-        }
-
-        public override IValue Select(IValue trueValue, IValue falseValue)
-        {
-            return ToConstantBool().Select(trueValue, falseValue);
-        }
-
-        public override IValue ShiftLeft(IValue value)
-        {
-            return ToConstantUnsigned().ShiftLeft(value);
-        }
-
-        public override IValue SignedDivide(IValue value)
-        {
-            return Create(value, (l, r) => l.SignedDivide(r), (l, r) => l / r);
-        }
-
-        public override IValue SignedGreater(IValue value)
-        {
-            return Create(value, (l, r) => l.SignedGreater(r), (l, r) => l > r);
-        }
-
-        public override IValue SignedGreaterOrEqual(IValue value)
-        {
-            return Create(value, (l, r) => l.SignedGreaterOrEqual(r), (l, r) => l >= r);
-        }
-
-        public override IValue SignedLess(IValue value)
-        {
-            return Create(value, (l, r) => l.SignedLess(r), (l, r) => l < r);
-        }
-
-        public override IValue SignedLessOrEqual(IValue value)
-        {
-            return Create(value, (l, r) => l.SignedLessOrEqual(r), (l, r) => l <= r);
-        }
-
-        public override IValue SignedRemainder(IValue value)
-        {
-            return Create(value, (l, r) => l.SignedRemainder(r), (l, r) => l % r);
-        }
-
-        public override IValue SignedToFloat(Bits size)
-        {
-            return ConstantFloat.Create(size, _value)
-                   ?? ToSymbolicBitVector().SignedToFloat(size);
-        }
-
-        public override IValue SignExtend(Bits size)
-        {
-            return new ConstantSigned(size, _value);
-        }
-
-        public override IValue Subtract(IValue value)
-        {
-            return ToConstantUnsigned().Subtract(value);
-        }
-
-        public override IValue Truncate(Bits size)
-        {
-            return ToConstantUnsigned().Truncate(size);
-        }
-
-        public override IValue UnsignedDivide(IValue value)
-        {
-            return ToConstantUnsigned().UnsignedDivide(value);
-        }
-
-        public override IValue UnsignedGreater(IValue value)
-        {
-            return ToConstantUnsigned().UnsignedGreater(value);
-        }
-
-        public override IValue UnsignedGreaterOrEqual(IValue value)
-        {
-            return ToConstantUnsigned().UnsignedGreaterOrEqual(value);
-        }
-
-        public override IValue UnsignedLess(IValue value)
-        {
-            return ToConstantUnsigned().UnsignedLess(value);
-        }
-
-        public override IValue UnsignedLessOrEqual(IValue value)
-        {
-            return ToConstantUnsigned().UnsignedLessOrEqual(value);
-        }
-
-        public override IValue UnsignedRemainder(IValue value)
-        {
-            return ToConstantUnsigned().UnsignedRemainder(value);
-        }
-
-        public override IValue UnsignedToFloat(Bits size)
-        {
-            return ToConstantUnsigned().UnsignedToFloat(size);
-        }
-
-        public override IValue Write(ICollectionFactory collectionFactory, IValue offset, IValue value)
-        {
-            return ToConstantBitVector(collectionFactory).Write(collectionFactory, offset, value);
-        }
-
-        public override IValue Xor(IValue value)
-        {
-            return ToConstantUnsigned().Xor(value);
-        }
-
-        public override IValue ZeroExtend(Bits size)
-        {
-            return ToConstantUnsigned().ZeroExtend(size);
-        }
-
-        public override IValue IfElse(Func<Context, BoolExpr> predicate, IValue falseValue)
-        {
-            return ToSymbolicBitVector().IfElse(predicate, falseValue);
-        }
-
-        public override SymbolicBitVector ToSymbolicBitVector()
-        {
-            return ToConstantUnsigned().ToSymbolicBitVector();
-        }
-
-        public override SymbolicBool ToSymbolicBool()
-        {
-            return ToConstantUnsigned().ToSymbolicBool();
-        }
-
-        public override ConstantBitVector ToConstantBitVector(ICollectionFactory collectionFactory)
-        {
-            return ToConstantUnsigned().ToConstantBitVector(collectionFactory);
-        }
-
-        public override ConstantUnsigned ToConstantUnsigned()
-        {
-            return ConstantUnsigned.Create(Size, _value);
-        }
-
-        public override ConstantSigned ToConstantSigned()
+        public IValue GetValue(IPersistentSpace space, IBool[] constraints)
         {
             return this;
         }
 
-        public override ConstantBool ToConstantBool()
+        public IBitwise AsBitwise()
         {
-            return ToConstantUnsigned().ToConstantBool();
+            return AsUnsigned();
         }
 
-        public override IValue ToConstantFloat()
+        public IBitVector AsBitVector(ICollectionFactory collectionFactory)
         {
-            return ConstantFloat.CreateFromBits(Size, _value)
-                   ?? ToSymbolicFloat();
+            return AsUnsigned().AsBitVector(collectionFactory);
+        }
+
+        public IUnsigned AsUnsigned()
+        {
+            return ConstantUnsigned.Create(Size, Constant);
+        }
+
+        public ISigned AsSigned()
+        {
+            return this;
+        }
+
+        public IBool AsBool()
+        {
+            return AsUnsigned().AsBool();
+        }
+
+        public IFloat AsFloat()
+        {
+            return (uint) Size switch
+            {
+                32U => new ConstantSingle(BitConverter.Int32BitsToSingle((int) Constant)),
+                64U => new ConstantDouble(BitConverter.Int64BitsToDouble((long) Constant)),
+                _ => new SymbolicBitVector(Size, Symbolic).AsFloat()
+            };
+        }
+
+        public IValue IfElse(IBool predicate, IValue falseValue)
+        {
+            return new SymbolicBitVector(Size, Symbolic).IfElse(predicate, falseValue);
+        }
+
+        public Func<Context, BitVecExpr> Symbolic => AsUnsigned().Symbolic;
+
+        public ISigned ArithmeticShiftRight(IUnsigned value)
+        {
+            return Create(value, (l, r) => l.ArithmeticShiftRight(r), (l, r) => l >> (int) r);
+        }
+
+        public ISigned Divide(ISigned value)
+        {
+            return Create(value, (l, r) => l.Divide(r), (l, r) => l / r);
+        }
+
+        public IBool Greater(ISigned value)
+        {
+            return Create(value, (l, r) => l.Greater(r), (l, r) => l > r);
+        }
+
+        public IBool GreaterOrEqual(ISigned value)
+        {
+            return Create(value, (l, r) => l.GreaterOrEqual(r), (l, r) => l >= r);
+        }
+
+        public IBool Less(ISigned value)
+        {
+            return Create(value, (l, r) => l.Less(r), (l, r) => l < r);
+        }
+
+        public IBool LessOrEqual(ISigned value)
+        {
+            return Create(value, (l, r) => l.LessOrEqual(r), (l, r) => l <= r);
+        }
+
+        public ISigned Remainder(ISigned value)
+        {
+            return Create(value, (l, r) => l.Remainder(r), (l, r) => l % r);
+        }
+
+        public IFloat SignedToFloat(Bits size)
+        {
+            return (uint) size switch
+            {
+                32U => new ConstantSingle((float) Constant),
+                64U => new ConstantDouble((double) Constant),
+                _ => new SymbolicBitVector(Size, Symbolic).SignedToFloat(size)
+            };
+        }
+
+        public ISigned SignExtend(Bits size)
+        {
+            return new ConstantSigned(size, Constant);
         }
 
         public static ConstantSigned Create(Bits size, BigInteger value)
@@ -240,30 +133,36 @@ namespace Symbolica.Computation
             return (value & (msb - BigInteger.One)) - (value & msb);
         }
 
-        private IValue Create(IValue other,
-            Func<SymbolicBitVector, IValue, IValue> symbolic,
-            Func<BigInteger, BigInteger, BigInteger> func)
+        private ISigned Create(IUnsigned other,
+            Func<SymbolicBitVector, IUnsigned, ISigned> symbolic,
+            Func<BigInteger, BigInteger, BigInteger> constant)
         {
-            return Create(other, symbolic, func, e => e.ToConstantSigned()._value, c => Create(Size, c));
+            return Create(other, symbolic, (l, r) => Create(Size, constant(l, r)));
         }
 
-        private IValue Create(IValue other,
-            Func<SymbolicBitVector, IValue, IValue> symbolic,
-            Func<BigInteger, BigInteger, bool> func)
+        private ISigned Create(ISigned other,
+            Func<SymbolicBitVector, ISigned, ISigned> symbolic,
+            Func<BigInteger, BigInteger, BigInteger> constant)
         {
-            return Create(other, symbolic, func, e => e.ToConstantSigned()._value, c => new ConstantBool(c));
+            return Create(other, symbolic, (l, r) => Create(Size, constant(l, r)));
         }
 
-        private IValue Create<TConstant>(IValue other,
-            Func<SymbolicBitVector, IValue, IValue> symbolic,
-            Func<BigInteger, BigInteger, TConstant> func,
-            Func<IConstantValue, BigInteger> conversion,
-            Func<TConstant, IValue> constructor)
+        private IBool Create(ISigned other,
+            Func<SymbolicBitVector, ISigned, IBool> symbolic,
+            Func<BigInteger, BigInteger, bool> constant)
+        {
+            return Create(other, symbolic, (l, r) => new ConstantBool(constant(l, r)));
+        }
+
+        private TValue Create<TOther, TValue>(TOther other,
+            Func<SymbolicBitVector, TOther, TValue> symbolic,
+            Func<BigInteger, BigInteger, TValue> constant)
+            where TOther : IValue
         {
             return Size == other.Size
-                ? other is IConstantValue c
-                    ? constructor(func(_value, conversion(c)))
-                    : symbolic(ToSymbolicBitVector(), other)
+                ? other is IConstantInteger c
+                    ? constant(Constant, c.Constant)
+                    : symbolic(new SymbolicBitVector(Size, Symbolic), other)
                 : throw new InconsistentExpressionSizesException(Size, other.Size);
         }
     }

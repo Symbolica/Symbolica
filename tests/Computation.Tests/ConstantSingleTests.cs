@@ -17,8 +17,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatAdd(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatAdd(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.Add(constantRight).AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicLeft.Add(symbolicRight).AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -29,8 +29,8 @@ namespace Symbolica.Computation
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatCeiling().GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicExpression.FloatCeiling().GetSingleNanNormalizedInteger(Context);
+            var constant = constantExpression.Ceiling().AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicExpression.Ceiling().AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -41,8 +41,8 @@ namespace Symbolica.Computation
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatConvert(size).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicExpression.FloatConvert(size).GetSingleNanNormalizedInteger(Context);
+            var constant = constantExpression.Convert(size).AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicExpression.Convert(size).AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -53,8 +53,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatDivide(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatDivide(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.Divide(constantRight).AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicLeft.Divide(symbolicRight).AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -65,8 +65,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.FloatEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Equal(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Equal(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -77,8 +77,8 @@ namespace Symbolica.Computation
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatFloor().GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicExpression.FloatFloor().GetSingleNanNormalizedInteger(Context);
+            var constant = constantExpression.Floor().AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicExpression.Floor().AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -89,8 +89,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatGreater(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.FloatGreater(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Greater(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Greater(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -101,8 +101,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatGreaterOrEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.FloatGreaterOrEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.GreaterOrEqual(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.GreaterOrEqual(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -113,8 +113,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatLess(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.FloatLess(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Less(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Less(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -125,8 +125,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatLessOrEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.FloatLessOrEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.LessOrEqual(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.LessOrEqual(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -137,8 +137,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatMultiply(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatMultiply(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.Multiply(constantRight).AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicLeft.Multiply(symbolicRight).AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -149,8 +149,8 @@ namespace Symbolica.Computation
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatNegate().GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicExpression.FloatNegate().GetSingleNanNormalizedInteger(Context);
+            var constant = constantExpression.Negate().AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicExpression.Negate().AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -161,8 +161,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatNotEqual(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.FloatNotEqual(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.NotEqual(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.NotEqual(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -173,8 +173,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatOrdered(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.FloatOrdered(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Ordered(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Ordered(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -185,8 +185,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatRemainder(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatRemainder(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.Remainder(constantRight).AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicLeft.Remainder(symbolicRight).AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -197,8 +197,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatSubtract(constantRight).GetSingleNanNormalizedInteger(Context);
-            var symbolic = symbolicLeft.FloatSubtract(symbolicRight).GetSingleNanNormalizedInteger(Context);
+            var constant = constantLeft.Subtract(constantRight).AsSingleNanNormalizedConstant(Context);
+            var symbolic = symbolicLeft.Subtract(symbolicRight).AsSingleNanNormalizedConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -209,8 +209,8 @@ namespace Symbolica.Computation
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatToSigned(size).GetInteger(Context);
-            var symbolic = symbolicExpression.FloatToSigned(size).GetInteger(Context);
+            var constant = constantExpression.ToSigned(size).AsConstant(Context);
+            var symbolic = symbolicExpression.ToSigned(size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -221,8 +221,8 @@ namespace Symbolica.Computation
             ConstantSingle constantExpression,
             SymbolicFloat symbolicExpression)
         {
-            var constant = constantExpression.FloatToUnsigned(size).GetInteger(Context);
-            var symbolic = symbolicExpression.FloatToUnsigned(size).GetInteger(Context);
+            var constant = constantExpression.ToUnsigned(size).AsConstant(Context);
+            var symbolic = symbolicExpression.ToUnsigned(size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -233,8 +233,8 @@ namespace Symbolica.Computation
             ConstantSingle constantLeft, ConstantSingle constantRight,
             SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
         {
-            var constant = constantLeft.FloatUnordered(constantRight).GetInteger(Context);
-            var symbolic = symbolicLeft.FloatUnordered(symbolicRight).GetInteger(Context);
+            var constant = constantLeft.Unordered(constantRight).AsConstant(Context);
+            var symbolic = symbolicLeft.Unordered(symbolicRight).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }

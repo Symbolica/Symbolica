@@ -7,329 +7,253 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal sealed class SymbolicBitVector : IValue
+    internal sealed class SymbolicBitVector : IBitVector, ISigned, IUnsigned
     {
-        private readonly Func<Context, BitVecExpr> _func;
-
-        public SymbolicBitVector(Bits size, Func<Context, BitVecExpr> func)
+        public SymbolicBitVector(Bits size, Func<Context, BitVecExpr> symbolic)
         {
             Size = size;
-            _func = func;
+            Symbolic = symbolic;
         }
 
         public Bits Size { get; }
 
-        public BigInteger GetInteger(Context context)
+        public BigInteger AsConstant(Context context)
         {
-            var expr = _func(context).Simplify();
+            var expr = Symbolic(context).Simplify();
 
             return expr.IsNumeral
                 ? ((BitVecNum) expr).BigInteger
                 : throw new IrreducibleSymbolicExpressionException();
         }
 
-        public IValue GetValue(IPersistentSpace space, SymbolicBool[] constraints)
+        public IValue GetValue(IPersistentSpace space, IBool[] constraints)
         {
             using var model = space.GetModel(constraints);
 
-            return ConstantUnsigned.Create(Size, ((BitVecNum) model.Evaluate(_func)).BigInteger);
+            return ConstantUnsigned.Create(Size, ((BitVecNum) model.Evaluate(Symbolic)).BigInteger);
         }
 
-        public IProposition GetProposition(IPersistentSpace space, SymbolicBool[] constraints)
-        {
-            return ToSymbolicBool().GetProposition(space, constraints);
-        }
-
-        public IValue Add(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVAdd(l, r));
-        }
-
-        public IValue And(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVAND(l, r));
-        }
-
-        public IValue ArithmeticShiftRight(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVASHR(l, r));
-        }
-
-        public IValue Equal(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkEq(l, r));
-        }
-
-        public IValue FloatAdd(IValue value)
-        {
-            return ToSymbolicFloat().FloatAdd(value);
-        }
-
-        public IValue FloatCeiling()
-        {
-            return ToSymbolicFloat().FloatCeiling();
-        }
-
-        public IValue FloatConvert(Bits size)
-        {
-            return ToSymbolicFloat().FloatConvert(size);
-        }
-
-        public IValue FloatDivide(IValue value)
-        {
-            return ToSymbolicFloat().FloatDivide(value);
-        }
-
-        public IValue FloatEqual(IValue value)
-        {
-            return ToSymbolicFloat().FloatEqual(value);
-        }
-
-        public IValue FloatFloor()
-        {
-            return ToSymbolicFloat().FloatFloor();
-        }
-
-        public IValue FloatGreater(IValue value)
-        {
-            return ToSymbolicFloat().FloatGreater(value);
-        }
-
-        public IValue FloatGreaterOrEqual(IValue value)
-        {
-            return ToSymbolicFloat().FloatGreaterOrEqual(value);
-        }
-
-        public IValue FloatLess(IValue value)
-        {
-            return ToSymbolicFloat().FloatLess(value);
-        }
-
-        public IValue FloatLessOrEqual(IValue value)
-        {
-            return ToSymbolicFloat().FloatLessOrEqual(value);
-        }
-
-        public IValue FloatMultiply(IValue value)
-        {
-            return ToSymbolicFloat().FloatMultiply(value);
-        }
-
-        public IValue FloatNegate()
-        {
-            return ToSymbolicFloat().FloatNegate();
-        }
-
-        public IValue FloatNotEqual(IValue value)
-        {
-            return ToSymbolicFloat().FloatNotEqual(value);
-        }
-
-        public IValue FloatOrdered(IValue value)
-        {
-            return ToSymbolicFloat().FloatOrdered(value);
-        }
-
-        public IValue FloatRemainder(IValue value)
-        {
-            return ToSymbolicFloat().FloatRemainder(value);
-        }
-
-        public IValue FloatSubtract(IValue value)
-        {
-            return ToSymbolicFloat().FloatSubtract(value);
-        }
-
-        public IValue FloatToSigned(Bits size)
-        {
-            return ToSymbolicFloat().FloatToSigned(size);
-        }
-
-        public IValue FloatToUnsigned(Bits size)
-        {
-            return ToSymbolicFloat().FloatToUnsigned(size);
-        }
-
-        public IValue FloatUnordered(IValue value)
-        {
-            return ToSymbolicFloat().FloatUnordered(value);
-        }
-
-        public IValue LogicalShiftRight(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVLSHR(l, r));
-        }
-
-        public IValue Multiply(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVMul(l, r));
-        }
-
-        public IValue Not()
-        {
-            return new SymbolicBitVector(Size, c => c.MkBVNot(_func(c)));
-        }
-
-        public IValue NotEqual(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkNot(c.MkEq(l, r)));
-        }
-
-        public IValue Or(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVOR(l, r));
-        }
-
-        public IValue Read(ICollectionFactory collectionFactory, IValue offset, Bits size)
-        {
-            return LogicalShiftRight(offset).Truncate(size);
-        }
-
-        public IValue Select(IValue trueValue, IValue falseValue)
-        {
-            return ToSymbolicBool().Select(trueValue, falseValue);
-        }
-
-        public IValue ShiftLeft(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVSHL(l, r));
-        }
-
-        public IValue SignedDivide(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVSDiv(l, r));
-        }
-
-        public IValue SignedGreater(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVSGT(l, r));
-        }
-
-        public IValue SignedGreaterOrEqual(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVSGE(l, r));
-        }
-
-        public IValue SignedLess(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVSLT(l, r));
-        }
-
-        public IValue SignedLessOrEqual(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVSLE(l, r));
-        }
-
-        public IValue SignedRemainder(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVSRem(l, r));
-        }
-
-        public IValue SignedToFloat(Bits size)
-        {
-            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), _func(c), size.GetSort(c), true));
-        }
-
-        public IValue SignExtend(Bits size)
-        {
-            return new SymbolicBitVector(size, c => c.MkSignExt((uint) size - (uint) Size, _func(c)));
-        }
-
-        public IValue Subtract(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVSub(l, r));
-        }
-
-        public IValue Truncate(Bits size)
-        {
-            return new SymbolicBitVector(size, c => c.MkExtract((uint) size - 1U, 0U, _func(c)));
-        }
-
-        public IValue UnsignedDivide(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVUDiv(l, r));
-        }
-
-        public IValue UnsignedGreater(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVUGT(l, r));
-        }
-
-        public IValue UnsignedGreaterOrEqual(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVUGE(l, r));
-        }
-
-        public IValue UnsignedLess(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVULT(l, r));
-        }
-
-        public IValue UnsignedLessOrEqual(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVULE(l, r));
-        }
-
-        public IValue UnsignedRemainder(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVURem(l, r));
-        }
-
-        public IValue UnsignedToFloat(Bits size)
-        {
-            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), _func(c), size.GetSort(c), false));
-        }
-
-        public IValue Write(ICollectionFactory collectionFactory, IValue offset, IValue value)
-        {
-            return And(ConstantUnsigned.Create(value.Size, BigInteger.Zero)
-                    .Not()
-                    .ZeroExtend(Size)
-                    .ShiftLeft(offset)
-                    .Not())
-                .Or(value
-                    .ZeroExtend(Size)
-                    .ShiftLeft(offset));
-        }
-
-        public IValue Xor(IValue value)
-        {
-            return Create(value, (c, l, r) => c.MkBVXOR(l, r));
-        }
-
-        public IValue ZeroExtend(Bits size)
-        {
-            return new SymbolicBitVector(size, c => c.MkZeroExt((uint) size - (uint) Size, _func(c)));
-        }
-
-        public IValue IfElse(Func<Context, BoolExpr> predicate, IValue falseValue)
-        {
-            return Create(falseValue, (c, t, f) => (BitVecExpr) c.MkITE(predicate(c), t, f));
-        }
-
-        public SymbolicBitVector ToSymbolicBitVector()
+        public IBitwise AsBitwise()
         {
             return this;
         }
 
-        public SymbolicBool ToSymbolicBool()
+        public IBitVector AsBitVector(ICollectionFactory collectionFactory)
         {
-            return new(c => c.MkNot(c.MkEq(_func(c), c.MkBV(0U, (uint) Size))));
+            return this;
         }
 
-        public SymbolicFloat ToSymbolicFloat()
+        public IUnsigned AsUnsigned()
         {
-            return new(Size, c => c.MkFPToFP(_func(c), Size.GetSort(c)));
+            return this;
         }
 
-        private IValue Create(IValue other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> func)
+        public ISigned AsSigned()
         {
-            return new SymbolicBitVector(Size, c => func(c, _func(c), other.ToSymbolicBitVector()._func(c)));
+            return this;
         }
 
-        private IValue Create(IValue other, Func<Context, BitVecExpr, BitVecExpr, BoolExpr> func)
+        public IBool AsBool()
         {
-            return new SymbolicBool(c => func(c, _func(c), other.ToSymbolicBitVector()._func(c)));
+            return new SymbolicBool(c => c.MkNot(c.MkEq(Symbolic(c), c.MkBV(0U, (uint) Size))));
+        }
+
+        public IFloat AsFloat()
+        {
+            return new SymbolicFloat(Size, c => c.MkFPToFP(Symbolic(c), Size.GetSort(c)));
+        }
+
+        public IValue IfElse(IBool predicate, IValue falseValue)
+        {
+            return Create(falseValue.AsUnsigned(), (c, t, f) => (BitVecExpr) c.MkITE(predicate.Symbolic(c), t, f));
+        }
+
+        public IBitVector Read(IUnsigned offset, Bits size)
+        {
+            return new SymbolicBitVector(size, LogicalShiftRight(offset).Truncate(size).Symbolic);
+        }
+
+        public IBitVector Write(IUnsigned offset, IBitVector value)
+        {
+            var mask = ConstantUnsigned.Create(value.Size, BigInteger.Zero)
+                .Not()
+                .ZeroExtend(Size)
+                .ShiftLeft(offset)
+                .Not();
+
+            var data = value
+                .AsUnsigned()
+                .ZeroExtend(Size)
+                .ShiftLeft(offset);
+
+            return new SymbolicBitVector(Size, And(mask).Or(data).AsUnsigned().Symbolic);
+        }
+
+        public Func<Context, BitVecExpr> Symbolic { get; }
+
+        public ISigned ArithmeticShiftRight(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVASHR(l, r));
+        }
+
+        public ISigned Divide(ISigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVSDiv(l, r));
+        }
+
+        public IBool Greater(ISigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVSGT(l, r));
+        }
+
+        public IBool GreaterOrEqual(ISigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVSGE(l, r));
+        }
+
+        public IBool Less(ISigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVSLT(l, r));
+        }
+
+        public IBool LessOrEqual(ISigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVSLE(l, r));
+        }
+
+        public ISigned Remainder(ISigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVSRem(l, r));
+        }
+
+        public IFloat SignedToFloat(Bits size)
+        {
+            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), Symbolic(c), size.GetSort(c), true));
+        }
+
+        public ISigned SignExtend(Bits size)
+        {
+            return new SymbolicBitVector(size, c => c.MkSignExt((uint) size - (uint) Size, Symbolic(c)));
+        }
+
+        public IUnsigned Add(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVAdd(l, r));
+        }
+
+        public IBitwise And(IBitwise value)
+        {
+            return Create(value.AsUnsigned(), (c, l, r) => c.MkBVAND(l, r));
+        }
+
+        public IUnsigned Divide(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVUDiv(l, r));
+        }
+
+        public IBool Equal(IBitwise value)
+        {
+            return Create(value.AsUnsigned(), (c, l, r) => c.MkEq(l, r));
+        }
+
+        public IBool Greater(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVUGT(l, r));
+        }
+
+        public IBool GreaterOrEqual(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVUGE(l, r));
+        }
+
+        public IBool Less(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVULT(l, r));
+        }
+
+        public IBool LessOrEqual(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVULE(l, r));
+        }
+
+        public IUnsigned LogicalShiftRight(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVLSHR(l, r));
+        }
+
+        public IUnsigned Multiply(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVMul(l, r));
+        }
+
+        public IUnsigned Not()
+        {
+            return new SymbolicBitVector(Size, c => c.MkBVNot(Symbolic(c)));
+        }
+
+        public IBool NotEqual(IBitwise value)
+        {
+            return Create(value.AsUnsigned(), (c, l, r) => c.MkNot(c.MkEq(l, r)));
+        }
+
+        public IBitwise Or(IBitwise value)
+        {
+            return Create(value.AsUnsigned(), (c, l, r) => c.MkBVOR(l, r));
+        }
+
+        public IUnsigned Remainder(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVURem(l, r));
+        }
+
+        public IUnsigned ShiftLeft(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVSHL(l, r));
+        }
+
+        public IUnsigned Subtract(IUnsigned value)
+        {
+            return Create(value, (c, l, r) => c.MkBVSub(l, r));
+        }
+
+        public IUnsigned Truncate(Bits size)
+        {
+            return new SymbolicBitVector(size, c => c.MkExtract((uint) size - 1U, 0U, Symbolic(c)));
+        }
+
+        public IFloat UnsignedToFloat(Bits size)
+        {
+            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), Symbolic(c), size.GetSort(c), false));
+        }
+
+        public IBitwise Xor(IBitwise value)
+        {
+            return Create(value.AsUnsigned(), (c, l, r) => c.MkBVXOR(l, r));
+        }
+
+        public IUnsigned ZeroExtend(Bits size)
+        {
+            return new SymbolicBitVector(size, c => c.MkZeroExt((uint) size - (uint) Size, Symbolic(c)));
+        }
+
+        private SymbolicBitVector Create(IUnsigned other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> symbolic)
+        {
+            return new(Size, c => symbolic(c, Symbolic(c), other.Symbolic(c)));
+        }
+
+        private SymbolicBitVector Create(ISigned other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> symbolic)
+        {
+            return new(Size, c => symbolic(c, Symbolic(c), other.Symbolic(c)));
+        }
+
+        private SymbolicBool Create(IUnsigned other, Func<Context, BitVecExpr, BitVecExpr, BoolExpr> symbolic)
+        {
+            return new(c => symbolic(c, Symbolic(c), other.Symbolic(c)));
+        }
+
+        private SymbolicBool Create(ISigned other, Func<Context, BitVecExpr, BitVecExpr, BoolExpr> symbolic)
+        {
+            return new(c => symbolic(c, Symbolic(c), other.Symbolic(c)));
         }
     }
 }

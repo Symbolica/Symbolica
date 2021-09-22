@@ -9,7 +9,7 @@ namespace Symbolica.Computation
 {
     internal sealed class PersistentSpace : IPersistentSpace
     {
-        private readonly IPersistentStack<SymbolicBool> _assertions;
+        private readonly IPersistentStack<IBool> _assertions;
         private readonly ICollectionFactory _collectionFactory;
         private readonly IModelFactory _modelFactory;
         private readonly ISymbolFactory _symbolFactory;
@@ -17,7 +17,7 @@ namespace Symbolica.Computation
 
         private PersistentSpace(Bits pointerSize, bool useSymbolicGarbage,
             ISymbolFactory symbolFactory, IModelFactory modelFactory, ICollectionFactory collectionFactory,
-            IPersistentStack<SymbolicBool> assertions)
+            IPersistentStack<IBool> assertions)
         {
             PointerSize = pointerSize;
             _useSymbolicGarbage = useSymbolicGarbage;
@@ -29,16 +29,16 @@ namespace Symbolica.Computation
 
         public Bits PointerSize { get; }
 
-        public IPersistentSpace Assert(SymbolicBool assertion)
+        public IPersistentSpace Assert(IBool assertion)
         {
             return new PersistentSpace(PointerSize, _useSymbolicGarbage,
                 _symbolFactory, _modelFactory, _collectionFactory,
                 _assertions.Push(assertion));
         }
 
-        public IModel GetModel(SymbolicBool[] constraints)
+        public IModel GetModel(IBool[] constraints)
         {
-            return SymbolicBool.GetModel(_modelFactory, constraints.Concat(_assertions));
+            return _modelFactory.Create(constraints.Concat(_assertions).Select(a => a.Symbolic));
         }
 
         public IExample GetExample()
@@ -55,7 +55,7 @@ namespace Symbolica.Computation
         public IExpression CreateConstantFloat(Bits size, string value)
         {
             return Expression.Create(_collectionFactory,
-                ConstantFloat.Create(size, value), null);
+                size.ParseFloat(value), null);
         }
 
         public IExpression CreateGarbage(Bits size)
@@ -79,7 +79,7 @@ namespace Symbolica.Computation
         {
             return new PersistentSpace(pointerSize, useSymbolicGarbage,
                 symbolFactory, modelFactory, collectionFactory,
-                collectionFactory.CreatePersistentStack<SymbolicBool>());
+                collectionFactory.CreatePersistentStack<IBool>());
         }
     }
 }
