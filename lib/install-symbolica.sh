@@ -7,4 +7,4 @@ cp -r lib/translate ~/.symbolica
 cp -r lib/build ~/.symbolica/build
 
 cd ~/.symbolica/build
-./musl.sh
+./install/musl.sh
