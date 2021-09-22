@@ -31,7 +31,7 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
 FROM base as musl-builder
 WORKDIR $HOME/.symbolica/build
 COPY . .
-RUN apk add --no-cache git make && \
+RUN apk add --no-cache git make findutils && \
     ./musl.sh
 
 FROM base
