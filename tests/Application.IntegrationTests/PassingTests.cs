@@ -24,7 +24,7 @@ namespace Symbolica.Application
         {
             public TestData()
             {
-                Add(SignCases());
+                // Add(SignCases());
             }
 
             private static IEnumerable<(string, string, Options)> SignCases()
