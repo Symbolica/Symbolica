@@ -31,9 +31,9 @@ namespace Symbolica.Application
             {
                 return
                     from optimization in new[] {"--Oz"}
-                    from useSymbolicGarbage in new[] {true}
-                    from useSymbolicAddresses in new[] {true}
-                    from useSymbolicContinuations in new[] {true}
+                    from useSymbolicGarbage in new[] {false, true}
+                    from useSymbolicAddresses in new[] {false, true}
+                    from useSymbolicContinuations in new[] {false, true}
                     select (
                         "sign",
                         optimization,

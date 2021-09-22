@@ -29,7 +29,7 @@ namespace Symbolica.Application
         {
             public TestData()
             {
-                // Add(SignCases());
+                Add(SignCases());
                 Add(BufferCases());
             }
 
