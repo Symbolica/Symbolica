@@ -31,7 +31,11 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
 FROM base as musl-builder
 WORKDIR $HOME/.symbolica/build
 COPY . .
-RUN apk add --no-cache git make && \
+
+# Install findutils because the default busybox xargs doesnt handle large inputs well
+# and it ends up batching the calls to llvm-link which results in us only producing
+# a libc.bc file with the contents of the final invocation in it.
+RUN apk add --no-cache git make findutils && \
     ./musl.sh
 
 FROM base
