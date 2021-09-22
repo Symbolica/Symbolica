@@ -51,9 +51,9 @@ namespace Symbolica.Application
             private static IEnumerable<(string, string, Options, StateError, string[])> BufferCases()
             {
                 return
-                    from useSymbolicGarbage in new[] {false, true}
-                    from useSymbolicAddresses in new[] {false, true}
-                    from useSymbolicContinuations in new[] {false, true}
+                    from useSymbolicGarbage in new[] {true}
+                    from useSymbolicAddresses in new[] {true}
+                    from useSymbolicContinuations in new[] {true}
                     select (
                         "buffer",
                         "--O0",

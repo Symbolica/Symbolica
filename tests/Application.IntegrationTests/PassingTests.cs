@@ -24,16 +24,16 @@ namespace Symbolica.Application
         {
             public TestData()
             {
-                // Add(SignCases());
+                Add(SignCases());
             }
 
             private static IEnumerable<(string, string, Options)> SignCases()
             {
                 return
                     from optimization in new[] {"--Oz"}
-                    from useSymbolicGarbage in new[] {false, true}
-                    from useSymbolicAddresses in new[] {false, true}
-                    from useSymbolicContinuations in new[] {false, true}
+                    from useSymbolicGarbage in new[] {true}
+                    from useSymbolicAddresses in new[] {true}
+                    from useSymbolicContinuations in new[] {true}
                     select (
                         "sign",
                         optimization,
