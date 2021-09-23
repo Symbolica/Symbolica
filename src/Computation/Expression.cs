@@ -127,6 +127,11 @@ namespace Symbolica.Computation
             return Create(expression, (l, r) => l.AsFloat().Ordered(r.AsFloat()));
         }
 
+        public IExpression FloatPower(IExpression expression)
+        {
+            return Create(expression, (l, r) => l.AsFloat().Power(r.AsFloat()));
+        }
+
         public IExpression FloatRemainder(IExpression expression)
         {
             return Create(expression, (l, r) => l.AsFloat().Remainder(r.AsFloat()));

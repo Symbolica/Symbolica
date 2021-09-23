@@ -180,6 +180,18 @@ namespace Symbolica.Computation
         }
 
         [Theory]
+        [ClassData(typeof(PowerTestData))]
+        private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatPower(
+            ConstantSingle constantLeft, ConstantSingle constantRight,
+            SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        {
+            var constant = constantLeft.Power(constantRight).ToSigned(constantLeft.Size).AsConstant(Context);
+            var symbolic = symbolicLeft.Power(symbolicRight).ToSigned(symbolicLeft.Size).AsConstant(Context);
+
+            constant.Should().Be(symbolic);
+        }
+
+        [Theory]
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatRemainder(
             ConstantSingle constantLeft, ConstantSingle constantRight,
@@ -309,6 +321,26 @@ namespace Symbolica.Computation
                     yield return i / 3f;
                     yield return 3f / i;
                 }
+            }
+        }
+
+        private sealed class PowerTestData : TheoryData<
+            ConstantSingle, ConstantSingle,
+            SymbolicFloat, SymbolicFloat>
+        {
+            public PowerTestData()
+            {
+                foreach (var left in Values())
+                foreach (var right in Values())
+                    Add(new ConstantSingle(left),
+                        new ConstantSingle(right),
+                        new SymbolicFloat((Bits) 32U, c => c.MkFP(left, c.MkFPSort32())),
+                        new SymbolicFloat((Bits) 32U, c => c.MkFP(right, c.MkFPSort32())));
+            }
+
+            private static IEnumerable<float> Values()
+            {
+                return Enumerable.Range(1, 5).Select(i => (float) i);
             }
         }
 

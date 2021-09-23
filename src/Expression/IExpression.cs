@@ -27,6 +27,7 @@ namespace Symbolica.Expression
         IExpression FloatNegate();
         IExpression FloatNotEqual(IExpression expression);
         IExpression FloatOrdered(IExpression expression);
+        IExpression FloatPower(IExpression expression);
         IExpression FloatRemainder(IExpression expression);
         IExpression FloatSubtract(IExpression expression);
         IExpression FloatToSigned(Bits size);
