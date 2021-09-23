@@ -1,6 +1,8 @@
 FROM alpine:3.14.2 as base
-ENV HOME /home/me
+LABEL maintainer "Symbolica <dev@symbolica.dev>"
 ARG clangParallelJobs
+ENV HOME /home/me
+
 RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
     apk add --no-cache binutils && \
     apk add --no-cache --virtual build-deps build-base cmake git ninja python3 && \
@@ -15,7 +17,6 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
         -DLLVM_TARGETS_TO_BUILD=Native \
         -DLLVM_PARALLEL_LINK_JOBS=${clangParallelJobs} \
-        -DLIBCLANG_BUILD_STATIC=ON \
         -DLLVM_ENABLE_EH=ON \
         -DLLVM_ENABLE_FFI=NO \
         -DLLVM_ENABLE_LIBCXX=NO \
@@ -28,19 +29,17 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
     rm -rf /tmp && \
     apk --purge del build-deps
 
-WORKDIR $HOME/.symbolica/build
-COPY . .
+COPY . $HOME/.symbolica/build
 
 # Install findutils because the default busybox xargs doesnt handle large inputs well
 # and it ends up batching the calls to llvm-link which results in us only producing
 # a libc.bc file with the contents of the final invocation in it.
 RUN apk add --no-cache --virtual musl-build-deps git make findutils && \
-    cd install &&  \
+    cd $HOME/.symbolica/build/install &&  \
     ./musl.sh && \
-    cd .. && \
-    rm -rf ./install && \
+    cd / && \
+    rm -rf $HOME/.symbolica/build/install && \
     apk --purge del musl-build-deps
 
-LABEL maintainer "Symbolica <dev@symbolica.dev>"
 WORKDIR /code
 ENTRYPOINT [ "./symbolica.sh" ]
