@@ -12,7 +12,7 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
     cmake -G Ninja \
         -Wno-dev \
         -DCLANG_VENDOR=Alpine \
-        -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DCMAKE_BUILD_TYPE=Release \
         -DLLVM_TARGETS_TO_BUILD=Native \
         -DLLVM_PARALLEL_LINK_JOBS=${clangParallelJobs} \
         -DLIBCLANG_BUILD_STATIC=ON \

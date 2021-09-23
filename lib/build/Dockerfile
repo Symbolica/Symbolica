@@ -14,7 +14,7 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
         -Wno-dev \
         -DCLANG_VENDOR=Alpine \
         -DLLVM_ENABLE_PROJECTS=clang \
-        -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DCMAKE_BUILD_TYPE=Release \
         -DLLVM_TARGETS_TO_BUILD=Native \
         -DLLVM_PARALLEL_LINK_JOBS=${clangParallelJobs} \
         -DLLVM_ENABLE_EH=ON \
