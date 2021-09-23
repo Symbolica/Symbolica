@@ -17,6 +17,7 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
         -DLLVM_TARGETS_TO_BUILD=Native \
         -DLLVM_PARALLEL_LINK_JOBS=${clangParallelJobs} \
+        -DLLVM_ENABLE_BINDINGS=OFF \
         -DLLVM_ENABLE_EH=ON \
         -DLLVM_ENABLE_FFI=NO \
         -DLLVM_ENABLE_LIBCXX=NO \

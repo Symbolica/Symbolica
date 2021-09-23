@@ -16,6 +16,7 @@ RUN clangParallelJobs="${clangParallelJobs:-$(nproc)}" && \
         -DLLVM_TARGETS_TO_BUILD=Native \
         -DLLVM_PARALLEL_LINK_JOBS=${clangParallelJobs} \
         -DLIBCLANG_BUILD_STATIC=ON \
+        -DLLVM_ENABLE_BINDINGS=OFF \
         -DLLVM_ENABLE_EH=ON \
         -DLLVM_ENABLE_FFI=NO \
         -DLLVM_ENABLE_LIBCXX=NO \
