@@ -22,6 +22,7 @@ namespace Symbolica.Computation
         IFloat Negate();
         IBool NotEqual(IFloat value);
         IBool Ordered(IFloat value);
+        IFloat Power(IFloat value);
         IFloat Remainder(IFloat value);
         IFloat Subtract(IFloat value);
         ISigned ToSigned(Bits size);

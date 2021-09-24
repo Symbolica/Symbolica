@@ -137,6 +137,11 @@ namespace Symbolica.Computation
             return Create(value, (c, l, r) => c.MkNot(c.MkOr(c.MkFPIsNaN(l), c.MkFPIsNaN(r))));
         }
 
+        public IFloat Power(IFloat value)
+        {
+            return Create(value, (c, l, r) => (RealExpr) c.MkPower(c.MkFPToReal(l), c.MkFPToReal(r)));
+        }
+
         public IFloat Remainder(IFloat value)
         {
             return Create(value, (c, l, r) => c.MkFPRem(l, r));
@@ -168,6 +173,11 @@ namespace Symbolica.Computation
         }
 
         private SymbolicFloat Create(IFloat other, Func<Context, FPExpr, FPExpr, FPExpr> symbolic)
+        {
+            return new(Size, c => symbolic(c, Symbolic(c), other.Symbolic(c)));
+        }
+
+        private SymbolicReal Create(IFloat other, Func<Context, FPExpr, FPExpr, RealExpr> symbolic)
         {
             return new(Size, c => symbolic(c, Symbolic(c), other.Symbolic(c)));
         }

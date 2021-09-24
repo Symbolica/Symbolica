@@ -140,6 +140,11 @@ namespace Symbolica.Computation
             return Create(value, (l, r) => l.Ordered(r), (l, r) => !(double.IsNaN(l) || double.IsNaN(r)));
         }
 
+        public IFloat Power(IFloat value)
+        {
+            return Create(value, (l, r) => l.Power(r), Math.Pow);
+        }
+
         public IFloat Remainder(IFloat value)
         {
             return Create(value, (l, r) => l.Remainder(r), Math.IEEERemainder);

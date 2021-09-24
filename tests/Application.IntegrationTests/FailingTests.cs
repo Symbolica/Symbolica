@@ -31,6 +31,7 @@ namespace Symbolica.Application
             {
                 Add(SignCases());
                 Add(BufferCases());
+                Add(GeometricCases());
             }
 
             private static IEnumerable<(string, string, Options, StateError, string[])> SignCases()
@@ -60,6 +61,20 @@ namespace Symbolica.Application
                         new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
                         StateError.InvalidMemoryWrite,
                         Array.Empty<string>());
+            }
+
+            private static IEnumerable<(string, string, Options, StateError, string[])> GeometricCases()
+            {
+                return
+                    from useSymbolicGarbage in new[] {true}
+                    from useSymbolicAddresses in new[] {true}
+                    from useSymbolicContinuations in new[] {true}
+                    select (
+                        "geometric",
+                        "--Oz",
+                        new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
+                        StateError.DivideByZero,
+                        new[] {"n", "r"});
             }
 
             private void Add(IEnumerable<(string, string, Options, StateError, string[])> cases)
