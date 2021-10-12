@@ -36,7 +36,7 @@ namespace Symbolica.Application.Computation
         public Expr Evaluate(Func<Context, Expr> func)
         {
             return _solver.Check() == Status.SATISFIABLE
-                ? _solver.Model.Eval(func(_context))
+                ? _solver.Model.Eval(func(_context), true)
                 : throw new Exception("The model cannot be evaluated.");
         }
 
