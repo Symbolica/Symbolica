@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Symbolica.Implementation;
@@ -50,7 +51,7 @@ namespace Symbolica.Application.Implementation
             await Task.Run(() => { _countdownEvent.Wait(); });
 
             if (_exception != null)
-                throw _exception;
+                ExceptionDispatchInfo.Capture(_exception).Throw();
         }
     }
 }
