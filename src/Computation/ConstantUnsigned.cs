@@ -72,7 +72,9 @@ namespace Symbolica.Computation
 
         public IBitwise And(IBitwise value)
         {
-            return Create(value.AsUnsigned(), (l, r) => l.And(r), (l, r) => l & r);
+            return Constant.IsZero
+                ? this
+                : Create(value.AsUnsigned(), (l, r) => l.And(r), (l, r) => l & r);
         }
 
         public IUnsigned Divide(IUnsigned value)
@@ -127,7 +129,9 @@ namespace Symbolica.Computation
 
         public IBitwise Or(IBitwise value)
         {
-            return Create(value.AsUnsigned(), (l, r) => l.Or(r), (l, r) => l | r);
+            return Constant.IsZero
+                ? value
+                : Create(value.AsUnsigned(), (l, r) => l.Or(r), (l, r) => l | r);
         }
 
         public IUnsigned Remainder(IUnsigned value)

@@ -69,7 +69,7 @@ namespace Symbolica.Computation
 
         public IBitwise And(IBitwise value)
         {
-            return Create(value.AsBool(), (l, r) => l.And(r), (l, r) => l && r);
+            return Constant ? value : this;
         }
 
         public IBool Equal(IBitwise value)
@@ -89,7 +89,7 @@ namespace Symbolica.Computation
 
         public IBitwise Or(IBitwise value)
         {
-            return Create(value.AsBool(), (l, r) => l.Or(r), (l, r) => l || r);
+            return Constant ? this : value;
         }
 
         public IValue Select(IValue trueValue, IValue falseValue)
