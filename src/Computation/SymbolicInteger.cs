@@ -7,9 +7,9 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal sealed class SymbolicBitVector : IBitVector, ISigned, IUnsigned
+    internal sealed class SymbolicInteger : IBitVector, ISigned, IUnsigned
     {
-        public SymbolicBitVector(Bits size, Func<Context, BitVecExpr> symbolic)
+        public SymbolicInteger(Bits size, Func<Context, BitVecExpr> symbolic)
         {
             Size = size;
             Symbolic = symbolic;
@@ -70,7 +70,7 @@ namespace Symbolica.Computation
 
         public IBitVector Read(IUnsigned offset, Bits size)
         {
-            return new SymbolicBitVector(size, LogicalShiftRight(offset).Truncate(size).Symbolic);
+            return new SymbolicInteger(size, LogicalShiftRight(offset).Truncate(size).Symbolic);
         }
 
         public IBitVector Write(IUnsigned offset, IBitVector value)
@@ -86,7 +86,7 @@ namespace Symbolica.Computation
                 .ZeroExtend(Size)
                 .ShiftLeft(offset);
 
-            return new SymbolicBitVector(Size, And(mask).Or(data).AsUnsigned().Symbolic);
+            return new SymbolicInteger(Size, And(mask).Or(data).AsUnsigned().Symbolic);
         }
 
         public Func<Context, BitVecExpr> Symbolic { get; }
@@ -133,7 +133,7 @@ namespace Symbolica.Computation
 
         public ISigned SignExtend(Bits size)
         {
-            return new SymbolicBitVector(size, c => c.MkSignExt((uint) size - (uint) Size, Symbolic(c)));
+            return new SymbolicInteger(size, c => c.MkSignExt((uint) size - (uint) Size, Symbolic(c)));
         }
 
         public IUnsigned Add(IUnsigned value)
@@ -188,7 +188,7 @@ namespace Symbolica.Computation
 
         public IUnsigned Not()
         {
-            return new SymbolicBitVector(Size, c => c.MkBVNot(Symbolic(c)));
+            return new SymbolicInteger(Size, c => c.MkBVNot(Symbolic(c)));
         }
 
         public IBool NotEqual(IBitwise value)
@@ -218,7 +218,7 @@ namespace Symbolica.Computation
 
         public IUnsigned Truncate(Bits size)
         {
-            return new SymbolicBitVector(size, c => c.MkExtract((uint) size - 1U, 0U, Symbolic(c)));
+            return new SymbolicInteger(size, c => c.MkExtract((uint) size - 1U, 0U, Symbolic(c)));
         }
 
         public IFloat UnsignedToFloat(Bits size)
@@ -233,15 +233,15 @@ namespace Symbolica.Computation
 
         public IUnsigned ZeroExtend(Bits size)
         {
-            return new SymbolicBitVector(size, c => c.MkZeroExt((uint) size - (uint) Size, Symbolic(c)));
+            return new SymbolicInteger(size, c => c.MkZeroExt((uint) size - (uint) Size, Symbolic(c)));
         }
 
-        private SymbolicBitVector Create(IUnsigned other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> symbolic)
+        private SymbolicInteger Create(IUnsigned other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> symbolic)
         {
             return new(Size, c => symbolic(c, Symbolic(c), other.Symbolic(c)));
         }
 
-        private SymbolicBitVector Create(ISigned other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> symbolic)
+        private SymbolicInteger Create(ISigned other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> symbolic)
         {
             return new(Size, c => symbolic(c, Symbolic(c), other.Symbolic(c)));
         }

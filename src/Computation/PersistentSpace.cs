@@ -71,7 +71,7 @@ namespace Symbolica.Computation
             var func = _symbolFactory.Create(size, name);
 
             return Expression.Create(_collectionFactory,
-                new SymbolicBitVector(size, func), constraints);
+                new SymbolicInteger(size, func), constraints);
         }
 
         public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage,

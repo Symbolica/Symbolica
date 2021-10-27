@@ -59,7 +59,7 @@ namespace Symbolica.Computation
 
         public IValue IfElse(IBool predicate, IValue falseValue)
         {
-            return new SymbolicBitVector(Size, AsUnsigned().Symbolic).IfElse(predicate, falseValue);
+            return new SymbolicInteger(Size, AsUnsigned().Symbolic).IfElse(predicate, falseValue);
         }
 
         public IBitVector Read(IUnsigned offset, Bits size)
@@ -67,7 +67,7 @@ namespace Symbolica.Computation
             return Size == offset.Size
                 ? offset is IConstantInteger co
                     ? new ConstantBitVector(size, Constant.GetRange(GetIndex(co), GetCount(size)))
-                    : new SymbolicBitVector(Size, AsUnsigned().Symbolic).Read(offset, size)
+                    : new SymbolicInteger(Size, AsUnsigned().Symbolic).Read(offset, size)
                 : throw new InconsistentExpressionSizesException(Size, offset.Size);
         }
 
@@ -76,7 +76,7 @@ namespace Symbolica.Computation
             return Size == offset.Size
                 ? offset is IConstantInteger co && value is IConstantBitVector cv
                     ? new ConstantBitVector(Size, Constant.SetRange(GetIndex(co), cv.Constant))
-                    : new SymbolicBitVector(Size, AsUnsigned().Symbolic).Write(offset, value)
+                    : new SymbolicInteger(Size, AsUnsigned().Symbolic).Write(offset, value)
                 : throw new InconsistentExpressionSizesException(Size, offset.Size);
         }
 
