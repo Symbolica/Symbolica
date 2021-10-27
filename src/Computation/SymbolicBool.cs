@@ -46,7 +46,7 @@ namespace Symbolica.Computation
 
         public IUnsigned AsUnsigned()
         {
-            return new SymbolicBitVector(Size, c =>
+            return new SymbolicInteger(Size, c =>
                 (BitVecExpr) c.MkITE(Symbolic(c), c.MkBV(new[] {true}), c.MkBV(new[] {false})));
         }
 

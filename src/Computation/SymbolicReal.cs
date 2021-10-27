@@ -153,7 +153,7 @@ namespace Symbolica.Computation
 
         public ISigned ToSigned(Bits size)
         {
-            return new SymbolicBitVector(size, c => c.MkInt2BV((uint) size, c.MkReal2Int(_symbolic(c))));
+            return new SymbolicInteger(size, c => c.MkInt2BV((uint) size, c.MkReal2Int(_symbolic(c))));
         }
 
         public IUnsigned ToUnsigned(Bits size)

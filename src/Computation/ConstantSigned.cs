@@ -59,13 +59,13 @@ namespace Symbolica.Computation
             {
                 32U => new ConstantSingle(BitConverter.Int32BitsToSingle((int) Constant)),
                 64U => new ConstantDouble(BitConverter.Int64BitsToDouble((long) Constant)),
-                _ => new SymbolicBitVector(Size, Symbolic).AsFloat()
+                _ => new SymbolicInteger(Size, Symbolic).AsFloat()
             };
         }
 
         public IValue IfElse(IBool predicate, IValue falseValue)
         {
-            return new SymbolicBitVector(Size, Symbolic).IfElse(predicate, falseValue);
+            return new SymbolicInteger(Size, Symbolic).IfElse(predicate, falseValue);
         }
 
         public Func<Context, BitVecExpr> Symbolic => AsUnsigned().Symbolic;
@@ -111,7 +111,7 @@ namespace Symbolica.Computation
             {
                 32U => new ConstantSingle((float) Constant),
                 64U => new ConstantDouble((double) Constant),
-                _ => new SymbolicBitVector(Size, Symbolic).SignedToFloat(size)
+                _ => new SymbolicInteger(Size, Symbolic).SignedToFloat(size)
             };
         }
 
@@ -134,35 +134,35 @@ namespace Symbolica.Computation
         }
 
         private ISigned Create(IUnsigned other,
-            Func<SymbolicBitVector, IUnsigned, ISigned> symbolic,
+            Func<SymbolicInteger, IUnsigned, ISigned> symbolic,
             Func<BigInteger, BigInteger, BigInteger> constant)
         {
             return Create(other, symbolic, (l, r) => Create(Size, constant(l, r)));
         }
 
         private ISigned Create(ISigned other,
-            Func<SymbolicBitVector, ISigned, ISigned> symbolic,
+            Func<SymbolicInteger, ISigned, ISigned> symbolic,
             Func<BigInteger, BigInteger, BigInteger> constant)
         {
             return Create(other, symbolic, (l, r) => Create(Size, constant(l, r)));
         }
 
         private IBool Create(ISigned other,
-            Func<SymbolicBitVector, ISigned, IBool> symbolic,
+            Func<SymbolicInteger, ISigned, IBool> symbolic,
             Func<BigInteger, BigInteger, bool> constant)
         {
             return Create(other, symbolic, (l, r) => new ConstantBool(constant(l, r)));
         }
 
         private TValue Create<TOther, TValue>(TOther other,
-            Func<SymbolicBitVector, TOther, TValue> symbolic,
+            Func<SymbolicInteger, TOther, TValue> symbolic,
             Func<BigInteger, BigInteger, TValue> constant)
             where TOther : IValue
         {
             return Size == other.Size
                 ? other is IConstantInteger c
                     ? constant(Constant, c.Constant)
-                    : symbolic(new SymbolicBitVector(Size, Symbolic), other)
+                    : symbolic(new SymbolicInteger(Size, Symbolic), other)
                 : throw new InconsistentExpressionSizesException(Size, other.Size);
         }
     }

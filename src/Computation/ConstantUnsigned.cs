@@ -60,7 +60,7 @@ namespace Symbolica.Computation
 
         public IValue IfElse(IBool predicate, IValue falseValue)
         {
-            return new SymbolicBitVector(Size, Symbolic).IfElse(predicate, falseValue);
+            return new SymbolicInteger(Size, Symbolic).IfElse(predicate, falseValue);
         }
 
         public Func<Context, BitVecExpr> Symbolic => c => c.MkBV(Constant.ToString(), (uint) Size);
@@ -160,7 +160,7 @@ namespace Symbolica.Computation
             {
                 32U => new ConstantSingle((float) Constant),
                 64U => new ConstantDouble((double) Constant),
-                _ => new SymbolicBitVector(Size, Symbolic).UnsignedToFloat(size)
+                _ => new SymbolicInteger(Size, Symbolic).UnsignedToFloat(size)
             };
         }
 
@@ -187,27 +187,27 @@ namespace Symbolica.Computation
         }
 
         private IUnsigned Create(IUnsigned other,
-            Func<SymbolicBitVector, IUnsigned, IBitwise> symbolic,
+            Func<SymbolicInteger, IUnsigned, IBitwise> symbolic,
             Func<BigInteger, BigInteger, BigInteger> constant)
         {
             return Create(other, (l, r) => symbolic(l, r).AsUnsigned(), (l, r) => Create(Size, constant(l, r)));
         }
 
         private IBool Create(IUnsigned other,
-            Func<SymbolicBitVector, IUnsigned, IBool> symbolic,
+            Func<SymbolicInteger, IUnsigned, IBool> symbolic,
             Func<BigInteger, BigInteger, bool> constant)
         {
             return Create(other, symbolic, (l, r) => new ConstantBool(constant(l, r)));
         }
 
         private TValue Create<TValue>(IUnsigned other,
-            Func<SymbolicBitVector, IUnsigned, TValue> symbolic,
+            Func<SymbolicInteger, IUnsigned, TValue> symbolic,
             Func<BigInteger, BigInteger, TValue> constant)
         {
             return Size == other.Size
                 ? other is IConstantInteger c
                     ? constant(Constant, c.Constant)
-                    : symbolic(new SymbolicBitVector(Size, Symbolic), other)
+                    : symbolic(new SymbolicInteger(Size, Symbolic), other)
                 : throw new InconsistentExpressionSizesException(Size, other.Size);
         }
     }

@@ -20,7 +20,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForAdd(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.Add(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.Add(symbolicRight).AsConstant(Context);
@@ -32,7 +32,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForAnd(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.And(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.And(symbolicRight).AsConstant(Context);
@@ -44,7 +44,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForArithmeticShiftRight(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.AsSigned().ArithmeticShiftRight(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.ArithmeticShiftRight(symbolicRight).AsConstant(Context);
@@ -56,7 +56,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.Equal(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.Equal(symbolicRight).AsConstant(Context);
@@ -68,7 +68,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForLogicalShiftRight(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.LogicalShiftRight(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.LogicalShiftRight(symbolicRight).AsConstant(Context);
@@ -80,7 +80,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForMultiply(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.Multiply(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.Multiply(symbolicRight).AsConstant(Context);
@@ -92,7 +92,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(UnaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForNot(
             ConstantUnsigned constantExpression,
-            SymbolicBitVector symbolicExpression)
+            SymbolicInteger symbolicExpression)
         {
             var constant = constantExpression.Not().AsConstant(Context);
             var symbolic = symbolicExpression.Not().AsConstant(Context);
@@ -104,7 +104,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForNotEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.NotEqual(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.NotEqual(symbolicRight).AsConstant(Context);
@@ -116,7 +116,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForOr(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.Or(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.Or(symbolicRight).AsConstant(Context);
@@ -128,13 +128,14 @@ namespace Symbolica.Computation
         [ClassData(typeof(ReadTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForRead(Bits size,
             ConstantUnsigned constantBuffer, ConstantUnsigned constantOffset,
-            SymbolicBitVector symbolicBuffer, SymbolicBitVector symbolicOffset)
+            SymbolicInteger symbolicBuffer, SymbolicInteger symbolicOffset)
         {
             var collectionFactory = new CollectionFactory();
 
             var constant = constantBuffer.AsBitVector(collectionFactory)
                 .Read(constantOffset, size).AsConstant(Context);
-            var symbolic = symbolicBuffer.Read(symbolicOffset, size).AsConstant(Context);
+            var symbolic = symbolicBuffer.AsBitVector(collectionFactory)
+                .Read(symbolicOffset, size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -143,7 +144,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForShiftLeft(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.ShiftLeft(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.ShiftLeft(symbolicRight).AsConstant(Context);
@@ -155,7 +156,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedDivide(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             if (constantRight.Constant == 0)
                 return;
@@ -170,7 +171,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedGreater(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.AsSigned().Greater(constantRight.AsSigned()).AsConstant(Context);
             var symbolic = symbolicLeft.Greater(symbolicRight.AsSigned()).AsConstant(Context);
@@ -182,7 +183,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedGreaterOrEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.AsSigned().GreaterOrEqual(constantRight.AsSigned()).AsConstant(Context);
             var symbolic = symbolicLeft.GreaterOrEqual(symbolicRight.AsSigned()).AsConstant(Context);
@@ -194,7 +195,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedLess(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.AsSigned().Less(constantRight.AsSigned()).AsConstant(Context);
             var symbolic = symbolicLeft.Less(symbolicRight.AsSigned()).AsConstant(Context);
@@ -206,7 +207,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedLessOrEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.AsSigned().LessOrEqual(constantRight.AsSigned()).AsConstant(Context);
             var symbolic = symbolicLeft.LessOrEqual(symbolicRight.AsSigned()).AsConstant(Context);
@@ -218,7 +219,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedRemainder(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             if (constantRight.Constant == 0)
                 return;
@@ -233,7 +234,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(ToFloatTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedToFloat(Bits size,
             ConstantUnsigned constantExpression,
-            SymbolicBitVector symbolicExpression)
+            SymbolicInteger symbolicExpression)
         {
             var constant = constantExpression.AsSigned().SignedToFloat(size).AsConstant(Context);
             var symbolic = symbolicExpression.SignedToFloat(size).AsConstant(Context);
@@ -245,7 +246,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(ExtendTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignExtend(Bits size,
             ConstantUnsigned constantExpression,
-            SymbolicBitVector symbolicExpression)
+            SymbolicInteger symbolicExpression)
         {
             var constant = constantExpression.AsSigned().SignExtend(size).AsConstant(Context);
             var symbolic = symbolicExpression.SignExtend(size).AsConstant(Context);
@@ -257,7 +258,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForSubtract(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.Subtract(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.Subtract(symbolicRight).AsConstant(Context);
@@ -269,7 +270,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(TruncateTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForTruncate(Bits size,
             ConstantUnsigned constantExpression,
-            SymbolicBitVector symbolicExpression)
+            SymbolicInteger symbolicExpression)
         {
             var constant = constantExpression.Truncate(size).AsConstant(Context);
             var symbolic = symbolicExpression.Truncate(size).AsConstant(Context);
@@ -281,7 +282,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedDivide(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             if (constantRight.Constant == 0)
                 return;
@@ -296,7 +297,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedGreater(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.Greater(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.Greater(symbolicRight.AsUnsigned()).AsConstant(Context);
@@ -308,7 +309,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedGreaterOrEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.GreaterOrEqual(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.GreaterOrEqual(symbolicRight.AsUnsigned()).AsConstant(Context);
@@ -320,7 +321,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedLess(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.Less(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.Less(symbolicRight.AsUnsigned()).AsConstant(Context);
@@ -332,7 +333,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedLessOrEqual(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.LessOrEqual(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.LessOrEqual(symbolicRight.AsUnsigned()).AsConstant(Context);
@@ -344,7 +345,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedRemainder(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             if (constantRight.Constant == 0)
                 return;
@@ -359,7 +360,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(ToFloatTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedToFloat(Bits size,
             ConstantUnsigned constantExpression,
-            SymbolicBitVector symbolicExpression)
+            SymbolicInteger symbolicExpression)
         {
             var constant = constantExpression.UnsignedToFloat(size).AsConstant(Context);
             var symbolic = symbolicExpression.UnsignedToFloat(size).AsConstant(Context);
@@ -371,13 +372,14 @@ namespace Symbolica.Computation
         [ClassData(typeof(WriteTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForWrite(
             ConstantUnsigned constantBuffer, ConstantUnsigned constantOffset, ConstantUnsigned constantValue,
-            SymbolicBitVector symbolicBuffer, SymbolicBitVector symbolicOffset, SymbolicBitVector symbolicValue)
+            SymbolicInteger symbolicBuffer, SymbolicInteger symbolicOffset, SymbolicInteger symbolicValue)
         {
             var collectionFactory = new CollectionFactory();
 
             var constant = constantBuffer.AsBitVector(collectionFactory)
                 .Write(constantOffset, constantValue.AsBitVector(collectionFactory)).AsConstant(Context);
-            var symbolic = symbolicBuffer.Write(symbolicOffset, symbolicValue).AsConstant(Context);
+            var symbolic = symbolicBuffer.AsBitVector(collectionFactory)
+                .Write(symbolicOffset, symbolicValue.AsBitVector(collectionFactory)).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -386,7 +388,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(BinaryTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForXor(
             ConstantUnsigned constantLeft, ConstantUnsigned constantRight,
-            SymbolicBitVector symbolicLeft, SymbolicBitVector symbolicRight)
+            SymbolicInteger symbolicLeft, SymbolicInteger symbolicRight)
         {
             var constant = constantLeft.Xor(constantRight).AsConstant(Context);
             var symbolic = symbolicLeft.Xor(symbolicRight).AsConstant(Context);
@@ -398,7 +400,7 @@ namespace Symbolica.Computation
         [ClassData(typeof(ExtendTestData))]
         private void ShouldCreateEquivalentConstantAndSymbolicValuesForZeroExtend(Bits size,
             ConstantUnsigned constantExpression,
-            SymbolicBitVector symbolicExpression)
+            SymbolicInteger symbolicExpression)
         {
             var constant = constantExpression.ZeroExtend(size).AsConstant(Context);
             var symbolic = symbolicExpression.ZeroExtend(size).AsConstant(Context);
@@ -408,13 +410,13 @@ namespace Symbolica.Computation
 
         private sealed class UnaryTestData : TheoryData<
             ConstantUnsigned,
-            SymbolicBitVector>
+            SymbolicInteger>
         {
             public UnaryTestData()
             {
                 foreach (var value in Values())
                     Add(ConstantUnsigned.Create((Bits) 4U, value),
-                        new SymbolicBitVector((Bits) 4U, c => c.MkBV(value.ToString(), 4U)));
+                        new SymbolicInteger((Bits) 4U, c => c.MkBV(value.ToString(), 4U)));
             }
 
             private static IEnumerable<BigInteger> Values()
@@ -425,7 +427,7 @@ namespace Symbolica.Computation
 
         private sealed class BinaryTestData : TheoryData<
             ConstantUnsigned, ConstantUnsigned,
-            SymbolicBitVector, SymbolicBitVector>
+            SymbolicInteger, SymbolicInteger>
         {
             public BinaryTestData()
             {
@@ -433,8 +435,8 @@ namespace Symbolica.Computation
                 foreach (var right in Values())
                     Add(ConstantUnsigned.Create((Bits) 4U, left),
                         ConstantUnsigned.Create((Bits) 4U, right),
-                        new SymbolicBitVector((Bits) 4U, c => c.MkBV(left.ToString(), 4U)),
-                        new SymbolicBitVector((Bits) 4U, c => c.MkBV(right.ToString(), 4U)));
+                        new SymbolicInteger((Bits) 4U, c => c.MkBV(left.ToString(), 4U)),
+                        new SymbolicInteger((Bits) 4U, c => c.MkBV(right.ToString(), 4U)));
             }
 
             private static IEnumerable<BigInteger> Values()
@@ -445,7 +447,7 @@ namespace Symbolica.Computation
 
         private sealed class ReadTestData : TheoryData<Bits,
             ConstantUnsigned, ConstantUnsigned,
-            SymbolicBitVector, SymbolicBitVector>
+            SymbolicInteger, SymbolicInteger>
         {
             public ReadTestData()
             {
@@ -455,8 +457,8 @@ namespace Symbolica.Computation
                     Add(size,
                         ConstantUnsigned.Create((Bits) 32U, buffer),
                         ConstantUnsigned.Create((Bits) 32U, offset),
-                        new SymbolicBitVector((Bits) 32U, c => c.MkBV(buffer.ToString(), 32U)),
-                        new SymbolicBitVector((Bits) 32U, c => c.MkBV(offset.ToString(), 32U)));
+                        new SymbolicInteger((Bits) 32U, c => c.MkBV(buffer.ToString(), 32U)),
+                        new SymbolicInteger((Bits) 32U, c => c.MkBV(offset.ToString(), 32U)));
             }
 
             private static IEnumerable<BigInteger> Buffers()
@@ -483,7 +485,7 @@ namespace Symbolica.Computation
 
         private sealed class WriteTestData : TheoryData<
             ConstantUnsigned, ConstantUnsigned, ConstantUnsigned,
-            SymbolicBitVector, SymbolicBitVector, SymbolicBitVector>
+            SymbolicInteger, SymbolicInteger, SymbolicInteger>
         {
             public WriteTestData()
             {
@@ -493,9 +495,9 @@ namespace Symbolica.Computation
                     Add(ConstantUnsigned.Create((Bits) 32U, buffer),
                         ConstantUnsigned.Create((Bits) 32U, offset),
                         ConstantUnsigned.Create((Bits) 16U, value),
-                        new SymbolicBitVector((Bits) 32U, c => c.MkBV(buffer.ToString(), 32U)),
-                        new SymbolicBitVector((Bits) 32U, c => c.MkBV(offset.ToString(), 32U)),
-                        new SymbolicBitVector((Bits) 16U, c => c.MkBV(value.ToString(), 16U)));
+                        new SymbolicInteger((Bits) 32U, c => c.MkBV(buffer.ToString(), 32U)),
+                        new SymbolicInteger((Bits) 32U, c => c.MkBV(offset.ToString(), 32U)),
+                        new SymbolicInteger((Bits) 16U, c => c.MkBV(value.ToString(), 16U)));
             }
 
             private static IEnumerable<BigInteger> Buffers()
@@ -524,7 +526,7 @@ namespace Symbolica.Computation
 
         private sealed class ExtendTestData : TheoryData<Bits,
             ConstantUnsigned,
-            SymbolicBitVector>
+            SymbolicInteger>
         {
             public ExtendTestData()
             {
@@ -532,7 +534,7 @@ namespace Symbolica.Computation
                 foreach (var value in Values())
                     Add(size,
                         ConstantUnsigned.Create((Bits) 4U, value),
-                        new SymbolicBitVector((Bits) 4U, c => c.MkBV(value.ToString(), 4U)));
+                        new SymbolicInteger((Bits) 4U, c => c.MkBV(value.ToString(), 4U)));
             }
 
             private static IEnumerable<Bits> Sizes()
@@ -548,7 +550,7 @@ namespace Symbolica.Computation
 
         private sealed class TruncateTestData : TheoryData<Bits,
             ConstantUnsigned,
-            SymbolicBitVector>
+            SymbolicInteger>
         {
             public TruncateTestData()
             {
@@ -556,7 +558,7 @@ namespace Symbolica.Computation
                 foreach (var value in Values())
                     Add(size,
                         ConstantUnsigned.Create((Bits) 4U, value),
-                        new SymbolicBitVector((Bits) 4U, c => c.MkBV(value.ToString(), 4U)));
+                        new SymbolicInteger((Bits) 4U, c => c.MkBV(value.ToString(), 4U)));
             }
 
             private static IEnumerable<Bits> Sizes()
@@ -572,7 +574,7 @@ namespace Symbolica.Computation
 
         private sealed class ToFloatTestData : TheoryData<Bits,
             ConstantUnsigned,
-            SymbolicBitVector>
+            SymbolicInteger>
         {
             public ToFloatTestData()
             {
@@ -580,7 +582,7 @@ namespace Symbolica.Computation
                 foreach (var value in Values())
                     Add(size,
                         ConstantUnsigned.Create((Bits) 32U, value),
-                        new SymbolicBitVector((Bits) 32U, c => c.MkBV(value.ToString(), 32U)));
+                        new SymbolicInteger((Bits) 32U, c => c.MkBV(value.ToString(), 32U)));
             }
 
             private static IEnumerable<Bits> Sizes()

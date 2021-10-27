@@ -42,7 +42,7 @@ namespace Symbolica.Computation
 
         public IUnsigned AsUnsigned()
         {
-            return new SymbolicBitVector(Size, c => c.MkFPToIEEEBV(Symbolic(c)));
+            return new SymbolicInteger(Size, c => c.MkFPToIEEEBV(Symbolic(c)));
         }
 
         public ISigned AsSigned()
@@ -154,12 +154,12 @@ namespace Symbolica.Computation
 
         public ISigned ToSigned(Bits size)
         {
-            return new SymbolicBitVector(size, c => c.MkFPToBV(c.MkFPRTZ(), Symbolic(c), (uint) size, true));
+            return new SymbolicInteger(size, c => c.MkFPToBV(c.MkFPRTZ(), Symbolic(c), (uint) size, true));
         }
 
         public IUnsigned ToUnsigned(Bits size)
         {
-            return new SymbolicBitVector(size, c => c.MkFPToBV(c.MkFPRTZ(), Symbolic(c), (uint) size, false));
+            return new SymbolicInteger(size, c => c.MkFPToBV(c.MkFPRTZ(), Symbolic(c), (uint) size, false));
         }
 
         public IBool Unordered(IFloat value)

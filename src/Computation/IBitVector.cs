@@ -4,7 +4,7 @@ namespace Symbolica.Computation
 {
     internal interface IBitVector : IValue
     {
-        IBitVector Read(IUnsigned offset, Bits size);
-        IBitVector Write(IUnsigned offset, IBitVector value);
+        IValue Read(IUnsigned offset, Bits size);
+        IValue Write(IUnsigned offset, IBitVector value);
     }
 }
