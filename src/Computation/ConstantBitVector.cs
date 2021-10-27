@@ -62,21 +62,21 @@ namespace Symbolica.Computation
             return new SymbolicInteger(Size, AsUnsigned().Symbolic).IfElse(predicate, falseValue);
         }
 
-        public IBitVector Read(IUnsigned offset, Bits size)
+        public IValue Read(IUnsigned offset, Bits size)
         {
             return Size == offset.Size
                 ? offset is IConstantInteger co
                     ? new ConstantBitVector(size, Constant.GetRange(GetIndex(co), GetCount(size)))
-                    : new SymbolicInteger(Size, AsUnsigned().Symbolic).Read(offset, size)
+                    : SymbolicBitVector.Create(AsUnsigned()).Read(offset, size)
                 : throw new InconsistentExpressionSizesException(Size, offset.Size);
         }
 
-        public IBitVector Write(IUnsigned offset, IBitVector value)
+        public IValue Write(IUnsigned offset, IBitVector value)
         {
             return Size == offset.Size
                 ? offset is IConstantInteger co && value is IConstantBitVector cv
                     ? new ConstantBitVector(Size, Constant.SetRange(GetIndex(co), cv.Constant))
-                    : new SymbolicInteger(Size, AsUnsigned().Symbolic).Write(offset, value)
+                    : SymbolicBitVector.Create(AsUnsigned()).Write(offset, value)
                 : throw new InconsistentExpressionSizesException(Size, offset.Size);
         }
 

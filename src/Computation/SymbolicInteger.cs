@@ -7,7 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal sealed class SymbolicInteger : IBitVector, ISigned, IUnsigned
+    internal sealed class SymbolicInteger : ISigned, IUnsigned
     {
         public SymbolicInteger(Bits size, Func<Context, BitVecExpr> symbolic)
         {
@@ -40,7 +40,7 @@ namespace Symbolica.Computation
 
         public IBitVector AsBitVector(ICollectionFactory collectionFactory)
         {
-            return this;
+            return SymbolicBitVector.Create(this);
         }
 
         public IUnsigned AsUnsigned()
@@ -66,27 +66,6 @@ namespace Symbolica.Computation
         public IValue IfElse(IBool predicate, IValue falseValue)
         {
             return Create(falseValue.AsUnsigned(), (c, t, f) => (BitVecExpr) c.MkITE(predicate.Symbolic(c), t, f));
-        }
-
-        public IBitVector Read(IUnsigned offset, Bits size)
-        {
-            return new SymbolicInteger(size, LogicalShiftRight(offset).Truncate(size).Symbolic);
-        }
-
-        public IBitVector Write(IUnsigned offset, IBitVector value)
-        {
-            var mask = ConstantUnsigned.Create(value.Size, BigInteger.Zero)
-                .Not()
-                .ZeroExtend(Size)
-                .ShiftLeft(offset)
-                .Not();
-
-            var data = value
-                .AsUnsigned()
-                .ZeroExtend(Size)
-                .ShiftLeft(offset);
-
-            return new SymbolicInteger(Size, And(mask).Or(data).AsUnsigned().Symbolic);
         }
 
         public Func<Context, BitVecExpr> Symbolic { get; }

@@ -134,7 +134,8 @@ namespace Symbolica.Computation
 
             var constant = constantBuffer.AsBitVector(collectionFactory)
                 .Read(constantOffset, size).AsConstant(Context);
-            var symbolic = symbolicBuffer.Read(symbolicOffset, size).AsConstant(Context);
+            var symbolic = symbolicBuffer.AsBitVector(collectionFactory)
+                .Read(symbolicOffset, size).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
@@ -377,7 +378,8 @@ namespace Symbolica.Computation
 
             var constant = constantBuffer.AsBitVector(collectionFactory)
                 .Write(constantOffset, constantValue.AsBitVector(collectionFactory)).AsConstant(Context);
-            var symbolic = symbolicBuffer.Write(symbolicOffset, symbolicValue).AsConstant(Context);
+            var symbolic = symbolicBuffer.AsBitVector(collectionFactory)
+                .Write(symbolicOffset, symbolicValue.AsBitVector(collectionFactory)).AsConstant(Context);
 
             constant.Should().Be(symbolic);
         }
