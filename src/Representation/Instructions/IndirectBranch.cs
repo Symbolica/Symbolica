@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Numerics;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Instructions
 {
@@ -18,12 +19,29 @@ namespace Symbolica.Representation.Instructions
         {
             var successorId = _operands[0].Evaluate(state);
 
-            state.ForkAll(successorId, (s, v) => Execute(s, (BasicBlockId) (ulong) v));
+            state.ForkAll(successorId, new TransferByIdAction());
         }
 
-        private static void Execute(IState state, BasicBlockId successorId)
+        private class TransferByIdAction : IForkAllAction
         {
-            state.Stack.TransferBasicBlock(successorId);
+            public IStateAction Run(BigInteger value) =>
+                new TransferBasicBlock((BasicBlockId)(ulong)value);
+        }
+
+        private class TransferBasicBlock : IStateAction
+        {
+            private readonly BasicBlockId _successorId;
+
+            public TransferBasicBlock(BasicBlockId successorId)
+            {
+                _successorId = successorId;
+            }
+
+            public Unit Run(IState state)
+            {
+                state.Stack.TransferBasicBlock(_successorId);
+                return new Unit();
+            }
         }
     }
 }

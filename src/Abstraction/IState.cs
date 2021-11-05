@@ -1,8 +1,10 @@
-﻿using System;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Abstraction
 {
+    public interface IStateAction : IFunc<IState, Unit>
+    { }
+
     public interface IState
     {
         ISpace Space { get; }
@@ -13,6 +15,6 @@ namespace Symbolica.Abstraction
         IFunction GetFunction(FunctionId id);
         IExpression GetGlobalAddress(GlobalId id);
         void Complete();
-        void Fork(IExpression condition, Action<IState> trueAction, Action<IState> falseAction);
+        void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction);
     }
 }

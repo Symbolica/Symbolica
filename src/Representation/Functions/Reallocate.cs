@@ -20,28 +20,97 @@ namespace Symbolica.Representation.Functions
             var address = arguments.Get(0);
             var size = arguments.Get(1);
 
-            state.ForkAll(size, (s, v) => Call(s, caller, address, (Bytes) (uint) v));
+            state.ForkAll(size, new CallValueAction(caller.Id, address));
         }
 
-        private static void Call(IState state, ICaller caller, IExpression address, Bytes size)
+        private class CallValueAction : IForkAllAction
         {
-            if (size == Bytes.Zero)
-                FreeMemory(state, caller, address);
-            else
-                AllocateMemory(state, caller, address, size.ToBits());
+            private readonly InstructionId _callerId;
+            private readonly IExpression _address;
+
+            public CallValueAction(InstructionId callerId, IExpression address)
+            {
+                _callerId = callerId;
+                _address = address;
+            }
+
+            public IStateAction Run(BigInteger value) =>
+                new CallAction(_callerId, _address, (Bytes)(uint)value);
         }
 
-        private static void FreeMemory(IState state, ICaller caller, IExpression address)
+        private class CallAction : IStateAction
         {
-            state.Memory.Free(address);
-            state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(address.Size, BigInteger.Zero));
+            private readonly InstructionId _callerId;
+            private readonly IExpression _address;
+            private readonly Bytes _size;
+
+            public CallAction(InstructionId callerId, IExpression address, Bytes size)
+            {
+                _callerId = callerId;
+                _address = address;
+                _size = size;
+            }
+
+            public Unit Run(IState state)
+            {
+                if (_size == Bytes.Zero)
+                    FreeMemory(state);
+                else
+                    AllocateMemory(state, _size.ToBits());
+
+                return new Unit();
+            }
+
+            private void FreeMemory(IState state)
+            {
+                state.Memory.Free(_address);
+                state.Stack.SetVariable(_callerId, state.Space.CreateConstant(_address.Size, BigInteger.Zero));
+            }
+
+            private void AllocateMemory(IState state, Bits size)
+            {
+                state.Fork(_address, new Move(_callerId, _address, size), new Allocate(_callerId, size));
+            }
         }
 
-        private static void AllocateMemory(IState state, ICaller caller, IExpression address, Bits size)
+        private class Move : IStateAction
         {
-            state.Fork(address,
-                s => s.Stack.SetVariable(caller.Id, s.Memory.Move(address, size)),
-                s => s.Stack.SetVariable(caller.Id, s.Memory.Allocate(size)));
+            private readonly InstructionId _callerId;
+            private readonly IExpression _address;
+            private readonly Bits _size;
+
+
+            public Move(InstructionId callerId, IExpression address, Bits size)
+            {
+                _callerId = callerId;
+                _address = address;
+                _size = size;
+            }
+
+            public Unit Run(IState state)
+            {
+                state.Stack.SetVariable(_callerId, state.Memory.Move(_address, _size));
+                return new Unit();
+            }
+        }
+
+        private class Allocate : IStateAction
+        {
+            private readonly InstructionId _callerId;
+            private readonly Bits _size;
+
+
+            public Allocate(InstructionId callerId, Bits size)
+            {
+                _callerId = callerId;
+                _size = size;
+            }
+
+            public Unit Run(IState state)
+            {
+                state.Stack.SetVariable(_callerId, state.Memory.Allocate(_size));
+                return new Unit();
+            }
         }
     }
 }

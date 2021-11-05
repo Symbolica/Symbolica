@@ -19,34 +19,73 @@ namespace Symbolica.Representation.Instructions
         {
             var expression = _operands[0].Evaluate(state);
 
-            Execute(state, expression, 2);
+            new ExecuteSwitch(_operands, expression, 2).Run(state);
         }
 
-        private void Execute(IState state, IExpression expression, int index)
+        private class Transfer : IStateAction
         {
-            if (index < _operands.Length)
-                Transfer(state, expression, index);
-            else
-                TransferDefault(state);
+            private readonly IOperand[] _operands;
+            private readonly IExpression _expression;
+            private readonly int _index;
+
+            public Transfer(IOperand[] operands, IExpression expression, int index)
+            {
+                _operands = operands;
+                _expression = expression;
+                _index = index;
+            }
+
+            public Unit Run(IState state)
+            {
+                var value = _operands[_index].Evaluate(state);
+                var successorId = (BasicBlockId)(ulong)_operands[_index + 1].Evaluate(state).Constant;
+
+                var isEqual = _expression.Equal(value);
+
+                state.Fork(isEqual,
+                    new TransferBasicBlock(successorId),
+                    new ExecuteSwitch(_operands, _expression, _index + 2));
+                return new Unit();
+            }
         }
 
-        private void Transfer(IState state, IExpression expression, int index)
+        private class ExecuteSwitch : IStateAction
         {
-            var value = _operands[index].Evaluate(state);
-            var successorId = (BasicBlockId) (ulong) _operands[index + 1].Evaluate(state).Constant;
+            private readonly IOperand[] _operands;
+            private readonly IExpression _expression;
+            private readonly int _index;
 
-            var isEqual = expression.Equal(value);
+            public ExecuteSwitch(IOperand[] operands, IExpression expression, int index)
+            {
+                _operands = operands;
+                _expression = expression;
+                _index = index;
+            }
 
-            state.Fork(isEqual,
-                s => s.Stack.TransferBasicBlock(successorId),
-                s => Execute(s, expression, index + 2));
+            public Unit Run(IState state)
+            {
+                if (_index < _operands.Length)
+                    new Transfer(_operands, _expression, _index).Run(state);
+                else
+                    new TransferBasicBlock((BasicBlockId)(ulong)_operands[1].Evaluate(state).Constant).Run(state);
+                return new Unit();
+            }
         }
 
-        private void TransferDefault(IState state)
+        private class TransferBasicBlock : IStateAction
         {
-            var successorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).Constant;
+            private readonly BasicBlockId _successorId;
 
-            state.Stack.TransferBasicBlock(successorId);
+            public TransferBasicBlock(BasicBlockId successorId)
+            {
+                _successorId = successorId;
+            }
+
+            public Unit Run(IState state)
+            {
+                state.Stack.TransferBasicBlock(_successorId);
+                return new Unit();
+            }
         }
     }
 }

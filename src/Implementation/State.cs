@@ -1,4 +1,3 @@
-﻿using System;
 using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -11,7 +10,7 @@ namespace Symbolica.Implementation
     internal sealed class State : IState, IExecutable
     {
         private readonly List<IExecutable> _forks;
-        private readonly Action<IState> _initialAction;
+        private readonly IStateAction _initialAction;
         private readonly IMemoryProxy _memory;
         private readonly IModule _module;
         private readonly IStackProxy _stack;
@@ -19,7 +18,7 @@ namespace Symbolica.Implementation
         private IPersistentGlobals _globals;
         private bool _isActive;
 
-        public State(Action<IState> initialAction, IModule module, ISpace space,
+        public State(IStateAction initialAction, IModule module, ISpace space,
             IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
         {
             _forks = new List<IExecutable>();
@@ -35,7 +34,7 @@ namespace Symbolica.Implementation
 
         public IEnumerable<IExecutable> Run()
         {
-            _initialAction(this);
+            _initialAction.Run(this);
 
             while (_isActive)
                 _stack.ExecuteNextInstruction(this);
@@ -67,7 +66,7 @@ namespace Symbolica.Implementation
             _isActive = false;
         }
 
-        public void Fork(IExpression condition, Action<IState> trueAction, Action<IState> falseAction)
+        public void Fork(IExpression condition, IStateAction trueProgram, IStateAction falseProgram)
         {
             using var proposition = condition.GetProposition(Space);
 
@@ -75,22 +74,22 @@ namespace Symbolica.Implementation
             {
                 if (proposition.CanBeTrue)
                 {
-                    _forks.Add(Clone(proposition.FalseSpace, falseAction));
-                    _forks.Add(Clone(proposition.TrueSpace, trueAction));
+                    _forks.Add(Clone(proposition.FalseSpace, falseProgram));
+                    _forks.Add(Clone(proposition.TrueSpace, trueProgram));
                     Complete();
                 }
                 else
                 {
-                    falseAction(this);
+                    falseProgram.Run(this);
                 }
             }
             else
             {
-                trueAction(this);
+                trueProgram.Run(this);
             }
         }
 
-        private State Clone(ISpace space, Action<IState> initialAction)
+        private State Clone(ISpace space, IStateAction initialAction)
         {
             var memory = _memory.Clone(space);
             var stack = _stack.Clone(space, memory);
