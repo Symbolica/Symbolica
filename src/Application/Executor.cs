@@ -24,18 +24,17 @@ namespace Symbolica.Application
         {
             var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
-            using var programPool = new ProgramPool();
-            programPool.Add(CreateProgramFactory().CreateInitial(programPool, module, _options));
-
-            await programPool.Wait();
-        }
-
-        private static ProgramFactory CreateProgramFactory()
-        {
             var collectionFactory = new CollectionFactory();
-            var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
 
-            return new ProgramFactory(CreateFileSystem(), spaceFactory, collectionFactory);
+            using var statePool = new StatePool();
+            statePool.Add(
+                new ExecutableFactory(
+                    CreateFileSystem(),
+                    new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory),
+                    collectionFactory)
+                .CreateInitial(module, _options));
+
+            await statePool.Wait();
         }
 
         private static IFileSystem CreateFileSystem()

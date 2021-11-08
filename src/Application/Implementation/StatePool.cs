@@ -6,12 +6,12 @@ using Symbolica.Implementation;
 
 namespace Symbolica.Application.Implementation
 {
-    internal sealed class ProgramPool : IProgramPool, IDisposable
+    internal sealed class StatePool : IDisposable
     {
         private readonly CountdownEvent _countdownEvent;
         private Exception? _exception;
 
-        public ProgramPool()
+        public StatePool()
         {
             _countdownEvent = new CountdownEvent(1);
             _exception = null;
@@ -22,7 +22,7 @@ namespace Symbolica.Application.Implementation
             _countdownEvent.Dispose();
         }
 
-        public void Add(IProgram program)
+        public void Add(IExecutable executable)
         {
             _countdownEvent.AddCount();
 
@@ -30,8 +30,12 @@ namespace Symbolica.Application.Implementation
             {
                 try
                 {
-                    while (_exception == null && program.TryExecuteNextInstruction())
+                    foreach (var child in executable.Run())
                     {
+                        if (_exception == null)
+                        {
+                            Add(child);
+                        }
                     }
                 }
                 catch (Exception exception)
