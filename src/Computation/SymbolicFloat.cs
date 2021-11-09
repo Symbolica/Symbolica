@@ -16,13 +16,14 @@ namespace Symbolica.Computation
 
         public Bits Size { get; }
 
-        public BigInteger AsConstant(Context context)
+        public BigInteger AsConstant(IContextFactory contextFactory)
         {
-            var expr = Symbolic(context).Simplify();
+            using var handle = contextFactory.Create();
+            var expr = Symbolic(handle.Context).Simplify();
 
             return expr.IsFPNaN
-                ? Size.GetNan(context)
-                : AsUnsigned().AsConstant(context);
+                ? Size.GetNan(handle.Context)
+                : AsUnsigned().AsConstant(contextFactory);
         }
 
         public IValue GetValue(IPersistentSpace space, IBool[] constraints)

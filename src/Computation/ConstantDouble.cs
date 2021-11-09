@@ -16,9 +16,9 @@ namespace Symbolica.Computation
         public double Constant { get; }
         public Bits Size => (Bits) 64U;
 
-        public BigInteger AsConstant(Context context)
+        public BigInteger AsConstant(IContextFactory contextFactory)
         {
-            return AsUnsigned().AsConstant(context);
+            return AsUnsigned().AsConstant(contextFactory);
         }
 
         public IValue GetValue(IPersistentSpace space, IBool[] constraints)

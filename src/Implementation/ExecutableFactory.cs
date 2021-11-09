@@ -15,7 +15,8 @@ namespace Symbolica.Implementation
         private readonly IFileSystem _fileSystem;
         private readonly ISpaceFactory _spaceFactory;
 
-        public ExecutableFactory(IFileSystem fileSystem, ISpaceFactory spaceFactory, ICollectionFactory collectionFactory)
+        public ExecutableFactory(
+            IFileSystem fileSystem, ISpaceFactory spaceFactory, ICollectionFactory collectionFactory)
         {
             _fileSystem = fileSystem;
             _spaceFactory = spaceFactory;
@@ -31,7 +32,8 @@ namespace Symbolica.Implementation
             var stack = new StackProxy(space, memory, CreateStack(module, options));
             var system = new SystemProxy(space, memory, CreateSystem(module));
 
-            return new State(_ => { }, module, space, globals, memory, stack, system);
+            return new State(_ => { }, module, space,
+                globals, memory, stack, system);
         }
 
         private IPersistentMemory CreateMemory(IModule module, Options options)

@@ -8,7 +8,7 @@ namespace Symbolica.Computation
 {
     public class FloatParserTests
     {
-        private static readonly Context Context = new();
+        private static readonly IContextFactory ContextFactory = new SharedContextFactory();
 
         [Theory]
         [InlineData("0")]
@@ -36,9 +36,10 @@ namespace Symbolica.Computation
         [InlineData("3.402823466E+38")]
         private void ShouldCreateEquivalentRepresentationForSinglePrecision(string value)
         {
-            var expr = FloatParser.ParseNormal(Context, (Bits) 32U, value);
+            using var handle = ContextFactory.Create();
+            var expr = FloatParser.ParseNormal(handle.Context, (Bits) 32U, value);
 
-            var actual = BitConverter.GetBytes(((BitVecNum) Context.MkFPToIEEEBV(expr).Simplify()).UInt);
+            var actual = BitConverter.GetBytes(((BitVecNum) handle.Context.MkFPToIEEEBV(expr).Simplify()).UInt);
             var expected = BitConverter.GetBytes(float.Parse(value));
 
             actual.Should().BeEquivalentTo(expected);
@@ -70,9 +71,10 @@ namespace Symbolica.Computation
         [InlineData("1.7976931348623158E+308")]
         private void ShouldCreateEquivalentRepresentationForDoublePrecision(string value)
         {
-            var expr = FloatParser.ParseNormal(Context, (Bits) 64U, value);
+            using var handle = ContextFactory.Create();
+            var expr = FloatParser.ParseNormal(handle.Context, (Bits) 64U, value);
 
-            var actual = BitConverter.GetBytes(((BitVecNum) Context.MkFPToIEEEBV(expr).Simplify()).UInt64);
+            var actual = BitConverter.GetBytes(((BitVecNum) handle.Context.MkFPToIEEEBV(expr).Simplify()).UInt64);
             var expected = BitConverter.GetBytes(double.Parse(value));
 
             actual.Should().BeEquivalentTo(expected);

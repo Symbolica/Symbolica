@@ -15,7 +15,7 @@ namespace Symbolica.Computation
 
         public Bits Size => Bits.One;
 
-        public BigInteger AsConstant(Context context)
+        public BigInteger AsConstant(IContextFactory contextFactory)
         {
             return Constant ? BigInteger.One : BigInteger.Zero;
         }

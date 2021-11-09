@@ -6,6 +6,6 @@ namespace Symbolica.Computation
 {
     public interface IModelFactory
     {
-        IModel Create(IEnumerable<Func<Context, BoolExpr>> assertions);
+        IModel Create(IContextFactory contextFactory, IEnumerable<Func<Context, BoolExpr>> assertions);
     }
 }
