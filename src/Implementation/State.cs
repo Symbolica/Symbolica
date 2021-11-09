@@ -10,26 +10,38 @@ namespace Symbolica.Implementation
 {
     internal sealed class State : IState, IExecutable
     {
+        private List<IExecutable> _forks;
         private readonly Action<IState> _initialAction;
         private readonly IMemoryProxy _memory;
         private readonly IModule _module;
         private readonly IStackProxy _stack;
         private readonly ISystemProxy _system;
         private IPersistentGlobals _globals;
-        private bool _isComplete;
-        private List<IExecutable> _forks = new();
+        private bool _isActive;
 
         public State(Action<IState> initialAction, IModule module, ISpace space,
             IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
         {
+            _forks = new();
+            _isActive = true;
             _initialAction = initialAction;
-            _isComplete = false;
             _module = module;
             Space = space;
             _globals = globals;
             _memory = memory;
             _stack = stack;
             _system = system;
+        }
+
+        public IEnumerable<IExecutable> Run()
+        {
+            _initialAction(this);
+
+            while (_isActive)
+            {
+                _stack.ExecuteNextInstruction(this);
+            }
+            return _forks;
         }
 
         public ISpace Space { get; }
@@ -40,17 +52,6 @@ namespace Symbolica.Implementation
         public IFunction GetFunction(FunctionId id)
         {
             return _module.GetFunction(id);
-        }
-
-        public IEnumerable<IExecutable> Run()
-        {
-            _initialAction(this);
-
-            while (!_isComplete)
-            {
-                _stack.ExecuteNextInstruction(this);
-            }
-            return _forks;
         }
 
         public IExpression GetGlobalAddress(GlobalId id)
@@ -64,7 +65,7 @@ namespace Symbolica.Implementation
 
         public void Complete()
         {
-            _isComplete = true;
+            _isActive = false;
         }
 
         public void Fork(IExpression condition, Action<IState> trueAction, Action<IState> falseAction)
@@ -93,14 +94,10 @@ namespace Symbolica.Implementation
         private State Clone(ISpace space, Action<IState> initialAction)
         {
             var memory = _memory.Clone(space);
-            return new(
-                initialAction,
-                _module,
-                space,
-                _globals,
-                memory,
-                _stack.Clone(space, memory),
-                _system.Clone(space, memory));
+            var stack = _stack.Clone(space, memory);
+            var system = _system.Clone(space, memory);
+            return new(initialAction, _module, space,
+                _globals, memory, stack, system);
         }
     }
 }
