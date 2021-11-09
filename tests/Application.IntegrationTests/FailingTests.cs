@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Symbolica.Abstraction;
-using Symbolica.Application.Computation;
 using Symbolica.Implementation;
 using Xunit;
 
@@ -18,8 +17,10 @@ namespace Symbolica.Application
         private async Task ShouldFail(string directory, string optimization, Options options,
             StateError error, string[] symbols)
         {
+            using var spaceFactory = new SpaceFactoryProxy();
+
             var bytes = await Serializer.Serialize(directory, optimization);
-            var executor = new Executor(new ContextFactory(), options);
+            var executor = new Executor(spaceFactory, options);
 
             executor.Awaiting(e => e.Run(bytes)).Should().Throw<StateException>()
                 .Where(e => e.Error == error)
