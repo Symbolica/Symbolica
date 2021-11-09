@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Symbolica.Abstraction;
-using Symbolica.Application.Computation;
 using Symbolica.Implementation;
 using Xunit;
 
@@ -19,7 +18,7 @@ namespace Symbolica.Application
             StateError error, string[] symbols)
         {
             var bytes = await Serializer.Serialize(directory, optimization);
-            var executor = new Executor(new ContextFactory(), options);
+            var executor = new Executor(new PooledContextFactory(), options);
 
             executor.Awaiting(e => e.Run(bytes)).Should().Throw<StateException>()
                 .Where(e => e.Error == error)

@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Symbolica.Application.Computation;
 using Symbolica.Implementation;
 using Xunit;
 
@@ -16,7 +15,7 @@ namespace Symbolica.Application
         private async Task ShouldPass(string directory, string optimization, Options options)
         {
             var bytes = await Serializer.Serialize(directory, optimization);
-            var executor = new Executor(new ContextFactory(), options);
+            var executor = new Executor(new PooledContextFactory(), options);
 
             executor.Awaiting(e => e.Run(bytes)).Should().NotThrow();
         }
