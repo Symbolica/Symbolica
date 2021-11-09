@@ -1,5 +1,4 @@
 ﻿using Symbolica.Abstraction;
-using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions
 {
@@ -18,28 +17,7 @@ namespace Symbolica.Representation.Functions
         {
             var address = arguments.Get(0);
 
-            state.Fork(address, new FreeMemory(address), new NoOp());
-        }
-
-        private class FreeMemory : IStateAction
-        {
-            private readonly IExpression _address;
-
-            public FreeMemory(IExpression address)
-            {
-                _address = address;
-            }
-
-            public Unit Run(IState state)
-            {
-                state.Memory.Free(_address);
-                return new Unit();
-            }
-        }
-
-        private class NoOp : IStateAction
-        {
-            public Unit Run(IState state) => new Unit();
+            state.Fork(address, new StateActions.FreeMemory(address), new NoOp<IState>());
         }
     }
 }

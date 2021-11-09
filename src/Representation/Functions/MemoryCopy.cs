@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
-using Symbolica.Expression;
+﻿using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
@@ -29,43 +27,7 @@ namespace Symbolica.Representation.Functions
             if (proposition.CanBeTrue)
                 throw new StateException(StateError.OverlappingMemoryCopy, state.Space);
 
-            state.ForkAll(length, new CallAction(destination, source));
-        }
-
-        private class CallAction : IForkAllAction
-        {
-            private readonly IExpression _destination;
-            private readonly IExpression _source;
-
-            public CallAction(IExpression destination, IExpression source)
-            {
-                _destination = destination;
-                _source = source;
-            }
-
-            public IStateAction Run(BigInteger value) =>
-                new Write(_destination, _source, (Bytes)(uint)value);
-        }
-
-        private class Write : IStateAction
-        {
-            private readonly IExpression _source;
-            private readonly IExpression _destination;
-            private readonly Bytes _length;
-
-            public Write(IExpression destination, IExpression source, Bytes length)
-            {
-                _source = source;
-                _destination = destination;
-                _length = length;
-            }
-
-            public Unit Run(IState state)
-            {
-                if (_length != Bytes.Zero)
-                    state.Memory.Write(_destination, state.Memory.Read(_source, _length.ToBits()));
-                return new Unit();
-            }
+            state.ForkAll(length, new StateActions.CopyMemoryOfLength(destination, source));
         }
     }
 }

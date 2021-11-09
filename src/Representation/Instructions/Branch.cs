@@ -36,24 +36,8 @@ namespace Symbolica.Representation.Instructions
             var trueSuccessorId = (BasicBlockId)(ulong)_operands[2].Evaluate(state).Constant;
 
             state.Fork(condition,
-                new TransferBasicBlock(trueSuccessorId),
-                new TransferBasicBlock(falseSuccessorId));
-        }
-
-        private class TransferBasicBlock : IStateAction
-        {
-            private readonly BasicBlockId _successorId;
-
-            public TransferBasicBlock(BasicBlockId successorId)
-            {
-                _successorId = successorId;
-            }
-
-            public Unit Run(IState state)
-            {
-                state.Stack.TransferBasicBlock(_successorId);
-                return new Unit();
-            }
+                new StateActions.TransferBasicBlock(trueSuccessorId),
+                new StateActions.TransferBasicBlock(falseSuccessorId));
         }
     }
 }
