@@ -1,22 +1,21 @@
 ﻿using System.Numerics;
-using Microsoft.Z3;
 
 namespace Symbolica.Computation
 {
     internal static class FloatExtensions
     {
-        public static BigInteger AsSingleNanNormalizedConstant(this IFloat self, Context context)
+        public static BigInteger AsSingleNanNormalizedConstant(this IFloat self, IContextFactory contextFactory)
         {
-            return self.NotEqual(self).AsConstant(context).IsZero
-                ? self.AsConstant(context)
-                : new ConstantSingle(float.NaN).AsConstant(context);
+            return self.NotEqual(self).AsConstant(contextFactory).IsZero
+                ? self.AsConstant(contextFactory)
+                : new ConstantSingle(float.NaN).AsConstant(contextFactory);
         }
 
-        public static BigInteger AsDoubleNanNormalizedConstant(this IFloat self, Context context)
+        public static BigInteger AsDoubleNanNormalizedConstant(this IFloat self, IContextFactory contextFactory)
         {
-            return self.NotEqual(self).AsConstant(context).IsZero
-                ? self.AsConstant(context)
-                : new ConstantDouble(double.NaN).AsConstant(context);
+            return self.NotEqual(self).AsConstant(contextFactory).IsZero
+                ? self.AsConstant(contextFactory)
+                : new ConstantDouble(double.NaN).AsConstant(contextFactory);
         }
     }
 }

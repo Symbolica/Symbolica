@@ -17,9 +17,10 @@ namespace Symbolica.Computation
 
         public Bits Size { get; }
 
-        public BigInteger AsConstant(Context context)
+        public BigInteger AsConstant(IContextFactory contextFactory)
         {
-            var expr = Symbolic(context).Simplify();
+            using var handle = contextFactory.Create();
+            var expr = Symbolic(handle.Context).Simplify();
 
             return expr.IsNumeral
                 ? ((BitVecNum) expr).BigInteger

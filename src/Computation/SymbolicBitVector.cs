@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
@@ -20,9 +19,9 @@ namespace Symbolica.Computation
 
         public Bits Size => _buffer.Size;
 
-        public BigInteger AsConstant(Context context)
+        public BigInteger AsConstant(IContextFactory contextFactory)
         {
-            return AsUnsigned().AsConstant(context);
+            return AsUnsigned().AsConstant(contextFactory);
         }
 
         public IValue GetValue(IPersistentSpace space, IBool[] constraints)

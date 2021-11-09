@@ -13,10 +13,12 @@ namespace Symbolica.Application
 {
     internal sealed class Executor
     {
+        private readonly IContextFactory _contextFactory;
         private readonly Options _options;
 
-        public Executor(Options options)
+        public Executor(IContextFactory contextFactory, Options options)
         {
+            _contextFactory = contextFactory;
             _options = options;
         }
 
@@ -25,7 +27,11 @@ namespace Symbolica.Application
             var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
             var collectionFactory = new CollectionFactory();
-            var spaceFactory = new SpaceFactory(new SymbolFactory(), new ModelFactory(), collectionFactory);
+
+            var spaceFactory = new SpaceFactory(
+                new SymbolFactory(), new ModelFactory(),
+                _contextFactory, collectionFactory);
+
             var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
             using var statePool = new StatePool();

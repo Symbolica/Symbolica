@@ -16,9 +16,10 @@ namespace Symbolica.Computation
 
         public Bits Size => Bits.One;
 
-        public BigInteger AsConstant(Context context)
+        public BigInteger AsConstant(IContextFactory contextFactory)
         {
-            var expr = Symbolic(context).Simplify();
+            using var handle = contextFactory.Create();
+            var expr = Symbolic(handle.Context).Simplify();
 
             return expr.IsFalse != expr.IsTrue
                 ? expr.IsTrue

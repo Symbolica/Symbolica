@@ -10,7 +10,7 @@ namespace Symbolica.Implementation
 {
     internal sealed class State : IState, IExecutable
     {
-        private List<IExecutable> _forks;
+        private readonly List<IExecutable> _forks;
         private readonly Action<IState> _initialAction;
         private readonly IMemoryProxy _memory;
         private readonly IModule _module;
@@ -22,7 +22,7 @@ namespace Symbolica.Implementation
         public State(Action<IState> initialAction, IModule module, ISpace space,
             IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
         {
-            _forks = new();
+            _forks = new List<IExecutable>();
             _isActive = true;
             _initialAction = initialAction;
             _module = module;
@@ -38,9 +38,8 @@ namespace Symbolica.Implementation
             _initialAction(this);
 
             while (_isActive)
-            {
                 _stack.ExecuteNextInstruction(this);
-            }
+
             return _forks;
         }
 
@@ -96,7 +95,8 @@ namespace Symbolica.Implementation
             var memory = _memory.Clone(space);
             var stack = _stack.Clone(space, memory);
             var system = _system.Clone(space, memory);
-            return new(initialAction, _module, space,
+
+            return new State(initialAction, _module, space,
                 _globals, memory, stack, system);
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
@@ -9,7 +8,7 @@ namespace Symbolica.Computation
     {
         Bits Size { get; }
 
-        BigInteger AsConstant(Context context);
+        BigInteger AsConstant(IContextFactory contextFactory);
         IValue GetValue(IPersistentSpace space, IBool[] constraints);
         IBitwise AsBitwise();
         IBitVector AsBitVector(ICollectionFactory collectionFactory);

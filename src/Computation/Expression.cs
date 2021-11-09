@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
@@ -13,15 +12,17 @@ namespace Symbolica.Computation
         private readonly ICollectionFactory _collectionFactory;
         private readonly Lazy<BigInteger> _constant;
         private readonly IBool[]? _constraints;
+        private readonly IContextFactory _contextFactory;
         private readonly IValue _value;
 
-        private Expression(ICollectionFactory collectionFactory,
+        private Expression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
             IValue value, IBool[]? constraints)
         {
+            _contextFactory = contextFactory;
             _collectionFactory = collectionFactory;
             _value = value;
             _constraints = constraints;
-            _constant = new Lazy<BigInteger>(GetConstant);
+            _constant = new Lazy<BigInteger>(AsConstant);
         }
 
         public Bits Size => _value.Size;
@@ -300,28 +301,20 @@ namespace Symbolica.Computation
                 : this;
         }
 
-        private BigInteger GetConstant()
-        {
-            return _value.AsUnsigned() is IConstantInteger c
-                ? c.Constant
-                : AsConstant();
-        }
-
         private BigInteger AsConstant()
         {
-            using var context = new Context();
-            return _value.AsConstant(context);
+            return _value.AsConstant(_contextFactory);
         }
 
-        public static IExpression Create(ICollectionFactory collectionFactory,
+        public static IExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,
             IValue value, IEnumerable<Func<IExpression, IExpression>>? constraints)
         {
-            var unconstrained = new Expression(collectionFactory,
+            var unconstrained = new Expression(contextFactory, collectionFactory,
                 value, null);
 
             return constraints == null
                 ? unconstrained
-                : new Expression(collectionFactory,
+                : new Expression(contextFactory, collectionFactory,
                     value, constraints
                         .Select(c => ((Expression) c(unconstrained))._value.AsBool())
                         .ToArray());
@@ -329,7 +322,7 @@ namespace Symbolica.Computation
 
         private IExpression Create(Func<IValue, IValue> func)
         {
-            return new Expression(_collectionFactory,
+            return new Expression(_contextFactory, _collectionFactory,
                 func(_value), _constraints);
         }
 
@@ -338,7 +331,7 @@ namespace Symbolica.Computation
         {
             var y = (Expression) other;
 
-            return new Expression(_collectionFactory,
+            return new Expression(_contextFactory, _collectionFactory,
                 func(_value, y._value), Concat(_constraints, y._constraints));
         }
 
@@ -348,7 +341,7 @@ namespace Symbolica.Computation
             var y = (Expression) second;
             var z = (Expression) third;
 
-            return new Expression(_collectionFactory,
+            return new Expression(_contextFactory, _collectionFactory,
                 func(_value, y._value, z._value), Concat(_constraints, Concat(y._constraints, z._constraints)));
         }
 

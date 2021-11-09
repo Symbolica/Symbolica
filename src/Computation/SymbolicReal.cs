@@ -19,7 +19,7 @@ namespace Symbolica.Computation
 
         public Bits Size { get; }
 
-        public BigInteger AsConstant(Context context)
+        public BigInteger AsConstant(IContextFactory contextFactory)
         {
             throw new UnsupportedSymbolicArithmeticException();
         }
