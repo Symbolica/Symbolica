@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -7,21 +8,23 @@ using Symbolica.Implementation.System;
 
 namespace Symbolica.Implementation
 {
-    internal sealed class State : IState, IExecutableState
+    internal sealed class State : IState, IExecutable
     {
+        private List<IExecutable> _forks;
+        private readonly Action<IState> _initialAction;
         private readonly IMemoryProxy _memory;
         private readonly IModule _module;
-        private readonly IProgramPool _programPool;
         private readonly IStackProxy _stack;
         private readonly ISystemProxy _system;
         private IPersistentGlobals _globals;
-        private bool _isComplete;
+        private bool _isActive;
 
-        public State(IProgramPool programPool, IModule module, ISpace space,
+        public State(Action<IState> initialAction, IModule module, ISpace space,
             IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
         {
-            _isComplete = false;
-            _programPool = programPool;
+            _forks = new();
+            _isActive = true;
+            _initialAction = initialAction;
             _module = module;
             Space = space;
             _globals = globals;
@@ -30,14 +33,15 @@ namespace Symbolica.Implementation
             _system = system;
         }
 
-        public bool TryExecuteNextInstruction()
+        public IEnumerable<IExecutable> Run()
         {
-            if (_isComplete)
-                return false;
+            _initialAction(this);
 
-            _stack.ExecuteNextInstruction(this);
-
-            return true;
+            while (_isActive)
+            {
+                _stack.ExecuteNextInstruction(this);
+            }
+            return _forks;
         }
 
         public ISpace Space { get; }
@@ -61,7 +65,7 @@ namespace Symbolica.Implementation
 
         public void Complete()
         {
-            _isComplete = true;
+            _isActive = false;
         }
 
         public void Fork(IExpression condition, Action<IState> trueAction, Action<IState> falseAction)
@@ -72,9 +76,8 @@ namespace Symbolica.Implementation
             {
                 if (proposition.CanBeTrue)
                 {
-                    Clone(proposition.FalseSpace, falseAction);
-                    Clone(proposition.TrueSpace, trueAction);
-
+                    _forks.Add(Clone(proposition.FalseSpace, falseAction));
+                    _forks.Add(Clone(proposition.TrueSpace, trueAction));
                     Complete();
                 }
                 else
@@ -88,23 +91,13 @@ namespace Symbolica.Implementation
             }
         }
 
-        private void Clone(ISpace space, Action<IState> action)
-        {
-            _programPool.Add(new Program(() => Create(space, action)));
-        }
-
-        private IExecutableState Create(ISpace space, Action<IState> action)
+        private State Clone(ISpace space, Action<IState> initialAction)
         {
             var memory = _memory.Clone(space);
             var stack = _stack.Clone(space, memory);
             var system = _system.Clone(space, memory);
-
-            var state = new State(_programPool, _module, space,
+            return new(initialAction, _module, space,
                 _globals, memory, stack, system);
-
-            action(state);
-
-            return state;
         }
     }
 }

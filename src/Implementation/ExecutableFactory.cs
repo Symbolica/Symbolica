@@ -9,20 +9,20 @@ using Symbolica.Implementation.System;
 
 namespace Symbolica.Implementation
 {
-    public sealed class ProgramFactory
+    public sealed class ExecutableFactory
     {
         private readonly ICollectionFactory _collectionFactory;
         private readonly IFileSystem _fileSystem;
         private readonly ISpaceFactory _spaceFactory;
 
-        public ProgramFactory(IFileSystem fileSystem, ISpaceFactory spaceFactory, ICollectionFactory collectionFactory)
+        public ExecutableFactory(IFileSystem fileSystem, ISpaceFactory spaceFactory, ICollectionFactory collectionFactory)
         {
             _fileSystem = fileSystem;
             _spaceFactory = spaceFactory;
             _collectionFactory = collectionFactory;
         }
 
-        public IProgram CreateInitial(IProgramPool programPool, IModule module, Options options)
+        public IExecutable CreateInitial(IModule module, Options options)
         {
             var space = _spaceFactory.CreateInitial(module.PointerSize, options.UseSymbolicGarbage);
 
@@ -31,10 +31,7 @@ namespace Symbolica.Implementation
             var stack = new StackProxy(space, memory, CreateStack(module, options));
             var system = new SystemProxy(space, memory, CreateSystem(module));
 
-            var state = new State(programPool, module, space,
-                globals, memory, stack, system);
-
-            return new Program(() => state);
+            return new State(_ => { }, module, space, globals, memory, stack, system);
         }
 
         private IPersistentMemory CreateMemory(IModule module, Options options)
