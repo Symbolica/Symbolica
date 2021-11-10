@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Symbolica.Abstraction;
-using Symbolica.Application.Computation;
 using Symbolica.Implementation;
 using Xunit;
 
@@ -19,7 +18,7 @@ namespace Symbolica.Application
             StateError error, string[] symbols)
         {
             var bytes = await Serializer.Serialize(directory, optimization);
-            var executor = new Executor(new ContextFactory(), options);
+            var executor = new Executor(new PooledContextFactory(), options);
 
             executor.Awaiting(e => e.Run(bytes)).Should().Throw<StateException>()
                 .Where(e => e.Error == error)
@@ -38,10 +37,10 @@ namespace Symbolica.Application
             private static IEnumerable<(string, string, Options, StateError, string[])> SignCases()
             {
                 return
-                    from optimization in new[] {"--Oz"}
-                    from useSymbolicGarbage in new[] {true}
-                    from useSymbolicAddresses in new[] {true}
-                    from useSymbolicContinuations in new[] {true}
+                    from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                    from useSymbolicGarbage in new[] {false, true}
+                    from useSymbolicAddresses in new[] {false, true}
+                    from useSymbolicContinuations in new[] {false, true}
                     select (
                         "sign",
                         optimization,
@@ -53,12 +52,13 @@ namespace Symbolica.Application
             private static IEnumerable<(string, string, Options, StateError, string[])> BufferCases()
             {
                 return
-                    from useSymbolicGarbage in new[] {true}
-                    from useSymbolicAddresses in new[] {true}
-                    from useSymbolicContinuations in new[] {true}
+                    from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                    from useSymbolicGarbage in new[] {false, true}
+                    from useSymbolicAddresses in new[] {false, true}
+                    from useSymbolicContinuations in new[] {false, true}
                     select (
                         "buffer",
-                        "--O0",
+                        optimization,
                         new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
                         StateError.InvalidMemoryWrite,
                         Array.Empty<string>());
@@ -67,12 +67,13 @@ namespace Symbolica.Application
             private static IEnumerable<(string, string, Options, StateError, string[])> GeometricCases()
             {
                 return
-                    from useSymbolicGarbage in new[] {true}
-                    from useSymbolicAddresses in new[] {true}
-                    from useSymbolicContinuations in new[] {true}
+                    from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                    from useSymbolicGarbage in new[] {false, true}
+                    from useSymbolicAddresses in new[] {false, true}
+                    from useSymbolicContinuations in new[] {false, true}
                     select (
                         "geometric",
-                        "--Oz",
+                        optimization,
                         new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
                         StateError.DivideByZero,
                         new[] {"n", "r"});
