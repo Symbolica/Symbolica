@@ -1,6 +1,6 @@
 ﻿namespace Symbolica.Abstraction
 {
-    public interface IAction
+    public interface IStateAction
     {
         void Invoke(IState state);
     }

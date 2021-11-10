@@ -23,7 +23,7 @@ namespace Symbolica.Representation.Functions
                 null);
         }
 
-        private sealed class FreeMemory : IAction
+        private sealed class FreeMemory : IStateAction
         {
             private readonly IExpression _address;
 

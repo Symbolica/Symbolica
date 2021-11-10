@@ -23,7 +23,7 @@ namespace Symbolica.Representation.Instructions
             action.Invoke(state);
         }
 
-        private sealed class Transfer : IAction
+        private sealed class Transfer : IStateAction
         {
             private readonly IExpression _expression;
             private readonly int _index;
@@ -64,7 +64,7 @@ namespace Symbolica.Representation.Instructions
             }
         }
 
-        private sealed class TransferBasicBlock : IAction
+        private sealed class TransferBasicBlock : IStateAction
         {
             private readonly BasicBlockId _id;
 

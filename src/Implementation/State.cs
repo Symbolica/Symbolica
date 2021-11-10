@@ -10,7 +10,7 @@ namespace Symbolica.Implementation
     internal sealed class State : IState, IExecutable
     {
         private readonly List<IExecutable> _forks;
-        private readonly IAction? _initialAction;
+        private readonly IStateAction? _initialAction;
         private readonly IMemoryProxy _memory;
         private readonly IModule _module;
         private readonly IStackProxy _stack;
@@ -18,7 +18,7 @@ namespace Symbolica.Implementation
         private IPersistentGlobals _globals;
         private bool _isActive;
 
-        public State(IAction? initialAction, IModule module, ISpace space,
+        public State(IStateAction? initialAction, IModule module, ISpace space,
             IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
         {
             _forks = new List<IExecutable>();
@@ -66,7 +66,7 @@ namespace Symbolica.Implementation
             _isActive = false;
         }
 
-        public void Fork(IExpression condition, IAction? trueAction, IAction? falseAction)
+        public void Fork(IExpression condition, IStateAction? trueAction, IStateAction? falseAction)
         {
             using var proposition = condition.GetProposition(Space);
 
@@ -89,7 +89,7 @@ namespace Symbolica.Implementation
             }
         }
 
-        private State Clone(ISpace space, IAction? initialAction)
+        private State Clone(ISpace space, IStateAction? initialAction)
         {
             var memory = _memory.Clone(space);
             var stack = _stack.Clone(space, memory);

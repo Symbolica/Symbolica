@@ -40,7 +40,7 @@ namespace Symbolica.Representation.Instructions
                 new TransferBasicBlock(falseSuccessorId));
         }
 
-        private sealed class TransferBasicBlock : IAction
+        private sealed class TransferBasicBlock : IStateAction
         {
             private readonly BasicBlockId _id;
 

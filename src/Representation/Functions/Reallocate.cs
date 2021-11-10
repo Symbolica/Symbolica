@@ -58,7 +58,7 @@ namespace Symbolica.Representation.Functions
             }
         }
 
-        private sealed class MoveMemory : IAction
+        private sealed class MoveMemory : IStateAction
         {
             private readonly IExpression _address;
             private readonly ICaller _caller;
@@ -77,7 +77,7 @@ namespace Symbolica.Representation.Functions
             }
         }
 
-        private sealed class AllocateMemory : IAction
+        private sealed class AllocateMemory : IStateAction
         {
             private readonly ICaller _caller;
             private readonly Bits _size;

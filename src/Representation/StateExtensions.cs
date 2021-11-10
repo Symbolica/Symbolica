@@ -36,7 +36,7 @@ namespace Symbolica.Representation
                 new Fork(action, expression));
         }
 
-        private sealed class Action : IAction
+        private sealed class Action : IStateAction
         {
             private readonly IPartialAction _action;
             private readonly BigInteger _value;
@@ -53,7 +53,7 @@ namespace Symbolica.Representation
             }
         }
 
-        private sealed class Fork : IAction
+        private sealed class Fork : IStateAction
         {
             private readonly IPartialAction _action;
             private readonly IExpression _expression;
