@@ -32,7 +32,7 @@ namespace Symbolica.Implementation
             var stack = new StackProxy(space, memory, CreateStack(module, options));
             var system = new SystemProxy(space, memory, CreateSystem(module));
 
-            return new State(_ => { }, module, space,
+            return new State(null, module, space,
                 globals, memory, stack, system);
         }
 

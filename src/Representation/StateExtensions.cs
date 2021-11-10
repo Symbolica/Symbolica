@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Symbolica.Abstraction;
@@ -9,16 +8,6 @@ namespace Symbolica.Representation
 {
     internal static class StateExtensions
     {
-        public static void ForkAll(this IState self, IExpression expression, Action<IState, BigInteger> action)
-        {
-            var value = expression.GetValue(self.Space);
-            var isEqual = expression.Equal(value);
-
-            self.Fork(isEqual,
-                s => action(s, value.Constant),
-                s => ForkAll(s, expression, action));
-        }
-
         public static string ReadString(this IState self, IExpression address)
         {
             return new(ReadCharacters(self, address).ToArray());
@@ -34,6 +23,50 @@ namespace Symbolica.Representation
 
                 yield return character;
                 address = address.Add(state.Space.CreateConstant(address.Size, (uint) Bytes.One));
+            }
+        }
+
+        public static void ForkAll(this IState self, IExpression expression, IPartialAction action)
+        {
+            var value = expression.GetValue(self.Space);
+            var isEqual = expression.Equal(value);
+
+            self.Fork(isEqual,
+                new Action(action, value.Constant),
+                new Fork(action, expression));
+        }
+
+        private sealed class Action : IAction
+        {
+            private readonly IPartialAction _action;
+            private readonly BigInteger _value;
+
+            public Action(IPartialAction action, BigInteger value)
+            {
+                _action = action;
+                _value = value;
+            }
+
+            public void Invoke(IState state)
+            {
+                _action.Invoke(state, _value);
+            }
+        }
+
+        private sealed class Fork : IAction
+        {
+            private readonly IPartialAction _action;
+            private readonly IExpression _expression;
+
+            public Fork(IPartialAction action, IExpression expression)
+            {
+                _action = action;
+                _expression = expression;
+            }
+
+            public void Invoke(IState state)
+            {
+                state.ForkAll(_expression, _action);
             }
         }
     }
