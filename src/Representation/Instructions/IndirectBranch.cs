@@ -22,7 +22,7 @@ namespace Symbolica.Representation.Instructions
             state.ForkAll(successorId, new TransferBasicBlock());
         }
 
-        private sealed class TransferBasicBlock : IPartialAction
+        private sealed class TransferBasicBlock : IParameterizedStateAction
         {
             public void Invoke(IState state, BigInteger value)
             {

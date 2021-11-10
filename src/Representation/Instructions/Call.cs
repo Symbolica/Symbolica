@@ -44,7 +44,7 @@ namespace Symbolica.Representation.Instructions
             state.ForkAll(target, new Dispatch(this, arguments));
         }
 
-        private sealed class Dispatch : IPartialAction
+        private sealed class Dispatch : IParameterizedStateAction
         {
             private readonly IEnumerable<IExpression> _arguments;
             private readonly Call _call;

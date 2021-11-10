@@ -26,7 +26,7 @@ namespace Symbolica.Representation
             }
         }
 
-        public static void ForkAll(this IState self, IExpression expression, IPartialAction action)
+        public static void ForkAll(this IState self, IExpression expression, IParameterizedStateAction action)
         {
             var value = expression.GetValue(self.Space);
             var isEqual = expression.Equal(value);
@@ -38,10 +38,10 @@ namespace Symbolica.Representation
 
         private sealed class Action : IStateAction
         {
-            private readonly IPartialAction _action;
+            private readonly IParameterizedStateAction _action;
             private readonly BigInteger _value;
 
-            public Action(IPartialAction action, BigInteger value)
+            public Action(IParameterizedStateAction action, BigInteger value)
             {
                 _action = action;
                 _value = value;
@@ -55,10 +55,10 @@ namespace Symbolica.Representation
 
         private sealed class Fork : IStateAction
         {
-            private readonly IPartialAction _action;
+            private readonly IParameterizedStateAction _action;
             private readonly IExpression _expression;
 
-            public Fork(IPartialAction action, IExpression expression)
+            public Fork(IParameterizedStateAction action, IExpression expression)
             {
                 _action = action;
                 _expression = expression;

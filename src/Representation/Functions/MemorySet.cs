@@ -25,7 +25,7 @@ namespace Symbolica.Representation.Functions
             state.ForkAll(length, new SetMemory(destination, value));
         }
 
-        private sealed class SetMemory : IPartialAction
+        private sealed class SetMemory : IParameterizedStateAction
         {
             private readonly IExpression _destination;
             private readonly IExpression _value;

@@ -22,7 +22,7 @@ namespace Symbolica.Representation.Functions
             state.ForkAll(size, new AllocateAndClearMemory(caller));
         }
 
-        private sealed class AllocateAndClearMemory : IPartialAction
+        private sealed class AllocateAndClearMemory : IParameterizedStateAction
         {
             private readonly ICaller _caller;
 

@@ -23,7 +23,7 @@ namespace Symbolica.Representation.Functions
             state.ForkAll(size, new ReallocateMemory(caller, address));
         }
 
-        private sealed class ReallocateMemory : IPartialAction
+        private sealed class ReallocateMemory : IParameterizedStateAction
         {
             private readonly IExpression _address;
             private readonly ICaller _caller;

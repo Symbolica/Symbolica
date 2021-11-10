@@ -24,7 +24,7 @@ namespace Symbolica.Representation.Functions
             state.ForkAll(length, new MoveMemory(destination, source));
         }
 
-        private sealed class MoveMemory : IPartialAction
+        private sealed class MoveMemory : IParameterizedStateAction
         {
             private readonly IExpression _destination;
             private readonly IExpression _source;

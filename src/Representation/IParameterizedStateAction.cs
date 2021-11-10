@@ -3,7 +3,7 @@ using Symbolica.Abstraction;
 
 namespace Symbolica.Representation
 {
-    internal interface IPartialAction
+    internal interface IParameterizedStateAction
     {
         void Invoke(IState state, BigInteger value);
     }

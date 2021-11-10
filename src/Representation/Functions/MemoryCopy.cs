@@ -32,7 +32,7 @@ namespace Symbolica.Representation.Functions
             state.ForkAll(length, new CopyMemory(destination, source));
         }
 
-        private sealed class CopyMemory : IPartialAction
+        private sealed class CopyMemory : IParameterizedStateAction
         {
             private readonly IExpression _destination;
             private readonly IExpression _source;
