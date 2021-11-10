@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
     internal interface IUnsigned : IBitwise
     {
-        Func<Context, BitVecExpr> Symbolic { get; }
+        IFunc<Context, BitVecExpr> Symbolic { get; }
 
         IUnsigned Add(IUnsigned value);
         IUnsigned Divide(IUnsigned value);

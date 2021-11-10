@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions
@@ -21,9 +20,7 @@ namespace Symbolica.Representation.Functions
 
             state.ForkAll(
                 size,
-                new MapFunc<BigInteger, IFunc<IState, IExpression>, IStateAction>(
-                    new StateActions.AllocateMemoryOfSize(),
-                    new StateActions.SetVariableFromFunc(caller.Id)));
+                new StateActions.AllocateMemoryOfSize().Map(new StateActions.SetVariableFromFunc(caller.Id)));
         }
     }
 }

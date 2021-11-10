@@ -55,10 +55,10 @@ namespace Symbolica.Computation
 
         public IFloat AsFloat()
         {
-            return (uint) Size switch
+            return (uint)Size switch
             {
-                32U => new ConstantSingle(BitConverter.Int32BitsToSingle((int) Constant)),
-                64U => new ConstantDouble(BitConverter.Int64BitsToDouble((long) Constant)),
+                32U => new ConstantSingle(BitConverter.Int32BitsToSingle((int)Constant)),
+                64U => new ConstantDouble(BitConverter.Int64BitsToDouble((long)Constant)),
                 _ => new SymbolicInteger(Size, Symbolic).AsFloat()
             };
         }
@@ -68,11 +68,11 @@ namespace Symbolica.Computation
             return new SymbolicInteger(Size, Symbolic).IfElse(predicate, falseValue);
         }
 
-        public Func<Context, BitVecExpr> Symbolic => AsUnsigned().Symbolic;
+        public IFunc<Context, BitVecExpr> Symbolic => AsUnsigned().Symbolic;
 
         public ISigned ArithmeticShiftRight(IUnsigned value)
         {
-            return Create(value, (l, r) => l.ArithmeticShiftRight(r), (l, r) => l >> (int) r);
+            return Create(value, (l, r) => l.ArithmeticShiftRight(r), (l, r) => l >> (int)r);
         }
 
         public ISigned Divide(ISigned value)
@@ -107,10 +107,10 @@ namespace Symbolica.Computation
 
         public IFloat SignedToFloat(Bits size)
         {
-            return (uint) size switch
+            return (uint)size switch
             {
-                32U => new ConstantSingle((float) Constant),
-                64U => new ConstantDouble((double) Constant),
+                32U => new ConstantSingle((float)Constant),
+                64U => new ConstantDouble((double)Constant),
                 _ => new SymbolicInteger(Size, Symbolic).SignedToFloat(size)
             };
         }
@@ -129,7 +129,7 @@ namespace Symbolica.Computation
 
         private static BigInteger Normalize(Bits size, BigInteger value)
         {
-            var msb = BigInteger.One << ((int) (uint) size - 1);
+            var msb = BigInteger.One << ((int)(uint)size - 1);
             return (value & (msb - BigInteger.One)) - (value & msb);
         }
 

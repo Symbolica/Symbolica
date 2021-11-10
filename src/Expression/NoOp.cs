@@ -1,4 +1,4 @@
-namespace Symbolica.Abstraction
+namespace Symbolica.Expression
 {
     public class NoOp<TIn, TOut> : IFunc<TIn, TOut>
     {

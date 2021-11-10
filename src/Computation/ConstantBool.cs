@@ -60,7 +60,7 @@ namespace Symbolica.Computation
             return new SymbolicBool(Symbolic).IfElse(predicate, falseValue);
         }
 
-        public Func<Context, BoolExpr> Symbolic => c => c.MkBool(Constant);
+        public IFunc<Context, BoolExpr> Symbolic => new ContextFuncs.MkBool(Constant);
 
         public IProposition GetProposition(IPersistentSpace space, IBool[] constraints)
         {

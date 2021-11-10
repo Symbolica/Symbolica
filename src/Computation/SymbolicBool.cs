@@ -9,7 +9,7 @@ namespace Symbolica.Computation
 {
     internal sealed class SymbolicBool : IBool
     {
-        public SymbolicBool(Func<Context, BoolExpr> symbolic)
+        public SymbolicBool(IFunc<Context, BoolExpr> symbolic)
         {
             Symbolic = symbolic;
         }
@@ -19,7 +19,7 @@ namespace Symbolica.Computation
         public BigInteger AsConstant(IContextFactory contextFactory)
         {
             using var handle = contextFactory.Create();
-            var expr = Symbolic(handle.Context).Simplify();
+            var expr = Symbolic.Run(handle.Context).Simplify();
 
             return expr.IsFalse != expr.IsTrue
                 ? expr.IsTrue
@@ -32,7 +32,7 @@ namespace Symbolica.Computation
         {
             using var model = space.GetModel(constraints);
 
-            return new ConstantBool(model.Evaluate(Symbolic).IsTrue);
+            return new ConstantBool(model.Evaluate(Symbolic.Run).IsTrue);
         }
 
         public IBitwise AsBitwise()
@@ -47,8 +47,12 @@ namespace Symbolica.Computation
 
         public IUnsigned AsUnsigned()
         {
-            return new SymbolicInteger(Size, c =>
-                (BitVecExpr) c.MkITE(Symbolic(c), c.MkBV(new[] {true}), c.MkBV(new[] {false})));
+            return new SymbolicInteger(
+                Size,
+                new ContextFuncs.MkITE<BitVecExpr>(
+                    Symbolic,
+                    new ContextFuncs.MkBVOfBits(new[] { true }),
+                    new ContextFuncs.MkBVOfBits(new[] { false })));
         }
 
         public ISigned AsSigned()
@@ -68,10 +72,11 @@ namespace Symbolica.Computation
 
         public IValue IfElse(IBool predicate, IValue falseValue)
         {
-            return Create(falseValue.AsBool(), (c, t, f) => (BoolExpr) c.MkITE(predicate.Symbolic(c), t, f));
+            return new SymbolicBool(
+                new ContextFuncs.MkITE<BoolExpr>(predicate.Symbolic, Symbolic, falseValue.AsBool().Symbolic));
         }
 
-        public Func<Context, BoolExpr> Symbolic { get; }
+        public IFunc<Context, BoolExpr> Symbolic { get; }
 
         public IProposition GetProposition(IPersistentSpace space, IBool[] constraints)
         {
@@ -80,27 +85,27 @@ namespace Symbolica.Computation
 
         public IBitwise And(IBitwise value)
         {
-            return Create(value.AsBool(), (c, l, r) => c.MkAnd(l, r));
+            return new SymbolicBool(new ContextFuncs.MkAnd(Symbolic, value.AsBool().Symbolic));
         }
 
         public IBool Equal(IBitwise value)
         {
-            return Create(value.AsBool(), (c, l, r) => c.MkEq(l, r));
+            return new SymbolicBool(new ContextFuncs.MkEq(Symbolic, value.AsBool().Symbolic));
         }
 
         public IBool Not()
         {
-            return new SymbolicBool(c => c.MkNot(Symbolic(c)));
+            return new SymbolicBool(new ContextFuncs.MkNot(Symbolic));
         }
 
         public IBool NotEqual(IBitwise value)
         {
-            return Create(value.AsBool(), (c, l, r) => c.MkNot(c.MkEq(l, r)));
+            return new SymbolicBool(new ContextFuncs.MkNot(new ContextFuncs.MkEq(Symbolic, value.AsBool().Symbolic)));
         }
 
         public IBitwise Or(IBitwise value)
         {
-            return Create(value.AsBool(), (c, l, r) => c.MkOr(l, r));
+            return new SymbolicBool(new ContextFuncs.MkOr(Symbolic, value.AsBool().Symbolic));
         }
 
         public IValue Select(IValue trueValue, IValue falseValue)
@@ -110,12 +115,12 @@ namespace Symbolica.Computation
 
         public IBitwise Xor(IBitwise value)
         {
-            return Create(value.AsBool(), (c, l, r) => c.MkXor(l, r));
+            return new SymbolicBool(new ContextFuncs.MkXor(Symbolic, value.AsBool().Symbolic));
         }
 
-        private SymbolicBool Create(IBool other, Func<Context, BoolExpr, BoolExpr, BoolExpr> symbolic)
+        private SymbolicBool Create(IBool other, IFunc<Context, IFunc<BoolExpr, IFunc<BoolExpr, BoolExpr>>> symbolic)
         {
-            return new(c => symbolic(c, Symbolic(c), other.Symbolic(c)));
+            return new(symbolic.Apply(Symbolic).Apply(other.Symbolic));
         }
     }
 }

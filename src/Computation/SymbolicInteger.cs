@@ -9,7 +9,7 @@ namespace Symbolica.Computation
 {
     internal sealed class SymbolicInteger : ISigned, IUnsigned
     {
-        public SymbolicInteger(Bits size, Func<Context, BitVecExpr> symbolic)
+        public SymbolicInteger(Bits size, IFunc<Context, BitVecExpr> symbolic)
         {
             Size = size;
             Symbolic = symbolic;
@@ -20,10 +20,10 @@ namespace Symbolica.Computation
         public BigInteger AsConstant(IContextFactory contextFactory)
         {
             using var handle = contextFactory.Create();
-            var expr = Symbolic(handle.Context).Simplify();
+            var expr = Symbolic.Run(handle.Context).Simplify();
 
             return expr.IsNumeral
-                ? ((BitVecNum) expr).BigInteger
+                ? ((BitVecNum)expr).BigInteger
                 : throw new IrreducibleSymbolicExpressionException();
         }
 
@@ -31,7 +31,7 @@ namespace Symbolica.Computation
         {
             using var model = space.GetModel(constraints);
 
-            return ConstantUnsigned.Create(Size, ((BitVecNum) model.Evaluate(Symbolic)).BigInteger);
+            return ConstantUnsigned.Create(Size, ((BitVecNum)model.Evaluate(Symbolic.Run)).BigInteger);
         }
 
         public IBitwise AsBitwise()
@@ -56,184 +56,184 @@ namespace Symbolica.Computation
 
         public IBool AsBool()
         {
-            return new SymbolicBool(c => c.MkNot(c.MkEq(Symbolic(c), c.MkBV(0U, (uint) Size))));
+            return new SymbolicBool(
+                new ContextFuncs.MkNot(
+                    new ContextFuncs.MkEq(Symbolic, new ContextFuncs.MkBVOfUnsigned(0U, (uint)Size))));
         }
 
         public IFloat AsFloat()
         {
-            return new SymbolicFloat(Size, c => c.MkFPToFP(Symbolic(c), Size.GetSort(c)));
+            return new SymbolicFloat(
+                Size,
+                new ContextFuncs.MkFPToFPOfBitVec(Symbolic, new ContextFuncs.GetSort(Size)));
         }
 
         public IValue IfElse(IBool predicate, IValue falseValue)
         {
-            return Create(falseValue.AsUnsigned(), (c, t, f) => (BitVecExpr) c.MkITE(predicate.Symbolic(c), t, f));
+            return Create(
+                new ContextFuncs.MkITE<BitVecExpr>(predicate.Symbolic, Symbolic, falseValue.AsUnsigned().Symbolic));
         }
 
-        public Func<Context, BitVecExpr> Symbolic { get; }
+        public IFunc<Context, BitVecExpr> Symbolic { get; }
 
         public ISigned ArithmeticShiftRight(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVASHR(l, r));
+            return Create(new ContextFuncs.MkBVASHR(Symbolic, value.Symbolic));
         }
 
         public ISigned Divide(ISigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVSDiv(l, r));
+            return Create(new ContextFuncs.MkBVSDiv(Symbolic, value.Symbolic));
         }
 
         public IBool Greater(ISigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVSGT(l, r));
+            return new SymbolicBool(new ContextFuncs.MkBVSGT(Symbolic, value.Symbolic));
         }
 
         public IBool GreaterOrEqual(ISigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVSGE(l, r));
+            return new SymbolicBool(new ContextFuncs.MkBVSGE(Symbolic, value.Symbolic));
         }
 
         public IBool Less(ISigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVSLT(l, r));
+            return new SymbolicBool(new ContextFuncs.MkBVSLT(Symbolic, value.Symbolic));
         }
 
         public IBool LessOrEqual(ISigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVSLE(l, r));
+            return new SymbolicBool(new ContextFuncs.MkBVSLE(Symbolic, value.Symbolic));
         }
 
         public ISigned Remainder(ISigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVSRem(l, r));
+            return Create(new ContextFuncs.MkBVSRem(Symbolic, value.Symbolic));
         }
 
         public IFloat SignedToFloat(Bits size)
         {
-            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), Symbolic(c), size.GetSort(c), true));
+            return new SymbolicFloat(
+                size,
+                new ContextFuncs.MkFPToFPOfFPRMNumBitVec(
+                    new ContextFuncs.MkFPRNE(), Symbolic, new ContextFuncs.GetSort(size), true));
         }
 
         public ISigned SignExtend(Bits size)
         {
-            return new SymbolicInteger(size, c => c.MkSignExt((uint) size - (uint) Size, Symbolic(c)));
+            return new SymbolicInteger(size, new ContextFuncs.MkSignExt((uint)size - (uint)Size, Symbolic));
         }
 
         public IUnsigned Add(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVAdd(l, r));
+            return Create(new ContextFuncs.MkBVAdd(Symbolic, value.Symbolic));
         }
 
         public IBitwise And(IBitwise value)
         {
-            return Create(value.AsUnsigned(), (c, l, r) => c.MkBVAND(l, r));
+            return Create(new ContextFuncs.MkBVAND(Symbolic, value.AsUnsigned().Symbolic));
         }
 
         public IUnsigned Divide(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVUDiv(l, r));
+            return Create(new ContextFuncs.MkBVUDiv(Symbolic, value.Symbolic));
         }
 
         public IBool Equal(IBitwise value)
         {
-            return Create(value.AsUnsigned(), (c, l, r) => c.MkEq(l, r));
+            return new SymbolicBool(new ContextFuncs.MkEq(Symbolic, value.AsUnsigned().Symbolic));
         }
 
         public IBool Greater(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVUGT(l, r));
+            return new SymbolicBool(new ContextFuncs.MkBVUGT(Symbolic, value.Symbolic));
         }
 
         public IBool GreaterOrEqual(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVUGE(l, r));
+            return new SymbolicBool(new ContextFuncs.MkBVUGE(Symbolic, value.Symbolic));
         }
 
         public IBool Less(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVULT(l, r));
+            return new SymbolicBool(new ContextFuncs.MkBVULT(Symbolic, value.Symbolic));
         }
 
         public IBool LessOrEqual(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVULE(l, r));
+            return new SymbolicBool(new ContextFuncs.MkBVULE(Symbolic, value.Symbolic));
         }
 
         public IUnsigned LogicalShiftRight(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVLSHR(l, r));
+            return Create(new ContextFuncs.MkBVLSHR(Symbolic, value.Symbolic));
         }
 
         public IUnsigned Multiply(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVMul(l, r));
+            return Create(new ContextFuncs.MkBVMul(Symbolic, value.Symbolic));
         }
 
         public IUnsigned Not()
         {
-            return new SymbolicInteger(Size, c => c.MkBVNot(Symbolic(c)));
+            return new SymbolicInteger(Size, new ContextFuncs.MkBVNot(Symbolic));
         }
 
         public IBool NotEqual(IBitwise value)
         {
-            return Create(value.AsUnsigned(), (c, l, r) => c.MkNot(c.MkEq(l, r)));
+            return new SymbolicBool(
+                new ContextFuncs.MkNot(new ContextFuncs.MkEq(Symbolic, value.AsUnsigned().Symbolic)));
         }
 
         public IBitwise Or(IBitwise value)
         {
-            return Create(value.AsUnsigned(), (c, l, r) => c.MkBVOR(l, r));
+            return Create(new ContextFuncs.MkBVOR(Symbolic, value.AsUnsigned().Symbolic));
         }
 
         public IUnsigned Remainder(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVURem(l, r));
+            return Create(new ContextFuncs.MkBVURem(Symbolic, value.Symbolic));
         }
 
         public IUnsigned ShiftLeft(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVSHL(l, r));
+            return Create(new ContextFuncs.MkBVSHL(Symbolic, value.Symbolic));
         }
 
         public IUnsigned Subtract(IUnsigned value)
         {
-            return Create(value, (c, l, r) => c.MkBVSub(l, r));
+            return Create(new ContextFuncs.MkBVSub(Symbolic, value.Symbolic));
         }
 
         public IUnsigned Truncate(Bits size)
         {
-            return new SymbolicInteger(size, c => c.MkExtract((uint) size - 1U, 0U, Symbolic(c)));
+            return new SymbolicInteger(size, new ContextFuncs.MkExtract((uint)size - 1U, 0U, Symbolic));
         }
 
         public IFloat UnsignedToFloat(Bits size)
         {
-            return new SymbolicFloat(size, c => c.MkFPToFP(c.MkFPRNE(), Symbolic(c), size.GetSort(c), false));
+            return new SymbolicFloat(
+                size,
+                new ContextFuncs.MkFPToFPOfFPRMNumBitVec(
+                    new ContextFuncs.MkFPRNE(),
+                    Symbolic,
+                    new ContextFuncs.GetSort(size),
+                    false));
         }
 
         public IBitwise Xor(IBitwise value)
         {
-            return Create(value.AsUnsigned(), (c, l, r) => c.MkBVXOR(l, r));
+            return Create(new ContextFuncs.MkBVXOR(Symbolic, value.AsUnsigned().Symbolic));
         }
 
         public IUnsigned ZeroExtend(Bits size)
         {
-            return new SymbolicInteger(size, c => c.MkZeroExt((uint) size - (uint) Size, Symbolic(c)));
+            return new SymbolicInteger(size, new ContextFuncs.MkZeroExt((uint)size - (uint)Size, Symbolic));
         }
 
-        private SymbolicInteger Create(IUnsigned other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> symbolic)
+        private SymbolicInteger Create(IFunc<Context, BitVecExpr> symbolic)
         {
-            return new(Size, c => symbolic(c, Symbolic(c), other.Symbolic(c)));
-        }
-
-        private SymbolicInteger Create(ISigned other, Func<Context, BitVecExpr, BitVecExpr, BitVecExpr> symbolic)
-        {
-            return new(Size, c => symbolic(c, Symbolic(c), other.Symbolic(c)));
-        }
-
-        private SymbolicBool Create(IUnsigned other, Func<Context, BitVecExpr, BitVecExpr, BoolExpr> symbolic)
-        {
-            return new(c => symbolic(c, Symbolic(c), other.Symbolic(c)));
-        }
-
-        private SymbolicBool Create(ISigned other, Func<Context, BitVecExpr, BitVecExpr, BoolExpr> symbolic)
-        {
-            return new(c => symbolic(c, Symbolic(c), other.Symbolic(c)));
+            return new(Size, symbolic);
         }
     }
 }

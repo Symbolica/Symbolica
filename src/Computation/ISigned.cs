@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
     internal interface ISigned : IValue
     {
-        Func<Context, BitVecExpr> Symbolic { get; }
+        IFunc<Context, BitVecExpr> Symbolic { get; }
 
         ISigned ArithmeticShiftRight(IUnsigned value);
         ISigned Divide(ISigned value);

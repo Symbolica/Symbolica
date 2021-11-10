@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
@@ -9,9 +8,9 @@ namespace Symbolica.Computation
 {
     internal sealed class SymbolicReal : IFloat
     {
-        private readonly Func<Context, RealExpr> _symbolic;
+        private readonly IFunc<Context, RealExpr> _symbolic;
 
-        public SymbolicReal(Bits size, Func<Context, RealExpr> symbolic)
+        public SymbolicReal(Bits size, IFunc<Context, RealExpr> symbolic)
         {
             Size = size;
             _symbolic = symbolic;
@@ -64,7 +63,7 @@ namespace Symbolica.Computation
             throw new UnsupportedSymbolicArithmeticException();
         }
 
-        public Func<Context, FPExpr> Symbolic => throw new UnsupportedSymbolicArithmeticException();
+        public IFunc<Context, FPExpr> Symbolic => throw new UnsupportedSymbolicArithmeticException();
 
         public IFloat Add(IFloat value)
         {
@@ -153,7 +152,9 @@ namespace Symbolica.Computation
 
         public ISigned ToSigned(Bits size)
         {
-            return new SymbolicInteger(size, c => c.MkInt2BV((uint) size, c.MkReal2Int(_symbolic(c))));
+            return new SymbolicInteger(
+                size,
+                new ContextFuncs.MkInt2BV((uint)size, new ContextFuncs.MkReal2Int(_symbolic)));
         }
 
         public IUnsigned ToUnsigned(Bits size)

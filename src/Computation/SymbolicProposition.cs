@@ -19,8 +19,8 @@ namespace Symbolica.Computation
 
         public ISpace FalseSpace => _space.Assert(_negation);
         public ISpace TrueSpace => _space.Assert(_assertion);
-        public bool CanBeFalse => _model.IsSatisfiable(_negation.Symbolic);
-        public bool CanBeTrue => _model.IsSatisfiable(_assertion.Symbolic);
+        public bool CanBeFalse => _model.IsSatisfiable(_negation.Symbolic.Run);
+        public bool CanBeTrue => _model.IsSatisfiable(_assertion.Symbolic.Run);
 
         public void Dispose()
         {

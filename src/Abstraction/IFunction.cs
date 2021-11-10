@@ -1,4 +1,5 @@
-﻿namespace Symbolica.Abstraction
+﻿
+namespace Symbolica.Abstraction
 {
     public interface IFunction
     {

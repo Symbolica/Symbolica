@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
     internal interface IFloat : IValue
     {
-        Func<Context, FPExpr> Symbolic { get; }
+        IFunc<Context, FPExpr> Symbolic { get; }
 
         IFloat Add(IFloat value);
         IFloat Ceiling();

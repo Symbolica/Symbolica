@@ -42,7 +42,7 @@ namespace Symbolica.Computation
 
         public IModel GetModel(IBool[] constraints)
         {
-            return _modelFactory.Create(_contextFactory, constraints.Concat(_assertions).Select(a => a.Symbolic));
+            return _modelFactory.Create(_contextFactory, constraints.Concat(_assertions).Select(a => a.Symbolic.AsFunc()));
         }
 
         public IExample GetExample()

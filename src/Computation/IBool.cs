@@ -6,7 +6,7 @@ namespace Symbolica.Computation
 {
     internal interface IBool : IBitwise
     {
-        Func<Context, BoolExpr> Symbolic { get; }
+        IFunc<Context, BoolExpr> Symbolic { get; }
 
         IProposition GetProposition(IPersistentSpace space, IBool[] constraints);
         IBool Not();

@@ -14,7 +14,7 @@ namespace Symbolica.Computation
         }
 
         public double Constant { get; }
-        public Bits Size => (Bits) 64U;
+        public Bits Size => (Bits)64U;
 
         public BigInteger AsConstant(IContextFactory contextFactory)
         {
@@ -61,7 +61,7 @@ namespace Symbolica.Computation
             return new SymbolicFloat(Size, Symbolic).IfElse(predicate, falseValue);
         }
 
-        public Func<Context, FPExpr> Symbolic => c => c.MkFP(Constant, Size.GetSort(c));
+        public IFunc<Context, FPExpr> Symbolic => new ContextFuncs.MkFP(Constant, new ContextFuncs.GetSort(Size));
 
         public IFloat Add(IFloat value)
         {
@@ -75,9 +75,9 @@ namespace Symbolica.Computation
 
         public IFloat Convert(Bits size)
         {
-            return (uint) size switch
+            return (uint)size switch
             {
-                32U => new ConstantSingle((float) Constant),
+                32U => new ConstantSingle((float)Constant),
                 64U => this,
                 _ => new SymbolicFloat(Size, Symbolic).Convert(size)
             };
@@ -157,12 +157,12 @@ namespace Symbolica.Computation
 
         public ISigned ToSigned(Bits size)
         {
-            return ConstantSigned.Create(size, (BigInteger) Constant);
+            return ConstantSigned.Create(size, (BigInteger)Constant);
         }
 
         public IUnsigned ToUnsigned(Bits size)
         {
-            return ConstantUnsigned.Create(size, (BigInteger) Constant);
+            return ConstantUnsigned.Create(size, (BigInteger)Constant);
         }
 
         public IBool Unordered(IFloat value)

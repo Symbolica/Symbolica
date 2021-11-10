@@ -16,13 +16,27 @@ namespace Symbolica.Computation
                 : Create(context, sort, sign, significand, exponent);
         }
 
+        internal class ParseNormalFunc : IFunc<Context, FPExpr>
+        {
+            private readonly Bits _size;
+            private readonly string _value;
+
+            public ParseNormalFunc(Bits size, string value)
+            {
+                _size = size;
+                _value = value;
+            }
+
+            public FPExpr Run(Context ctx) => ParseNormal(ctx, _size, _value);
+        }
+
         private static FPExpr Create(Context context, FPSort sort, bool sign, BigInteger significand, int exponent)
         {
             var (numerator, denominator) = exponent < 0
                 ? (significand, BigInteger.Pow(10, -exponent))
                 : (significand * BigInteger.Pow(10, exponent), BigInteger.One);
 
-            var precision = (int) sort.SBits;
+            var precision = (int)sort.SBits;
             var scale = precision - 1L;
 
             var lower = BigInteger.One << (precision - 1);
@@ -49,7 +63,7 @@ namespace Symbolica.Computation
                     : (quotient + BigInteger.One, scale)
                 : (quotient, scale);
 
-            return context.MkFP(sign, shift, (ulong) (rounded % lower), sort);
+            return context.MkFP(sign, shift, (ulong)(rounded % lower), sort);
         }
 
         private static (bool, BigInteger, int) ParseDecimal(string value)
@@ -65,7 +79,7 @@ namespace Symbolica.Computation
 
         private static (BigInteger, int) ParseNonNegativeDecimal(string value)
         {
-            var index = value.IndexOfAny(new[] {'e', 'E'});
+            var index = value.IndexOfAny(new[] { 'e', 'E' });
 
             return index == -1
                 ? ParseStandardNonNegativeDecimal(value, 0)

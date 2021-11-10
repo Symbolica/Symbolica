@@ -63,7 +63,7 @@ namespace Symbolica.Computation
             return new SymbolicInteger(Size, Symbolic).IfElse(predicate, falseValue);
         }
 
-        public Func<Context, BitVecExpr> Symbolic => c => c.MkBV(Constant.ToString(), (uint) Size);
+        public IFunc<Context, BitVecExpr> Symbolic => new ContextFuncs.MkBVOfString(Constant.ToString(), (uint)Size);
 
         public IUnsigned Add(IUnsigned value)
         {
@@ -109,7 +109,7 @@ namespace Symbolica.Computation
 
         public IUnsigned LogicalShiftRight(IUnsigned value)
         {
-            return Create(value, (l, r) => l.LogicalShiftRight(r), (l, r) => l >> (int) r);
+            return Create(value, (l, r) => l.LogicalShiftRight(r), (l, r) => l >> (int)r);
         }
 
         public IUnsigned Multiply(IUnsigned value)
@@ -141,7 +141,7 @@ namespace Symbolica.Computation
 
         public IUnsigned ShiftLeft(IUnsigned value)
         {
-            return Create(value, (l, r) => l.ShiftLeft(r), (l, r) => l << (int) r);
+            return Create(value, (l, r) => l.ShiftLeft(r), (l, r) => l << (int)r);
         }
 
         public IUnsigned Subtract(IUnsigned value)
@@ -156,10 +156,10 @@ namespace Symbolica.Computation
 
         public IFloat UnsignedToFloat(Bits size)
         {
-            return (uint) size switch
+            return (uint)size switch
             {
-                32U => new ConstantSingle((float) Constant),
-                64U => new ConstantDouble((double) Constant),
+                32U => new ConstantSingle((float)Constant),
+                64U => new ConstantDouble((double)Constant),
                 _ => new SymbolicInteger(Size, Symbolic).UnsignedToFloat(size)
             };
         }
@@ -176,14 +176,14 @@ namespace Symbolica.Computation
 
         public static ConstantUnsigned Create(Bits size, BigInteger value)
         {
-            return new(size, value.IsZero || value.Sign > 0 && value.GetBitLength() <= (uint) size
+            return new(size, value.IsZero || value.Sign > 0 && value.GetBitLength() <= (uint)size
                 ? value
                 : Normalize(size, value));
         }
 
         private static BigInteger Normalize(Bits size, BigInteger value)
         {
-            return value & ((BigInteger.One << (int) (uint) size) - BigInteger.One);
+            return value & ((BigInteger.One << (int)(uint)size) - BigInteger.One);
         }
 
         private IUnsigned Create(IUnsigned other,

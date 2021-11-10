@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions
 {

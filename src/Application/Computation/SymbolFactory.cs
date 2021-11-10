@@ -1,17 +1,18 @@
 ﻿using System;
 using Microsoft.Z3;
 using Symbolica.Computation;
+using Symbolica.Computation.ContextFuncs;
 using Symbolica.Expression;
 
 namespace Symbolica.Application.Computation
 {
     internal sealed class SymbolFactory : ISymbolFactory
     {
-        public Func<Context, BitVecExpr> Create(Bits size, string? name)
+        public IFunc<Context, BitVecExpr> Create(Bits size, string? name)
         {
             var symbol = name ?? Guid.NewGuid().ToString();
 
-            return c => c.MkBVConst(symbol, (uint) size);
+            return new MkBVConst(symbol, (uint)size);
         }
     }
 }
