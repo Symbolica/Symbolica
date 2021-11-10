@@ -20,7 +20,7 @@ namespace Symbolica.Representation.Functions
 
             state.Fork(address,
                 new FreeMemory(address),
-                null);
+                new NoOp());
         }
 
         private sealed class FreeMemory : IStateAction
@@ -35,6 +35,13 @@ namespace Symbolica.Representation.Functions
             public void Invoke(IState state)
             {
                 state.Memory.Free(_address);
+            }
+        }
+
+        private sealed class NoOp : IStateAction
+        {
+            public void Invoke(IState state)
+            {
             }
         }
     }

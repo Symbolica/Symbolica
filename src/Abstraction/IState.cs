@@ -12,6 +12,6 @@ namespace Symbolica.Abstraction
         IFunction GetFunction(FunctionId id);
         IExpression GetGlobalAddress(GlobalId id);
         void Complete();
-        void Fork(IExpression condition, IStateAction? trueAction, IStateAction? falseAction);
+        void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction);
     }
 }
