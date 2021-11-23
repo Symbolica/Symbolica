@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Operands
 {
+    [Serializable]
     public sealed class ConstantStruct : IOperand
     {
         private readonly StructElement[] _elements;
@@ -21,7 +23,7 @@ namespace Symbolica.Representation.Operands
             foreach (var element in _elements)
             {
                 var value = element.Operand.Evaluate(state);
-                var offset = state.Space.CreateConstant(_size, (uint) element.Offset);
+                var offset = state.Space.CreateConstant(_size, (uint)element.Offset);
                 expression = expression.Write(offset, value);
             }
 

@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation
 {
+    [Serializable]
     public sealed class UninitializedGlobal : IGlobal
     {
         public UninitializedGlobal(GlobalId id, Bits size)

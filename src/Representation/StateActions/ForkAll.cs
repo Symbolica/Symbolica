@@ -1,9 +1,11 @@
+using System;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class ForkAll : IStateAction
     {
         private readonly IExpression _expression;

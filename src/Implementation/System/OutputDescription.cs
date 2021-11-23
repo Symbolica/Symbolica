@@ -5,6 +5,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System
 {
+    [Serializable]
     internal sealed class OutputDescription : IPersistentDescription
     {
         public (long, IPersistentDescription) Seek(long offset, uint whence)

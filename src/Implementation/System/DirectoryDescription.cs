@@ -6,6 +6,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System
 {
+    [Serializable]
     internal sealed class DirectoryDescription : IPersistentDescription
     {
         private readonly IDirectory _directory;

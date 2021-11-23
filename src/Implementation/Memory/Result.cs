@@ -1,8 +1,10 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
 
 namespace Symbolica.Implementation.Memory
 {
+    [Serializable]
     internal sealed class Result<TValue>
         where TValue : class
     {

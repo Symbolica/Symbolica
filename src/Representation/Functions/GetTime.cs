@@ -1,8 +1,10 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class GetTime : IFunction
     {
         public GetTime(FunctionId id, IParameters parameters)

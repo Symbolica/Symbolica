@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Symbolica.Abstraction;
@@ -6,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions
 {
+    [Serializable]
     public sealed class Call : IInstruction, ICaller
     {
         private readonly IOperand[] _operands;

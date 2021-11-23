@@ -1,9 +1,11 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class StackProxy : IStackProxy
     {
         private readonly IMemoryProxy _memory;

@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Instructions
 {
+    [Serializable]
     public sealed class Unsupported : IInstruction
     {
         private readonly string _type;

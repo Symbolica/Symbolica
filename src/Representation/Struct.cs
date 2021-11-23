@@ -1,9 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation
 {
+    [Serializable]
     internal sealed class Struct : IStruct
     {
         private readonly Bits[] _offsets;
@@ -38,7 +40,7 @@ namespace Symbolica.Representation
 
         private IExpression GetOffset(ISpace space, int index)
         {
-            return space.CreateConstant(Expression.Size, (uint) _offsets[index]);
+            return space.CreateConstant(Expression.Size, (uint)_offsets[index]);
         }
     }
 }

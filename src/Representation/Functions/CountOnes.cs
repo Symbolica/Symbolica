@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class CountOnes : IFunction
     {
         public CountOnes(FunctionId id, IParameters parameters)
@@ -19,7 +21,7 @@ namespace Symbolica.Representation.Functions
         {
             var expression = arguments.Get(0);
 
-            var result = Enumerable.Range(0, (int) (uint) expression.Size)
+            var result = Enumerable.Range(0, (int)(uint)expression.Size)
                 .Aggregate(state.Space.CreateConstant(expression.Size, BigInteger.Zero), (l, r) =>
                     l.Add(expression.LogicalShiftRight(state.Space.CreateConstant(expression.Size, r))
                         .And(state.Space.CreateConstant(expression.Size, BigInteger.One))));

@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class PersistentAllocations : IPersistentAllocations
     {
         private readonly IPersistentStack<IExpression> _allocations;

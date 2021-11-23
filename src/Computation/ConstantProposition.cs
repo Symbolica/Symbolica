@@ -1,7 +1,9 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class ConstantProposition : IProposition
     {
         public ConstantProposition(ISpace space, bool isTrue)

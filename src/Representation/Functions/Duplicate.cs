@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class Duplicate : IFunction
     {
         public Duplicate(FunctionId id, IParameters parameters)
@@ -15,7 +17,7 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            var descriptor = (int) arguments.Get(0).Constant;
+            var descriptor = (int)arguments.Get(0).Constant;
 
             var result = state.System.Duplicate(descriptor);
 

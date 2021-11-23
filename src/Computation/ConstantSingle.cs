@@ -6,6 +6,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class ConstantSingle : IFloat, IConstantSingle
     {
         public ConstantSingle(float constant)

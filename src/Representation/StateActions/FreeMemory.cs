@@ -1,8 +1,10 @@
+using System;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class FreeMemory : IStateAction
     {
         private readonly IExpression _address;

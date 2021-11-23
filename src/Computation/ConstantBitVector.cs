@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
@@ -6,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class ConstantBitVector : IBitVector, IConstantBitVector
     {
         private ConstantBitVector(Bits size, IPersistentList<byte> constant)
@@ -91,12 +93,12 @@ namespace Symbolica.Computation
 
         private static int GetIndex(IConstantInteger offset)
         {
-            return (int) (uint) ((Bits) (uint) offset.Constant).ToBytes();
+            return (int)(uint)((Bits)(uint)offset.Constant).ToBytes();
         }
 
         private static int GetCount(Bits size)
         {
-            return (int) (uint) size.ToBytes();
+            return (int)(uint)size.ToBytes();
         }
     }
 }

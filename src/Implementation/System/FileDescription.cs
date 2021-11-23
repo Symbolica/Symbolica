@@ -5,6 +5,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System
 {
+    [Serializable]
     internal sealed class FileDescription : IPersistentDescription
     {
         private readonly IFile _file;
@@ -34,7 +35,7 @@ namespace Symbolica.Implementation.System
             var bytes = new byte[count];
             var result = _file.Read(bytes, _offset, count);
 
-            var size = ((Bytes) (uint) result).ToBits();
+            var size = ((Bytes)(uint)result).ToBits();
 
             if (size != Bits.Zero)
                 memory.Write(address, space.CreateConstant(size, new BigInteger(bytes, true)));

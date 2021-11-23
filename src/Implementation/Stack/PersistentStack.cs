@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
@@ -7,6 +8,7 @@ using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class PersistentStack : IPersistentStack
     {
         private readonly IPersistentContinuationFactory _continuationFactory;

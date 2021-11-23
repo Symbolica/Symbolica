@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions
 {
+    [Serializable]
     public sealed class Load : IInstruction
     {
         private readonly IOperand[] _operands;

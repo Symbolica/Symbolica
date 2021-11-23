@@ -4,6 +4,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
     {
         private readonly IPersistentAllocations _allocations;

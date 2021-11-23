@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Operands
 {
+    [Serializable]
     public sealed class Variable : IOperand
     {
         private readonly InstructionId _id;

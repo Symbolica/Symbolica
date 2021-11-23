@@ -1,8 +1,10 @@
+using System;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.ContextFuncs
 {
+    [Serializable]
     internal class MkAnd : IFunc<Context, BoolExpr>
     {
         private readonly IFunc<Context, BoolExpr> _left;

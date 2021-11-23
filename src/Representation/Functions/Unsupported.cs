@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class Unsupported : IFunction
     {
         private readonly string _name;

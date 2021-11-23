@@ -7,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class Expression : IExpression
     {
         private readonly ICollectionFactory _collectionFactory;
@@ -30,12 +31,12 @@ namespace Symbolica.Computation
 
         public IExpression GetValue(ISpace space)
         {
-            return Create(c => c.GetValue((IPersistentSpace) space, _constraints ?? Array.Empty<IBool>()));
+            return Create(c => c.GetValue((IPersistentSpace)space, _constraints ?? Array.Empty<IBool>()));
         }
 
         public IProposition GetProposition(ISpace space)
         {
-            return _value.AsBool().GetProposition((IPersistentSpace) space, _constraints ?? Array.Empty<IBool>());
+            return _value.AsBool().GetProposition((IPersistentSpace)space, _constraints ?? Array.Empty<IBool>());
         }
 
         public IExpression Add(IExpression expression)
@@ -316,7 +317,7 @@ namespace Symbolica.Computation
                 ? unconstrained
                 : new Expression(contextFactory, collectionFactory,
                     value, constraints
-                        .Select(c => ((Expression) c(unconstrained))._value.AsBool())
+                        .Select(c => ((Expression)c(unconstrained))._value.AsBool())
                         .ToArray());
         }
 
@@ -329,7 +330,7 @@ namespace Symbolica.Computation
         private IExpression Create(IExpression other,
             Func<IValue, IValue, IValue> func)
         {
-            var y = (Expression) other;
+            var y = (Expression)other;
 
             return new Expression(_contextFactory, _collectionFactory,
                 func(_value, y._value), Concat(_constraints, y._constraints));
@@ -338,8 +339,8 @@ namespace Symbolica.Computation
         private IExpression Create(IExpression second, IExpression third,
             Func<IValue, IValue, IValue, IValue> func)
         {
-            var y = (Expression) second;
-            var z = (Expression) third;
+            var y = (Expression)second;
+            var z = (Expression)third;
 
             return new Expression(_contextFactory, _collectionFactory,
                 func(_value, y._value, z._value), Concat(_constraints, Concat(y._constraints, z._constraints)));

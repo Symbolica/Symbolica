@@ -1,9 +1,11 @@
+using System;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class CopyMemory : IStateAction
     {
         private readonly IExpression _destination;
@@ -25,6 +27,7 @@ namespace Symbolica.Representation.StateActions
         }
     }
 
+    [Serializable]
     public class CopyMemoryOfLength : IFunc<BigInteger, IStateAction>
     {
         private readonly IExpression _destination;

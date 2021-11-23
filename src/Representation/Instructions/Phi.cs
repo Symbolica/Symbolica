@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -7,6 +8,7 @@ using Symbolica.Representation.Operands;
 
 namespace Symbolica.Representation.Instructions
 {
+    [Serializable]
     public sealed class Phi : IInstruction
     {
         private readonly IReadOnlyDictionary<BasicBlockId, int> _indices;
@@ -45,7 +47,7 @@ namespace Symbolica.Representation.Instructions
                 id,
                 operands,
                 predecessors
-                    .Select((p, i) => new {p, i})
+                    .Select((p, i) => new { p, i })
                     .ToLookup(p => p.p, p => p.i)
                     .ToDictionary(g => g.Key, g => g.First()));
         }

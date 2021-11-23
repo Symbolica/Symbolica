@@ -7,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class SymbolicBool : IBool
     {
         public SymbolicBool(IFunc<Context, BoolExpr> symbolic)

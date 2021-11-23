@@ -7,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory
 {
+    [Serializable]
     internal sealed class ConstantMemory : IPersistentMemory
     {
         private readonly Bytes _alignment;
@@ -108,7 +109,7 @@ namespace Symbolica.Implementation.Memory
 
         private IExpression CreateAddress(ISpace space)
         {
-            return space.CreateConstant(space.PointerSize, (uint) _nextAddress);
+            return space.CreateConstant(space.PointerSize, (uint)_nextAddress);
         }
 
         private Bytes GetNextAddress(Bits size)
@@ -120,7 +121,7 @@ namespace Symbolica.Implementation.Memory
 
         private (int, Allocation) GetAllocation(ISpace space, IExpression address)
         {
-            var key = new Allocation((Bytes) (uint) address.GetValue(space).Constant, _blockFactory.CreateInvalid());
+            var key = new Allocation((Bytes)(uint)address.GetValue(space).Constant, _blockFactory.CreateInvalid());
             var result = _allocations.BinarySearch(key);
 
             var index = result < 0

@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Implementation.Exceptions;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class PersistentProgramCounter : IPersistentProgramCounter
     {
         private readonly IBasicBlock _basicBlock;

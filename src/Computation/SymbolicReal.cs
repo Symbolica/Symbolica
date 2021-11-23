@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
@@ -6,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class SymbolicReal : IFloat
     {
         private readonly IFunc<Context, RealExpr> _symbolic;

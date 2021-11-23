@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class AllocateAndClear : IFunction
     {
         public AllocateAndClear(FunctionId id, IParameters parameters)

@@ -7,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class ConstantSigned : ISigned, IConstantInteger
     {
         private ConstantSigned(Bits size, BigInteger constant)

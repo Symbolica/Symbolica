@@ -1,8 +1,10 @@
+using System;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.ContextFuncs
 {
+    [Serializable]
     internal class MkReal2Int : IFunc<Context, IntExpr>
     {
         private readonly IFunc<Context, RealExpr> _t;

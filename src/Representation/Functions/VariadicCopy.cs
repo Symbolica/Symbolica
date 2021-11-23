@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class VariadicCopy : IFunction
     {
         public VariadicCopy(FunctionId id, IParameters parameters)

@@ -1,9 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System
 {
+    [Serializable]
     internal sealed class DescriptionFactory : IDescriptionFactory
     {
         private readonly IFileSystem _fileSystem;

@@ -1,8 +1,10 @@
+using System;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class MoveMemory : IFunc<IState, IExpression>
     {
         private readonly IExpression _address;

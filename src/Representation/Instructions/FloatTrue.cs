@@ -1,9 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions
 {
+    [Serializable]
     public sealed class FloatTrue : IInstruction
     {
         public FloatTrue(InstructionId id)

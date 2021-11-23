@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation
 {
+    [Serializable]
     internal sealed class Invocation : IInvocation
     {
         public Invocation(IDefinition definition, IArguments formals, IArguments varargs)

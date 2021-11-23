@@ -1,8 +1,10 @@
+using System;
 using System.Numerics;
 using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class VirtualCall : IFunction
     {
         public VirtualCall(FunctionId id, IParameters parameters)

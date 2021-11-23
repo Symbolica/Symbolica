@@ -2,6 +2,7 @@
 
 namespace Symbolica.Abstraction
 {
+    [Serializable]
     public readonly struct GlobalId : IEquatable<GlobalId>
     {
         private readonly ulong _value;

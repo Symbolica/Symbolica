@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Instructions
 {
+    [Serializable]
     public sealed class FloatUnorderedOrGreaterOrEqual : IInstruction
     {
         private readonly IOperand[] _operands;

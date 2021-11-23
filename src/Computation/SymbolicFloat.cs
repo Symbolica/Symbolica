@@ -1,10 +1,12 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class SymbolicFloat : IFloat
     {
         public SymbolicFloat(Bits size, IFunc<Context, FPExpr> symbolic)

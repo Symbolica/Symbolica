@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Numerics;
 using Symbolica.Abstraction;
@@ -5,6 +6,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class SetMemory : IStateAction
     {
         private readonly IExpression _destination;
@@ -29,6 +31,7 @@ namespace Symbolica.Representation.StateActions
         }
     }
 
+    [Serializable]
     public class SetMemoryOfLength : IFunc<BigInteger, IStateAction>
     {
         private readonly IExpression _destination;

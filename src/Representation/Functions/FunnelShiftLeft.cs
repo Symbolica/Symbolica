@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class FunnelShiftLeft : IFunction
     {
         public FunnelShiftLeft(FunctionId id, IParameters parameters)
@@ -19,7 +21,7 @@ namespace Symbolica.Representation.Functions
             var low = arguments.Get(1);
             var shift = arguments.Get(2);
 
-            var size = state.Space.CreateConstant(shift.Size, (uint) shift.Size);
+            var size = state.Space.CreateConstant(shift.Size, (uint)shift.Size);
             var offset = shift.UnsignedRemainder(size);
 
             var result = high.ShiftLeft(offset)

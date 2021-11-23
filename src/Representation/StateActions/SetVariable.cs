@@ -1,8 +1,10 @@
+using System;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class SetVariable : IStateAction
     {
         private readonly InstructionId _id;
@@ -26,6 +28,7 @@ namespace Symbolica.Representation.StateActions
         }
     }
 
+    [Serializable]
     public class SetVariableFromFunc : IFunc<IFunc<IState, IExpression>, IStateAction>
     {
         private readonly InstructionId _id;

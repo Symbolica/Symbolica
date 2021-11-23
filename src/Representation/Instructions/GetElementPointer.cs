@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Instructions
 {
+    [Serializable]
     public sealed class GetElementPointer : IInstruction
     {
         private readonly IOperand[] _offsets;

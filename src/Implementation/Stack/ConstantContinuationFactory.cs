@@ -1,7 +1,9 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class ConstantContinuationFactory : IPersistentContinuationFactory
     {
         private readonly ulong _count;

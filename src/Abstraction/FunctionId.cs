@@ -2,6 +2,7 @@
 
 namespace Symbolica.Abstraction
 {
+    [Serializable]
     public readonly struct FunctionId : IEquatable<FunctionId>
     {
         private readonly ulong _value;

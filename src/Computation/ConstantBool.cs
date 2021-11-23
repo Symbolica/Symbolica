@@ -6,6 +6,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class ConstantBool : IBool, IConstantBool
     {
         public ConstantBool(bool constant)

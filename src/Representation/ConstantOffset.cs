@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation
 {
+    [Serializable]
     public sealed class ConstantOffset : IOperand
     {
         private readonly Bytes _size;
@@ -14,7 +16,7 @@ namespace Symbolica.Representation
 
         public IExpression Evaluate(IState state)
         {
-            return state.Space.CreateConstant(state.Space.PointerSize, (uint) _size);
+            return state.Space.CreateConstant(state.Space.PointerSize, (uint)_size);
         }
     }
 }

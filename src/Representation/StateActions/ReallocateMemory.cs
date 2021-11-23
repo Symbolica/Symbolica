@@ -1,9 +1,11 @@
+using System;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class ReallocateMemory : IStateAction
     {
         private readonly InstructionId _callerId;
@@ -42,6 +44,7 @@ namespace Symbolica.Representation.StateActions
         }
     }
 
+    [Serializable]
     public class ReallocateMemoryOfSize : IFunc<BigInteger, IStateAction>
     {
         private readonly InstructionId _callerId;

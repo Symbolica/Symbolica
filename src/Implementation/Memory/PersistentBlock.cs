@@ -1,7 +1,9 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory
 {
+    [Serializable]
     internal sealed class PersistentBlock : IPersistentBlock
     {
         private readonly IExpression _data;
@@ -84,12 +86,12 @@ namespace Symbolica.Implementation.Memory
 
         private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
         {
-            return address.Add(space.CreateConstant(address.Size, (uint) size));
+            return address.Add(space.CreateConstant(address.Size, (uint)size));
         }
 
         private IExpression GetOffset(ISpace space, IExpression address)
         {
-            var offset = space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
+            var offset = space.CreateConstant(address.Size, (uint)Bytes.One.ToBits())
                 .Multiply(address.Subtract(Address));
 
             return offset.ZeroExtend(_data.Size).Truncate(_data.Size);
@@ -100,7 +102,7 @@ namespace Symbolica.Implementation.Memory
             return isFullyInside
                 .Select(
                     GetOffset(space, address),
-                    space.CreateConstant(_data.Size, (uint) _data.Size));
+                    space.CreateConstant(_data.Size, (uint)_data.Size));
         }
 
         private IPersistentBlock Write(IExpression offset, IExpression value)

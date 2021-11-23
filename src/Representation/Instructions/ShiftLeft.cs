@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Instructions
 {
+    [Serializable]
     public sealed class ShiftLeft : IInstruction
     {
         private readonly IOperand[] _operands;
@@ -19,7 +21,7 @@ namespace Symbolica.Representation.Instructions
             var left = _operands[0].Evaluate(state);
             var right = _operands[1].Evaluate(state);
 
-            var isUndefined = right.UnsignedGreaterOrEqual(state.Space.CreateConstant(right.Size, (uint) left.Size));
+            var isUndefined = right.UnsignedGreaterOrEqual(state.Space.CreateConstant(right.Size, (uint)left.Size));
             using var proposition = isUndefined.GetProposition(state.Space);
 
             if (proposition.CanBeTrue)

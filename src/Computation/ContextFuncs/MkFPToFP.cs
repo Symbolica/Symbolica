@@ -1,8 +1,10 @@
+using System;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.ContextFuncs
 {
+    [Serializable]
     internal class MkFPToFPOfFP : IFunc<Context, FPExpr>
     {
         private readonly IFunc<Context, FPRMNum> _rm;

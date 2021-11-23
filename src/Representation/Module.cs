@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -6,6 +7,7 @@ using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation
 {
+    [Serializable]
     public sealed class Module : IModule
     {
         private readonly (string, IStructType?) _directoryEntryType;

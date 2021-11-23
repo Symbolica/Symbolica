@@ -7,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class SymbolicInteger : ISigned, IUnsigned
     {
         public SymbolicInteger(Bits size, IFunc<Context, BitVecExpr> symbolic)

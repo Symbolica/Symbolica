@@ -1,8 +1,10 @@
-﻿using Symbolica.Collection;
+﻿using System;
+using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class PersistentJumps : IPersistentJumps
     {
         private readonly IPersistentStack<Point> _points;

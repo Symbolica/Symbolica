@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -7,6 +8,7 @@ using Symbolica.Implementation.System;
 
 namespace Symbolica.Implementation
 {
+    [Serializable]
     internal sealed class State : IState, IExecutable
     {
         private readonly List<IExecutable> _forks;

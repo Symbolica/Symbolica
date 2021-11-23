@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class Absolute : IFunction
     {
         public Absolute(FunctionId id, IParameters parameters)
@@ -17,7 +19,7 @@ namespace Symbolica.Representation.Functions
         {
             var value = arguments.Get(0);
 
-            var mask = value.ArithmeticShiftRight(state.Space.CreateConstant(value.Size, (uint) value.Size - 1U));
+            var mask = value.ArithmeticShiftRight(state.Space.CreateConstant(value.Size, (uint)value.Size - 1U));
             var result = value.Add(mask).Xor(mask);
 
             state.Stack.SetVariable(caller.Id, result);

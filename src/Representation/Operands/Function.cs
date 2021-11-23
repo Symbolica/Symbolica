@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Operands
 {
+    [Serializable]
     public sealed class Function : IOperand
     {
         private readonly FunctionId _id;
@@ -14,7 +16,7 @@ namespace Symbolica.Representation.Operands
 
         public IExpression Evaluate(IState state)
         {
-            return state.Space.CreateConstant(state.Space.PointerSize, (ulong) _id);
+            return state.Space.CreateConstant(state.Space.PointerSize, (ulong)_id);
         }
     }
 }

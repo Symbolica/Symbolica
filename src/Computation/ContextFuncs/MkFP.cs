@@ -1,8 +1,10 @@
+using System;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.ContextFuncs
 {
+    [Serializable]
     internal class MkFP : IFunc<Context, FPNum>
     {
         private readonly double _v;

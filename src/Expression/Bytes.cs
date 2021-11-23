@@ -2,6 +2,7 @@ using System;
 
 namespace Symbolica.Expression
 {
+    [Serializable]
     public readonly struct Bytes : IEquatable<Bytes>, IComparable<Bytes>
     {
         private readonly uint _value;
@@ -11,8 +12,8 @@ namespace Symbolica.Expression
             _value = value;
         }
 
-        public static Bytes Zero => (Bytes) 0U;
-        public static Bytes One => (Bytes) 1U;
+        public static Bytes Zero => (Bytes)0U;
+        public static Bytes One => (Bytes)1U;
 
         public static explicit operator Bytes(uint bytes)
         {
@@ -26,17 +27,17 @@ namespace Symbolica.Expression
 
         public Bits ToBits()
         {
-            return (Bits) (8U * _value);
+            return (Bits)(8U * _value);
         }
 
         public Bytes AlignTo(Bytes bytes)
         {
-            return (Bytes) (bytes._value * ((_value + bytes._value - 1U) / bytes._value));
+            return (Bytes)(bytes._value * ((_value + bytes._value - 1U) / bytes._value));
         }
 
         public static Bytes operator +(Bytes left, Bytes right)
         {
-            return (Bytes) (left._value + right._value);
+            return (Bytes)(left._value + right._value);
         }
 
         public bool Equals(Bytes other)

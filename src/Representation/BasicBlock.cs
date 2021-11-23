@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation
 {
+    [Serializable]
     public sealed class BasicBlock : IBasicBlock
     {
         private readonly IInstruction[] _instructions;

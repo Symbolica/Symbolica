@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -7,6 +8,7 @@ using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class X64VariadicAbi : IVariadicAbi
     {
         public IExpression PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs)
@@ -18,17 +20,17 @@ namespace Symbolica.Implementation.Stack
             {
                 var size = argument.Size.ToBytes();
 
-                if (size > (Bytes) 8U)
-                    bytes = bytes.AlignTo((Bytes) 16U);
+                if (size > (Bytes)8U)
+                    bytes = bytes.AlignTo((Bytes)16U);
 
                 offsets.Add(bytes.ToBits());
-                bytes = (bytes + size).AlignTo((Bytes) 8U);
+                bytes = (bytes + size).AlignTo((Bytes)8U);
             }
 
             var value = space.CreateConstant(bytes.ToBits(), BigInteger.Zero);
 
             foreach (var (argument, offset) in varargs.Zip(offsets, (a, o) => (a, o)))
-                value = value.Write(space.CreateConstant(value.Size, (uint) offset), argument);
+                value = value.Write(space.CreateConstant(value.Size, (uint)offset), argument);
 
             var address = memory.Allocate(Section.Stack, value.Size);
             memory.Write(address, value);

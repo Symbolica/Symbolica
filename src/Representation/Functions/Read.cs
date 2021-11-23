@@ -1,7 +1,9 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class Read : IFunction
     {
         public Read(FunctionId id, IParameters parameters)
@@ -15,9 +17,9 @@ namespace Symbolica.Representation.Functions
 
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
-            var descriptor = (int) arguments.Get(0).Constant;
+            var descriptor = (int)arguments.Get(0).Constant;
             var address = arguments.Get(1);
-            var count = (int) arguments.Get(2).Constant;
+            var count = (int)arguments.Get(2).Constant;
 
             var result = state.System.Read(descriptor, address, count);
 

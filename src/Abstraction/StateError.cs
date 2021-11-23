@@ -1,5 +1,8 @@
-﻿namespace Symbolica.Abstraction
+﻿using System;
+
+namespace Symbolica.Abstraction
 {
+    [Serializable]
     public enum StateError
     {
         DivideByZero,

@@ -1,9 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Operands
 {
+    [Serializable]
     public sealed class ConstantZero : IOperand
     {
         private readonly Bits _size;

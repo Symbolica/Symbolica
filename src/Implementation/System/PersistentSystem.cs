@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -6,6 +7,7 @@ using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.System
 {
+    [Serializable]
     internal sealed class PersistentSystem : IPersistentSystem
     {
         private readonly IDescriptionFactory _descriptionFactory;
@@ -82,9 +84,9 @@ namespace Symbolica.Implementation.System
 
             var stream = streamType.CreateStruct(memory.Read(address, streamType.Size));
 
-            var tell = (int) stream.Read(space, 0).Constant;
-            var descriptor = (int) stream.Read(space, 1).Constant;
-            var buffer = address.Add(space.CreateConstant(address.Size, (uint) streamType.GetOffset(5).ToBytes()));
+            var tell = (int)stream.Read(space, 0).Constant;
+            var descriptor = (int)stream.Read(space, 1).Constant;
+            var buffer = address.Add(space.CreateConstant(address.Size, (uint)streamType.GetOffset(5).ToBytes()));
 
             memory.Write(address, stream
                 .Write(space, 0, tell + 1)

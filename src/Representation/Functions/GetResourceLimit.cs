@@ -1,8 +1,10 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class GetResourceLimit : IFunction
     {
         public GetResourceLimit(FunctionId id, IParameters parameters)

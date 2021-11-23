@@ -1,7 +1,9 @@
+using System;
 using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class GetThreadAddress : IFunction
     {
         public GetThreadAddress(FunctionId id, IParameters parameters)

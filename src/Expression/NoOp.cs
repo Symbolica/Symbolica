@@ -1,5 +1,8 @@
+using System;
+
 namespace Symbolica.Expression
 {
+    [Serializable]
     public class NoOp<TIn, TOut> : IFunc<TIn, TOut>
     {
         private readonly TOut _out;
@@ -12,6 +15,7 @@ namespace Symbolica.Expression
         public TOut Run(TIn _) => _out;
     }
 
+    [Serializable]
     public class NoOp<TIn> : IFunc<TIn, Unit>
     {
         public Unit Run(TIn _) => new Unit();

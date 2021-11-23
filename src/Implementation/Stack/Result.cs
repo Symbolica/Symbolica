@@ -1,9 +1,11 @@
-﻿using Symbolica.Implementation.Exceptions;
+﻿using System;
+using Symbolica.Implementation.Exceptions;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class Result<TValue>
-        where TValue : class
+           where TValue : class
     {
         private readonly TValue? _value;
 

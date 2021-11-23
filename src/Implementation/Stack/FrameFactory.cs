@@ -11,6 +11,7 @@ using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class FrameFactory : IFrameFactory
     {
         private readonly ICollectionFactory _collectionFactory;
@@ -49,7 +50,7 @@ namespace Symbolica.Implementation.Stack
         private sealed class InitialCaller : ICaller
         {
             public InstructionId Id => throw new ImplementationException("The initial 'main' call has no caller.");
-            public Bits Size => (Bits) 16U;
+            public Bits Size => (Bits)16U;
             public IAttributes ReturnAttributes => new InitialReturnAttributes();
 
             public void Return(IState state)

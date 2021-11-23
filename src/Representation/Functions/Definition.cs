@@ -7,6 +7,7 @@ using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     public sealed class Definition : IDefinition
     {
         private readonly IReadOnlyDictionary<BasicBlockId, IBasicBlock> _basicBlocks;

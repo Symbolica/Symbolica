@@ -6,6 +6,7 @@ using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation
 {
+    [Serializable]
     internal sealed class PersistentGlobals : IPersistentGlobals
     {
         private readonly IPersistentDictionary<GlobalId, IExpression> _addresses;

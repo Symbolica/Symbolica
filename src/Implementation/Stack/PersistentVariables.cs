@@ -1,10 +1,12 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
 
 namespace Symbolica.Implementation.Stack
 {
+    [Serializable]
     internal sealed class PersistentVariables : IPersistentVariables
     {
         private readonly IPersistentDictionary<InstructionId, IExpression> _incomingVariables;

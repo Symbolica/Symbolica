@@ -1,8 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions
 {
+    [Serializable]
     internal sealed class Symbolize : IFunction
     {
         public Symbolize(FunctionId id, IParameters parameters)
@@ -17,7 +19,7 @@ namespace Symbolica.Representation.Functions
         public void Call(IState state, ICaller caller, IArguments arguments)
         {
             var address = arguments.Get(0);
-            var size = (Bytes) (uint) arguments.Get(1).Constant;
+            var size = (Bytes)(uint)arguments.Get(1).Constant;
             var name = state.ReadString(arguments.Get(2));
 
             state.Memory.Write(address, state.Space.CreateSymbolic(size.ToBits(), name, null));

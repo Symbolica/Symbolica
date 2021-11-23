@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
@@ -6,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Representation
 {
+    [Serializable]
     internal sealed class Arguments : IArguments
     {
         private readonly IExpression[] _expressions;

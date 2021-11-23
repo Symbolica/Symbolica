@@ -1,8 +1,10 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.System
 {
+    [Serializable]
     internal sealed class SystemProxy : ISystemProxy
     {
         private readonly IMemoryProxy _memory;

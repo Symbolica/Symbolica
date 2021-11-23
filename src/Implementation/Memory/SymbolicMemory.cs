@@ -8,6 +8,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory
 {
+    [Serializable]
     internal sealed class SymbolicMemory : IPersistentMemory
     {
         private readonly Bytes _alignment;
@@ -112,7 +113,7 @@ namespace Symbolica.Implementation.Memory
                     .Append(a => a
                         .UnsignedLessOrEqual(GetBound(space, a, size)))
                     .Append(a => a
-                        .UnsignedRemainder(space.CreateConstant(a.Size, (uint) _alignment))
+                        .UnsignedRemainder(space.CreateConstant(a.Size, (uint)_alignment))
                         .Equal(space.CreateConstant(a.Size, BigInteger.Zero))));
         }
 
@@ -124,7 +125,7 @@ namespace Symbolica.Implementation.Memory
 
         private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
         {
-            return address.Add(space.CreateConstant(address.Size, (uint) size));
+            return address.Add(space.CreateConstant(address.Size, (uint)size));
         }
 
         public static IPersistentMemory Create(Bytes alignment,

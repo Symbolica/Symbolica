@@ -1,7 +1,9 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory
 {
+    [Serializable]
     internal sealed class MemoryProxy : IMemoryProxy
     {
         private readonly ISpace _space;

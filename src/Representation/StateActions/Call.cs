@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -6,6 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class Call : IStateAction
     {
         private readonly FunctionId _target;
@@ -54,6 +56,7 @@ namespace Symbolica.Representation.StateActions
         }
     }
 
+    [Serializable]
     public class CallTarget : IFunc<BigInteger, IStateAction>
     {
         private readonly IEnumerable<IExpression> _arguments;

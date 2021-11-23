@@ -1,9 +1,11 @@
+using System;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.StateActions
 {
+    [Serializable]
     public class AllocateMemory : IFunc<IState, IExpression>
     {
         private readonly Bytes _size;
@@ -21,6 +23,7 @@ namespace Symbolica.Representation.StateActions
         }
     }
 
+    [Serializable]
     public class AllocateMemoryOfSize : IFunc<BigInteger, IFunc<IState, IExpression>>
     {
         public IFunc<IState, IExpression> Run(BigInteger value) =>

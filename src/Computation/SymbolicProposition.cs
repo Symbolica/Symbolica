@@ -1,7 +1,9 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
+    [Serializable]
     internal sealed class SymbolicProposition : IProposition
     {
         private readonly IBool _assertion;
