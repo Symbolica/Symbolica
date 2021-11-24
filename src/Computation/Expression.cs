@@ -11,7 +11,6 @@ namespace Symbolica.Computation
     internal sealed class Expression : IExpression
     {
         private readonly ICollectionFactory _collectionFactory;
-        private readonly Lazy<BigInteger> _constant;
         private readonly IBool[]? _constraints;
         private readonly IContextFactory _contextFactory;
         private readonly IValue _value;
@@ -23,11 +22,10 @@ namespace Symbolica.Computation
             _collectionFactory = collectionFactory;
             _value = value;
             _constraints = constraints;
-            _constant = new Lazy<BigInteger>(AsConstant);
         }
 
         public Bits Size => _value.Size;
-        public BigInteger Constant => _constant.Value;
+        public BigInteger Constant => _value.AsConstant(_contextFactory);
 
         public IExpression GetValue(ISpace space)
         {
@@ -300,11 +298,6 @@ namespace Symbolica.Computation
             return size > Size
                 ? Create(c => c.AsUnsigned().ZeroExtend(size))
                 : this;
-        }
-
-        private BigInteger AsConstant()
-        {
-            return _value.AsConstant(_contextFactory);
         }
 
         public static IExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,

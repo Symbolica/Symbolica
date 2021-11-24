@@ -33,6 +33,7 @@ namespace Symbolica.Implementation.Stack
             return new PersistentJumps(collectionFactory.CreatePersistentStack<Point>());
         }
 
+        [Serializable]
         private readonly struct Point
         {
             private readonly IExpression _continuation;

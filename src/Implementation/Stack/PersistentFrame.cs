@@ -11,10 +11,10 @@ namespace Symbolica.Implementation.Stack
         private readonly IArguments _formals;
         private readonly IPersistentJumps _jumps;
         private readonly IPersistentProgramCounter _programCounter;
-        private readonly Func<ISpace, IStructType, IExpression> _vaList;
+        private readonly IFunc<ISpace, IFunc<IStructType, IExpression>> _vaList;
         private readonly IPersistentVariables _variables;
 
-        public PersistentFrame(ICaller caller, IArguments formals, Func<ISpace, IStructType, IExpression> vaList,
+        public PersistentFrame(ICaller caller, IArguments formals, IFunc<ISpace, IFunc<IStructType, IExpression>> vaList,
             IPersistentJumps jumps, IPersistentProgramCounter programCounter,
             IPersistentVariables variables, IPersistentAllocations allocations)
         {
@@ -70,7 +70,7 @@ namespace Symbolica.Implementation.Stack
 
         public IExpression GetInitializedVaList(ISpace space, IStructType vaListType)
         {
-            return _vaList(space, vaListType);
+            return _vaList.Run(space).Run(vaListType);
         }
 
         public IExpression GetVariable(InstructionId id, bool useIncomingValue)

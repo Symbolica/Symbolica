@@ -29,24 +29,93 @@ namespace Symbolica.Implementation.Stack
                 ? _variadicAbi.PassOnStack(space, memory, invocation.Varargs)
                 : space.CreateConstant(space.PointerSize, BigInteger.Zero);
 
-            return Create(caller, invocation.Definition, invocation.Formals,
-                (s, t) => _variadicAbi.CreateVaList(s, t, address));
+            return Create(caller, invocation.Definition, invocation.Formals, new CreateVaList(_variadicAbi, address));
         }
 
         public IPersistentFrame CreateInitial(IDefinition main)
         {
-            return Create(new InitialCaller(), main, new InitialArguments(),
-                (s, t) => _variadicAbi.CreateVaList(s, t, s.CreateConstant(s.PointerSize, BigInteger.Zero)));
+            return Create(new InitialCaller(), main, new InitialArguments(), new CreateConstantAddressVaList(_variadicAbi));
         }
 
         private IPersistentFrame Create(ICaller caller, IDefinition definition, IArguments formals,
-            Func<ISpace, IStructType, IExpression> vaList)
+            IFunc<ISpace, IFunc<IStructType, IExpression>> vaList)
         {
             return new PersistentFrame(caller, formals, vaList,
                 PersistentJumps.Create(_collectionFactory), PersistentProgramCounter.Create(definition),
                 PersistentVariables.Create(_collectionFactory), PersistentAllocations.Create(_collectionFactory));
         }
 
+        [Serializable]
+        private class CreateConstantAddressVaList : IFunc<ISpace, IFunc<IStructType, IExpression>>
+        {
+            private readonly IVariadicAbi _variadicAbi;
+
+            public CreateConstantAddressVaList(IVariadicAbi variadicAbi)
+            {
+                _variadicAbi = variadicAbi;
+            }
+
+            public IFunc<IStructType, IExpression> Run(ISpace space)
+            {
+                return new CreateOfSpace(_variadicAbi, space);
+            }
+
+            private class CreateOfSpace : IFunc<IStructType, IExpression>
+            {
+                private readonly IVariadicAbi _variadicAbi;
+                private readonly ISpace _space;
+
+                public CreateOfSpace(IVariadicAbi variadicAbi, ISpace space)
+                {
+                    _variadicAbi = variadicAbi;
+                    _space = space;
+                }
+
+                public IExpression Run(IStructType structType)
+                {
+                    return _variadicAbi.CreateVaList(_space, structType, _space.CreateConstant(_space.PointerSize, BigInteger.Zero));
+                }
+            }
+        }
+
+        [Serializable]
+        private class CreateVaList : IFunc<ISpace, IFunc<IStructType, IExpression>>
+        {
+            private readonly IVariadicAbi _variadicAbi;
+            private readonly IExpression _address;
+
+            public CreateVaList(IVariadicAbi variadicAbi, IExpression address)
+            {
+                _variadicAbi = variadicAbi;
+                _address = address;
+            }
+
+            public IFunc<IStructType, IExpression> Run(ISpace space)
+            {
+                return new CreateOfSpace(_variadicAbi, space, _address);
+            }
+
+            private class CreateOfSpace : IFunc<IStructType, IExpression>
+            {
+                private readonly IVariadicAbi _variadicAbi;
+                private readonly ISpace _space;
+                private readonly IExpression _address;
+
+                public CreateOfSpace(IVariadicAbi variadicAbi, ISpace space, IExpression address)
+                {
+                    _variadicAbi = variadicAbi;
+                    _space = space;
+                    _address = address;
+                }
+
+                public IExpression Run(IStructType structType)
+                {
+                    return _variadicAbi.CreateVaList(_space, structType, _address);
+                }
+            }
+        }
+
+        [Serializable]
         private sealed class InitialCaller : ICaller
         {
             public InstructionId Id => throw new ImplementationException("The initial 'main' call has no caller.");
@@ -63,6 +132,7 @@ namespace Symbolica.Implementation.Stack
             }
         }
 
+        [Serializable]
         private sealed class InitialArguments : IArguments
         {
             public IExpression Get(int index)

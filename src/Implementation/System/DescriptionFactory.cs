@@ -54,6 +54,7 @@ namespace Symbolica.Implementation.System
                 : new DirectoryDescription(directory);
         }
 
+        [Serializable]
         private sealed class InvalidDescription : IPersistentDescription
         {
             private InvalidDescription()

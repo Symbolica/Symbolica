@@ -10,12 +10,10 @@ namespace Symbolica.Implementation.System
     internal sealed class DirectoryDescription : IPersistentDescription
     {
         private readonly IDirectory _directory;
-        private readonly Lazy<string[]> _names;
 
         public DirectoryDescription(IDirectory directory)
         {
             _directory = directory;
-            _names = new Lazy<string[]>(_directory.GetNames);
         }
 
         public (long, IPersistentDescription) Seek(long offset, uint whence)
@@ -30,8 +28,8 @@ namespace Symbolica.Implementation.System
 
         public IExpression ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression address, int tell)
         {
-            return tell >= 0 && tell < _names.Value.Length
-                ? Read(space, memory, entry, address, _names.Value[tell])
+            return tell >= 0 && tell < _directory.GetNames().Length
+                ? Read(space, memory, entry, address, _directory.GetNames()[tell])
                 : space.CreateConstant(space.PointerSize, BigInteger.Zero);
         }
 

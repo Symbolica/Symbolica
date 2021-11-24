@@ -198,6 +198,7 @@ namespace Symbolica.Implementation.System
                 .Add(descriptionFactory.CreateOutput());
         }
 
+        [Serializable]
         private readonly struct Handle
         {
             public Handle(uint references, IPersistentDescription description)
