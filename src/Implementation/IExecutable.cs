@@ -4,6 +4,6 @@ namespace Symbolica.Implementation
 {
     public interface IExecutable
     {
-        IEnumerable<IExecutable> Run();
+        (ulong, IEnumerable<IExecutable>) Run();
     }
 }

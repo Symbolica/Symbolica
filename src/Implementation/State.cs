@@ -34,14 +34,18 @@ namespace Symbolica.Implementation
             _system = system;
         }
 
-        public IEnumerable<IExecutable> Run()
+        public (ulong, IEnumerable<IExecutable>) Run()
         {
+            ulong instructionCount = 0;
             _initialAction.Run(this);
 
             while (_isActive)
+            {
                 _stack.ExecuteNextInstruction(this);
+                ++instructionCount;
+            }
 
-            return _forks;
+            return (instructionCount, _forks);
         }
 
         public ISpace Space { get; }
