@@ -32,7 +32,7 @@ namespace Symbolica.Implementation
             var stack = new StackProxy(space, memory, CreateStack(module, options));
             var system = new SystemProxy(space, memory, CreateSystem(module));
 
-            return new State(_ => { }, module, space,
+            return new State(new NoOp(), module, space,
                 globals, memory, stack, system);
         }
 
@@ -70,6 +70,13 @@ namespace Symbolica.Implementation
             var descriptionFactory = new DescriptionFactory(_fileSystem);
 
             return PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
+        }
+
+        private sealed class NoOp : IStateAction
+        {
+            public void Invoke(IState state)
+            {
+            }
         }
     }
 }

@@ -19,16 +19,28 @@ namespace Symbolica.Representation.Functions
         {
             var size = arguments.Get(0);
 
-            state.ForkAll(size, (s, v) => Call(s, caller, (Bytes) (uint) v));
+            state.ForkAll(size, new AllocateMemory(caller));
         }
 
-        private static void Call(IState state, ICaller caller, Bytes size)
+        private sealed class AllocateMemory : IParameterizedStateAction
         {
-            var address = size == Bytes.Zero
-                ? state.Space.CreateConstant(state.Space.PointerSize, BigInteger.Zero)
-                : state.Memory.Allocate(size.ToBits());
+            private readonly ICaller _caller;
 
-            state.Stack.SetVariable(caller.Id, address);
+            public AllocateMemory(ICaller caller)
+            {
+                _caller = caller;
+            }
+
+            public void Invoke(IState state, BigInteger value)
+            {
+                var size = (Bytes) (uint) value;
+
+                var address = size == Bytes.Zero
+                    ? state.Space.CreateConstant(state.Space.PointerSize, BigInteger.Zero)
+                    : state.Memory.Allocate(size.ToBits());
+
+                state.Stack.SetVariable(_caller.Id, address);
+            }
         }
     }
 }

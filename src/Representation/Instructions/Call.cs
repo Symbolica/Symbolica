@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -40,35 +41,47 @@ namespace Symbolica.Representation.Instructions
             var arguments = expressions.SkipLast(1).ToArray();
             var target = expressions.Last();
 
-            state.ForkAll(target, (s, v) => Execute(s, (FunctionId) (ulong) v, arguments));
+            state.ForkAll(target, new Dispatch(this, arguments));
         }
 
-        private void Execute(IState state, FunctionId target, IEnumerable<IExpression> arguments)
+        private sealed class Dispatch : IParameterizedStateAction
         {
-            var function = state.GetFunction(target);
+            private readonly IEnumerable<IExpression> _arguments;
+            private readonly Call _call;
 
-            function.Call(state, this, Coerce(function, arguments));
-        }
+            public Dispatch(Call call, IEnumerable<IExpression> arguments)
+            {
+                _call = call;
+                _arguments = arguments;
+            }
 
-        private Arguments Coerce(IFunction function, IEnumerable<IExpression> arguments)
-        {
-            return new(arguments
-                .Select((a, i) => Coerce(function.Parameters, a, i))
-                .ToArray());
-        }
+            public void Invoke(IState state, BigInteger value)
+            {
+                var function = state.GetFunction((FunctionId) (ulong) value);
 
-        private IExpression Coerce(IParameters parameters, IExpression argument, int index)
-        {
-            return index < parameters.Count
-                ? Coerce(parameters.Get(index).Size, argument, _parameterAttributes[index])
-                : argument;
-        }
+                function.Call(state, _call, Coerce(function));
+            }
 
-        private static IExpression Coerce(Bits size, IExpression expression, IAttributes attributes)
-        {
-            return attributes.IsSignExtended
-                ? expression.SignExtend(size)
-                : expression.ZeroExtend(size);
+            private Arguments Coerce(IFunction function)
+            {
+                return new(_arguments
+                    .Select((a, i) => Coerce(function.Parameters, a, i))
+                    .ToArray());
+            }
+
+            private IExpression Coerce(IParameters parameters, IExpression argument, int index)
+            {
+                return index < parameters.Count
+                    ? Coerce(parameters.Get(index).Size, argument, _call._parameterAttributes[index])
+                    : argument;
+            }
+
+            private static IExpression Coerce(Bits size, IExpression expression, IAttributes attributes)
+            {
+                return attributes.IsSignExtended
+                    ? expression.SignExtend(size)
+                    : expression.ZeroExtend(size);
+            }
         }
     }
 }

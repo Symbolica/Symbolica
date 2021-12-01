@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -21,15 +22,27 @@ namespace Symbolica.Representation.Functions
             var value = arguments.Get(1);
             var length = arguments.Get(2);
 
-            state.ForkAll(length, (s, v) => Call(s, destination, value, (int) v));
+            state.ForkAll(length, new SetMemory(destination, value));
         }
 
-        private static void Call(IState state, IExpression destination, IExpression value, int length)
+        private sealed class SetMemory : IParameterizedStateAction
         {
-            foreach (var offset in Enumerable.Range(0, length))
+            private readonly IExpression _destination;
+            private readonly IExpression _value;
+
+            public SetMemory(IExpression destination, IExpression value)
             {
-                var address = destination.Add(state.Space.CreateConstant(destination.Size, offset));
-                state.Memory.Write(address, value);
+                _destination = destination;
+                _value = value;
+            }
+
+            public void Invoke(IState state, BigInteger value)
+            {
+                foreach (var offset in Enumerable.Range(0, (int) value))
+                {
+                    var address = _destination.Add(state.Space.CreateConstant(_destination.Size, offset));
+                    state.Memory.Write(address, _value);
+                }
             }
         }
     }

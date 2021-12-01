@@ -19,24 +19,36 @@ namespace Symbolica.Representation.Functions
         {
             var size = arguments.Get(0).Multiply(arguments.Get(1));
 
-            state.ForkAll(size, (s, v) => Call(s, caller, (Bytes) (uint) v));
+            state.ForkAll(size, new AllocateAndClearMemory(caller));
         }
 
-        private static void Call(IState state, ICaller caller, Bytes size)
+        private sealed class AllocateAndClearMemory : IParameterizedStateAction
         {
-            var address = size == Bytes.Zero
-                ? state.Space.CreateConstant(state.Space.PointerSize, BigInteger.Zero)
-                : AllocateMemory(state, size.ToBits());
+            private readonly ICaller _caller;
 
-            state.Stack.SetVariable(caller.Id, address);
-        }
+            public AllocateAndClearMemory(ICaller caller)
+            {
+                _caller = caller;
+            }
 
-        private static IExpression AllocateMemory(IState state, Bits size)
-        {
-            var address = state.Memory.Allocate(size);
-            state.Memory.Write(address, state.Space.CreateConstant(size, BigInteger.Zero));
+            public void Invoke(IState state, BigInteger value)
+            {
+                var size = (Bytes) (uint) value;
 
-            return address;
+                var address = size == Bytes.Zero
+                    ? state.Space.CreateConstant(state.Space.PointerSize, BigInteger.Zero)
+                    : Allocate(state, size.ToBits());
+
+                state.Stack.SetVariable(_caller.Id, address);
+            }
+
+            private static IExpression Allocate(IState state, Bits size)
+            {
+                var address = state.Memory.Allocate(size);
+                state.Memory.Write(address, state.Space.CreateConstant(size, BigInteger.Zero));
+
+                return address;
+            }
         }
     }
 }

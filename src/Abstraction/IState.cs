@@ -1,5 +1,4 @@
-﻿using System;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Abstraction
 {
@@ -13,6 +12,6 @@ namespace Symbolica.Abstraction
         IFunction GetFunction(FunctionId id);
         IExpression GetGlobalAddress(GlobalId id);
         void Complete();
-        void Fork(IExpression condition, Action<IState> trueAction, Action<IState> falseAction);
+        void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction);
     }
 }
