@@ -17,6 +17,7 @@ namespace Symbolica.Implementation
         private readonly ISystemProxy _system;
         private IPersistentGlobals _globals;
         private bool _isActive;
+        private ulong _instructionsProcessed;
 
         public State(IStateAction initialAction, IModule module, ISpace space,
             IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
@@ -30,22 +31,30 @@ namespace Symbolica.Implementation
             _memory = memory;
             _stack = stack;
             _system = system;
+            _instructionsProcessed = 0UL;
         }
 
-        public IEnumerable<IExecutable> Run()
+        public IResult<IEnumerable<IExecutable>, ErrorException> Run()
         {
-            _initialAction.Invoke(this);
+            return Result.TryCatch<IEnumerable<IExecutable>, ErrorException>(() =>
+            {
+                _initialAction.Invoke(this);
+                while (_isActive)
+                {
+                    _stack.ExecuteNextInstruction(this);
+                    ++_instructionsProcessed;
+                }
 
-            while (_isActive)
-                _stack.ExecuteNextInstruction(this);
-
-            return _forks;
+                return _forks;
+            });
         }
 
         public ISpace Space { get; }
         public IMemory Memory => _memory;
         public IStack Stack => _stack;
         public ISystem System => _system;
+
+        public ulong InstructionsProcessed => _instructionsProcessed;
 
         public IFunction GetFunction(FunctionId id)
         {
