@@ -23,7 +23,7 @@ RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
     ninja -j ${llvmParallelJobs} install-llvm-link install-clang && \
     mv /usr/local/bin/llvm-link /usr/local/bin/llvm-link-12 && \
     cd / && \
-    rm -rf /tmp && \
+    rm -rf /tmp/* && \
     apk --purge del build-deps
 
 COPY . $HOME/.symbolica/build
