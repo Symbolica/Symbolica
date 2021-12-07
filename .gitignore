@@ -1,5 +1,6 @@
 *.bc
 *.user
 .idea/
+.ionide/
 bin/
 obj/
