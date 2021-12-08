@@ -4,7 +4,7 @@ using Symbolica.Expression;
 namespace Symbolica.Representation.Exceptions
 {
     [Serializable]
-    public class UnsupportedOperandException : ErrorException
+    public class UnsupportedOperandException : UnsupportedException
     {
         public UnsupportedOperandException(string type)
             : base($"Operand '{type}' is unsupported.")
