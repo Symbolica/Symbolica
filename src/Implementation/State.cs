@@ -32,14 +32,16 @@ namespace Symbolica.Implementation
             _system = system;
         }
 
-        public IEnumerable<IExecutable> Run()
+        public IEnumerable<IEnumerable<IExecutable>> Run()
         {
             _initialAction.Invoke(this);
+            yield return _forks;
 
             while (_isActive)
+            {
                 _stack.ExecuteNextInstruction(this);
-
-            return _forks;
+                yield return _forks;
+            }
         }
 
         public ISpace Space { get; }

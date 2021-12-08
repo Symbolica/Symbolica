@@ -30,9 +30,17 @@ namespace Symbolica.Application.Implementation
             {
                 try
                 {
-                    foreach (var child in executable.Run())
-                        if (_exception == null)
-                            Add(child);
+                    foreach (var forks in executable.Run())
+                    {
+                        if (_exception != null)
+                        {
+                            break;
+                        }
+                        foreach (var fork in forks)
+                        {
+                            Add(fork);
+                        }
+                    }
                 }
                 catch (Exception exception)
                 {
