@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Symbolica.Application.Collection;
@@ -23,7 +23,7 @@ namespace Symbolica.Application
             _options = options;
         }
 
-        public async Task<(ulong, List<string>)> Run(byte[] bytes)
+        public async Task<(ulong, Exception?)> Run(byte[] bytes)
         {
             var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
@@ -35,7 +35,7 @@ namespace Symbolica.Application
 
             var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
-            using var statePool = new StatePool(_options.MaxErrors);
+            using var statePool = new StatePool();
             statePool.Add(executableFactory.CreateInitial(module, _options));
 
             return await statePool.Wait();
