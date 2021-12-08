@@ -32,6 +32,8 @@ namespace Symbolica.Representation
                 {"llvm.floor", (id, parameters) => new Floor(id, parameters)},
                 {"llvm.fshl", (id, parameters) => new FunnelShiftLeft(id, parameters)},
                 {"llvm.fshr", (id, parameters) => new FunnelShiftRight(id, parameters)},
+                {"llvm.lifetime.end", (id, parameters) => new LifetimeEnd(id, parameters)},
+                {"llvm.lifetime.start", (id, parameters) => new LifetimeStart(id, parameters)},
                 {"llvm.memcpy", (id, parameters) => new MemoryCopy(id, parameters)},
                 {"llvm.memmove", (id, parameters) => new MemoryMove(id, parameters)},
                 {"llvm.memset", (id, parameters) => new MemorySet(id, parameters)},
