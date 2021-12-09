@@ -31,18 +31,9 @@ namespace Symbolica.Application.Implementation
             {
                 try
                 {
-                    foreach (var forks in executable.Run())
-                    {
-                        Interlocked.Increment(ref _instructionsProcessed);
-                        if (_exception != null)
-                        {
-                            break;
-                        }
-                        foreach (var fork in forks)
-                        {
-                            Add(fork);
-                        }
-                    }
+                    foreach (var child in executable.Run())
+                        if (_exception == null)
+                            Add(child);
                 }
                 catch (Exception exception)
                 {
@@ -50,6 +41,7 @@ namespace Symbolica.Application.Implementation
                 }
                 finally
                 {
+                    Interlocked.Add(ref _instructionsProcessed, executable.InstructionsProcessed);
                     _countdownEvent.Signal();
                 }
             });
