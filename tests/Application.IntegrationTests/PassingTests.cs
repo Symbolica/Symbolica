@@ -17,7 +17,9 @@ namespace Symbolica.Application
             var bytes = await Serializer.Serialize(directory, optimization);
             var executor = new Executor(new PooledContextFactory(), options);
 
-            executor.Awaiting(e => e.Run(bytes)).Should().NotThrow();
+            var (_, exception) = await executor.Run(bytes);
+
+            exception.Should().BeNull();
         }
 
         private sealed class TestData : TheoryData<string, string, Options>

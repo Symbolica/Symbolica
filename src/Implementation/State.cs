@@ -17,11 +17,11 @@ namespace Symbolica.Implementation
         private readonly ISystemProxy _system;
         private IPersistentGlobals _globals;
         private bool _isActive;
-        private ulong _instructionsProcessed = 0ul;
 
         public State(IStateAction initialAction, IModule module, ISpace space,
             IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
         {
+            ExecutedInstructions = 0UL;
             _forks = new List<IExecutable>();
             _isActive = true;
             _initialAction = initialAction;
@@ -31,7 +31,6 @@ namespace Symbolica.Implementation
             _memory = memory;
             _stack = stack;
             _system = system;
-            _instructionsProcessed = 0ul;
         }
 
         public IEnumerable<IExecutable> Run()
@@ -41,13 +40,13 @@ namespace Symbolica.Implementation
             while (_isActive)
             {
                 _stack.ExecuteNextInstruction(this);
-                ++_instructionsProcessed;
+                ++ExecutedInstructions;
             }
 
             return _forks;
         }
 
-        public ulong InstructionsProcessed => _instructionsProcessed;
+        public ulong ExecutedInstructions { get; private set; }
         public ISpace Space { get; }
         public IMemory Memory => _memory;
         public IStack Stack => _stack;

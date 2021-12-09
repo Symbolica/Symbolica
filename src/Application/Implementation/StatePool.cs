@@ -9,13 +9,13 @@ namespace Symbolica.Application.Implementation
     {
         private readonly CountdownEvent _countdownEvent;
         private Exception? _exception;
-        private ulong _instructionsProcessed;
+        private ulong _executedInstructions;
 
         public StatePool()
         {
             _countdownEvent = new CountdownEvent(1);
             _exception = null;
-            _instructionsProcessed = 0UL;
+            _executedInstructions = 0UL;
         }
 
         public void Dispose()
@@ -41,7 +41,7 @@ namespace Symbolica.Application.Implementation
                 }
                 finally
                 {
-                    Interlocked.Add(ref _instructionsProcessed, executable.InstructionsProcessed);
+                    Interlocked.Add(ref _executedInstructions, executable.ExecutedInstructions);
                     _countdownEvent.Signal();
                 }
             });
@@ -51,7 +51,8 @@ namespace Symbolica.Application.Implementation
         {
             _countdownEvent.Signal();
             await Task.Run(() => { _countdownEvent.Wait(); });
-            return (_instructionsProcessed, _exception);
+
+            return (_executedInstructions, _exception);
         }
     }
 }

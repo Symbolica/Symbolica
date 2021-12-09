@@ -20,9 +20,11 @@ namespace Symbolica.Application
             var bytes = await Serializer.Serialize(directory, optimization);
             var executor = new Executor(new PooledContextFactory(), options);
 
-            executor.Awaiting(e => e.Run(bytes)).Should().Throw<StateException>()
-                .Where(e => e.Error == error)
-                .Which.Space.GetExample().Select(p => p.Key).Should().BeEquivalentTo(symbols);
+            var (_, exception) = await executor.Run(bytes);
+
+            var stateException = exception.Should().BeOfType<StateException>();
+            stateException.Which.Error.Should().Be(error);
+            stateException.Which.Space.GetExample().Select(p => p.Key).Should().BeEquivalentTo(symbols);
         }
 
         private sealed class TestData : TheoryData<string, string, Options, StateError, string[]>

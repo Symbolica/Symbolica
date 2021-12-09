@@ -11,8 +11,8 @@ var executor = new Executor(new ContextFactory(), new Options(
     args.Contains("--use-symbolic-addresses"),
     args.Contains("--use-symbolic-continuations")));
 
-var (instructionsProcessed, exception) = await executor.Run(bytes);
-Console.WriteLine($"Processed {instructionsProcessed} instructions.");
+var (executedInstructions, exception) = await executor.Run(bytes);
+Console.WriteLine($"Executed {executedInstructions} instructions.");
 
 if (exception != null)
 {
