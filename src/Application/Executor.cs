@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Symbolica.Application.Collection;
 using Symbolica.Application.Computation;
@@ -22,7 +23,7 @@ namespace Symbolica.Application
             _options = options;
         }
 
-        public async Task Run(byte[] bytes)
+        public async Task<(ulong, Exception?)> Run(byte[] bytes)
         {
             var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
@@ -37,7 +38,7 @@ namespace Symbolica.Application
             using var statePool = new StatePool();
             statePool.Add(executableFactory.CreateInitial(module, _options));
 
-            await statePool.Wait();
+            return await statePool.Wait();
         }
 
         private static IFileSystem CreateFileSystem()

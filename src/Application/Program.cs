@@ -3,7 +3,6 @@ using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Application;
 using Symbolica.Application.Computation;
-using Symbolica.Expression;
 using Symbolica.Implementation;
 
 var bytes = await Serializer.Serialize(args[0], args.Last(a => a.StartsWith("--O")));
@@ -12,11 +11,10 @@ var executor = new Executor(new ContextFactory(), new Options(
     args.Contains("--use-symbolic-addresses"),
     args.Contains("--use-symbolic-continuations")));
 
-try
-{
-    await executor.Run(bytes);
-}
-catch (SymbolicaException exception)
+var (executedInstructions, exception) = await executor.Run(bytes);
+Console.WriteLine($"Executed {executedInstructions} instructions.");
+
+if (exception != null)
 {
     Console.WriteLine(exception.Message);
 
@@ -24,6 +22,10 @@ catch (SymbolicaException exception)
         Console.WriteLine(string.Join(", ", stateException.Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
 
     return 1;
+}
+else
+{
+    Console.WriteLine("No errors were found.");
 }
 
 return 0;

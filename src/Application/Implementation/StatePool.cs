@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Symbolica.Implementation;
@@ -10,11 +9,13 @@ namespace Symbolica.Application.Implementation
     {
         private readonly CountdownEvent _countdownEvent;
         private Exception? _exception;
+        private ulong _executedInstructions;
 
         public StatePool()
         {
             _countdownEvent = new CountdownEvent(1);
             _exception = null;
+            _executedInstructions = 0UL;
         }
 
         public void Dispose()
@@ -40,18 +41,18 @@ namespace Symbolica.Application.Implementation
                 }
                 finally
                 {
+                    Interlocked.Add(ref _executedInstructions, executable.ExecutedInstructions);
                     _countdownEvent.Signal();
                 }
             });
         }
 
-        public async Task Wait()
+        public async Task<(ulong, Exception?)> Wait()
         {
             _countdownEvent.Signal();
             await Task.Run(() => { _countdownEvent.Wait(); });
 
-            if (_exception != null)
-                ExceptionDispatchInfo.Capture(_exception).Throw();
+            return (_executedInstructions, _exception);
         }
     }
 }

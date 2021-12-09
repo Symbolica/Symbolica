@@ -21,6 +21,7 @@ namespace Symbolica.Implementation
         public State(IStateAction initialAction, IModule module, ISpace space,
             IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
         {
+            ExecutedInstructions = 0UL;
             _forks = new List<IExecutable>();
             _isActive = true;
             _initialAction = initialAction;
@@ -37,11 +38,15 @@ namespace Symbolica.Implementation
             _initialAction.Invoke(this);
 
             while (_isActive)
+            {
                 _stack.ExecuteNextInstruction(this);
+                ++ExecutedInstructions;
+            }
 
             return _forks;
         }
 
+        public ulong ExecutedInstructions { get; private set; }
         public ISpace Space { get; }
         public IMemory Memory => _memory;
         public IStack Stack => _stack;
