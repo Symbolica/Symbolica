@@ -29,9 +29,9 @@ internal sealed class SystemProxy : ISystemProxy
         return address;
     }
 
-    public int Open(string path)
+    public int Open(IExpression path)
     {
-        var (descriptor, system) = _system.Open(path);
+        var (descriptor, system) = _system.Open(_space, _memory, path);
         _system = system;
 
         return descriptor;

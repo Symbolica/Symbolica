@@ -7,7 +7,7 @@ namespace Symbolica.Implementation.System;
 internal interface IPersistentSystem
 {
     (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemoryProxy memory);
-    (int, IPersistentSystem) Open(string path);
+    (int, IPersistentSystem) Open(ISpace space, IMemory memory, IExpression path);
     (int, IPersistentSystem) Duplicate(int descriptor);
     (int, IPersistentSystem) Close(int descriptor);
     (long, IPersistentSystem) Seek(int descriptor, long offset, uint whence);

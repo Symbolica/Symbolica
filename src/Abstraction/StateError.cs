@@ -5,6 +5,7 @@ public enum StateError
     Abort,
     DivideByZero,
     FailingAssertion,
+    InvalidFileOffset,
     InvalidJump,
     InvalidMemoryFree,
     InvalidMemoryMove,

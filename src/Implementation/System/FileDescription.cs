@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -35,6 +36,9 @@ internal sealed class FileDescription : IPersistentDescription
         var result = _file.Read(bytes, _offset, count);
 
         var size = ((Bytes) (uint) result).ToBits();
+
+        // TODO: What's this line for?
+        space.CreateSymbolic(size, "name", Enumerable.Empty<Func<IExpression, IExpression>>());
 
         if (size != Bits.Zero)
             memory.Write(address, space.CreateConstant(size, new BigInteger(bytes, true)));

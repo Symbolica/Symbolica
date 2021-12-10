@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -7,16 +9,38 @@ namespace Symbolica.Implementation.System;
 internal sealed class DescriptionFactory : IDescriptionFactory
 {
     private readonly IFileSystem _fileSystem;
+    private readonly ulong _symbolicFileSize;
 
-    public DescriptionFactory(IFileSystem fileSystem)
+    public DescriptionFactory(IFileSystem fileSystem, ulong symbolicFileSize)
     {
         _fileSystem = fileSystem;
+        _symbolicFileSize = symbolicFileSize;
     }
 
-    public IPersistentDescription? Create(string path)
+    public IPersistentDescription? Create(ISpace space, IMemory memory, IExpression path)
     {
-        return CreateFile(path)
-               ?? CreateDirectory(path);
+        IEnumerable<char> ReadCharacters()
+        {
+            while (true)
+            {
+                var character = (char) memory.Read(path, Bytes.One.ToBits()).Constant;
+                if (character == default)
+                    yield break;
+
+                yield return character;
+                path = path.Add(space.CreateConstant(path.Size, (uint) Bytes.One));
+            }
+        }
+        try
+        {
+            var concretePath = new string(ReadCharacters().ToArray());
+            return CreateFile(concretePath)
+                ?? CreateDirectory(concretePath);
+        }
+        catch (SymbolicaException)
+        {
+            return SymbolicDescription.Create(_symbolicFileSize);
+        }
     }
 
     public IPersistentDescription CreateInput()
