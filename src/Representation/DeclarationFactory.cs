@@ -123,7 +123,8 @@ namespace Symbolica.Representation
                 {"stat", (id, parameters) => new GetPathStatus(id, parameters)},
                 {"stat64", (id, parameters) => new GetPathStatus(id, parameters)},
                 {"symbolize", (id, parameters) => new Symbolize(id, parameters)},
-                {"__vdsosym", (id, parameters) => new VirtualCall(id, parameters)}
+                {"__vdsosym", (id, parameters) => new VirtualCall(id, parameters)},
+                {"vfprintf", (id, parameters) => new PrintFormatted(id, parameters)}
             };
 
         private static readonly IReadOnlyDictionary<string, Func<FunctionId, IParameters, IFunction>> Internals =
