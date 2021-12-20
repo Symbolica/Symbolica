@@ -1,15 +1,16 @@
-﻿using Symbolica.Expression;
+﻿using Symbolica.Computation.Values.Symbolics;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
     internal sealed class SymbolicProposition : IProposition
     {
-        private readonly IBool _assertion;
+        private readonly IValue _assertion;
         private readonly IModel _model;
-        private readonly IBool _negation;
+        private readonly IValue _negation;
         private readonly IPersistentSpace _space;
 
-        private SymbolicProposition(IPersistentSpace space, IModel model, IBool assertion, IBool negation)
+        private SymbolicProposition(IPersistentSpace space, IModel model, IValue assertion, IValue negation)
         {
             _space = space;
             _model = model;
@@ -19,19 +20,19 @@ namespace Symbolica.Computation
 
         public ISpace FalseSpace => _space.Assert(_negation);
         public ISpace TrueSpace => _space.Assert(_assertion);
-        public bool CanBeFalse => _model.IsSatisfiable(_negation.Symbolic);
-        public bool CanBeTrue => _model.IsSatisfiable(_assertion.Symbolic);
+        public bool CanBeFalse => _model.IsSatisfiable(_negation);
+        public bool CanBeTrue => _model.IsSatisfiable(_assertion);
 
         public void Dispose()
         {
             _model.Dispose();
         }
 
-        public static IProposition Create(IPersistentSpace space, IBool assertion, IBool[] constraints)
+        public static IProposition Create(IPersistentSpace space, IValue assertion, IValue[] constraints)
         {
             var model = space.GetModel(constraints);
 
-            return new SymbolicProposition(space, model, assertion, assertion.Not());
+            return new SymbolicProposition(space, model, assertion, new Not(assertion));
         }
     }
 }

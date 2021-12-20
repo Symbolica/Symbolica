@@ -4,7 +4,7 @@ namespace Symbolica.Computation
 {
     internal sealed class ConstantProposition : IProposition
     {
-        public ConstantProposition(ISpace space, bool isTrue)
+        private ConstantProposition(ISpace space, bool isTrue)
         {
             TrueSpace = space;
             CanBeTrue = isTrue;
@@ -17,6 +17,11 @@ namespace Symbolica.Computation
 
         public void Dispose()
         {
+        }
+
+        public static IProposition Create(ISpace space, IConstantValue value)
+        {
+            return new ConstantProposition(space, value.AsBool());
         }
     }
 }

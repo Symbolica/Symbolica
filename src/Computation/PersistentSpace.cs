@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
+using Symbolica.Computation.Values;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
     internal sealed class PersistentSpace : IPersistentSpace
     {
-        private readonly IPersistentStack<IBool> _assertions;
+        private readonly IPersistentStack<IValue> _assertions;
         private readonly ICollectionFactory _collectionFactory;
         private readonly IContextFactory _contextFactory;
         private readonly IModelFactory _modelFactory;
@@ -19,7 +21,7 @@ namespace Symbolica.Computation
         private PersistentSpace(Bits pointerSize, bool useSymbolicGarbage,
             ISymbolFactory symbolFactory, IModelFactory modelFactory,
             IContextFactory contextFactory, ICollectionFactory collectionFactory,
-            IPersistentStack<IBool> assertions)
+            IPersistentStack<IValue> assertions)
         {
             PointerSize = pointerSize;
             _useSymbolicGarbage = useSymbolicGarbage;
@@ -32,7 +34,7 @@ namespace Symbolica.Computation
 
         public Bits PointerSize { get; }
 
-        public IPersistentSpace Assert(IBool assertion)
+        public IPersistentSpace Assert(IValue assertion)
         {
             return new PersistentSpace(PointerSize, _useSymbolicGarbage,
                 _symbolFactory, _modelFactory,
@@ -40,9 +42,9 @@ namespace Symbolica.Computation
                 _assertions.Push(assertion));
         }
 
-        public IModel GetModel(IBool[] constraints)
+        public IModel GetModel(IValue[] constraints)
         {
-            return _modelFactory.Create(_contextFactory, constraints.Concat(_assertions).Select(a => a.Symbolic));
+            return _modelFactory.Create(_contextFactory, constraints.Concat(_assertions));
         }
 
         public IExample GetExample()
@@ -72,10 +74,8 @@ namespace Symbolica.Computation
         public IExpression CreateSymbolic(Bits size,
             string? name, IEnumerable<Func<IExpression, IExpression>>? constraints)
         {
-            var func = _symbolFactory.Create(size, name);
-
             return Expression.Create(_contextFactory, _collectionFactory,
-                new SymbolicInteger(size, func), constraints);
+                Symbol.Create(_symbolFactory, size, name), constraints);
         }
 
         public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage,
@@ -85,7 +85,7 @@ namespace Symbolica.Computation
             return new PersistentSpace(pointerSize, useSymbolicGarbage,
                 symbolFactory, modelFactory,
                 contextFactory, collectionFactory,
-                collectionFactory.CreatePersistentStack<IBool>());
+                collectionFactory.CreatePersistentStack<IValue>());
         }
     }
 }
