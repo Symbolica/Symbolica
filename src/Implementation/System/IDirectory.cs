@@ -4,7 +4,6 @@
     {
         long LastAccessTime { get; }
         long LastModifiedTime { get; }
-
-        string[] GetNames();
+        string[] Names { get; }
     }
 }
