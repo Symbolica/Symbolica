@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -24,22 +22,19 @@ namespace Symbolica.Implementation.Stack
 
         public IPersistentFrame Create(ISpace space, IMemoryProxy memory, ICaller caller, IInvocation invocation)
         {
-            var address = invocation.Varargs.Any()
+            var vaList = invocation.Varargs.Any()
                 ? _variadicAbi.PassOnStack(space, memory, invocation.Varargs)
-                : space.CreateConstant(space.PointerSize, BigInteger.Zero);
+                : _variadicAbi.DefaultVaList;
 
-            return Create(caller, invocation.Definition, invocation.Formals,
-                (s, t) => _variadicAbi.CreateVaList(s, t, address));
+            return Create(caller, invocation.Definition, invocation.Formals, vaList);
         }
 
         public IPersistentFrame CreateInitial(IDefinition main)
         {
-            return Create(new InitialCaller(), main, new InitialArguments(),
-                (s, t) => _variadicAbi.CreateVaList(s, t, s.CreateConstant(s.PointerSize, BigInteger.Zero)));
+            return Create(new InitialCaller(), main, new InitialArguments(), _variadicAbi.DefaultVaList);
         }
 
-        private IPersistentFrame Create(ICaller caller, IDefinition definition, IArguments formals,
-            Func<ISpace, IStructType, IExpression> vaList)
+        private IPersistentFrame Create(ICaller caller, IDefinition definition, IArguments formals, IVaList vaList)
         {
             return new PersistentFrame(caller, formals, vaList,
                 PersistentJumps.Create(_collectionFactory), PersistentProgramCounter.Create(definition),

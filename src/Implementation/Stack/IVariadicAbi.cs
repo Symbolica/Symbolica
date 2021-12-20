@@ -6,7 +6,8 @@ namespace Symbolica.Implementation.Stack
 {
     internal interface IVariadicAbi
     {
-        IExpression PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs);
-        IExpression CreateVaList(ISpace space, IStructType vaListType, IExpression address);
+        IVaList DefaultVaList { get; }
+
+        IVaList PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs);
     }
 }
