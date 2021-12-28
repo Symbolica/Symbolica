@@ -9,7 +9,9 @@ namespace Symbolica.Implementation.Stack
 {
     internal sealed class X86VariadicAbi : IVariadicAbi
     {
-        public IExpression PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs)
+        public IVaList DefaultVaList => new VaList(null);
+
+        public IVaList PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs)
         {
             var offsets = new List<Bits>();
             var bytes = Bytes.Zero;
@@ -28,14 +30,24 @@ namespace Symbolica.Implementation.Stack
             var address = memory.Allocate(Section.Stack, value.Size);
             memory.Write(address, value);
 
-            return address;
+            return new VaList(address);
         }
 
-        public IExpression CreateVaList(ISpace space, IStructType vaListType, IExpression address)
+        private sealed class VaList : IVaList
         {
-            return vaListType.CreateStruct(space.CreateConstant(vaListType.Size, BigInteger.Zero))
-                .Write(space, 0, address)
-                .Expression;
+            private readonly IExpression? _address;
+
+            public VaList(IExpression? address)
+            {
+                _address = address;
+            }
+
+            public IExpression Initialize(ISpace space, IStructType vaListType)
+            {
+                return vaListType.CreateStruct(space.CreateConstant(vaListType.Size, BigInteger.Zero))
+                    .Write(space, 0, _address ?? space.CreateConstant(space.PointerSize, BigInteger.Zero))
+                    .Expression;
+            }
         }
     }
 }
