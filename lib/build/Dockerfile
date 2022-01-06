@@ -1,4 +1,4 @@
-FROM alpine:3.14.2 as base
+FROM alpine:3.14.2
 LABEL maintainer "Symbolica <dev@symbolica.dev>"
 ARG llvmParallelJobs
 ENV HOME /home/me
