@@ -39,7 +39,11 @@ namespace Symbolica.Deserialization
 
         private (string, IStructType?) CreateStructType(LLVMModuleRef module, string name)
         {
-            return (name, _structTypeFactory.Create(module, name));
+            var type = module.GetTypeByName(name);
+
+            return (name, type == default
+                ? null
+                : _structTypeFactory.Create(type));
         }
     }
 }
