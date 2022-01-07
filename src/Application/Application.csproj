@@ -4,7 +4,7 @@
     <AssemblyName>Symbolica.Application</AssemblyName>
     <IsPackable>False</IsPackable>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Symbolica.Application</RootNamespace>
+    <RootNamespace>Symbolica</RootNamespace>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 

@@ -1,7 +1,6 @@
 ﻿using System.IO;
-using Symbolica.Implementation.System;
 
-namespace Symbolica.Application.Implementation
+namespace Symbolica.Implementation.System
 {
     internal sealed class FileSystem : IFileSystem
     {

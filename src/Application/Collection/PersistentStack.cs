@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Symbolica.Collection;
 
-namespace Symbolica.Application.Collection
+namespace Symbolica.Collection
 {
     internal sealed class PersistentStack<T> : IPersistentStack<T>
     {

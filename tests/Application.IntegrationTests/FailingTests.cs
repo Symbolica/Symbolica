@@ -8,7 +8,7 @@ using Symbolica.Abstraction;
 using Symbolica.Implementation;
 using Xunit;
 
-namespace Symbolica.Application
+namespace Symbolica
 {
     public class FailingTests
     {

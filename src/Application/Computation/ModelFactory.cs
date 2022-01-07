@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Symbolica.Computation;
 
-namespace Symbolica.Application.Computation
+namespace Symbolica.Computation
 {
     internal sealed class ModelFactory : IModelFactory
     {

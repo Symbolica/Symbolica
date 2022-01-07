@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Symbolica;
 using Symbolica.Abstraction;
-using Symbolica.Application;
-using Symbolica.Application.Computation;
+using Symbolica.Computation;
 using Symbolica.Implementation;
 
 var bytes = await Serializer.Serialize(args[0], args.Last(a => a.StartsWith("--O")));
