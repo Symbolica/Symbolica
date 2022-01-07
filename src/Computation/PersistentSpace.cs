@@ -54,14 +54,21 @@ namespace Symbolica.Computation
 
         public IExpression CreateConstant(Bits size, BigInteger value)
         {
-            return Expression.Create(_contextFactory, _collectionFactory,
-                ConstantUnsigned.Create(size, value), null);
+            return new ConstantExpression(_contextFactory, _collectionFactory,
+                ConstantUnsigned.Create(size, value));
         }
 
         public IExpression CreateConstantFloat(Bits size, string value)
         {
-            return Expression.Create(_contextFactory, _collectionFactory,
-                size.ParseFloat(value), null);
+            return (uint) size switch
+            {
+                32U => new ConstantExpression(_contextFactory, _collectionFactory,
+                    new ConstantSingle(float.Parse(value))),
+                64U => new ConstantExpression(_contextFactory, _collectionFactory,
+                    new ConstantDouble(double.Parse(value))),
+                _ => SymbolicExpression.Create(_contextFactory, _collectionFactory,
+                    new NormalFloat(size, value), null)
+            };
         }
 
         public IExpression CreateGarbage(Bits size)
@@ -74,7 +81,7 @@ namespace Symbolica.Computation
         public IExpression CreateSymbolic(Bits size,
             string? name, IEnumerable<Func<IExpression, IExpression>>? constraints)
         {
-            return Expression.Create(_contextFactory, _collectionFactory,
+            return SymbolicExpression.Create(_contextFactory, _collectionFactory,
                 Symbol.Create(_symbolFactory, size, name), constraints);
         }
 

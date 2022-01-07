@@ -65,11 +65,6 @@ namespace Symbolica.Computation.Values.Constants
             return (int) (BigInteger) value;
         }
 
-        public static ConstantUnsigned CreateOnes(Bits size)
-        {
-            return Create(size, ~BigInteger.Zero);
-        }
-
         public static ConstantUnsigned Create(Bits size, BigInteger value)
         {
             return new(size, value.IsZero || value.Sign > 0 && value.GetBitLength() <= (uint) size
