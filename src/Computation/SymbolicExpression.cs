@@ -382,7 +382,7 @@ namespace Symbolica.Computation
 
             return new SymbolicExpression(contextFactory, collectionFactory,
                 value, constraints
-                    .Select(c => ((SymbolicExpression) c(unconstrained)).Value)
+                    .Select(c => ((IValueExpression) c(unconstrained)).Value)
                     .ToArray());
         }
     }
