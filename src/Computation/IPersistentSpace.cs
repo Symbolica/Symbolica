@@ -4,7 +4,7 @@ namespace Symbolica.Computation
 {
     internal interface IPersistentSpace : ISpace
     {
-        IPersistentSpace Assert(IBool assertion);
-        IModel GetModel(params IBool[] constraints);
+        IPersistentSpace Assert(IValue assertion);
+        IModel GetModel(params IValue[] constraints);
     }
 }

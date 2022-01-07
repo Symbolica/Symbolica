@@ -1,21 +1,14 @@
-﻿using System.Numerics;
-using Symbolica.Collection;
+﻿using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal interface IValue
+    public interface IValue
     {
         Bits Size { get; }
 
-        BigInteger AsConstant(IContextFactory contextFactory);
-        IValue GetValue(IPersistentSpace space, IBool[] constraints);
-        IBitwise AsBitwise();
-        IBitVector AsBitVector(ICollectionFactory collectionFactory);
-        IUnsigned AsUnsigned();
-        ISigned AsSigned();
-        IBool AsBool();
-        IFloat AsFloat();
-        IValue IfElse(IBool predicate, IValue falseValue);
+        BitVecExpr AsBitVector(Context context);
+        BoolExpr AsBool(Context context);
+        FPExpr AsFloat(Context context);
     }
 }

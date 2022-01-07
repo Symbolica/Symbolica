@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation;
 
@@ -22,10 +23,10 @@ namespace Symbolica.Application.Computation
             _handle.Dispose();
         }
 
-        public bool IsSatisfiable(Func<Context, BoolExpr> assertion)
+        public bool IsSatisfiable(IValue assertion)
         {
             // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
-            return _solver.Check(assertion(_handle.Context)) switch
+            return _solver.Check(assertion.AsBool(_handle.Context)) switch
             {
                 Status.UNSATISFIABLE => false,
                 Status.SATISFIABLE => true,
@@ -33,10 +34,10 @@ namespace Symbolica.Application.Computation
             };
         }
 
-        public Expr Evaluate(Func<Context, Expr> func)
+        public BigInteger Evaluate(IValue value)
         {
             return _solver.Check() == Status.SATISFIABLE
-                ? _solver.Model.Eval(func(_handle.Context), true)
+                ? ((BitVecNum) _solver.Model.Eval(value.AsBitVector(_handle.Context), true)).BigInteger
                 : throw new Exception("The model cannot be evaluated.");
         }
 
@@ -48,11 +49,11 @@ namespace Symbolica.Application.Computation
                 : Enumerable.Empty<KeyValuePair<string, string>>();
         }
 
-        public static IModel Create(IContextFactory contextFactory, IEnumerable<Func<Context, BoolExpr>> assertions)
+        public static IModel Create(IContextFactory contextFactory, IEnumerable<IValue> assertions)
         {
             var handle = contextFactory.Create();
             var solver = handle.Context.MkSolver(handle.Context.MkTactic("smt"));
-            solver.Assert(assertions.Select(a => a(handle.Context)).ToArray());
+            solver.Assert(assertions.Select(a => a.AsBool(handle.Context)).ToArray());
 
             return new Model(handle, solver);
         }

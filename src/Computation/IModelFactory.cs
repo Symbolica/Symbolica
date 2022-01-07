@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Z3;
+﻿using System.Collections.Generic;
 
 namespace Symbolica.Computation
 {
     public interface IModelFactory
     {
-        IModel Create(IContextFactory contextFactory, IEnumerable<Func<Context, BoolExpr>> assertions);
+        IModel Create(IContextFactory contextFactory, IEnumerable<IValue> assertions);
     }
 }
