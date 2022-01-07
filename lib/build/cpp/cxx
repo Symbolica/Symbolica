@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 set -e
 
-exec ~/.symbolica/build/cc -nostdinc++ "$@"
+XLINKER="$XLINKER -Xlinker -lc++ -Xlinker -nostdlib++"
+CLANG=clang++ exec ~/.symbolica/build/cc -nostdinc++ -isystem /home/me/.symbolica/build/sysroot/include/c++/v1 -stdlib=libc++ "$@"

@@ -4,6 +4,7 @@ set -e
 p="$@"
 set --
 
+CLANG=${CLANG:='clang-12'}
 xlinker="$XLINKER"
 extension=
 
@@ -17,9 +18,9 @@ do
 done
 
 if [ -z "$NO_LLVM" ];
-    then clang-12 -emit-llvm -c "$@";
+    then ${CLANG} -emit-llvm -c "$@";
 fi
 
 if [ -n "$CODEGEN" ];
-    then exec clang-12 $p $xlinker;
+    then exec ${CLANG} $p $xlinker;
 fi
