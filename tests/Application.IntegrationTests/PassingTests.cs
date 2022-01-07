@@ -6,7 +6,7 @@ using FluentAssertions;
 using Symbolica.Implementation;
 using Xunit;
 
-namespace Symbolica.Application
+namespace Symbolica
 {
     public class PassingTests
     {

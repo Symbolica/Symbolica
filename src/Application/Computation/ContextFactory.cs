@@ -1,6 +1,4 @@
-﻿using Symbolica.Computation;
-
-namespace Symbolica.Application.Computation
+﻿namespace Symbolica.Computation
 {
     internal sealed class ContextFactory : IContextFactory
     {

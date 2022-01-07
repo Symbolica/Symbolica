@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Symbolica.Application.Tests</AssemblyName>
-    <RootNamespace>Symbolica.Application</RootNamespace>
+    <RootNamespace>Symbolica</RootNamespace>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 

@@ -1,8 +1,7 @@
 ﻿using Microsoft.Z3;
-using Symbolica.Computation;
 using Symbolica.Expression;
 
-namespace Symbolica.Application.Computation
+namespace Symbolica.Computation
 {
     internal sealed class SymbolFactory : ISymbolFactory
     {

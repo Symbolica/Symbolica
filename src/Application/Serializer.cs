@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Symbolica.Representation;
 
-namespace Symbolica.Application
+namespace Symbolica
 {
     internal static class Serializer
     {

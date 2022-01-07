@@ -1,6 +1,4 @@
-﻿using Symbolica.Collection;
-
-namespace Symbolica.Application.Collection
+﻿namespace Symbolica.Collection
 {
     internal sealed class CollectionFactory : ICollectionFactory
     {

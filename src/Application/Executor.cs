@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Symbolica.Application.Collection;
-using Symbolica.Application.Computation;
-using Symbolica.Application.Implementation;
+using Symbolica.Collection;
 using Symbolica.Computation;
 using Symbolica.Deserialization;
 using Symbolica.Implementation;
 using Symbolica.Implementation.System;
 using Symbolica.Representation;
 
-namespace Symbolica.Application
+namespace Symbolica
 {
     internal sealed class Executor
     {

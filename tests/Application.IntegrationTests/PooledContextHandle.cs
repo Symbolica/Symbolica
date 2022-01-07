@@ -2,7 +2,7 @@
 using Microsoft.Z3;
 using Symbolica.Computation;
 
-namespace Symbolica.Application
+namespace Symbolica
 {
     internal sealed class PooledContextHandle : IContextHandle
     {

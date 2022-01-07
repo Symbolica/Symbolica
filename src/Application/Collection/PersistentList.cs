@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Symbolica.Collection;
 
-namespace Symbolica.Application.Collection
+namespace Symbolica.Collection
 {
     internal sealed class PersistentList<T> : IPersistentList<T>
     {

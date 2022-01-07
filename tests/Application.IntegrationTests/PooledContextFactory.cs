@@ -1,6 +1,6 @@
 ﻿using Symbolica.Computation;
 
-namespace Symbolica.Application
+namespace Symbolica
 {
     internal sealed class PooledContextFactory : IContextFactory
     {

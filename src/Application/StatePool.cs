@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Symbolica.Implementation;
 
-namespace Symbolica.Application.Implementation
+namespace Symbolica
 {
     internal sealed class StatePool : IDisposable
     {
