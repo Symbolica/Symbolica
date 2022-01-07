@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
@@ -550,7 +551,7 @@ namespace Symbolica.Computation
         private IExpression AsSymbolic()
         {
             return SymbolicExpression.Create(_contextFactory, _collectionFactory,
-                Value, null);
+                Value, Enumerable.Empty<Func<IExpression, IExpression>>());
         }
     }
 }

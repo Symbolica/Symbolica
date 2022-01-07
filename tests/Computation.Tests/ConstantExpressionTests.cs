@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Symbolica.Collection;
@@ -22,7 +23,7 @@ namespace Symbolica.Computation
         private static SymbolicExpression CreateSymbolic(IValue value)
         {
             return SymbolicExpression.Create(ContextFactory, CollectionFactory,
-                value, null);
+                value, Enumerable.Empty<Func<IExpression, IExpression>>());
         }
 
         [Theory]

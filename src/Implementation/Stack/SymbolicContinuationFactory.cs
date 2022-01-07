@@ -1,4 +1,6 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using System.Linq;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack
 {
@@ -6,7 +8,10 @@ namespace Symbolica.Implementation.Stack
     {
         public (IExpression, IPersistentContinuationFactory) Create(ISpace space, Bits size)
         {
-            return (space.CreateSymbolic(size, null, null), this);
+            var continuation = space.CreateSymbolic(size, null,
+                Enumerable.Empty<Func<IExpression, IExpression>>());
+
+            return (continuation, this);
         }
     }
 }

@@ -67,19 +67,19 @@ namespace Symbolica.Computation
                 64U => new ConstantExpression(_contextFactory, _collectionFactory,
                     new ConstantDouble(double.Parse(value))),
                 _ => SymbolicExpression.Create(_contextFactory, _collectionFactory,
-                    new NormalFloat(size, value), null)
+                    new NormalFloat(size, value), Enumerable.Empty<Func<IExpression, IExpression>>())
             };
         }
 
         public IExpression CreateGarbage(Bits size)
         {
             return _useSymbolicGarbage
-                ? CreateSymbolic(size, null, null)
+                ? CreateSymbolic(size, null, Enumerable.Empty<Func<IExpression, IExpression>>())
                 : CreateConstant(size, BigInteger.Zero);
         }
 
         public IExpression CreateSymbolic(Bits size,
-            string? name, IEnumerable<Func<IExpression, IExpression>>? constraints)
+            string? name, IEnumerable<Func<IExpression, IExpression>> constraints)
         {
             return SymbolicExpression.Create(_contextFactory, _collectionFactory,
                 Symbol.Create(_symbolFactory, size, name), constraints);

@@ -375,17 +375,15 @@ namespace Symbolica.Computation
         }
 
         public static SymbolicExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,
-            IValue value, IEnumerable<Func<IExpression, IExpression>>? constraints)
+            IValue value, IEnumerable<Func<IExpression, IExpression>> constraints)
         {
             var unconstrained = new SymbolicExpression(contextFactory, collectionFactory,
                 value, Array.Empty<IValue>());
 
-            return constraints == null
-                ? unconstrained
-                : new SymbolicExpression(contextFactory, collectionFactory,
-                    value, constraints
-                        .Select(c => ((SymbolicExpression) c(unconstrained)).Value)
-                        .ToArray());
+            return new SymbolicExpression(contextFactory, collectionFactory,
+                value, constraints
+                    .Select(c => ((SymbolicExpression) c(unconstrained)).Value)
+                    .ToArray());
         }
     }
 }
