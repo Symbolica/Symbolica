@@ -4,14 +4,14 @@ set -e
 p="$@"
 set --
 
-xlinker="$XLINKER"
 extension=
 
 for x in $p
 do
     case "$x" in
+        -static) ;;
+        -l*) ;;
         -o) set -- "$@" -o ; extension=".bc" ;;
-        -c) set -- "$@" -c ; xlinker= ;;
         *) set -- "$@" "$x$extension" ; extension= ;;
     esac
 done
@@ -21,5 +21,5 @@ if [ -z "$NO_LLVM" ];
 fi
 
 if [ -n "$CODEGEN" ];
-    then exec clang-12 $p $xlinker;
+    then exec clang-12 $p;
 fi
