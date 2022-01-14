@@ -9,9 +9,13 @@ extension=
 for x in $p
 do
     case "$x" in
-        -static) ;;
+        -fuse-ld=*) ;;
         -l*) ;;
+        -L*) ;;
         -o) set -- "$@" -o ; extension=".bc" ;;
+        -print-*) exec clang-12 $p ;;
+        -static) ;;
+        -static-libgcc) ;;
         *) set -- "$@" "$x$extension" ; extension= ;;
     esac
 done
@@ -21,5 +25,5 @@ if [ -z "$NO_LLVM" ];
 fi
 
 if [ -n "$CODEGEN" ];
-    then exec clang-12 $p;
+    then exec clang-12 $p -Xlinker -static;
 fi
