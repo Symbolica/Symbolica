@@ -5,6 +5,8 @@ p="$@"
 set --
 
 CLANG=${CLANG:='clang-12'}
+crtBeginXlinker="$CRT_BEGIN_XLINKER"
+crtEndXlinker="$CRT_END_XLINKER"
 xlinker="$XLINKER"
 extension=
 
@@ -12,7 +14,7 @@ for x in $p
 do
     case "$x" in
         -o) set -- "$@" -o ; extension=".bc" ;;
-        -c) set -- "$@" -c ; xlinker= ;;
+        -c) set -- "$@" -c ; xlinker= ; crtBeginXlinker= ; crtEndXlinker= ;;
         *) set -- "$@" "$x$extension" ; extension= ;;
     esac
 done
@@ -22,5 +24,5 @@ if [ -z "$NO_LLVM" ];
 fi
 
 if [ -n "$CODEGEN" ];
-    then exec ${CLANG} $p $xlinker;
+    then exec ${CLANG} $crtBeginXlinker $p $xlinker $crtEndXlinker;
 fi

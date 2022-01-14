@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -e
+
+CLANG=clang++ exec ~/.symbolica/build/cc -nostdinc++ "$@"
