@@ -124,7 +124,11 @@ namespace Symbolica.Representation
                 {"stat64", (id, parameters) => new GetPathStatus(id, parameters)},
                 {"symbolize", (id, parameters) => new Symbolize(id, parameters)},
                 {"__vdsosym", (id, parameters) => new VirtualCall(id, parameters)},
-                {"vfprintf", (id, parameters) => new PrintFormatted(id, parameters)}
+                {"vfprintf", (id, parameters) => new PrintFormatted(id, parameters)},
+                {"_ZdlPvSt11align_val_t", (id, parameters) => new Free(id, parameters)},
+                {"_Znam", (id, parameters) => new Allocate(id, parameters)},
+                {"_Znwm", (id, parameters) => new Allocate(id, parameters)},
+                {"_ZnwmSt11align_val_t", (id, parameters) => new Allocate(id, parameters)}
             };
 
         private static readonly IReadOnlyDictionary<string, Func<FunctionId, IParameters, IFunction>> Internals =
