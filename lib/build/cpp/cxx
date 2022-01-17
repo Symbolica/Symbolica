@@ -6,11 +6,11 @@ set -e
 # to the linker. So will it also find crtbegin from compiler-rt if we tell it to
 # look there, or would we need to rebuild clang with USE_COMPILER_RT enabled?
 CLANG=clang++ \
-CRT_BEGIN_XLINKER="-Xlinker /home/me/.symbolica/build/sysroot/lib/crt1.o -Xlinker /home/me/.symbolica/build/sysroot/lib/crti.o -Xlinker /home/me/.symbolica/build/sysroot/lib/linux/clang_rt.crtbegin-x86_64.o" \
+CRT_BEGIN_XLINKER="-Xlinker /home/me/.symbolica/build/sysroot/lib/linux/clang_rt.crtbegin-x86_64.o" \
 XLINKER="$XLINKER -Xlinker -lc++" \
-CRT_END_XLINKER="-Xlinker /home/me/.symbolica/build/sysroot/lib/linux/clang_rt.crtend-x86_64.o -Xlinker /home/me/.symbolica/build/sysroot/lib/crtn.o" \
+CRT_END_XLINKER="-Xlinker /home/me/.symbolica/build/sysroot/lib/linux/clang_rt.crtend-x86_64.o" \
 exec /home/me/.symbolica/build/cc \
     -nostdinc++ \
-    -isystem /home/me/.symbolica/build/sysroot/include/c++/v1 \
+    -I /home/me/.symbolica/build/sysroot/include/c++/v1 \
     -fno-exceptions \
     "$@"
