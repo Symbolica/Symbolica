@@ -53,7 +53,7 @@ RUN apk add --no-cache --virtual build-deps git cmake ninja python3 && \
     cd / && \
     rm -rf /tmp/llvm-project && \
     apk --purge del build-deps && \
-    rm ./cxx $HOME/.symbolica/build/cxx-bootstrap
+    rm $HOME/.symbolica/build/cxx-bootstrap
 
 COPY ./cxx $HOME/.symbolica/build/cxx
 
