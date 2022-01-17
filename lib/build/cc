@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 set -e
 
-XLINKER="$XLINKER -Xlinker -lc -Xlinker -nostdlib -Xlinker -static" \
-exec ~/.symbolica/build/clang -nostdinc -nodefaultlibs --sysroot ~/.symbolica/build/sysroot -isystem ~/.symbolica/build/sysroot/include -O0 -Xclang -disable-O0-optnone -fPIC "$@"
+exec ~/.symbolica/build/sysroot/bin/musl-clang -O0 -Xclang -disable-O0-optnone -fPIC "$@"
