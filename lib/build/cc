@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-set -e
-
-exec ~/.symbolica/build/sysroot/bin/musl-clang -O0 -Xclang -disable-O0-optnone -fPIC "$@"

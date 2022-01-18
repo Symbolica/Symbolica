@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+set -e
+
+SYSROOT=$(eval echo ~/.symbolica)
+
+exec ~/.symbolica/bin/cc -I$SYSROOT/include/python3.8 -DCPYTHON_HOME=L\"$SYSROOT\" -DCPYTHON_EXEC=L\"$SYSROOT/bin/python3\" -DCPYTHON_PATH=L\"$SYSROOT/lib/python3.8\" "$@" -lpython3.8

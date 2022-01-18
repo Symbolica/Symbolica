@@ -1,6 +1,6 @@
-FROM alpine:3.14.2 as base
-LABEL maintainer "Symbolica <dev@symbolica.dev>"
 ARG llvmParallelJobs
+FROM alpine:3.14.2
+LABEL maintainer "Symbolica <dev@symbolica.dev>"
 
 RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
     apk add --no-cache binutils && \

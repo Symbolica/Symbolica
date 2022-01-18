@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -e
+
+exec ~/.symbolica/bin/cc-link "$@" ~/.symbolica/lib/libgmp.bc ~/.symbolica/lib/libecl.bc

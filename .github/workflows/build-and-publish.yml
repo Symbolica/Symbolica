@@ -31,7 +31,7 @@ jobs:
       matrix:
         include:
         - imageName: build
-          dockerContext: lib/build
+          dockerContext: lib/c/build
         - imageName: translate
           dockerContext: lib/translate
     steps:
