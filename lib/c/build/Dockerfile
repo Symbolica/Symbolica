@@ -12,6 +12,7 @@ RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
         -Wno-dev \
         -S llvm-project/llvm \
         -B build \
+        -DCLANG_DEFAULT_RTLIB=compiler-rt \
         -DCLANG_VENDOR=Alpine \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
         -DCOMPILER_RT_BUILD_CRT=ON \
