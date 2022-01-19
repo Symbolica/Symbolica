@@ -34,6 +34,7 @@ COPY . $HOME/.symbolica
 RUN apk add --no-cache --virtual musl-build-deps findutils git make && \
     cd $HOME/.symbolica && \
     ./install-musl.sh && \
+    rm -rf musl install-musl.sh && \
     cd / && \
     apk --purge del musl-build-deps
 

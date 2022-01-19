@@ -2,4 +2,4 @@
 set -e
 
 ~/.symbolica/bin/cc *.c
-~/.symbolica/bin/cc-link *.bc -o symbolica.bc
+~/.symbolica/bin/libc-link *.bc -o symbolica.bc

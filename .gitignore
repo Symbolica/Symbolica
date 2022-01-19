@@ -2,7 +2,6 @@
 *.user
 .idea/
 .ionide/
-/src/*/bin/
-/src/*/obj/
-/tests/*/bin/
-/tests/*/obj/
+obj/
+bin/
+!/lib/**/bin/
