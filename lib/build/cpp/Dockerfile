@@ -13,11 +13,11 @@ RUN apk add --no-cache --virtual build-deps git cmake ninja python3 && \
     git clone --depth 1 --branch llvmorg-12.0.1 https://github.com/llvm/llvm-project.git && \
     cd llvm-project \
     mkdir build && \
-    CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/build/cc CXX=~/.symbolica/build/cxx-bootstrap \
+    CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/build/cc CXX=~/.symbolica/build/cxx-bootstrap CXXFLAGS="-fno-threadsafe-statics" \
         cmake -G Ninja \
         -S runtimes \
         -B build \
-        -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DCMAKE_BUILD_TYPE=Debug \
         -DCMAKE_INSTALL_PREFIX="${HOME}/.symbolica/build/sysroot" \
         -DCOMPILER_RT_BUILD_CRT=ON \
         -DCOMPILER_RT_BUILD_LIBFUZZER=OFF \
