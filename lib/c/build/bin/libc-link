@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -e
+
+exec ~/.symbolica/bin/llvm-link ~/.symbolica/lib/libc.bc "$@"

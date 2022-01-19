@@ -1,6 +1,6 @@
-FROM alpine:3.14.2 as base
-LABEL maintainer "Symbolica <dev@symbolica.dev>"
 ARG llvmParallelJobs
+FROM alpine:3.14.2
+LABEL maintainer "Symbolica <dev@symbolica.dev>"
 ENV HOME /home/me
 
 RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
@@ -26,16 +26,16 @@ RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
     rm -rf /tmp/* && \
     apk --purge del build-deps
 
-COPY . $HOME/.symbolica/build
+COPY . $HOME/.symbolica
 
 # Install findutils because the default busybox xargs doesnt handle large inputs well
 # and it ends up batching the calls to llvm-link which results in us only producing
 # a libc.bc file with the contents of the final invocation in it.
-RUN apk add --no-cache --virtual musl-build-deps git make findutils && \
-    cd $HOME/.symbolica/build/install &&  \
-    ./musl.sh && \
+RUN apk add --no-cache --virtual musl-build-deps findutils git make && \
+    cd $HOME/.symbolica && \
+    ./install-musl.sh && \
+    rm -rf musl install-musl.sh && \
     cd / && \
-    rm -rf $HOME/.symbolica/build/install && \
     apk --purge del musl-build-deps
 
 WORKDIR /code

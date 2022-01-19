@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -e
+
+exec ~/.symbolica/bin/libc-link "$@" ~/.symbolica/lib/libpython.bc

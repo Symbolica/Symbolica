@@ -2,9 +2,8 @@
 set -e
 
 rm -rf ~/.symbolica
+mkdir ~/.symbolica
+cp -r lib/c/build/. lib/translate/. ~/.symbolica
 
-cp -r lib/translate ~/.symbolica
-cp -r lib/build ~/.symbolica/build
-
-cd ~/.symbolica/build
-./install/musl.sh
+cd ~/.symbolica
+./install-musl.sh

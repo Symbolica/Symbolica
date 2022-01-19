@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 set -e
 
-~/.symbolica/build/cc *.c
-~/.symbolica/build/ld *.bc -o symbolica.bc
+~/.symbolica/bin/cc *.c
+~/.symbolica/bin/libc-link *.bc -o symbolica.bc

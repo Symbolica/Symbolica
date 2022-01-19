@@ -37,7 +37,7 @@
 ### symbolica/build
 
 ```sh
-docker build lib/build -t symbolica/build:latest
+docker build lib/c/build -t symbolica/build:latest
 ```
 
 ```sh
