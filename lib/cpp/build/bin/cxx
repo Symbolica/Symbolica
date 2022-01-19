@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 set -e
 
-exec ~/.symbolica/bin/clang++ -I$(eval echo ~/.symbolica/include/c++/v1) -fno-exceptions "$@" -lc++
+exec ~/.symbolica/bin/cc -nostdinc++ -I$(eval echo ~/.symbolica/include/c++/v1) -fno-exceptions "$@" -lc++
