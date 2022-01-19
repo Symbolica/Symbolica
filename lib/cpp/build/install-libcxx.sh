@@ -5,7 +5,7 @@ git clone --depth 1 --branch llvmorg-12.0.1 https://github.com/llvm/llvm-project
 
 cd llvm-project
 mkdir build
-CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/bin/cc CXX=~/.symbolica/bin/clang++ CXXFLAGS=-nostdinc++ \
+CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/bin/cc CXX=~/.symbolica/bin/cc CXXFLAGS=-nostdinc++ \
     cmake -G Ninja \
     -S runtimes \
     -B build \
