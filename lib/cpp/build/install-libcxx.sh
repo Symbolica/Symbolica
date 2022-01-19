@@ -7,6 +7,7 @@ cd llvm-project
 mkdir build
 CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/bin/cc CXX=~/.symbolica/bin/cc CXXFLAGS=-nostdinc++ \
     cmake -G Ninja \
+    -Wno-dev \
     -S runtimes \
     -B build \
     -DCMAKE_BUILD_TYPE=Debug \

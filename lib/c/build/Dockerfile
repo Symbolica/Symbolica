@@ -6,23 +6,28 @@ ENV HOME /home/me
 RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
     apk add --no-cache binutils && \
     apk add --no-cache --virtual build-deps build-base cmake git ninja python3 && \
-    mkdir -p /tmp/build && \
     cd /tmp && \
     git clone --depth 1 --branch llvmorg-12.0.1 https://github.com/llvm/llvm-project.git && \
-    cd build && \
     cmake -G Ninja \
         -Wno-dev \
+        -S llvm \
+        -B build \
         -DCLANG_VENDOR=Alpine \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DCOMPILER_RT_BUILD_CRT=ON \
+        -DCOMPILER_RT_BUILD_LIBFUZZER=OFF \
+        -DCOMPILER_RT_BUILD_MEMPROF=OFF \
+        -DCOMPILER_RT_BUILD_SANITIZERS=OFF \
+        -DCOMPILER_RT_BUILD_XRAY=OFF \
+        -DCOMPILER_RT_USE_BUILTINS_LIBRARY=OFF \
         -DLLVM_ENABLE_PROJECTS=clang \
+        -DLLVM_ENABLE_RUNTIMES=compiler-rt \
         -DLLVM_INCLUDE_EXAMPLES=OFF \
         -DLLVM_INCLUDE_TESTS=OFF \
         -DLLVM_PARALLEL_LINK_JOBS=${llvmParallelJobs} \
-        -DLLVM_TARGETS_TO_BUILD=Native \
-        /tmp/llvm-project/llvm && \
-    ninja -j ${llvmParallelJobs} install-llvm-link install-clang && \
+        -DLLVM_TARGETS_TO_BUILD=Native
+    ninja -C build -j ${llvmParallelJobs} install-clang install-compiler-rt install-llvm-link && \
     mv /usr/local/bin/llvm-link /usr/local/bin/llvm-link-12 && \
-    cd / && \
     rm -rf /tmp/* && \
     apk --purge del build-deps
 
@@ -35,7 +40,6 @@ RUN apk add --no-cache --virtual musl-build-deps findutils git make && \
     cd $HOME/.symbolica && \
     ./install-musl.sh && \
     rm -rf musl install-musl.sh && \
-    cd / && \
     apk --purge del musl-build-deps
 
 WORKDIR /code
