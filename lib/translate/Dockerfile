@@ -9,7 +9,7 @@ RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
     git clone --depth 1 --branch llvmorg-12.0.1 https://github.com/llvm/llvm-project.git && \
     cmake -G Ninja \
         -Wno-dev \
-        -S llvm \
+        -S llvm-project/llvm \
         -B build \
         -DCLANG_VENDOR=Alpine \
         -DCMAKE_BUILD_TYPE=MinSizeRel \

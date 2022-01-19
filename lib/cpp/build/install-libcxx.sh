@@ -3,12 +3,10 @@ set -e
 
 git clone --depth 1 --branch llvmorg-12.0.1 https://github.com/llvm/llvm-project.git
 
-cd llvm-project
-mkdir build
 CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/bin/cc CXX=~/.symbolica/bin/cc CXXFLAGS=-nostdinc++ \
     cmake -G Ninja \
     -Wno-dev \
-    -S runtimes \
+    -S llvm-project/runtimes \
     -B build \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_INSTALL_PREFIX=~/.symbolica \
@@ -34,4 +32,3 @@ CODEGEN=1 NO_LLVM=1 ninja -C build install-cxx install-cxxabi install-unwind
 find build/libunwind -name "*.o.bc" ! -name "*.S.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libunwind.bc
 find build/libcxxabi -name "*.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libcxxabi.bc
 find build/libcxx -name "*.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libcxx.bc
-cd ..
