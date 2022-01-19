@@ -7,8 +7,7 @@ COPY . $HOME/.symbolica
 RUN apk add --no-cache --virtual libcxx-build-deps cmake git ninja python3 && \
     cd $HOME/.symbolica && \
     ./install-libcxx.sh && \
-    rm -rf llvm-project install-libcxx.sh && \
-    cd / && \
+    rm -rf /tmp/* llvm-project install-libcxx.sh && \
     apk --purge del libcxx-build-deps
 
 WORKDIR /code
