@@ -47,6 +47,19 @@ docker run -v <path-to-user-code>:/code symbolica/build:latest
 [![Docker Image Version (latest semver)](https://img.shields.io/docker/v/symbolica/build?sort=semver&logo=Docker)](https://hub.docker.com/repository/docker/symbolica/build)
 [![Docker Pulls](https://img.shields.io/docker/pulls/symbolica/build?logo=Docker&label=pulls)](https://hub.docker.com/repository/docker/symbolica/build)
 
+### symbolica/build-cpp
+
+```sh
+docker build lib/cpp/build --build-arg BUILD_BASE_IMG_TAG=latest -t symbolica/build-cpp:latest
+```
+
+```sh
+docker run -v <path-to-user-code>:/code symbolica/build-cpp:latest
+```
+
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/symbolica/build-cpp?sort=semver&logo=Docker)](https://hub.docker.com/repository/docker/symbolica/build-cpp)
+[![Docker Pulls](https://img.shields.io/docker/pulls/symbolica/build-cpp?logo=Docker&label=pulls)](https://hub.docker.com/repository/docker/symbolica/build-cpp)
+
 ### symbolica/translate
 
 ```sh
