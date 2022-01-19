@@ -7,7 +7,7 @@ CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/bin/cc CXX=~/.symbolica/bin/cc CXXFLAGS=-nos
     cmake -G Ninja \
     -Wno-dev \
     -S llvm-project/runtimes \
-    -B build \
+    -B llvm-project/build \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_INSTALL_PREFIX=~/.symbolica \
     -DLIBCXX_CXX_ABI=libcxxabi \
@@ -27,8 +27,8 @@ CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/bin/cc CXX=~/.symbolica/bin/cc CXXFLAGS=-nos
     -DLIBUNWIND_ENABLE_SHARED=OFF \
     -DLIBUNWIND_ENABLE_THREADS=OFF \
     -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind"
-CODEGEN=1 ninja -C build cxx cxxabi unwind
-CODEGEN=1 NO_LLVM=1 ninja -C build install-cxx install-cxxabi install-unwind
+CODEGEN=1 ninja -C llvm-project/build cxx cxxabi unwind
+CODEGEN=1 NO_LLVM=1 ninja -C llvm-project/build install-cxx install-cxxabi install-unwind
 find build/libunwind -name "*.o.bc" ! -name "*.S.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libunwind.bc
 find build/libcxxabi -name "*.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libcxxabi.bc
 find build/libcxx -name "*.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libcxx.bc
