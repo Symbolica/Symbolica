@@ -23,6 +23,7 @@ RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
         -DCOMPILER_RT_USE_BUILTINS_LIBRARY=OFF \
         -DLLVM_ENABLE_PROJECTS=clang \
         -DLLVM_ENABLE_RUNTIMES=compiler-rt \
+        -DLLVM_HOST_TRIPLE=x86_64-alpine-linux-musl \
         -DLLVM_INCLUDE_EXAMPLES=OFF \
         -DLLVM_INCLUDE_TESTS=OFF \
         -DLLVM_PARALLEL_LINK_JOBS=${llvmParallelJobs} \
