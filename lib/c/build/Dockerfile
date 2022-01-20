@@ -21,6 +21,7 @@ RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
         -DCOMPILER_RT_BUILD_SANITIZERS=OFF \
         -DCOMPILER_RT_BUILD_XRAY=OFF \
         -DCOMPILER_RT_USE_BUILTINS_LIBRARY=OFF \
+        -DCOMPILER_RT_USE_LIBCXX=OFF \
         -DLLVM_ENABLE_PROJECTS=clang \
         -DLLVM_ENABLE_RUNTIMES=compiler-rt \
         -DLLVM_HOST_TRIPLE=x86_64-alpine-linux-musl \
