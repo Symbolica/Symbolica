@@ -29,6 +29,6 @@ CODEGEN=1 NO_LLVM=1 CC=~/.symbolica/bin/cc CXX=~/.symbolica/bin/cc CXXFLAGS=-nos
     -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind"
 CODEGEN=1 ninja -C llvm-project/build cxx cxxabi unwind
 CODEGEN=1 NO_LLVM=1 ninja -C llvm-project/build install-cxx install-cxxabi install-unwind
-find build/libunwind -name "*.o.bc" ! -name "*.S.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libunwind.bc
-find build/libcxxabi -name "*.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libcxxabi.bc
-find build/libcxx -name "*.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libcxx.bc
+find llvm-project/build/libunwind -name "*.o.bc" ! -name "*.S.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libunwind.bc
+find llvm-project/build/libcxxabi -name "*.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libcxxabi.bc
+find llvm-project/build/libcxx -name "*.o.bc" -print0 | xargs -0 ~/.symbolica/bin/llvm-link -o ~/.symbolica/lib/libcxx.bc
