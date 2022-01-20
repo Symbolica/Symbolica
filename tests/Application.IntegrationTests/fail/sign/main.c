@@ -1,11 +1,13 @@
 #include <assert.h>
-#include "symbolica.h"
+#include <symbolica.h>
 
-int sign(int x) {
+int sign(int x)
+{
     return x > 0 ? 1 : -1;
 }
 
-int sign_trick(int x) {
+int sign_trick(int x)
+{
     return (x > 0) - (x < 0);
 }
 

@@ -1,11 +1,12 @@
-#include "symbolica.h"
 #include <assert.h>
 #include <math.h>
+#include <symbolica.h>
 
 int geometric_sum(int a, int r, int n)
 {
     int s = 0;
-    for (int i = 0; i <= n; ++i) {
+    for (int i = 0; i <= n; ++i)
+    {
         s += a;
         a *= r;
     }
@@ -14,7 +15,7 @@ int geometric_sum(int a, int r, int n)
 
 int closed_form_geometric_sum(int a, int r, int n)
 {
-    return a * (1 - (int) pow(r, n + 1)) / (1 - r);
+    return a * (1 - (int)pow(r, n + 1)) / (1 - r);
 }
 
 int main()
