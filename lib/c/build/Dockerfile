@@ -39,11 +39,12 @@ COPY . $HOME/.symbolica
 # and it ends up batching the calls to llvm-link which results in us only producing
 # a libc.bc file with the contents of the final invocation in it.
 RUN apk add --no-cache --virtual musl-build-deps findutils git make && \
+    cd /tmp && \
     $HOME/.symbolica/install-musl.sh && \
     rm -rf /tmp/* $HOME/.symbolica/install-musl.sh && \
     apk --purge del musl-build-deps && \
     $HOME/.symbolica/test-cc.sh && \
-    rm $HOME/.symbolica/test-cc.sh
+    rm -rf /tmp/* $HOME/.symbolica/test-cc.sh
 
 WORKDIR /code
 ENTRYPOINT [ "./symbolica.sh" ]
