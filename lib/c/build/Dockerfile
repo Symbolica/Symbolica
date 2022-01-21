@@ -27,7 +27,8 @@ RUN llvmParallelJobs="${llvmParallelJobs:-$(nproc)}" && \
         -DLLVM_INCLUDE_EXAMPLES=OFF \
         -DLLVM_INCLUDE_TESTS=OFF \
         -DLLVM_PARALLEL_LINK_JOBS=${llvmParallelJobs} \
-        -DLLVM_TARGETS_TO_BUILD=Native && \
+        -DLLVM_TARGETS_TO_BUILD=Native \
+        -DTARGET_TRIPLE=x86_64-alpine-linux-musl && \
     ninja -C llvm-project/build -j ${llvmParallelJobs} install-clang install-compiler-rt install-llvm-link && \
     mv /usr/local/bin/llvm-link /usr/local/bin/llvm-link-12 && \
     rm -rf /tmp/* && \
