@@ -29,6 +29,15 @@ internal sealed class PersistentStack : IPersistentStack
     public bool IsInitialFrame => !_pushedFrames.Any();
     public BasicBlockId PredecessorId => _currentFrame.PredecessorId;
     public IInstruction Instruction => _currentFrame.Instruction;
+    public IEnumerable<string> StackTrace
+    {
+        get
+        {
+            yield return _currentFrame.Name;
+            foreach (var frame in _pushedFrames)
+                yield return frame.Name;
+        }
+    }
 
     public IPersistentStack Wind(ISpace space, IMemoryProxy memory, ICaller caller, IInvocation invocation)
     {

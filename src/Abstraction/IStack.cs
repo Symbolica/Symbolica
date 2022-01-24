@@ -1,4 +1,5 @@
-﻿using Symbolica.Expression;
+﻿using System.Collections.Generic;
+using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
@@ -6,6 +7,7 @@ public interface IStack
 {
     bool IsInitialFrame { get; }
     BasicBlockId PredecessorId { get; }
+    IEnumerable<string> Trace { get; }
 
     void Wind(ICaller caller, IInvocation invocation);
     ICaller Unwind();
