@@ -26,7 +26,7 @@ namespace Symbolica.Computation
                     ? _buffer.Read(offset, size)
                     : mask.Xor(_mask).Constant.IsZero
                         ? _value
-                        : _defaultReader.Read(_buffer, offset, size)
+                        : _defaultReader.Read(buffer, offset, size)
                 : _defaultReader.Read(buffer, offset, size);
         }
     }
