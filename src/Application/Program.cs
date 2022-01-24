@@ -1,10 +1,9 @@
 ﻿using System;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Symbolica.Abstraction;
 using Symbolica.Implementation;
 
 namespace Symbolica;
@@ -19,22 +18,10 @@ internal static class Program
         var bytes = await Serializer.Serialize(dir, optLevel);
         var executor = new Executor(options, maxParallelism);
 
-        var (executedInstructions, exception) = await executor.Run(bytes);
-        console.WriteLine($"Executed {executedInstructions} instructions.");
-
-        if (exception != null)
-        {
-            console.WriteLine(exception.Message);
-
-            if (exception is StateException stateException)
-                console.WriteLine(
-                    string.Join(", ", stateException.Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
-
-            return 1;
-        }
-
-        console.WriteLine("No errors were found.");
-
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        var executedInstructions = await executor.Run(bytes);
+        console.WriteLine($"Executed {executedInstructions} instructions in {stopwatch.Elapsed}.");
         return 0;
     }
 
