@@ -322,30 +322,25 @@ namespace Symbolica.Computation
                 : this;
         }
 
-        private IExpression Unary(Func<IValue, IValue> func)
+        private SymbolicExpression Unary(Func<IValue, IValue> func)
         {
-            return new SymbolicExpression(_contextFactory, _collectionFactory,
+            return new(_contextFactory, _collectionFactory,
                 func(Value), Constraints);
         }
 
-        private IExpression Binary(IExpression y, Func<IValue, IValue, IValue> func)
+        private SymbolicExpression Binary(IExpression b, Func<IValue, IValue, IValue> func)
         {
-            return Binary((IValueExpression) y, func);
-        }
+            var y = (IValueExpression) b;
 
-        private IExpression Binary(IValueExpression y, Func<IValue, IValue, IValue> func)
-        {
             return new SymbolicExpression(_contextFactory, _collectionFactory,
                 func(Value, y.Value), Constraints.Concat(y.Constraints).ToArray());
         }
 
-        private IExpression Ternary(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
+        private SymbolicExpression Ternary(IExpression b, IExpression c, Func<IValue, IValue, IValue, IValue> func)
         {
-            return Ternary((IValueExpression) y, (IValueExpression) z, func);
-        }
+            var y = (IValueExpression) b;
+            var z = (IValueExpression) c;
 
-        private IExpression Ternary(IValueExpression y, IValueExpression z, Func<IValue, IValue, IValue, IValue> func)
-        {
             return new SymbolicExpression(_contextFactory, _collectionFactory,
                 func(Value, y.Value, z.Value), Constraints.Concat(y.Constraints.Concat(z.Constraints)).ToArray());
         }
