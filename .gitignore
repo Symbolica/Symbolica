@@ -2,6 +2,7 @@
 *.user
 .idea/
 .ionide/
+.traces/
 .vscode/
 obj/
 bin/
