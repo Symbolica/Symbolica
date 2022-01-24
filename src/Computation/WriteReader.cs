@@ -5,12 +5,12 @@ namespace Symbolica.Computation
     internal sealed class WriteReader : IReader
     {
         private readonly IReader _defaultReader;
-        private readonly ISymbolicExpression _previousBuffer;
+        private readonly IExpression _previousBuffer;
         private readonly IExpression _previousMask;
         private readonly IExpression _previousValue;
 
         public WriteReader(IReader defaultReader,
-            ISymbolicExpression previousBuffer, IExpression previousMask, IExpression previousValue)
+            IExpression previousBuffer, IExpression previousMask, IExpression previousValue)
         {
             _defaultReader = defaultReader;
             _previousBuffer = previousBuffer;
