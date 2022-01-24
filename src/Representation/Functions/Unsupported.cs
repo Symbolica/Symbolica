@@ -19,6 +19,6 @@ internal sealed class Unsupported : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        throw new UnsupportedFunctionException(_name);
+        throw new UnsupportedFunctionException(_name, state.Stack);
     }
 }

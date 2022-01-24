@@ -6,7 +6,7 @@ internal interface IPersistentProgramCounter
 {
     BasicBlockId PredecessorId { get; }
     IInstruction Instruction { get; }
-
+    string FrameName { get; }
     IPersistentProgramCounter TransferBasicBlock(BasicBlockId id);
     IPersistentProgramCounter MoveNextInstruction();
 }
