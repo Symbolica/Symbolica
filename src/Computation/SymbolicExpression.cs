@@ -299,8 +299,10 @@ namespace Symbolica.Computation
         public IExpression Write(IExpression offset, IExpression value)
         {
             var mask = Mask(offset, value.Size);
-            var reader = new WriteReader(new DefaultReader(), this, mask, value);
             var buffer = And(mask.Not()).Or(value.ZeroExtend(Size).ShiftLeft(offset));
+
+            var reader = new WriteReader(new DefaultReader(),
+                this, mask, value);
 
             return new SymbolicExpression(buffer._contextFactory, buffer._collectionFactory, reader,
                 buffer.Value, buffer.Constraints);
