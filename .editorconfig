@@ -13,3 +13,10 @@ trim_trailing_whitespace = true
 [*.{build,config,csproj,dbml,json,nuspec,proj,props,StyleCop,targets,xml,yml}]
 indent_size = 2
 tab_width = 2
+
+# .NET formatting rules
+[*.{cs,vb}]
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+dotnet_style_namespace_match_folder = true
+csharp_space_after_cast = true
