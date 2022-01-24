@@ -8,6 +8,7 @@ internal interface IPersistentFrame
     ICaller Caller { get; }
     BasicBlockId PredecessorId { get; }
     IInstruction Instruction { get; }
+    string Name { get; }
 
     IPersistentFrame Save(IExpression continuation, bool useJumpBuffer);
     Result<IPersistentFrame> TryRestore(ISpace space, IExpression continuation, bool useJumpBuffer);

@@ -28,6 +28,7 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
     public ICaller Caller { get; }
     public BasicBlockId PredecessorId => _programCounter.PredecessorId;
     public IInstruction Instruction => _programCounter.Instruction;
+    public string Name => _programCounter.FrameName;
 
     public IPersistentFrame Save(IExpression continuation, bool useJumpBuffer)
     {
