@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Symbolica.Collection;
 using Symbolica.Computation;
@@ -14,14 +13,16 @@ internal sealed class Executor
 {
     private readonly int _maxParallelism;
     private readonly Options _options;
+    private readonly bool _trace;
 
-    public Executor(Options options, int maxParallelism)
+    public Executor(Options options, int maxParallelism, bool trace = false)
     {
         _options = options;
         _maxParallelism = maxParallelism;
+        _trace = trace;
     }
 
-    public async Task<(ulong, Exception?)> Run(byte[] bytes)
+    public async Task<ulong> Run(byte[] bytes)
     {
         var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
@@ -29,8 +30,8 @@ internal sealed class Executor
         var spaceFactory = new SpaceFactory(collectionFactory);
         var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
-        using var statePool = new StatePool(_maxParallelism);
-        statePool.Add(executableFactory.CreateInitial(module, _options));
+        using var statePool = new StatePool(_maxParallelism, _trace);
+        statePool.Add(executableFactory.CreateInitial(module, _options), 0);
 
         return await statePool.Wait();
     }

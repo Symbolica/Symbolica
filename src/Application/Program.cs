@@ -1,10 +1,9 @@
 ﻿using System;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Symbolica.Abstraction;
 using Symbolica.Implementation;
 
 namespace Symbolica;
@@ -14,27 +13,15 @@ internal static class Program
     public static readonly int DefaultMaxParallelism = 8 * Environment.ProcessorCount;
 
     private static async Task<int> Handler(IConsole console, DirectoryInfo dir, string optLevel, Options options,
-        int maxParallelism)
+        int maxParallelism, bool trace)
     {
         var bytes = await Serializer.Serialize(dir, optLevel);
-        var executor = new Executor(options, maxParallelism);
+        var executor = new Executor(options, maxParallelism, trace);
 
-        var (executedInstructions, exception) = await executor.Run(bytes);
-        console.WriteLine($"Executed {executedInstructions} instructions.");
-
-        if (exception != null)
-        {
-            console.WriteLine(exception.Message);
-
-            if (exception is StateException stateException)
-                console.WriteLine(
-                    string.Join(", ", stateException.Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
-
-            return 1;
-        }
-
-        console.WriteLine("No errors were found.");
-
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        var executedInstructions = await executor.Run(bytes);
+        console.WriteLine($"Executed {executedInstructions} instructions in {stopwatch.Elapsed}.");
         return 0;
     }
 
@@ -64,7 +51,8 @@ internal static class Program
                 "Controls whether the environment for non-local jumps is treated symbolically. Enabling this helps to ensure that your code does not depend on any implementation details of how environments are saved and restored for non-local jumps. You can disable this if you aren't concerned about verifying that. In which case we will emulate it with a simple incrementing constant lookup."),
             new Option<bool>(
                 "--use-symbolic-garbage",
-                "Controls whether the contents of uninitialized memory allocations are treated symbolically. Enabling this helps to ensure that your code isn't incorrectly assuming that uninitialized memory has some reliable constant value. You can disable this if you aren't concerned about using unitialized memory. In which case it will default to a value of zero.")
+                "Controls whether the contents of uninitialized memory allocations are treated symbolically. Enabling this helps to ensure that your code isn't incorrectly assuming that uninitialized memory has some reliable constant value. You can disable this if you aren't concerned about using unitialized memory. In which case it will default to a value of zero."),
+            new Option<bool>("--trace")
         };
 
         rootCommand.Handler = CommandHandler.Create(Handler);
