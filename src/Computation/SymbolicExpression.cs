@@ -46,9 +46,9 @@ namespace Symbolica.Computation
             return Binary(expression, (l, r) => new Add(l, r));
         }
 
-        public IExpression And(IExpression expression)
+        IExpression IExpression.And(IExpression expression)
         {
-            return Binary(expression, (l, r) => new And(l, r));
+            return And(expression);
         }
 
         public IExpression ArithmeticShiftRight(IExpression expression)
@@ -185,9 +185,9 @@ namespace Symbolica.Computation
             return Equal(expression).Not();
         }
 
-        public IExpression Or(IExpression expression)
+        IExpression IExpression.Or(IExpression expression)
         {
-            return Binary(expression, (l, r) => new Or(l, r));
+            return Or(expression);
         }
 
         public IExpression Read(IExpression offset, Bits size)
@@ -320,6 +320,16 @@ namespace Symbolica.Computation
             return size > Size
                 ? Unary(v => new ZeroExtend(size, v))
                 : this;
+        }
+
+        public SymbolicExpression And(IExpression expression)
+        {
+            return Binary(expression, (l, r) => new And(l, r));
+        }
+
+        public SymbolicExpression Or(IExpression expression)
+        {
+            return Binary(expression, (l, r) => new Or(l, r));
         }
 
         private SymbolicExpression Unary(Func<IValue, IValue> func)
