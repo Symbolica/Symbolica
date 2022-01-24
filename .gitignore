@@ -2,6 +2,7 @@
 *.user
 .idea/
 .ionide/
+.vscode/
 obj/
 bin/
 !/lib/**/bin/
