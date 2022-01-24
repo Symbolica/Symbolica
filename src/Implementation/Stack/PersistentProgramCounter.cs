@@ -23,6 +23,8 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
 
     public IInstruction Instruction => _basicBlock.GetInstruction(_index);
 
+    public string FrameName => _definition.Name;
+
     public IPersistentProgramCounter TransferBasicBlock(BasicBlockId id)
     {
         return new PersistentProgramCounter(_definition,
