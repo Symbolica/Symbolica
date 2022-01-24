@@ -2,14 +2,14 @@
 
 namespace Symbolica.Computation
 {
-    internal sealed class Reader : IReader
+    internal sealed class WriteReader : IReader
     {
         private readonly ISymbolicExpression _buffer;
         private readonly IReader _defaultReader;
         private readonly IExpression _mask;
         private readonly IExpression _value;
 
-        public Reader(IReader defaultReader, ISymbolicExpression buffer, IExpression mask, IExpression value)
+        public WriteReader(IReader defaultReader, ISymbolicExpression buffer, IExpression mask, IExpression value)
         {
             _defaultReader = defaultReader;
             _buffer = buffer;
