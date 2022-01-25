@@ -457,7 +457,7 @@ namespace Symbolica.Computation
 
         private IExpression Unary(
             IConstantValue? constant,
-            Func<IExpression, IExpression> symbolic)
+            Func<IValueExpression, IExpression> symbolic)
         {
             return constant == null
                 ? symbolic(AsSymbolic())
@@ -467,7 +467,7 @@ namespace Symbolica.Computation
 
         private IExpression Unary(
             Func<IConstantValue, IConstantValue?> constant,
-            Func<IExpression, IExpression> symbolic)
+            Func<IValueExpression, IExpression> symbolic)
         {
             return Unary(
                 constant(_value),
@@ -477,7 +477,7 @@ namespace Symbolica.Computation
         private IExpression Unary(
             Func<float, IConstantValue?> constantSingle,
             Func<double, IConstantValue?> constantDouble,
-            Func<IExpression, IExpression> symbolic)
+            Func<IValueExpression, IExpression> symbolic)
         {
             return Unary(
                 x => (uint) Size switch
@@ -491,7 +491,7 @@ namespace Symbolica.Computation
 
         private IExpression Binary(IExpression y,
             IConstantValue? constant,
-            Func<IExpression, IExpression, IExpression> symbolic)
+            Func<IValueExpression, IExpression, IExpression> symbolic)
         {
             return constant == null
                 ? symbolic(AsSymbolic(), y)
@@ -501,7 +501,7 @@ namespace Symbolica.Computation
 
         private IExpression Binary(IExpression y,
             Func<IConstantValue, IConstantValue, IConstantValue?> constant,
-            Func<IExpression, IExpression, IExpression> symbolic)
+            Func<IValueExpression, IExpression, IExpression> symbolic)
         {
             return Size == y.Size
                 ? Binary(y,
@@ -515,7 +515,7 @@ namespace Symbolica.Computation
         private IExpression Binary(IExpression y,
             Func<float, float, IConstantValue> constantSingle,
             Func<double, double, IConstantValue> constantDouble,
-            Func<IExpression, IExpression, IExpression> symbolic)
+            Func<IValueExpression, IExpression, IExpression> symbolic)
         {
             return Binary(y,
                 (a, b) => (uint) Size switch
@@ -529,7 +529,7 @@ namespace Symbolica.Computation
 
         private IExpression Ternary(IExpression y, IExpression z,
             IConstantValue? constant,
-            Func<IExpression, IExpression, IExpression, IExpression> symbolic)
+            Func<IValueExpression, IExpression, IExpression, IExpression> symbolic)
         {
             return constant == null
                 ? symbolic(AsSymbolic(), y, z)
@@ -539,7 +539,7 @@ namespace Symbolica.Computation
 
         private IExpression Ternary(IExpression y, IExpression z,
             Func<IConstantValue, IConstantValue, IConstantValue, IConstantValue> constant,
-            Func<IExpression, IExpression, IExpression, IExpression> symbolic)
+            Func<IValueExpression, IExpression, IExpression, IExpression> symbolic)
         {
             return Ternary(y, z,
                 y is ConstantExpression cy && z is ConstantExpression cz
@@ -548,7 +548,7 @@ namespace Symbolica.Computation
                 symbolic);
         }
 
-        private IExpression AsSymbolic()
+        private SymbolicExpression AsSymbolic()
         {
             return SymbolicExpression.Create(_contextFactory, _collectionFactory,
                 Value, Enumerable.Empty<Func<IExpression, IExpression>>());
