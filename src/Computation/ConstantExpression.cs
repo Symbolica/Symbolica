@@ -12,13 +12,18 @@ namespace Symbolica.Computation
     {
         private readonly ICollectionFactory _collectionFactory;
         private readonly IContextFactory _contextFactory;
+        private readonly IReader _reader;
         private readonly IConstantValue _value;
+        private readonly IWriter _writer;
 
         public ConstantExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+            IWriter writer, IReader reader,
             IConstantValue value)
         {
             _contextFactory = contextFactory;
             _collectionFactory = collectionFactory;
+            _writer = writer;
+            _reader = reader;
             _value = value;
         }
 
@@ -277,7 +282,7 @@ namespace Symbolica.Computation
             return Binary(offset,
                 (b, o) => b.AsBitVector(_collectionFactory)
                     .Read(o.AsUnsigned(), size),
-                (b, o) => b.AsSymbolic().Read(o, size));
+                (b, o) => _reader.Read(b, o, size));
         }
 
         public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -431,7 +436,7 @@ namespace Symbolica.Computation
                 ? Ternary(offset, value,
                     (b, o, v) => b.AsBitVector(_collectionFactory)
                         .Write(o.AsUnsigned(), v.AsBitVector(_collectionFactory)),
-                    (b, o, v) => b.AsSymbolic().Write(o, v))
+                    (b, o, v) => _writer.Write(b, o, v))
                 : throw new InconsistentExpressionSizesException(Size, offset.Size);
         }
 
@@ -452,6 +457,7 @@ namespace Symbolica.Computation
         private IExpression Unary(Func<IConstantValue, IConstantValue> constant)
         {
             return new ConstantExpression(_contextFactory, _collectionFactory,
+                _writer, _reader,
                 constant(_value));
         }
 
@@ -462,6 +468,7 @@ namespace Symbolica.Computation
             return constant == null
                 ? symbolic(this)
                 : new ConstantExpression(_contextFactory, _collectionFactory,
+                    _writer, _reader,
                     constant);
         }
 
@@ -496,6 +503,7 @@ namespace Symbolica.Computation
             return constant == null
                 ? symbolic(this, y)
                 : new ConstantExpression(_contextFactory, _collectionFactory,
+                    _writer, _reader,
                     constant);
         }
 
@@ -534,6 +542,7 @@ namespace Symbolica.Computation
             return constant == null
                 ? symbolic(this, y, z)
                 : new ConstantExpression(_contextFactory, _collectionFactory,
+                    _writer, _reader,
                     constant);
         }
 
