@@ -6,26 +6,29 @@ namespace Symbolica.Computation
     {
         private readonly IReader _defaultReader;
         private readonly IExpression _writeBuffer;
-        private readonly IExpression _writeMask;
+        private readonly IExpression _writeOffset;
+        private readonly IWriter _writer;
         private readonly IExpression _writeValue;
 
-        public WriteReader(IReader defaultReader,
-            IExpression writeBuffer, IExpression writeMask, IExpression writeValue)
+        public WriteReader(IWriter writer, IReader defaultReader,
+            IExpression writeBuffer, IExpression writeOffset, IExpression writeValue)
         {
+            _writer = writer;
             _defaultReader = defaultReader;
             _writeBuffer = writeBuffer;
-            _writeMask = writeMask;
+            _writeOffset = writeOffset;
             _writeValue = writeValue;
         }
 
-        public IExpression Read(ISymbolicExpression buffer, IExpression offset, Bits size)
+        public IExpression Read(IExpression buffer, IExpression offset, Bits size)
         {
-            var mask = buffer.Mask(offset, size);
+            var mask = _writer.Mask(buffer, offset, size);
+            var writeMask = _writer.Mask(_writeBuffer, _writeOffset, _writeValue.Size);
 
-            return mask is ConstantExpression && _writeMask is ConstantExpression
-                ? mask.And(_writeMask).Constant.IsZero
+            return mask is ConstantExpression && writeMask is ConstantExpression
+                ? mask.And(writeMask).Constant.IsZero
                     ? _writeBuffer.Read(offset, size)
-                    : mask.Xor(_writeMask).Constant.IsZero
+                    : mask.Xor(writeMask).Constant.IsZero
                         ? _writeValue
                         : _defaultReader.Read(buffer, offset, size)
                 : _defaultReader.Read(buffer, offset, size);

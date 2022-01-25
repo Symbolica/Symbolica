@@ -4,6 +4,6 @@ namespace Symbolica.Computation
 {
     internal interface IReader
     {
-        IExpression Read(ISymbolicExpression buffer, IExpression offset, Bits size);
+        IExpression Read(IExpression buffer, IExpression offset, Bits size);
     }
 }
