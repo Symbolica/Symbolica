@@ -12,16 +12,18 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal sealed class SymbolicExpression : IValueExpression
+    internal sealed class SymbolicExpression : ISymbolicExpression
     {
         private readonly ICollectionFactory _collectionFactory;
         private readonly IContextFactory _contextFactory;
+        private readonly IReader _reader;
 
-        private SymbolicExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+        private SymbolicExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory, IReader reader,
             IValue value, IValue[] constraints)
         {
             _contextFactory = contextFactory;
             _collectionFactory = collectionFactory;
+            _reader = reader;
             Value = value;
             Constraints = constraints;
         }
@@ -46,9 +48,9 @@ namespace Symbolica.Computation
             return Binary(expression, (l, r) => new Add(l, r));
         }
 
-        public IExpression And(IExpression expression)
+        IExpression IExpression.And(IExpression expression)
         {
-            return Binary(expression, (l, r) => new And(l, r));
+            return And(expression);
         }
 
         public IExpression ArithmeticShiftRight(IExpression expression)
@@ -185,14 +187,14 @@ namespace Symbolica.Computation
             return Equal(expression).Not();
         }
 
-        public IExpression Or(IExpression expression)
+        IExpression IExpression.Or(IExpression expression)
         {
-            return Binary(expression, (l, r) => new Or(l, r));
+            return Or(expression);
         }
 
         public IExpression Read(IExpression offset, Bits size)
         {
-            return LogicalShiftRight(offset).Truncate(size);
+            return _reader.Read(this, offset, size);
         }
 
         public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -296,18 +298,14 @@ namespace Symbolica.Computation
 
         public IExpression Write(IExpression offset, IExpression value)
         {
-            var mask = new ConstantExpression(_contextFactory, _collectionFactory,
-                    ConstantUnsigned.Create(value.Size, BigInteger.Zero))
-                .Not()
-                .ZeroExtend(Size)
-                .ShiftLeft(offset)
-                .Not();
+            var mask = Mask(offset, value.Size);
+            var buffer = And(mask.Not()).Or(value.ZeroExtend(Size).ShiftLeft(offset));
 
-            var data = value
-                .ZeroExtend(Size)
-                .ShiftLeft(offset);
+            var reader = new WriteReader(new DefaultReader(),
+                this, mask, value);
 
-            return And(mask).Or(data);
+            return new SymbolicExpression(buffer._contextFactory, buffer._collectionFactory, reader,
+                buffer.Value, buffer.Constraints);
         }
 
         public IExpression Xor(IExpression expression)
@@ -322,31 +320,44 @@ namespace Symbolica.Computation
                 : this;
         }
 
-        private IExpression Unary(Func<IValue, IValue> func)
+        public IExpression Mask(IExpression offset, Bits size)
         {
-            return new SymbolicExpression(_contextFactory, _collectionFactory,
+            var zero = new ConstantExpression(_contextFactory, _collectionFactory,
+                ConstantUnsigned.Create(size, BigInteger.Zero));
+
+            return zero.Not().ZeroExtend(Size).ShiftLeft(offset);
+        }
+
+        public SymbolicExpression And(IExpression expression)
+        {
+            return Binary(expression, (l, r) => new And(l, r));
+        }
+
+        public SymbolicExpression Or(IExpression expression)
+        {
+            return Binary(expression, (l, r) => new Or(l, r));
+        }
+
+        private SymbolicExpression Unary(Func<IValue, IValue> func)
+        {
+            return new(_contextFactory, _collectionFactory, new DefaultReader(),
                 func(Value), Constraints);
         }
 
-        private IExpression Binary(IExpression y, Func<IValue, IValue, IValue> func)
+        private SymbolicExpression Binary(IExpression b, Func<IValue, IValue, IValue> func)
         {
-            return Binary((IValueExpression) y, func);
-        }
+            var y = (IValueExpression) b;
 
-        private IExpression Binary(IValueExpression y, Func<IValue, IValue, IValue> func)
-        {
-            return new SymbolicExpression(_contextFactory, _collectionFactory,
+            return new SymbolicExpression(_contextFactory, _collectionFactory, new DefaultReader(),
                 func(Value, y.Value), Constraints.Concat(y.Constraints).ToArray());
         }
 
-        private IExpression Ternary(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
+        private SymbolicExpression Ternary(IExpression b, IExpression c, Func<IValue, IValue, IValue, IValue> func)
         {
-            return Ternary((IValueExpression) y, (IValueExpression) z, func);
-        }
+            var y = (IValueExpression) b;
+            var z = (IValueExpression) c;
 
-        private IExpression Ternary(IValueExpression y, IValueExpression z, Func<IValue, IValue, IValue, IValue> func)
-        {
-            return new SymbolicExpression(_contextFactory, _collectionFactory,
+            return new SymbolicExpression(_contextFactory, _collectionFactory, new DefaultReader(),
                 func(Value, y.Value, z.Value), Constraints.Concat(y.Constraints.Concat(z.Constraints)).ToArray());
         }
 
@@ -377,10 +388,10 @@ namespace Symbolica.Computation
         public static SymbolicExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,
             IValue value, IEnumerable<Func<IExpression, IExpression>> constraints)
         {
-            var unconstrained = new SymbolicExpression(contextFactory, collectionFactory,
+            var unconstrained = new SymbolicExpression(contextFactory, collectionFactory, new DefaultReader(),
                 value, Array.Empty<IValue>());
 
-            return new SymbolicExpression(contextFactory, collectionFactory,
+            return new SymbolicExpression(contextFactory, collectionFactory, new DefaultReader(),
                 value, constraints
                     .Select(c => ((IValueExpression) c(unconstrained)).Value)
                     .ToArray());
