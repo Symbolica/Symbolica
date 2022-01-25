@@ -13,7 +13,7 @@ namespace Symbolica.Computation
         private readonly IExpression _writeOffset;
         private readonly IExpression _writeValue;
 
-        internal SymbolicWriteExpression(
+        public SymbolicWriteExpression(
             IContextFactory contextFactory,
             ICollectionFactory collectionFactory,
             IExpression writeBuffer,
