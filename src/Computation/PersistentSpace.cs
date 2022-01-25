@@ -54,7 +54,7 @@ namespace Symbolica.Computation
 
         public IExpression CreateConstant(Bits size, BigInteger value)
         {
-            return new ConstantExpression(_contextFactory, _collectionFactory,
+            return ConstantExpression.Create(_contextFactory, _collectionFactory,
                 ConstantUnsigned.Create(size, value));
         }
 
@@ -62,9 +62,9 @@ namespace Symbolica.Computation
         {
             return (uint) size switch
             {
-                32U => new ConstantExpression(_contextFactory, _collectionFactory,
+                32U => ConstantExpression.Create(_contextFactory, _collectionFactory,
                     new ConstantSingle(float.Parse(value))),
-                64U => new ConstantExpression(_contextFactory, _collectionFactory,
+                64U => ConstantExpression.Create(_contextFactory, _collectionFactory,
                     new ConstantDouble(double.Parse(value))),
                 _ => SymbolicExpression.Create(_contextFactory, _collectionFactory,
                     new NormalFloat(size, value), Enumerable.Empty<Func<IExpression, IExpression>>())

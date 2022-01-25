@@ -18,7 +18,7 @@ namespace Symbolica.Computation
 
         public IExpression Mask(IExpression buffer, IExpression offset, Bits size)
         {
-            var zero = new ConstantExpression(_contextFactory, _collectionFactory,
+            var zero = ConstantExpression.Create(_contextFactory, _collectionFactory,
                 ConstantUnsigned.Create(size, BigInteger.Zero));
 
             return zero.Not().ZeroExtend(buffer.Size).ShiftLeft(offset);

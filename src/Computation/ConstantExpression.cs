@@ -16,7 +16,7 @@ namespace Symbolica.Computation
         private readonly IConstantValue _value;
         private readonly IWriter _writer;
 
-        public ConstantExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+        private ConstantExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
             IWriter writer, IReader reader,
             IConstantValue value)
         {
@@ -561,6 +561,17 @@ namespace Symbolica.Computation
         {
             return SymbolicExpression.Create(_contextFactory, _collectionFactory,
                 Value, Enumerable.Empty<Func<IExpression, IExpression>>());
+        }
+
+        public static ConstantExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+            IConstantValue value)
+        {
+            var writer = new Writer(contextFactory, collectionFactory);
+            var reader = new DefaultReader();
+
+            return new ConstantExpression(contextFactory, collectionFactory,
+                writer, reader,
+                value);
         }
     }
 }

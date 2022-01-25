@@ -352,7 +352,7 @@ namespace Symbolica.Computation
         {
             using var model = space.GetModel(Constraints);
 
-            return new ConstantExpression(_contextFactory, _collectionFactory,
+            return ConstantExpression.Create(_contextFactory, _collectionFactory,
                 ConstantUnsigned.Create(Value.Size, model.Evaluate(Value)));
         }
 

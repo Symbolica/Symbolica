@@ -16,7 +16,7 @@ namespace Symbolica.Computation
 
         private static ConstantExpression CreateConstant(IConstantValue value)
         {
-            return new(ContextFactory, CollectionFactory,
+            return ConstantExpression.Create(ContextFactory, CollectionFactory,
                 value);
         }
 
