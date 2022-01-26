@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
@@ -12,24 +10,21 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal sealed class SymbolicExpression : IValueExpression
+    internal abstract class SymbolicExpression : IValueExpression
     {
-        private readonly ICollectionFactory _collectionFactory;
-        private readonly IContextFactory _contextFactory;
-
-        private SymbolicExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
-            IValue value, IValue[] constraints)
+        protected SymbolicExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory)
         {
-            _contextFactory = contextFactory;
-            _collectionFactory = collectionFactory;
-            Value = value;
-            Constraints = constraints;
+            ContextFactory = contextFactory;
+            CollectionFactory = collectionFactory;
         }
 
-        public Bits Size => Value.Size;
+        protected IContextFactory ContextFactory { get; }
+        protected ICollectionFactory CollectionFactory { get; }
+
+        public abstract Bits Size { get; }
         public BigInteger Constant => AsConstant();
-        public IValue Value { get; }
-        public IValue[] Constraints { get; }
+        public abstract IValue Value { get; }
+        public abstract IValue[] Constraints { get; }
 
         public IExpression GetValue(ISpace space)
         {
@@ -190,10 +185,7 @@ namespace Symbolica.Computation
             return Binary(expression, (l, r) => new Or(l, r));
         }
 
-        public IExpression Read(IExpression offset, Bits size)
-        {
-            return LogicalShiftRight(offset).Truncate(size);
-        }
+        public abstract IExpression Read(IExpression offset, Bits size);
 
         public IExpression Select(IExpression trueValue, IExpression falseValue)
         {
@@ -296,7 +288,7 @@ namespace Symbolica.Computation
 
         public IExpression Write(IExpression offset, IExpression value)
         {
-            return new SymbolicWriteExpression(_contextFactory, _collectionFactory,
+            return new SymbolicWriteExpression(ContextFactory, CollectionFactory,
                 this, offset, value);
         }
 
@@ -314,38 +306,33 @@ namespace Symbolica.Computation
 
         private IExpression Unary(Func<IValue, IValue> func)
         {
-            return new SymbolicExpression(_contextFactory, _collectionFactory,
-                func(Value), Constraints);
+            return SymbolicArbitraryExpression.Create(ContextFactory, CollectionFactory,
+                this, func);
         }
 
-        private IExpression Binary(IExpression b, Func<IValue, IValue, IValue> func)
+        private IExpression Binary(IExpression y, Func<IValue, IValue, IValue> func)
         {
-            var y = (IValueExpression) b;
-
-            return new SymbolicExpression(_contextFactory, _collectionFactory,
-                func(Value, y.Value), Constraints.Concat(y.Constraints).ToArray());
+            return SymbolicArbitraryExpression.Create(ContextFactory, CollectionFactory,
+                this, (IValueExpression) y, func);
         }
 
-        private IExpression Ternary(IExpression b, IExpression c, Func<IValue, IValue, IValue, IValue> func)
+        private IExpression Ternary(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
         {
-            var y = (IValueExpression) b;
-            var z = (IValueExpression) c;
-
-            return new SymbolicExpression(_contextFactory, _collectionFactory,
-                func(Value, y.Value, z.Value), Constraints.Concat(y.Constraints.Concat(z.Constraints)).ToArray());
+            return SymbolicArbitraryExpression.Create(ContextFactory, CollectionFactory,
+                this, (IValueExpression) y, (IValueExpression) z, func);
         }
 
         private IExpression Evaluate(IPersistentSpace space)
         {
             using var model = space.GetModel(Constraints);
 
-            return new ConstantExpression(_contextFactory, _collectionFactory,
+            return new ConstantExpression(ContextFactory, CollectionFactory,
                 ConstantUnsigned.Create(Value.Size, model.Evaluate(Value)));
         }
 
         private BigInteger AsConstant()
         {
-            using var handle = _contextFactory.Create();
+            using var handle = ContextFactory.Create();
 
             return Value is Float && Value.AsFloat(handle.Context).Simplify().IsFPNaN
                 ? Value.Size.GetNan(handle.Context)
@@ -357,18 +344,6 @@ namespace Symbolica.Computation
             return expr.IsNumeral
                 ? ((BitVecNum) expr).BigInteger
                 : throw new IrreducibleSymbolicExpressionException();
-        }
-
-        public static SymbolicExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,
-            IValue value, IEnumerable<Func<IExpression, IExpression>> constraints)
-        {
-            var unconstrained = new SymbolicExpression(contextFactory, collectionFactory,
-                value, Array.Empty<IValue>());
-
-            return new SymbolicExpression(contextFactory, collectionFactory,
-                value, constraints
-                    .Select(c => ((IValueExpression) c(unconstrained)).Value)
-                    .ToArray());
         }
     }
 }

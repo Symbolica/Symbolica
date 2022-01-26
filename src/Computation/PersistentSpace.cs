@@ -66,7 +66,7 @@ namespace Symbolica.Computation
                     new ConstantSingle(float.Parse(value))),
                 64U => new ConstantExpression(_contextFactory, _collectionFactory,
                     new ConstantDouble(double.Parse(value))),
-                _ => SymbolicExpression.Create(_contextFactory, _collectionFactory,
+                _ => SymbolicArbitraryExpression.Create(_contextFactory, _collectionFactory,
                     new NormalFloat(size, value), Enumerable.Empty<Func<IExpression, IExpression>>())
             };
         }
@@ -81,7 +81,7 @@ namespace Symbolica.Computation
         public IExpression CreateSymbolic(Bits size,
             string? name, IEnumerable<Func<IExpression, IExpression>> constraints)
         {
-            return SymbolicExpression.Create(_contextFactory, _collectionFactory,
+            return SymbolicArbitraryExpression.Create(_contextFactory, _collectionFactory,
                 Symbol.Create(_symbolFactory, size, name), constraints);
         }
 
