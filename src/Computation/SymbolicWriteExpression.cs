@@ -9,14 +9,14 @@ namespace Symbolica.Computation
     {
         private readonly ICollectionFactory _collectionFactory;
         private readonly IContextFactory _contextFactory;
-        private readonly IValueExpression _writeBuffer;
+        private readonly IExpression _writeBuffer;
         private readonly IExpression _writeOffset;
         private readonly IExpression _writeValue;
 
         internal SymbolicWriteExpression(
             IContextFactory contextFactory,
             ICollectionFactory collectionFactory,
-            IValueExpression writeBuffer,
+            IExpression writeBuffer,
             IExpression writeOffset,
             IExpression writeValue)
         {
@@ -314,7 +314,7 @@ namespace Symbolica.Computation
         private IValueExpression AsSymbolic()
         {
             var writeMask = Mask(_writeOffset, _writeValue.Size);
-            return (IValueExpression) _writeBuffer.And(writeMask.Not()).Or(_writeValue.ZeroExtend(_writeBuffer.Size).ShiftLeft(_writeOffset));
+            return (IValueExpression) _writeBuffer.And(writeMask.Not()).Or(_writeValue.ZeroExtend(Size).ShiftLeft(_writeOffset));
         }
 
         private IExpression Mask(IExpression offset, Bits size)
