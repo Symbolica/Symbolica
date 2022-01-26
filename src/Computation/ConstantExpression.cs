@@ -431,7 +431,7 @@ namespace Symbolica.Computation
                 ? Ternary(offset, value,
                     (b, o, v) => b.AsBitVector(_collectionFactory)
                         .Write(o.AsUnsigned(), v.AsBitVector(_collectionFactory)),
-                    (b, o, v) => new SymbolicWriteExpression(_contextFactory, _collectionFactory,
+                    (b, o, v) => new WriteExpression(_contextFactory, _collectionFactory,
                         b, o, v))
                 : throw new InconsistentExpressionSizesException(Size, offset.Size);
         }
@@ -551,7 +551,7 @@ namespace Symbolica.Computation
 
         private IExpression AsSymbolic()
         {
-            return SymbolicArbitraryExpression.Create(_contextFactory, _collectionFactory,
+            return SymbolicExpression.Create(_contextFactory, _collectionFactory,
                 Value, Enumerable.Empty<Func<IExpression, IExpression>>());
         }
     }

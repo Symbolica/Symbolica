@@ -22,7 +22,7 @@ namespace Symbolica.Computation
 
         private static SymbolicExpression CreateSymbolic(IValue value)
         {
-            return SymbolicArbitraryExpression.Create(ContextFactory, CollectionFactory,
+            return SymbolicExpression.Create(ContextFactory, CollectionFactory,
                 value, Enumerable.Empty<Func<IExpression, IExpression>>());
         }
 

@@ -5,13 +5,13 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation
 {
-    internal sealed class SymbolicWriteExpression : SymbolicExpression
+    internal sealed class WriteExpression : Expression
     {
         private readonly IExpression _writeBuffer;
         private readonly IExpression _writeOffset;
         private readonly IExpression _writeValue;
 
-        public SymbolicWriteExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+        public WriteExpression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
             IExpression writeBuffer, IExpression writeOffset, IExpression writeValue)
             : base(contextFactory, collectionFactory)
         {
