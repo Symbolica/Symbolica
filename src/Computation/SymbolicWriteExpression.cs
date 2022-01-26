@@ -28,8 +28,6 @@ namespace Symbolica.Computation
             _writeValue = writeValue;
         }
 
-        private Lazy<IExpression> WriteMask => new(() => Mask(_writeBuffer, _writeOffset, _writeValue.Size));
-
         public Bits Size => Value.Size;
         public BigInteger Constant => AsSymbolic().Constant;
         public IValue Value => AsSymbolic().Value;
@@ -192,12 +190,13 @@ namespace Symbolica.Computation
 
         public IExpression Read(IExpression offset, Bits size)
         {
-            var mask = Mask(this, offset, size);
+            var readMask = Mask(this, offset, size);
+            var writeMask = Mask(_writeBuffer, _writeOffset, _writeValue.Size);
 
-            return mask is ConstantExpression && WriteMask.Value is ConstantExpression
-                ? mask.And(WriteMask.Value).Constant.IsZero
+            return readMask is ConstantExpression && writeMask is ConstantExpression
+                ? readMask.And(writeMask).Constant.IsZero
                     ? _writeBuffer.Read(offset, size)
-                    : mask.Xor(WriteMask.Value).Constant.IsZero
+                    : readMask.Xor(writeMask).Constant.IsZero
                         ? _writeValue
                         : AsSymbolic().Read(offset, size)
                 : AsSymbolic().Read(offset, size);
@@ -315,7 +314,8 @@ namespace Symbolica.Computation
 
         private IValueExpression AsSymbolic()
         {
-            return (IValueExpression) _writeBuffer.And(WriteMask.Value.Not()).Or(_writeValue.ZeroExtend(_writeBuffer.Size).ShiftLeft(_writeOffset));
+            var writeMask = Mask(_writeBuffer, _writeOffset, _writeValue.Size);
+            return (IValueExpression) _writeBuffer.And(writeMask.Not()).Or(_writeValue.ZeroExtend(_writeBuffer.Size).ShiftLeft(_writeOffset));
         }
 
         private IExpression Mask(
