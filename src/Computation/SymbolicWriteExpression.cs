@@ -298,7 +298,7 @@ namespace Symbolica.Computation
 
         public IExpression Write(IExpression offset, IExpression value)
         {
-            return AsSymbolic().Write(offset, value);
+            return new SymbolicWriteExpression(_contextFactory, _collectionFactory, this, offset, value);
         }
 
         public IExpression Xor(IExpression expression)
