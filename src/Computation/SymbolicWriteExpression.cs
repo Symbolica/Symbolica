@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 using Symbolica.Collection;
 using Symbolica.Computation.Values.Constants;
@@ -28,7 +27,7 @@ namespace Symbolica.Computation
             _writeValue = writeValue;
         }
 
-        public Bits Size => Value.Size;
+        public Bits Size => _writeBuffer.Size;
         public BigInteger Constant => AsSymbolic().Constant;
         public IValue Value => AsSymbolic().Value;
         public IValue[] Constraints => AsSymbolic().Constraints;
@@ -190,8 +189,8 @@ namespace Symbolica.Computation
 
         public IExpression Read(IExpression offset, Bits size)
         {
-            var readMask = Mask(this, offset, size);
-            var writeMask = Mask(_writeBuffer, _writeOffset, _writeValue.Size);
+            var readMask = Mask(offset, size);
+            var writeMask = Mask(_writeOffset, _writeValue.Size);
 
             return readMask is ConstantExpression && writeMask is ConstantExpression
                 ? readMask.And(writeMask).Constant.IsZero
@@ -314,19 +313,16 @@ namespace Symbolica.Computation
 
         private IValueExpression AsSymbolic()
         {
-            var writeMask = Mask(_writeBuffer, _writeOffset, _writeValue.Size);
+            var writeMask = Mask(_writeOffset, _writeValue.Size);
             return (IValueExpression) _writeBuffer.And(writeMask.Not()).Or(_writeValue.ZeroExtend(_writeBuffer.Size).ShiftLeft(_writeOffset));
         }
 
-        private IExpression Mask(
-            IValueExpression buffer,
-            IExpression offset,
-            Bits size)
+        private IExpression Mask(IExpression offset, Bits size)
         {
             var zero = new ConstantExpression(_contextFactory, _collectionFactory,
                 ConstantUnsigned.Create(size, BigInteger.Zero));
 
-            return zero.Not().ZeroExtend(buffer.Size).ShiftLeft(offset);
+            return zero.Not().ZeroExtend(Size).ShiftLeft(offset);
         }
     }
 }
