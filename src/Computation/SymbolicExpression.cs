@@ -312,13 +312,13 @@ namespace Symbolica.Computation
                 : this;
         }
 
-        private SymbolicExpression Unary(Func<IValue, IValue> func)
+        private IExpression Unary(Func<IValue, IValue> func)
         {
-            return new(_contextFactory, _collectionFactory,
+            return new SymbolicExpression(_contextFactory, _collectionFactory,
                 func(Value), Constraints);
         }
 
-        private SymbolicExpression Binary(IExpression b, Func<IValue, IValue, IValue> func)
+        private IExpression Binary(IExpression b, Func<IValue, IValue, IValue> func)
         {
             var y = (IValueExpression) b;
 
@@ -326,7 +326,7 @@ namespace Symbolica.Computation
                 func(Value, y.Value), Constraints.Concat(y.Constraints).ToArray());
         }
 
-        private SymbolicExpression Ternary(IExpression b, IExpression c, Func<IValue, IValue, IValue, IValue> func)
+        private IExpression Ternary(IExpression b, IExpression c, Func<IValue, IValue, IValue, IValue> func)
         {
             var y = (IValueExpression) b;
             var z = (IValueExpression) c;
