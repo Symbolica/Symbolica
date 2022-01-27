@@ -2,6 +2,7 @@
 {
     public enum StateError
     {
+        Abort,
         DivideByZero,
         FailingAssertion,
         InvalidJump,

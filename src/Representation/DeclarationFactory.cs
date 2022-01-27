@@ -49,6 +49,7 @@ namespace Symbolica.Representation
         private static readonly IReadOnlyDictionary<string, Func<FunctionId, IParameters, IFunction>> Specials =
             new Dictionary<string, Func<FunctionId, IParameters, IFunction>>
             {
+                {"abort", (id, parameters) => new Abort(id, parameters)},
                 {"__assert_fail", (id, parameters) => new Fail(id, parameters)},
                 {"calloc", (id, parameters) => new AllocateAndClear(id, parameters)},
                 {"ceil", (id, parameters) => new Ceiling(id, parameters)},
