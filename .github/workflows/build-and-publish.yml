@@ -133,17 +133,13 @@ jobs:
           nugetPush: false
         - os: windows-2019
           setupScript: |
-            Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile ubuntu.zip
-            Expand-Archive ubuntu.zip
-            .\ubuntu\ubuntu1804.exe install --root
+            wsl install --distribution Ubuntu-18.04 --root
             wsl ./lib/install-bionic.sh
             wsl ./lib/install-symbolica.sh
           nugetPush: false
         - os: windows-2019
           setupScript: |
-            Invoke-WebRequest -Uri https://aka.ms/wslubuntu2004 -OutFile ubuntu.zip
-            Expand-Archive ubuntu.zip
-            .\ubuntu\ubuntu2004.exe install --root
+            wsl install --distribution Ubuntu-20.04 --root
             wsl ./lib/install-focal.sh
             wsl ./lib/install-symbolica.sh
           nugetPush: false
