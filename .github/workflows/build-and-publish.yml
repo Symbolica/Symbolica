@@ -133,15 +133,15 @@ jobs:
           nugetPush: false
         - os: windows-2022
           setupScript: |
-            wsl --install --distribution Ubuntu-18.04 --user root
-            wsl ./lib/install-bionic.sh
-            wsl ./lib/install-symbolica.sh
+            wsl --install --distribution Ubuntu-18.04
+            wsl --user root ./lib/install-bionic.sh
+            wsl --user root ./lib/install-symbolica.sh
           nugetPush: false
         - os: windows-2022
           setupScript: |
-            wsl --install --distribution Ubuntu-20.04 --user root
-            wsl ./lib/install-focal.sh
-            wsl ./lib/install-symbolica.sh
+            wsl --install --distribution Ubuntu-20.04
+            wsl --user root ./lib/install-focal.sh
+            wsl --user root ./lib/install-symbolica.sh
           nugetPush: false
         #- os: macos-10.15
         #  setupScript: |
