@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdlib.h>
 
 #define SYMBOLIZE(x) symbolize(&x, sizeof x, #x)
 
@@ -9,6 +10,7 @@ extern "C"
 
     void symbolize(void *address, size_t size, const char *name)
     {
+        abort();
     }
 
 #ifdef __cplusplus

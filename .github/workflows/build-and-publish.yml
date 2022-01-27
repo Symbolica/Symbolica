@@ -133,7 +133,7 @@ jobs:
           nugetPush: false
         - os: windows-2019
           setupScript: |
-            Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1804 -OutFile ubuntu.zip
+            Invoke-WebRequest -Uri https://wslstorestorage.blob.core.windows.net/wslblob/Ubuntu_1804.2019.522.0_x64.appx -OutFile ubuntu.zip
             Expand-Archive ubuntu.zip
             .\ubuntu\ubuntu1804.exe install --root
             wsl ./lib/install-bionic.sh
@@ -141,7 +141,7 @@ jobs:
           nugetPush: false
         - os: windows-2019
           setupScript: |
-            Invoke-WebRequest -Uri https://aka.ms/wslubuntu2004 -OutFile ubuntu.zip
+            Invoke-WebRequest -Uri https://wslstorestorage.blob.core.windows.net/wslblob/Ubuntu_2004.2020.424.0_x64.appx -OutFile ubuntu.zip
             Expand-Archive ubuntu.zip
             .\ubuntu\ubuntu2004.exe install --root
             wsl ./lib/install-focal.sh
