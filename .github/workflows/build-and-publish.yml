@@ -147,17 +147,15 @@ jobs:
             wsl ./lib/install-focal.sh
             wsl ./lib/install-symbolica.sh
           nugetPush: false
-        #- os: macos-10.15
-        #  setupScript: |
-        #    mkdir -p ~/.docker/machine/cache
-        #    curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.12/boot2docker.iso
-        #    brew install docker docker-machine
-        #    docker-machine create --driver virtualbox default
-        #    eval "$(docker-machine env default)"
-        #    env | grep DOCKER >> $GITHUB_ENV
-        #    echo "SYMBOLICA_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
-        #    echo "SYMBOLICA_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
-        #  nugetPush: false
+        - os: macos-10.15
+          setupScript: |
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask docker
+            sudo /Applications/Docker.app/Contents/MacOS/Docker --unattended --install-privileged-components
+            open -a /Applications/Docker.app --args --unattended --accept-license
+            while ! /Applications/Docker.app/Contents/Resources/bin/docker info &>/dev/null; do sleep 1; done
+            echo "SYMBOLICA_BUILD_IMAGE=symbolica/build:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
+            echo "SYMBOLICA_TRANSLATE_IMAGE=symbolica/translate:${{ needs.calculate-version.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
+          nugetPush: false
     steps:
     - name: Checkout code
       uses: actions/checkout@master
