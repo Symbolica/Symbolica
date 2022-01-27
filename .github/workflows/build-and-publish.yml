@@ -131,13 +131,13 @@ jobs:
             sudo ./lib/install-focal.sh
             ./lib/install-symbolica.sh
           nugetPush: false
-        - os: windows-2019
+        - os: windows-2022
           setupScript: |
             wsl --install --distribution Ubuntu-18.04 --root
             wsl ./lib/install-bionic.sh
             wsl ./lib/install-symbolica.sh
           nugetPush: false
-        - os: windows-2019
+        - os: windows-2022
           setupScript: |
             wsl --install --distribution Ubuntu-20.04 --root
             wsl ./lib/install-focal.sh
