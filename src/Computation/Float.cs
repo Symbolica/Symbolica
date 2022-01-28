@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
@@ -13,6 +14,8 @@ internal abstract class Float : IValue
     }
 
     public Bits Size { get; }
+    public abstract IEnumerable<IValue> Children { get; }
+    public abstract string? PrintedValue { get; }
 
     public BigInteger AsConstant(IContext context)
     {

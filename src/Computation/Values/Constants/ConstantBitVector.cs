@@ -17,6 +17,10 @@ internal sealed class ConstantBitVector : BitVector, IConstantValue
         _value = value;
     }
 
+    public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
+
+    public override string? PrintedValue => $"BitVector of size {_value.Count}";
+
     public override BitVecExpr AsBitVector(IContext context)
     {
         return AsUnsigned().AsBitVector(context);
@@ -54,18 +58,17 @@ internal sealed class ConstantBitVector : BitVector, IConstantValue
 
     public ConstantBitVector Read(ConstantUnsigned offset, Bits size)
     {
-        return new ConstantBitVector(size, _value.GetRange(GetIndex(offset), GetCount(size)));
+        return new(size, _value.GetRange(GetIndex(offset), GetCount(size)));
     }
 
     public ConstantBitVector Write(ConstantUnsigned offset, ConstantBitVector value)
     {
-        return new ConstantBitVector(Size, _value.SetRange(GetIndex(offset), value._value));
+        return new(Size, _value.SetRange(GetIndex(offset), value._value));
     }
 
     public static ConstantBitVector Create(ICollectionFactory collectionFactory, Bits size, ConstantUnsigned value)
     {
-        return new ConstantBitVector(size,
-            collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(size, value)));
+        return new(size, collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(size, value)));
     }
 
     private static IEnumerable<byte> GetBytes(Bits size, BigInteger value)

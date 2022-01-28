@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -18,6 +19,10 @@ internal sealed class Select : IValue
     }
 
     public Bits Size => _trueValue.Size;
+
+    public IEnumerable<IValue> Children => new[] { _predicate, _trueValue, _falseValue };
+
+    public string? PrintedValue => null;
 
     public BigInteger AsConstant(IContext context)
     {
