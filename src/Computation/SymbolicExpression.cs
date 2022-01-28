@@ -48,7 +48,9 @@ namespace Symbolica.Computation
 
         public IExpression And(IExpression expression)
         {
-            return Binary(expression, (l, r) => new And(l, r));
+            return expression is ConstantExpression
+                ? expression.And(this)
+                : Binary(expression, (l, r) => new And(l, r));
         }
 
         public IExpression ArithmeticShiftRight(IExpression expression)
@@ -187,7 +189,9 @@ namespace Symbolica.Computation
 
         public IExpression Or(IExpression expression)
         {
-            return Binary(expression, (l, r) => new Or(l, r));
+            return expression is ConstantExpression
+                ? expression.Or(this)
+                : Binary(expression, (l, r) => new Or(l, r));
         }
 
         public IExpression Read(IExpression offset, Bits size)
@@ -302,7 +306,9 @@ namespace Symbolica.Computation
 
         public IExpression Xor(IExpression expression)
         {
-            return Binary(expression, (l, r) => new Xor(l, r));
+            return expression is ConstantExpression
+                ? expression.Xor(this)
+                : Binary(expression, (l, r) => new Xor(l, r));
         }
 
         public IExpression ZeroExtend(Bits size)
