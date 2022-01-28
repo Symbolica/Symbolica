@@ -46,9 +46,13 @@ namespace Symbolica.Computation
 
         public IExpression And(IExpression expression)
         {
-            return Binary(expression,
-                (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() & r.AsUnsigned()),
-                (l, r) => l.AsSymbolic().And(r));
+            return Constant.IsZero
+                ? this
+                : Not().Constant.IsZero
+                    ? expression
+                    : Binary(expression,
+                        (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() & r.AsUnsigned()),
+                        (l, r) => l.AsSymbolic().And(r));
         }
 
         public IExpression ArithmeticShiftRight(IExpression expression)
@@ -267,9 +271,13 @@ namespace Symbolica.Computation
 
         public IExpression Or(IExpression expression)
         {
-            return Binary(expression,
-                (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() | r.AsUnsigned()),
-                (l, r) => l.AsSymbolic().Or(r));
+            return Constant.IsZero
+                ? expression
+                : Not().Constant.IsZero
+                    ? this
+                    : Binary(expression,
+                        (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() | r.AsUnsigned()),
+                        (l, r) => l.AsSymbolic().Or(r));
         }
 
         public IExpression Read(IExpression offset, Bits size)
@@ -437,9 +445,13 @@ namespace Symbolica.Computation
 
         public IExpression Xor(IExpression expression)
         {
-            return Binary(expression,
-                (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() ^ r.AsUnsigned()),
-                (l, r) => l.AsSymbolic().Xor(r));
+            return Constant.IsZero
+                ? expression
+                : Not().Constant.IsZero
+                    ? expression.Not()
+                    : Binary(expression,
+                        (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() ^ r.AsUnsigned()),
+                        (l, r) => l.AsSymbolic().Xor(r));
         }
 
         public IExpression ZeroExtend(Bits size)
