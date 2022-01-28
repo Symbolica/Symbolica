@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -12,6 +14,10 @@ internal sealed record SymbolicDouble : Float
     {
         _value = value;
     }
+
+    public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
+
+    public override string? PrintedValue => _value.ToString();
 
     public override FPExpr AsFloat(ISolver solver)
     {

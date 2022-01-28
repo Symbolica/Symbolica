@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -17,6 +18,10 @@ internal sealed record Select : IValue
     }
 
     public Bits Size => _trueValue.Size;
+
+    public IEnumerable<IValue> Children => new[] { _predicate, _trueValue, _falseValue };
+
+    public string? PrintedValue => null;
 
     public BitVecExpr AsBitVector(ISolver solver)
     {

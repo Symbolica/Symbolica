@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -11,6 +12,8 @@ internal abstract record Integer : IValue
     }
 
     public Bits Size { get; }
+    public abstract IEnumerable<IValue> Children { get; }
+    public abstract string? PrintedValue { get; }
 
     public abstract BitVecExpr AsBitVector(ISolver solver);
     public abstract BoolExpr AsBool(ISolver solver);

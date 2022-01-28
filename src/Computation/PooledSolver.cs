@@ -48,6 +48,10 @@ internal sealed class PooledSolver : ISolver
 
     public bool IsSatisfiable(IValue assertion)
     {
+        string PrintAssertion(IValue assertion, int depth) => $"{System.Environment.NewLine}{string.Join("", Enumerable.Repeat(" ", depth * 2))}{assertion.GetType().Name}{(assertion.PrintedValue is null ? string.Empty : $" ({assertion.PrintedValue})")}{string.Join("", assertion.Children.Select(v => PrintAssertion(v, depth + 1)))}";
+
+        int AssertionCount(IValue assertion) => 1 + assertion.Children.Sum(AssertionCount);
+
         using var expr = assertion.AsBool(this);
         var status = _solver.Check(expr);
 
