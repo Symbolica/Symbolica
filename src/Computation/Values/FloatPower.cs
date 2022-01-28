@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values.Constants;
@@ -16,6 +17,10 @@ internal sealed record FloatPower : Float, IRealValue
         _left = left;
         _right = right;
     }
+
+    public override IEnumerable<IValue> Children => new[] { _left, _right };
+
+    public override string? PrintedValue => null;
 
     public override FPExpr AsFloat(ISolver solver)
     {

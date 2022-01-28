@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
@@ -20,6 +21,10 @@ internal sealed record Write : BitVector
         _writeValue = writeValue;
         _writeMask = Mask(writeBuffer, writeOffset, writeValue.Size);
     }
+
+    public override IEnumerable<IValue> Children => new[] { _writeBuffer, _writeOffset, _writeValue };
+
+    public override string? PrintedValue => null;
 
     public override BitVecExpr AsBitVector(ISolver solver)
     {

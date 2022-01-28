@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -17,6 +19,10 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
 
     public bool IsZero => _value.IsZero;
     public bool IsOne => _value.IsOne;
+
+    public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
+
+    public override string? PrintedValue => _value < BigInteger.Pow(2, 32) ? _value.ToString() : _value.ToString("E");
 
     public override BitVecExpr AsBitVector(ISolver solver)
     {

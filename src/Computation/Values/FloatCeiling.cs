@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 
@@ -13,6 +14,10 @@ internal sealed record FloatCeiling : Float
     {
         _value = value;
     }
+
+    public override IEnumerable<IValue> Children => new[] { _value };
+
+    public override string? PrintedValue => null;
 
     public override FPExpr AsFloat(ISolver solver)
     {

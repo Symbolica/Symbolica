@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 
@@ -13,6 +15,10 @@ internal sealed record SymbolicUnsigned : BitVector
     {
         _value = value;
     }
+
+    public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
+
+    public override string? PrintedValue => _value.ToString();
 
     public override BitVecExpr AsBitVector(ISolver solver)
     {

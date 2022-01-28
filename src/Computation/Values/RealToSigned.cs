@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -12,6 +13,10 @@ internal sealed record RealToSigned : BitVector
     {
         _value = value;
     }
+
+    public override IEnumerable<IValue> Children => new[] { _value };
+
+    public override string? PrintedValue => null;
 
     public override BitVecExpr AsBitVector(ISolver solver)
     {
