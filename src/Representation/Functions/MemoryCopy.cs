@@ -27,7 +27,7 @@ namespace Symbolica.Representation.Functions
             using var proposition = isInvalid.GetProposition(state.Space);
 
             if (proposition.CanBeTrue)
-                throw new StateException(StateError.OverlappingMemoryCopy, state.Space);
+                throw new StateException(StateError.OverlappingMemoryCopy, proposition.TrueSpace);
 
             state.ForkAll(length, new CopyMemory(destination, source));
         }
