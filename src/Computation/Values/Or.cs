@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
@@ -14,6 +15,10 @@ internal sealed class Or : BitVector
         _left = left;
         _right = right;
     }
+
+    public override IEnumerable<IValue> Children => new[] { _left, _right };
+
+    public override string? PrintedValue => null;
 
     public override BitVecExpr AsBitVector(IContext context)
     {

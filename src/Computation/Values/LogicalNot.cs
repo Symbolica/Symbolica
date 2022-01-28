@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 
 namespace Symbolica.Computation.Values;
 
@@ -10,6 +11,10 @@ internal sealed class LogicalNot : Bool
     {
         _value = value;
     }
+
+    public override IEnumerable<IValue> Children => new[] { _value };
+
+    public override string? PrintedValue => null;
 
     public override BoolExpr AsBool(IContext context)
     {
@@ -35,6 +40,10 @@ internal sealed class LogicalNot : Bool
         {
             _value = value;
         }
+
+        public override IEnumerable<IValue> Children => new[] { _value };
+
+        public override string? PrintedValue => null;
 
         public override BoolExpr AsBool(IContext context)
         {

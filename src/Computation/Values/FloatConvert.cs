@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -13,6 +14,10 @@ internal sealed class FloatConvert : Float
     {
         _value = value;
     }
+
+    public override IEnumerable<IValue> Children => new[] { _value };
+
+    public override string? PrintedValue => null;
 
     public override FPExpr AsFloat(IContext context)
     {

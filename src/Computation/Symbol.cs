@@ -18,6 +18,9 @@ internal sealed class Symbol : BitVector
         _assertions = assertions;
     }
 
+    public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
+    public override string? PrintedValue => _name;
+
     public override BitVecExpr AsBitVector(IContext context)
     {
         context.Assert(_name, _assertions.Select(a => a.AsBool(context)));

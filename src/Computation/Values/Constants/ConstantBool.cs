@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 
@@ -12,6 +14,10 @@ internal sealed class ConstantBool : Bool, IConstantValue
     {
         _value = value;
     }
+
+    public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
+
+    public override string? PrintedValue => _value.ToString();
 
     public override BoolExpr AsBool(IContext context)
     {
