@@ -160,7 +160,7 @@ namespace Symbolica.Deserialization
 
         private Call CreateCall(InstructionId id, IOperand[] operands, LLVMValueRef instruction)
         {
-            return new(
+            return new Call(
                 id,
                 operands,
                 instruction.TypeOf.GetStoreSize(_targetData).ToBits(),

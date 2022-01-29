@@ -54,17 +54,17 @@ namespace Symbolica.Computation.Values.Constants
 
         public ConstantBitVector Read(ConstantUnsigned offset, Bits size)
         {
-            return new(size, _value.GetRange(GetIndex(offset), GetCount(size)));
+            return new ConstantBitVector(size, _value.GetRange(GetIndex(offset), GetCount(size)));
         }
 
         public ConstantBitVector Write(ConstantUnsigned offset, ConstantBitVector value)
         {
-            return new(Size, _value.SetRange(GetIndex(offset), value._value));
+            return new ConstantBitVector(Size, _value.SetRange(GetIndex(offset), value._value));
         }
 
         public static ConstantBitVector Create(ICollectionFactory collectionFactory, Bits size, ConstantUnsigned value)
         {
-            return new(size, collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(size, value)));
+            return new ConstantBitVector(size, collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(size, value)));
         }
 
         private static IEnumerable<byte> GetBytes(Bits size, BigInteger value)

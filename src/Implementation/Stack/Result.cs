@@ -17,12 +17,12 @@ namespace Symbolica.Implementation.Stack
 
         public static Result<TValue> Failure()
         {
-            return new(null);
+            return new Result<TValue>(null);
         }
 
         public static Result<TValue> Success(TValue value)
         {
-            return new(value);
+            return new Result<TValue>(value);
         }
     }
 }

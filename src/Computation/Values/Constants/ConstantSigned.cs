@@ -52,7 +52,7 @@ namespace Symbolica.Computation.Values.Constants
 
         public ConstantSigned Extend(Bits size)
         {
-            return new(size, _value);
+            return new ConstantSigned(size, _value);
         }
 
         public static implicit operator BigInteger(ConstantSigned value)
@@ -62,7 +62,7 @@ namespace Symbolica.Computation.Values.Constants
 
         public static ConstantSigned Create(Bits size, BigInteger value)
         {
-            return new(size, value.IsZero
+            return new ConstantSigned(size, value.IsZero
                 ? value
                 : Normalize(size, value));
         }

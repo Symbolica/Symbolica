@@ -3,17 +3,17 @@
   <PropertyGroup>
     <Authors>Symbolica</Authors>
     <Company>Symbolica</Company>
-    <Copyright>Copyright 2021 Symbolica Dev Limited</Copyright>
+    <Copyright>Copyright 2022 Symbolica Dev Limited</Copyright>
     <IncludeSymbols>True</IncludeSymbols>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <PackageIcon>Icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/SymbolicaDev/Symbolica</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Symbolica/Symbolica</PackageProjectUrl>
     <PackageTags>Symbolica;Symbolic;Execution</PackageTags>
     <PublishRepositoryUrl>True</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/SymbolicaDev/Symbolica</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Symbolica/Symbolica</RepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

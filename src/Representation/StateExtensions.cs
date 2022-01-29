@@ -10,7 +10,7 @@ namespace Symbolica.Representation
     {
         public static string ReadString(this IState self, IExpression address)
         {
-            return new(ReadCharacters(self, address).ToArray());
+            return new string(ReadCharacters(self, address).ToArray());
         }
 
         private static IEnumerable<char> ReadCharacters(IState state, IExpression address)

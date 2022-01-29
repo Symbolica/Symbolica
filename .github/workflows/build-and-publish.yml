@@ -18,12 +18,12 @@ jobs:
       with:
         fetch-depth: 0
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.9
+      uses: gittools/actions/gitversion/setup@v0.9.11
       with:
-        versionSpec: "5.6.9"
+        versionSpec: "5.8.1"
     - name: Run GitVersion
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.9
+      uses: gittools/actions/gitversion/execute@v0.9.11
   publish-base-images:
     runs-on: ubuntu-18.04
     needs: [calculate-version]
@@ -131,7 +131,7 @@ jobs:
             sudo ./lib/install-focal.sh
             ./lib/install-symbolica.sh
           nugetPush: false
-        - os: windows-2019
+        - os: windows-2022
           setupScript: |
             Invoke-WebRequest -Uri https://wslstorestorage.blob.core.windows.net/wslblob/Ubuntu_1804.2019.522.0_x64.appx -OutFile ubuntu.zip
             Expand-Archive ubuntu.zip
@@ -139,7 +139,7 @@ jobs:
             wsl ./lib/install-bionic.sh
             wsl ./lib/install-symbolica.sh
           nugetPush: false
-        - os: windows-2019
+        - os: windows-2022
           setupScript: |
             Invoke-WebRequest -Uri https://wslstorestorage.blob.core.windows.net/wslblob/Ubuntu_2004.2020.424.0_x64.appx -OutFile ubuntu.zip
             Expand-Archive ubuntu.zip
@@ -147,7 +147,7 @@ jobs:
             wsl ./lib/install-focal.sh
             wsl ./lib/install-symbolica.sh
           nugetPush: false
-        - os: macos-10.15
+        - os: macos-11
           setupScript: |
             HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask docker
             sudo /Applications/Docker.app/Contents/MacOS/Docker --unattended --install-privileged-components
@@ -164,7 +164,7 @@ jobs:
     - name: Setup dotnet SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: "5.0.300"
+        dotnet-version: "6.0.101"
     - name: Setup test environment
       run: ${{ matrix.setupScript }}
     - name: Build

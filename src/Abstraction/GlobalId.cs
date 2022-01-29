@@ -13,7 +13,7 @@ namespace Symbolica.Abstraction
 
         public static explicit operator GlobalId(ulong id)
         {
-            return new(id);
+            return new GlobalId(id);
         }
 
         public static explicit operator ulong(GlobalId id)

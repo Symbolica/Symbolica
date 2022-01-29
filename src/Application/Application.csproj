@@ -5,7 +5,7 @@
     <IsPackable>False</IsPackable>
     <OutputType>Exe</OutputType>
     <RootNamespace>Symbolica</RootNamespace>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

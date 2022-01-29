@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Symbolica.Computation</AssemblyName>
     <RootNamespace>Symbolica.Computation</RootNamespace>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Symbolica.Z3" Version="0.2.0-master0002" />
+    <PackageReference Include="Symbolica.Z3" Version="0.2.0-master0003" />
   </ItemGroup>
 
 </Project>
