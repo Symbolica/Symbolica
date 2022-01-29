@@ -1,14 +1,13 @@
 using Symbolica.Abstraction;
 
-namespace Symbolica.Representation
-{
-    public sealed class Attributes : IAttributes
-    {
-        public Attributes(bool isSignExtended)
-        {
-            IsSignExtended = isSignExtended;
-        }
+namespace Symbolica.Representation;
 
-        public bool IsSignExtended { get; }
+public sealed class Attributes : IAttributes
+{
+    public Attributes(bool isSignExtended)
+    {
+        IsSignExtended = isSignExtended;
     }
+
+    public bool IsSignExtended { get; }
 }

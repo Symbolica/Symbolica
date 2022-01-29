@@ -1,20 +1,19 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation
+namespace Symbolica.Representation;
+
+public sealed class ConstantOffset : IOperand
 {
-    public sealed class ConstantOffset : IOperand
+    private readonly Bytes _size;
+
+    public ConstantOffset(Bytes size)
     {
-        private readonly Bytes _size;
+        _size = size;
+    }
 
-        public ConstantOffset(Bytes size)
-        {
-            _size = size;
-        }
-
-        public IExpression Evaluate(IState state)
-        {
-            return state.Space.CreateConstant(state.Space.PointerSize, (uint) _size);
-        }
+    public IExpression Evaluate(IState state)
+    {
+        return state.Space.CreateConstant(state.Space.PointerSize, (uint) _size);
     }
 }

@@ -1,27 +1,26 @@
 ﻿using Symbolica.Abstraction;
 
-namespace Symbolica.Representation.Functions
+namespace Symbolica.Representation.Functions;
+
+internal sealed class Seek : IFunction
 {
-    internal sealed class Seek : IFunction
+    public Seek(FunctionId id, IParameters parameters)
     {
-        public Seek(FunctionId id, IParameters parameters)
-        {
-            Id = id;
-            Parameters = parameters;
-        }
+        Id = id;
+        Parameters = parameters;
+    }
 
-        public FunctionId Id { get; }
-        public IParameters Parameters { get; }
+    public FunctionId Id { get; }
+    public IParameters Parameters { get; }
 
-        public void Call(IState state, ICaller caller, IArguments arguments)
-        {
-            var descriptor = (int) arguments.Get(0).Constant;
-            var offset = (long) arguments.Get(1).Constant;
-            var whence = (uint) arguments.Get(2).Constant;
+    public void Call(IState state, ICaller caller, IArguments arguments)
+    {
+        var descriptor = (int) arguments.Get(0).Constant;
+        var offset = (long) arguments.Get(1).Constant;
+        var whence = (uint) arguments.Get(2).Constant;
 
-            var result = state.System.Seek(descriptor, offset, whence);
+        var result = state.System.Seek(descriptor, offset, whence);
 
-            state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, result));
-        }
+        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, result));
     }
 }

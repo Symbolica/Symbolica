@@ -1,29 +1,28 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Symbolica.Collection
+namespace Symbolica.Collection;
+
+internal sealed class PersistentDictionary<TKey, TValue> : IPersistentDictionary<TKey, TValue>
+    where TKey : notnull
 {
-    internal sealed class PersistentDictionary<TKey, TValue> : IPersistentDictionary<TKey, TValue>
-        where TKey : notnull
+    private readonly ImmutableDictionary<TKey, TValue> _dictionary;
+
+    private PersistentDictionary(ImmutableDictionary<TKey, TValue> dictionary)
     {
-        private readonly ImmutableDictionary<TKey, TValue> _dictionary;
+        _dictionary = dictionary;
+    }
 
-        private PersistentDictionary(ImmutableDictionary<TKey, TValue> dictionary)
-        {
-            _dictionary = dictionary;
-        }
+    public static IPersistentDictionary<TKey, TValue> Empty =>
+        new PersistentDictionary<TKey, TValue>(ImmutableDictionary<TKey, TValue>.Empty);
 
-        public static IPersistentDictionary<TKey, TValue> Empty =>
-            new PersistentDictionary<TKey, TValue>(ImmutableDictionary<TKey, TValue>.Empty);
+    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+    {
+        return _dictionary.TryGetValue(key, out value);
+    }
 
-        public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
-        {
-            return _dictionary.TryGetValue(key, out value);
-        }
-
-        public IPersistentDictionary<TKey, TValue> SetItem(TKey key, TValue value)
-        {
-            return new PersistentDictionary<TKey, TValue>(_dictionary.SetItem(key, value));
-        }
+    public IPersistentDictionary<TKey, TValue> SetItem(TKey key, TValue value)
+    {
+        return new PersistentDictionary<TKey, TValue>(_dictionary.SetItem(key, value));
     }
 }

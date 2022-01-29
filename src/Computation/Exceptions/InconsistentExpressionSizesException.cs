@@ -1,19 +1,18 @@
 ﻿using System;
 using Symbolica.Expression;
 
-namespace Symbolica.Computation.Exceptions
-{
-    [Serializable]
-    public class InconsistentExpressionSizesException : SymbolicaException
-    {
-        public InconsistentExpressionSizesException(Bits left, Bits right)
-            : base($"Expression sizes {left} and {right} are inconsistent.")
-        {
-            Left = left;
-            Right = right;
-        }
+namespace Symbolica.Computation.Exceptions;
 
-        public Bits Left { get; }
-        public Bits Right { get; }
+[Serializable]
+public class InconsistentExpressionSizesException : SymbolicaException
+{
+    public InconsistentExpressionSizesException(Bits left, Bits right)
+        : base($"Expression sizes {left} and {right} are inconsistent.")
+    {
+        Left = left;
+        Right = right;
     }
+
+    public Bits Left { get; }
+    public Bits Right { get; }
 }

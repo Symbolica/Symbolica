@@ -1,34 +1,33 @@
 ﻿using System.Collections.Generic;
 using LLVMSharp.Interop;
 
-namespace Symbolica.Deserialization.Extensions
+namespace Symbolica.Deserialization.Extensions;
+
+internal static class ModuleRefExtensions
 {
-    internal static class ModuleRefExtensions
+    public static IEnumerable<LLVMValueRef> GetFunctions(this LLVMModuleRef self)
     {
-        public static IEnumerable<LLVMValueRef> GetFunctions(this LLVMModuleRef self)
+        var function = self.FirstFunction;
+
+        while (function != self.LastFunction)
         {
-            var function = self.FirstFunction;
-
-            while (function != self.LastFunction)
-            {
-                yield return function;
-                function = function.NextFunction;
-            }
-
             yield return function;
+            function = function.NextFunction;
         }
 
-        public static IEnumerable<LLVMValueRef> GetGlobals(this LLVMModuleRef self)
+        yield return function;
+    }
+
+    public static IEnumerable<LLVMValueRef> GetGlobals(this LLVMModuleRef self)
+    {
+        var global = self.FirstGlobal;
+
+        while (global != self.LastGlobal)
         {
-            var global = self.FirstGlobal;
-
-            while (global != self.LastGlobal)
-            {
-                yield return global;
-                global = global.NextGlobal;
-            }
-
             yield return global;
+            global = global.NextGlobal;
         }
+
+        yield return global;
     }
 }

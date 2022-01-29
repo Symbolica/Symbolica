@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Symbolica.Computation
+namespace Symbolica.Computation;
+
+public interface IModelFactory
 {
-    public interface IModelFactory
-    {
-        IModel Create(IContextFactory contextFactory, IEnumerable<IValue> assertions);
-    }
+    IModel Create(IContextFactory contextFactory, IEnumerable<IValue> assertions);
 }

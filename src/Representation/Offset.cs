@@ -1,25 +1,24 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation
+namespace Symbolica.Representation;
+
+public sealed class Offset : IOperand
 {
-    public sealed class Offset : IOperand
+    private readonly IOperand _elementSize;
+    private readonly IOperand _index;
+
+    public Offset(IOperand elementSize, IOperand index)
     {
-        private readonly IOperand _elementSize;
-        private readonly IOperand _index;
+        _elementSize = elementSize;
+        _index = index;
+    }
 
-        public Offset(IOperand elementSize, IOperand index)
-        {
-            _elementSize = elementSize;
-            _index = index;
-        }
+    public IExpression Evaluate(IState state)
+    {
+        var count = _index.Evaluate(state);
+        var size = _elementSize.Evaluate(state);
 
-        public IExpression Evaluate(IState state)
-        {
-            var count = _index.Evaluate(state);
-            var size = _elementSize.Evaluate(state);
-
-            return count.SignExtend(state.Space.PointerSize).Multiply(size);
-        }
+        return count.SignExtend(state.Space.PointerSize).Multiply(size);
     }
 }

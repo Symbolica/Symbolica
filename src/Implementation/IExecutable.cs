@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace Symbolica.Implementation
-{
-    public interface IExecutable
-    {
-        ulong ExecutedInstructions { get; }
+namespace Symbolica.Implementation;
 
-        IEnumerable<IExecutable> Run();
-    }
+public interface IExecutable
+{
+    ulong ExecutedInstructions { get; }
+
+    IEnumerable<IExecutable> Run();
 }

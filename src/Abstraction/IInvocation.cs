@@ -1,9 +1,8 @@
-﻿namespace Symbolica.Abstraction
+﻿namespace Symbolica.Abstraction;
+
+public interface IInvocation
 {
-    public interface IInvocation
-    {
-        IDefinition Definition { get; }
-        IArguments Formals { get; }
-        IArguments Varargs { get; }
-    }
+    IDefinition Definition { get; }
+    IArguments Formals { get; }
+    IArguments Varargs { get; }
 }

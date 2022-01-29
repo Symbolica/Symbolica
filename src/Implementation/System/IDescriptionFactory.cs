@@ -1,10 +1,9 @@
-﻿namespace Symbolica.Implementation.System
+﻿namespace Symbolica.Implementation.System;
+
+internal interface IDescriptionFactory
 {
-    internal interface IDescriptionFactory
-    {
-        IPersistentDescription? Create(string path);
-        IPersistentDescription CreateInput();
-        IPersistentDescription CreateOutput();
-        IPersistentDescription CreateInvalid();
-    }
+    IPersistentDescription? Create(string path);
+    IPersistentDescription CreateInput();
+    IPersistentDescription CreateOutput();
+    IPersistentDescription CreateInvalid();
 }

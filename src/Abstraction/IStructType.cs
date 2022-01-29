@@ -1,12 +1,11 @@
 ﻿using Symbolica.Expression;
 
-namespace Symbolica.Abstraction
-{
-    public interface IStructType
-    {
-        Bits Size { get; }
+namespace Symbolica.Abstraction;
 
-        Bits GetOffset(int index);
-        IStruct CreateStruct(IExpression expression);
-    }
+public interface IStructType
+{
+    Bits Size { get; }
+
+    Bits GetOffset(int index);
+    IStruct CreateStruct(IExpression expression);
 }

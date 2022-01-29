@@ -1,13 +1,12 @@
 ﻿using Microsoft.Z3;
 using Symbolica.Expression;
 
-namespace Symbolica.Computation
+namespace Symbolica.Computation;
+
+internal sealed class SymbolFactory : ISymbolFactory
 {
-    internal sealed class SymbolFactory : ISymbolFactory
+    public BitVecExpr Create(Context context, Bits size, string name)
     {
-        public BitVecExpr Create(Context context, Bits size, string name)
-        {
-            return context.MkBVConst(name, (uint) size);
-        }
+        return context.MkBVConst(name, (uint) size);
     }
 }

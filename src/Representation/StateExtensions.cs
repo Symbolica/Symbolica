@@ -4,70 +4,69 @@ using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation
+namespace Symbolica.Representation;
+
+internal static class StateExtensions
 {
-    internal static class StateExtensions
+    public static string ReadString(this IState self, IExpression address)
     {
-        public static string ReadString(this IState self, IExpression address)
+        return new string(ReadCharacters(self, address).ToArray());
+    }
+
+    private static IEnumerable<char> ReadCharacters(IState state, IExpression address)
+    {
+        while (true)
         {
-            return new string(ReadCharacters(self, address).ToArray());
+            var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).Constant;
+            if (character == default)
+                yield break;
+
+            yield return character;
+            address = address.Add(state.Space.CreateConstant(address.Size, (uint) Bytes.One));
+        }
+    }
+
+    public static void ForkAll(this IState self, IExpression expression, IParameterizedStateAction action)
+    {
+        var value = expression.GetValue(self.Space);
+        var isEqual = expression.Equal(value);
+
+        self.Fork(isEqual,
+            new Action(action, value.Constant),
+            new Fork(action, expression));
+    }
+
+    private sealed class Action : IStateAction
+    {
+        private readonly IParameterizedStateAction _action;
+        private readonly BigInteger _value;
+
+        public Action(IParameterizedStateAction action, BigInteger value)
+        {
+            _action = action;
+            _value = value;
         }
 
-        private static IEnumerable<char> ReadCharacters(IState state, IExpression address)
+        public void Invoke(IState state)
         {
-            while (true)
-            {
-                var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).Constant;
-                if (character == default)
-                    yield break;
+            _action.Invoke(state, _value);
+        }
+    }
 
-                yield return character;
-                address = address.Add(state.Space.CreateConstant(address.Size, (uint) Bytes.One));
-            }
+    private sealed class Fork : IStateAction
+    {
+        private readonly IParameterizedStateAction _action;
+        private readonly IExpression _expression;
+
+        public Fork(IParameterizedStateAction action, IExpression expression)
+        {
+            _action = action;
+            _expression = expression;
         }
 
-        public static void ForkAll(this IState self, IExpression expression, IParameterizedStateAction action)
+        public void Invoke(IState state)
         {
-            var value = expression.GetValue(self.Space);
-            var isEqual = expression.Equal(value);
-
-            self.Fork(isEqual,
-                new Action(action, value.Constant),
-                new Fork(action, expression));
-        }
-
-        private sealed class Action : IStateAction
-        {
-            private readonly IParameterizedStateAction _action;
-            private readonly BigInteger _value;
-
-            public Action(IParameterizedStateAction action, BigInteger value)
-            {
-                _action = action;
-                _value = value;
-            }
-
-            public void Invoke(IState state)
-            {
-                _action.Invoke(state, _value);
-            }
-        }
-
-        private sealed class Fork : IStateAction
-        {
-            private readonly IParameterizedStateAction _action;
-            private readonly IExpression _expression;
-
-            public Fork(IParameterizedStateAction action, IExpression expression)
-            {
-                _action = action;
-                _expression = expression;
-            }
-
-            public void Invoke(IState state)
-            {
-                state.ForkAll(_expression, _action);
-            }
+            state.ForkAll(_expression, _action);
         }
     }
 }

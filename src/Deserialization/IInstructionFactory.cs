@@ -1,10 +1,9 @@
 ﻿using LLVMSharp.Interop;
 using Symbolica.Abstraction;
 
-namespace Symbolica.Deserialization
+namespace Symbolica.Deserialization;
+
+internal interface IInstructionFactory
 {
-    internal interface IInstructionFactory
-    {
-        IInstruction Create(LLVMValueRef instruction, LLVMOpcode opcode);
-    }
+    IInstruction Create(LLVMValueRef instruction, LLVMOpcode opcode);
 }

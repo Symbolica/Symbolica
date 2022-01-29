@@ -1,9 +1,8 @@
 ﻿using Symbolica.Abstraction;
 
-namespace Symbolica.Deserialization
+namespace Symbolica.Deserialization;
+
+public interface IDeserializer
 {
-    public interface IDeserializer
-    {
-        IModule DeserializeModule(byte[] bytes);
-    }
+    IModule DeserializeModule(byte[] bytes);
 }

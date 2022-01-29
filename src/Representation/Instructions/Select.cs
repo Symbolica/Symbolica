@@ -1,27 +1,26 @@
 ﻿using Symbolica.Abstraction;
 
-namespace Symbolica.Representation.Instructions
+namespace Symbolica.Representation.Instructions;
+
+public sealed class Select : IInstruction
 {
-    public sealed class Select : IInstruction
+    private readonly IOperand[] _operands;
+
+    public Select(InstructionId id, IOperand[] operands)
     {
-        private readonly IOperand[] _operands;
+        Id = id;
+        _operands = operands;
+    }
 
-        public Select(InstructionId id, IOperand[] operands)
-        {
-            Id = id;
-            _operands = operands;
-        }
+    public InstructionId Id { get; }
 
-        public InstructionId Id { get; }
+    public void Execute(IState state)
+    {
+        var predicate = _operands[0].Evaluate(state);
+        var trueValue = _operands[1].Evaluate(state);
+        var falseValue = _operands[2].Evaluate(state);
+        var result = predicate.Select(trueValue, falseValue);
 
-        public void Execute(IState state)
-        {
-            var predicate = _operands[0].Evaluate(state);
-            var trueValue = _operands[1].Evaluate(state);
-            var falseValue = _operands[2].Evaluate(state);
-            var result = predicate.Select(trueValue, falseValue);
-
-            state.Stack.SetVariable(Id, result);
-        }
+        state.Stack.SetVariable(Id, result);
     }
 }

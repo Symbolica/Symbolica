@@ -1,13 +1,12 @@
 ﻿using System;
 
-namespace Symbolica.Expression
+namespace Symbolica.Expression;
+
+[Serializable]
+public abstract class ErrorException : SymbolicaException
 {
-    [Serializable]
-    public abstract class ErrorException : SymbolicaException
+    protected ErrorException(string message)
+        : base(message)
     {
-        protected ErrorException(string message)
-            : base(message)
-        {
-        }
     }
 }

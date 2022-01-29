@@ -1,82 +1,81 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation.Instructions
+namespace Symbolica.Representation.Instructions;
+
+public sealed class Switch : IInstruction
 {
-    public sealed class Switch : IInstruction
+    private readonly IOperand[] _operands;
+
+    public Switch(InstructionId id, IOperand[] operands)
     {
+        Id = id;
+        _operands = operands;
+    }
+
+    public InstructionId Id { get; }
+
+    public void Execute(IState state)
+    {
+        var expression = _operands[0].Evaluate(state);
+
+        var action = new Transfer(expression, 2, _operands);
+        action.Invoke(state);
+    }
+
+    private sealed class Transfer : IStateAction
+    {
+        private readonly IExpression _expression;
+        private readonly int _index;
         private readonly IOperand[] _operands;
 
-        public Switch(InstructionId id, IOperand[] operands)
+        public Transfer(IExpression expression, int index, IOperand[] operands)
         {
-            Id = id;
+            _expression = expression;
+            _index = index;
             _operands = operands;
         }
 
-        public InstructionId Id { get; }
-
-        public void Execute(IState state)
+        public void Invoke(IState state)
         {
-            var expression = _operands[0].Evaluate(state);
-
-            var action = new Transfer(expression, 2, _operands);
-            action.Invoke(state);
+            if (_index < _operands.Length)
+                TransferCase(state, _expression, _index);
+            else
+                TransferDefault(state);
         }
 
-        private sealed class Transfer : IStateAction
+        private void TransferCase(IState state, IExpression expression, int index)
         {
-            private readonly IExpression _expression;
-            private readonly int _index;
-            private readonly IOperand[] _operands;
+            var value = _operands[index].Evaluate(state);
+            var successorId = (BasicBlockId) (ulong) _operands[index + 1].Evaluate(state).Constant;
 
-            public Transfer(IExpression expression, int index, IOperand[] operands)
-            {
-                _expression = expression;
-                _index = index;
-                _operands = operands;
-            }
+            var isEqual = expression.Equal(value);
 
-            public void Invoke(IState state)
-            {
-                if (_index < _operands.Length)
-                    TransferCase(state, _expression, _index);
-                else
-                    TransferDefault(state);
-            }
-
-            private void TransferCase(IState state, IExpression expression, int index)
-            {
-                var value = _operands[index].Evaluate(state);
-                var successorId = (BasicBlockId) (ulong) _operands[index + 1].Evaluate(state).Constant;
-
-                var isEqual = expression.Equal(value);
-
-                state.Fork(isEqual,
-                    new TransferBasicBlock(successorId),
-                    new Transfer(expression, index + 2, _operands));
-            }
-
-            private void TransferDefault(IState state)
-            {
-                var successorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).Constant;
-
-                state.Stack.TransferBasicBlock(successorId);
-            }
+            state.Fork(isEqual,
+                new TransferBasicBlock(successorId),
+                new Transfer(expression, index + 2, _operands));
         }
 
-        private sealed class TransferBasicBlock : IStateAction
+        private void TransferDefault(IState state)
         {
-            private readonly BasicBlockId _id;
+            var successorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).Constant;
 
-            public TransferBasicBlock(BasicBlockId id)
-            {
-                _id = id;
-            }
+            state.Stack.TransferBasicBlock(successorId);
+        }
+    }
 
-            public void Invoke(IState state)
-            {
-                state.Stack.TransferBasicBlock(_id);
-            }
+    private sealed class TransferBasicBlock : IStateAction
+    {
+        private readonly BasicBlockId _id;
+
+        public TransferBasicBlock(BasicBlockId id)
+        {
+            _id = id;
+        }
+
+        public void Invoke(IState state)
+        {
+            state.Stack.TransferBasicBlock(_id);
         }
     }
 }

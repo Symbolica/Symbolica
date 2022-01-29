@@ -1,25 +1,24 @@
 ﻿using Symbolica.Abstraction;
 
-namespace Symbolica.Representation.Functions
+namespace Symbolica.Representation.Functions;
+
+internal sealed class FloatMultiply : IFunction
 {
-    internal sealed class FloatMultiply : IFunction
+    public FloatMultiply(FunctionId id, IParameters parameters)
     {
-        public FloatMultiply(FunctionId id, IParameters parameters)
-        {
-            Id = id;
-            Parameters = parameters;
-        }
+        Id = id;
+        Parameters = parameters;
+    }
 
-        public FunctionId Id { get; }
-        public IParameters Parameters { get; }
+    public FunctionId Id { get; }
+    public IParameters Parameters { get; }
 
-        public void Call(IState state, ICaller caller, IArguments arguments)
-        {
-            var left = arguments.Get(0);
-            var right = arguments.Get(1);
-            var result = left.FloatMultiply(right);
+    public void Call(IState state, ICaller caller, IArguments arguments)
+    {
+        var left = arguments.Get(0);
+        var right = arguments.Get(1);
+        var result = left.FloatMultiply(right);
 
-            state.Stack.SetVariable(caller.Id, result);
-        }
+        state.Stack.SetVariable(caller.Id, result);
     }
 }

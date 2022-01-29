@@ -1,10 +1,9 @@
 ﻿using Symbolica.Expression;
 
-namespace Symbolica.Computation
+namespace Symbolica.Computation;
+
+internal interface IValueExpression : IExpression
 {
-    internal interface IValueExpression : IExpression
-    {
-        IValue Value { get; }
-        IValue[] Constraints { get; }
-    }
+    IValue Value { get; }
+    IValue[] Constraints { get; }
 }

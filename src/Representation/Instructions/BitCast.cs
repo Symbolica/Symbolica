@@ -1,24 +1,23 @@
 ﻿using Symbolica.Abstraction;
 
-namespace Symbolica.Representation.Instructions
+namespace Symbolica.Representation.Instructions;
+
+public sealed class BitCast : IInstruction
 {
-    public sealed class BitCast : IInstruction
+    private readonly IOperand[] _operands;
+
+    public BitCast(InstructionId id, IOperand[] operands)
     {
-        private readonly IOperand[] _operands;
+        Id = id;
+        _operands = operands;
+    }
 
-        public BitCast(InstructionId id, IOperand[] operands)
-        {
-            Id = id;
-            _operands = operands;
-        }
+    public InstructionId Id { get; }
 
-        public InstructionId Id { get; }
+    public void Execute(IState state)
+    {
+        var result = _operands[0].Evaluate(state);
 
-        public void Execute(IState state)
-        {
-            var result = _operands[0].Evaluate(state);
-
-            state.Stack.SetVariable(Id, result);
-        }
+        state.Stack.SetVariable(Id, result);
     }
 }

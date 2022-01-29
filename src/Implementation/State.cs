@@ -5,103 +5,102 @@ using Symbolica.Implementation.Memory;
 using Symbolica.Implementation.Stack;
 using Symbolica.Implementation.System;
 
-namespace Symbolica.Implementation
+namespace Symbolica.Implementation;
+
+internal sealed class State : IState, IExecutable
 {
-    internal sealed class State : IState, IExecutable
+    private readonly List<IExecutable> _forks;
+    private readonly IStateAction _initialAction;
+    private readonly IMemoryProxy _memory;
+    private readonly IModule _module;
+    private readonly IStackProxy _stack;
+    private readonly ISystemProxy _system;
+    private IPersistentGlobals _globals;
+    private bool _isActive;
+
+    public State(IStateAction initialAction, IModule module, ISpace space,
+        IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
     {
-        private readonly List<IExecutable> _forks;
-        private readonly IStateAction _initialAction;
-        private readonly IMemoryProxy _memory;
-        private readonly IModule _module;
-        private readonly IStackProxy _stack;
-        private readonly ISystemProxy _system;
-        private IPersistentGlobals _globals;
-        private bool _isActive;
+        ExecutedInstructions = 0UL;
+        _forks = new List<IExecutable>();
+        _isActive = true;
+        _initialAction = initialAction;
+        _module = module;
+        Space = space;
+        _globals = globals;
+        _memory = memory;
+        _stack = stack;
+        _system = system;
+    }
 
-        public State(IStateAction initialAction, IModule module, ISpace space,
-            IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
+    public IEnumerable<IExecutable> Run()
+    {
+        _initialAction.Invoke(this);
+
+        while (_isActive)
         {
-            ExecutedInstructions = 0UL;
-            _forks = new List<IExecutable>();
-            _isActive = true;
-            _initialAction = initialAction;
-            _module = module;
-            Space = space;
-            _globals = globals;
-            _memory = memory;
-            _stack = stack;
-            _system = system;
+            _stack.ExecuteNextInstruction(this);
+            ++ExecutedInstructions;
         }
 
-        public IEnumerable<IExecutable> Run()
-        {
-            _initialAction.Invoke(this);
+        return _forks;
+    }
 
-            while (_isActive)
+    public ulong ExecutedInstructions { get; private set; }
+    public ISpace Space { get; }
+    public IMemory Memory => _memory;
+    public IStack Stack => _stack;
+    public ISystem System => _system;
+
+    public IFunction GetFunction(FunctionId id)
+    {
+        return _module.GetFunction(id);
+    }
+
+    public IExpression GetGlobalAddress(GlobalId id)
+    {
+        var (address, action, globals) = _globals.GetAddress(_memory, id);
+        _globals = globals;
+
+        action(this);
+        return address;
+    }
+
+    public void Complete()
+    {
+        _isActive = false;
+    }
+
+    public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
+    {
+        using var proposition = condition.GetProposition(Space);
+
+        if (proposition.CanBeFalse)
+        {
+            if (proposition.CanBeTrue)
             {
-                _stack.ExecuteNextInstruction(this);
-                ++ExecutedInstructions;
-            }
-
-            return _forks;
-        }
-
-        public ulong ExecutedInstructions { get; private set; }
-        public ISpace Space { get; }
-        public IMemory Memory => _memory;
-        public IStack Stack => _stack;
-        public ISystem System => _system;
-
-        public IFunction GetFunction(FunctionId id)
-        {
-            return _module.GetFunction(id);
-        }
-
-        public IExpression GetGlobalAddress(GlobalId id)
-        {
-            var (address, action, globals) = _globals.GetAddress(_memory, id);
-            _globals = globals;
-
-            action(this);
-            return address;
-        }
-
-        public void Complete()
-        {
-            _isActive = false;
-        }
-
-        public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
-        {
-            using var proposition = condition.GetProposition(Space);
-
-            if (proposition.CanBeFalse)
-            {
-                if (proposition.CanBeTrue)
-                {
-                    _forks.Add(Clone(proposition.FalseSpace, falseAction));
-                    _forks.Add(Clone(proposition.TrueSpace, trueAction));
-                    Complete();
-                }
-                else
-                {
-                    falseAction.Invoke(this);
-                }
+                _forks.Add(Clone(proposition.FalseSpace, falseAction));
+                _forks.Add(Clone(proposition.TrueSpace, trueAction));
+                Complete();
             }
             else
             {
-                trueAction.Invoke(this);
+                falseAction.Invoke(this);
             }
         }
-
-        private State Clone(ISpace space, IStateAction initialAction)
+        else
         {
-            var memory = _memory.Clone(space);
-            var stack = _stack.Clone(space, memory);
-            var system = _system.Clone(space, memory);
-
-            return new State(initialAction, _module, space,
-                _globals, memory, stack, system);
+            trueAction.Invoke(this);
         }
+    }
+
+    private State Clone(ISpace space, IStateAction initialAction)
+    {
+        var memory = _memory.Clone(space);
+        var stack = _stack.Clone(space, memory);
+        var system = _system.Clone(space, memory);
+
+        return new State(initialAction, _module, space,
+            _globals, memory, stack, system);
     }
 }

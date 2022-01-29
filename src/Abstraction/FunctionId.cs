@@ -1,54 +1,53 @@
 ﻿using System;
 
-namespace Symbolica.Abstraction
+namespace Symbolica.Abstraction;
+
+public readonly struct FunctionId : IEquatable<FunctionId>
 {
-    public readonly struct FunctionId : IEquatable<FunctionId>
+    private readonly ulong _value;
+
+    private FunctionId(ulong value)
     {
-        private readonly ulong _value;
+        _value = value;
+    }
 
-        private FunctionId(ulong value)
-        {
-            _value = value;
-        }
+    public static explicit operator FunctionId(ulong id)
+    {
+        return new FunctionId(id);
+    }
 
-        public static explicit operator FunctionId(ulong id)
-        {
-            return new FunctionId(id);
-        }
+    public static explicit operator ulong(FunctionId id)
+    {
+        return id._value;
+    }
 
-        public static explicit operator ulong(FunctionId id)
-        {
-            return id._value;
-        }
+    public bool Equals(FunctionId other)
+    {
+        return _value == other._value;
+    }
 
-        public bool Equals(FunctionId other)
-        {
-            return _value == other._value;
-        }
+    public override bool Equals(object? obj)
+    {
+        return obj is FunctionId other && Equals(other);
+    }
 
-        public override bool Equals(object? obj)
-        {
-            return obj is FunctionId other && Equals(other);
-        }
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
 
-        public override int GetHashCode()
-        {
-            return _value.GetHashCode();
-        }
+    public static bool operator ==(FunctionId left, FunctionId right)
+    {
+        return left.Equals(right);
+    }
 
-        public static bool operator ==(FunctionId left, FunctionId right)
-        {
-            return left.Equals(right);
-        }
+    public static bool operator !=(FunctionId left, FunctionId right)
+    {
+        return !left.Equals(right);
+    }
 
-        public static bool operator !=(FunctionId left, FunctionId right)
-        {
-            return !left.Equals(right);
-        }
-
-        public override string ToString()
-        {
-            return _value.ToString();
-        }
+    public override string ToString()
+    {
+        return _value.ToString();
     }
 }

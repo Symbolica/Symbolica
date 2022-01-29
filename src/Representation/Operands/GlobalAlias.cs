@@ -1,20 +1,19 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation.Operands
+namespace Symbolica.Representation.Operands;
+
+public sealed class GlobalAlias : IOperand
 {
-    public sealed class GlobalAlias : IOperand
+    private readonly IOperand _operand;
+
+    public GlobalAlias(IOperand operand)
     {
-        private readonly IOperand _operand;
+        _operand = operand;
+    }
 
-        public GlobalAlias(IOperand operand)
-        {
-            _operand = operand;
-        }
-
-        public IExpression Evaluate(IState state)
-        {
-            return _operand.Evaluate(state);
-        }
+    public IExpression Evaluate(IState state)
+    {
+        return _operand.Evaluate(state);
     }
 }

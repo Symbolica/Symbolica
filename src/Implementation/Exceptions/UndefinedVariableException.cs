@@ -2,17 +2,16 @@
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Implementation.Exceptions
-{
-    [Serializable]
-    public class UndefinedVariableException : ErrorException
-    {
-        public UndefinedVariableException(InstructionId id)
-            : base($"Variable {id} is undefined.")
-        {
-            Id = id;
-        }
+namespace Symbolica.Implementation.Exceptions;
 
-        public InstructionId Id { get; }
+[Serializable]
+public class UndefinedVariableException : ErrorException
+{
+    public UndefinedVariableException(InstructionId id)
+        : base($"Variable {id} is undefined.")
+    {
+        Id = id;
     }
+
+    public InstructionId Id { get; }
 }

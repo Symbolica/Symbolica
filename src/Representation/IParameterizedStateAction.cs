@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 
-namespace Symbolica.Representation
+namespace Symbolica.Representation;
+
+internal interface IParameterizedStateAction
 {
-    internal interface IParameterizedStateAction
-    {
-        void Invoke(IState state, BigInteger value);
-    }
+    void Invoke(IState state, BigInteger value);
 }

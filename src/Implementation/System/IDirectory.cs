@@ -1,9 +1,8 @@
-﻿namespace Symbolica.Implementation.System
+﻿namespace Symbolica.Implementation.System;
+
+public interface IDirectory
 {
-    public interface IDirectory
-    {
-        long LastAccessTime { get; }
-        long LastModifiedTime { get; }
-        string[] Names { get; }
-    }
+    long LastAccessTime { get; }
+    long LastModifiedTime { get; }
+    string[] Names { get; }
 }

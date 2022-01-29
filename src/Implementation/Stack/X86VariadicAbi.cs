@@ -5,49 +5,48 @@ using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
 
-namespace Symbolica.Implementation.Stack
+namespace Symbolica.Implementation.Stack;
+
+internal sealed class X86VariadicAbi : IVariadicAbi
 {
-    internal sealed class X86VariadicAbi : IVariadicAbi
+    public IVaList DefaultVaList => new VaList(null);
+
+    public IVaList PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs)
     {
-        public IVaList DefaultVaList => new VaList(null);
+        var offsets = new List<Bits>();
+        var bytes = Bytes.Zero;
 
-        public IVaList PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs)
+        foreach (var argument in varargs)
         {
-            var offsets = new List<Bits>();
-            var bytes = Bytes.Zero;
-
-            foreach (var argument in varargs)
-            {
-                offsets.Add(bytes.ToBits());
-                bytes = (bytes + argument.Size.ToBytes()).AlignTo(Bytes.One);
-            }
-
-            var value = space.CreateConstant(bytes.ToBits(), BigInteger.Zero);
-
-            foreach (var (argument, offset) in varargs.Zip(offsets, (a, o) => (a, o)))
-                value = value.Write(space.CreateConstant(value.Size, (uint) offset), argument);
-
-            var address = memory.Allocate(Section.Stack, value.Size);
-            memory.Write(address, value);
-
-            return new VaList(address);
+            offsets.Add(bytes.ToBits());
+            bytes = (bytes + argument.Size.ToBytes()).AlignTo(Bytes.One);
         }
 
-        private sealed class VaList : IVaList
+        var value = space.CreateConstant(bytes.ToBits(), BigInteger.Zero);
+
+        foreach (var (argument, offset) in varargs.Zip(offsets, (a, o) => (a, o)))
+            value = value.Write(space.CreateConstant(value.Size, (uint) offset), argument);
+
+        var address = memory.Allocate(Section.Stack, value.Size);
+        memory.Write(address, value);
+
+        return new VaList(address);
+    }
+
+    private sealed class VaList : IVaList
+    {
+        private readonly IExpression? _address;
+
+        public VaList(IExpression? address)
         {
-            private readonly IExpression? _address;
+            _address = address;
+        }
 
-            public VaList(IExpression? address)
-            {
-                _address = address;
-            }
-
-            public IExpression Initialize(ISpace space, IStructType vaListType)
-            {
-                return vaListType.CreateStruct(space.CreateConstant(vaListType.Size, BigInteger.Zero))
-                    .Write(space, 0, _address ?? space.CreateConstant(space.PointerSize, BigInteger.Zero))
-                    .Expression;
-            }
+        public IExpression Initialize(ISpace space, IStructType vaListType)
+        {
+            return vaListType.CreateStruct(space.CreateConstant(vaListType.Size, BigInteger.Zero))
+                .Write(space, 0, _address ?? space.CreateConstant(space.PointerSize, BigInteger.Zero))
+                .Expression;
         }
     }
 }

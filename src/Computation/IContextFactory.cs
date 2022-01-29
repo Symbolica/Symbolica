@@ -1,7 +1,6 @@
-﻿namespace Symbolica.Computation
+﻿namespace Symbolica.Computation;
+
+public interface IContextFactory
 {
-    public interface IContextFactory
-    {
-        IContextHandle Create();
-    }
+    IContextHandle Create();
 }

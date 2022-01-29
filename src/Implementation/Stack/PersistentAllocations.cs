@@ -3,35 +3,34 @@ using System.Collections.Generic;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
-namespace Symbolica.Implementation.Stack
+namespace Symbolica.Implementation.Stack;
+
+internal sealed class PersistentAllocations : IPersistentAllocations
 {
-    internal sealed class PersistentAllocations : IPersistentAllocations
+    private readonly IPersistentStack<IExpression> _allocations;
+
+    private PersistentAllocations(IPersistentStack<IExpression> allocations)
     {
-        private readonly IPersistentStack<IExpression> _allocations;
+        _allocations = allocations;
+    }
 
-        private PersistentAllocations(IPersistentStack<IExpression> allocations)
-        {
-            _allocations = allocations;
-        }
+    public IPersistentAllocations Add(IExpression allocation)
+    {
+        return new PersistentAllocations(_allocations.Push(allocation));
+    }
 
-        public IPersistentAllocations Add(IExpression allocation)
-        {
-            return new PersistentAllocations(_allocations.Push(allocation));
-        }
+    public IEnumerator<IExpression> GetEnumerator()
+    {
+        return _allocations.GetEnumerator();
+    }
 
-        public IEnumerator<IExpression> GetEnumerator()
-        {
-            return _allocations.GetEnumerator();
-        }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public static IPersistentAllocations Create(ICollectionFactory collectionFactory)
-        {
-            return new PersistentAllocations(collectionFactory.CreatePersistentStack<IExpression>());
-        }
+    public static IPersistentAllocations Create(ICollectionFactory collectionFactory)
+    {
+        return new PersistentAllocations(collectionFactory.CreatePersistentStack<IExpression>());
     }
 }

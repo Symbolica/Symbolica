@@ -1,10 +1,9 @@
 ﻿using LLVMSharp.Interop;
 using Symbolica.Abstraction;
 
-namespace Symbolica.Deserialization
+namespace Symbolica.Deserialization;
+
+internal interface IGlobalFactory
 {
-    internal interface IGlobalFactory
-    {
-        IGlobal Create(LLVMValueRef global);
-    }
+    IGlobal Create(LLVMValueRef global);
 }

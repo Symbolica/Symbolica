@@ -1,20 +1,19 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation.Operands
+namespace Symbolica.Representation.Operands;
+
+public sealed class GlobalVariable : IOperand
 {
-    public sealed class GlobalVariable : IOperand
+    private readonly GlobalId _id;
+
+    public GlobalVariable(GlobalId id)
     {
-        private readonly GlobalId _id;
+        _id = id;
+    }
 
-        public GlobalVariable(GlobalId id)
-        {
-            _id = id;
-        }
-
-        public IExpression Evaluate(IState state)
-        {
-            return state.GetGlobalAddress(_id);
-        }
+    public IExpression Evaluate(IState state)
+    {
+        return state.GetGlobalAddress(_id);
     }
 }

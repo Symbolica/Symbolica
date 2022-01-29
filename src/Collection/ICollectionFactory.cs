@@ -1,12 +1,11 @@
-﻿namespace Symbolica.Collection
+﻿namespace Symbolica.Collection;
+
+public interface ICollectionFactory
 {
-    public interface ICollectionFactory
-    {
-        IPersistentStack<T> CreatePersistentStack<T>();
+    IPersistentStack<T> CreatePersistentStack<T>();
 
-        IPersistentList<T> CreatePersistentList<T>();
+    IPersistentList<T> CreatePersistentList<T>();
 
-        IPersistentDictionary<TKey, TValue> CreatePersistentDictionary<TKey, TValue>()
-            where TKey : notnull;
-    }
+    IPersistentDictionary<TKey, TValue> CreatePersistentDictionary<TKey, TValue>()
+        where TKey : notnull;
 }

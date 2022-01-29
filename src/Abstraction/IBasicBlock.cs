@@ -1,9 +1,8 @@
-﻿namespace Symbolica.Abstraction
-{
-    public interface IBasicBlock
-    {
-        BasicBlockId Id { get; }
+﻿namespace Symbolica.Abstraction;
 
-        IInstruction GetInstruction(int index);
-    }
+public interface IBasicBlock
+{
+    BasicBlockId Id { get; }
+
+    IInstruction GetInstruction(int index);
 }

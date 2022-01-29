@@ -1,23 +1,22 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Representation.Exceptions;
 
-namespace Symbolica.Representation.Instructions
+namespace Symbolica.Representation.Instructions;
+
+public sealed class Unsupported : IInstruction
 {
-    public sealed class Unsupported : IInstruction
+    private readonly string _type;
+
+    public Unsupported(InstructionId id, string type)
     {
-        private readonly string _type;
+        Id = id;
+        _type = type;
+    }
 
-        public Unsupported(InstructionId id, string type)
-        {
-            Id = id;
-            _type = type;
-        }
+    public InstructionId Id { get; }
 
-        public InstructionId Id { get; }
-
-        public void Execute(IState state)
-        {
-            throw new UnsupportedInstructionException(_type);
-        }
+    public void Execute(IState state)
+    {
+        throw new UnsupportedInstructionException(_type);
     }
 }

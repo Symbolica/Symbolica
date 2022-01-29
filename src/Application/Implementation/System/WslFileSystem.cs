@@ -1,45 +1,44 @@
 ﻿using System.Diagnostics;
 
-namespace Symbolica.Implementation.System
+namespace Symbolica.Implementation.System;
+
+internal sealed class WslFileSystem : IFileSystem
 {
-    internal sealed class WslFileSystem : IFileSystem
+    private readonly IFileSystem _fileSystem;
+
+    public WslFileSystem(IFileSystem fileSystem)
     {
-        private readonly IFileSystem _fileSystem;
+        _fileSystem = fileSystem;
+    }
 
-        public WslFileSystem(IFileSystem fileSystem)
-        {
-            _fileSystem = fileSystem;
-        }
+    public IFile? GetFile(string path)
+    {
+        return _fileSystem.GetFile(ToWindowsPath(path));
+    }
 
-        public IFile? GetFile(string path)
-        {
-            return _fileSystem.GetFile(ToWindowsPath(path));
-        }
+    public IDirectory? GetDirectory(string path)
+    {
+        return _fileSystem.GetDirectory(ToWindowsPath(path));
+    }
 
-        public IDirectory? GetDirectory(string path)
+    private static string ToWindowsPath(string path)
+    {
+        using var process = new Process
         {
-            return _fileSystem.GetDirectory(ToWindowsPath(path));
-        }
-
-        private static string ToWindowsPath(string path)
-        {
-            using var process = new Process
+            StartInfo =
             {
-                StartInfo =
-                {
-                    FileName = "wsl",
-                    Arguments = $"wslpath -w {path}",
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                }
-            };
+                FileName = "wsl",
+                Arguments = $"wslpath -w {path}",
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            }
+        };
 
-            process.Start();
-            process.WaitForExit();
+        process.Start();
+        process.WaitForExit();
 
-            return process.StandardOutput.ReadToEnd().Trim();
-        }
+        return process.StandardOutput.ReadToEnd().Trim();
     }
 }

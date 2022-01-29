@@ -1,21 +1,20 @@
 ﻿using Microsoft.Z3;
 using Symbolica.Expression;
 
-namespace Symbolica.Computation.Values.Symbolics
+namespace Symbolica.Computation.Values.Symbolics;
+
+internal sealed class FloatConvert : Float
 {
-    internal sealed class FloatConvert : Float
+    private readonly IValue _value;
+
+    public FloatConvert(Bits size, IValue value)
+        : base(size)
     {
-        private readonly IValue _value;
+        _value = value;
+    }
 
-        public FloatConvert(Bits size, IValue value)
-            : base(size)
-        {
-            _value = value;
-        }
-
-        public override FPExpr AsFloat(Context context)
-        {
-            return context.MkFPToFP(context.MkFPRNE(), _value.AsFloat(context), Size.GetSort(context));
-        }
+    public override FPExpr AsFloat(Context context)
+    {
+        return context.MkFPToFP(context.MkFPRNE(), _value.AsFloat(context), Size.GetSort(context));
     }
 }

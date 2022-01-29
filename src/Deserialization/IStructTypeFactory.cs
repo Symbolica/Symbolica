@@ -1,10 +1,9 @@
 ﻿using LLVMSharp.Interop;
 using Symbolica.Abstraction;
 
-namespace Symbolica.Deserialization
+namespace Symbolica.Deserialization;
+
+internal interface IStructTypeFactory
 {
-    internal interface IStructTypeFactory
-    {
-        IStructType Create(LLVMTypeRef type);
-    }
+    IStructType Create(LLVMTypeRef type);
 }

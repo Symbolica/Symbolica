@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Collection\Collection.csproj" />
-    <ProjectReference Include="..\Expression\Expression.csproj" />
+    <ProjectReference Include="..\Collection\Collection.csproj"/>
+    <ProjectReference Include="..\Expression\Expression.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Symbolica.Z3" Version="0.2.0-master0003" />
+    <PackageReference Include="Symbolica.Z3" Version="0.2.0-master0003"/>
   </ItemGroup>
 
 </Project>

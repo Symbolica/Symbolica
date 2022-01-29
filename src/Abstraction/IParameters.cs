@@ -1,9 +1,8 @@
-namespace Symbolica.Abstraction
-{
-    public interface IParameters
-    {
-        int Count { get; }
+namespace Symbolica.Abstraction;
 
-        Parameter Get(int index);
-    }
+public interface IParameters
+{
+    int Count { get; }
+
+    Parameter Get(int index);
 }
