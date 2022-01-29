@@ -27,7 +27,7 @@ namespace Symbolica.Representation.TestUtils
 
         public static explicit operator Nibble(BigInteger nibble)
         {
-            return new(
+            return new Nibble(
                 (nibble & 0b1000) == 0b1000,
                 (nibble & 0b0100) == 0b0100,
                 (nibble & 0b0010) == 0b0010,
@@ -36,7 +36,7 @@ namespace Symbolica.Representation.TestUtils
 
         public static explicit operator BigInteger(Nibble nibble)
         {
-            return new(
+            return new BigInteger(
                 (nibble.B3 ? 0b1000 : 0) |
                 (nibble.B2 ? 0b0100 : 0) |
                 (nibble.B1 ? 0b0010 : 0) |
@@ -104,7 +104,7 @@ namespace Symbolica.Representation.TestUtils
 
         public static Nibble operator --(Nibble value)
         {
-            return new(
+            return new Nibble(
                 !value.B3 ^ (value.B2 | value.B1 | value.B0),
                 !value.B2 ^ (value.B1 | value.B0),
                 !value.B1 ^ value.B0,
@@ -113,7 +113,7 @@ namespace Symbolica.Representation.TestUtils
 
         public static Nibble operator ++(Nibble value)
         {
-            return new(
+            return new Nibble(
                 value.B3 ^ (value.B2 & value.B1 & value.B0),
                 value.B2 ^ (value.B1 & value.B0),
                 value.B1 ^ value.B0,
@@ -122,7 +122,7 @@ namespace Symbolica.Representation.TestUtils
 
         public static Nibble operator &(Nibble left, Nibble right)
         {
-            return new(
+            return new Nibble(
                 left.B3 && right.B3,
                 left.B2 && right.B2,
                 left.B1 && right.B1,
@@ -131,7 +131,7 @@ namespace Symbolica.Representation.TestUtils
 
         public static Nibble operator |(Nibble left, Nibble right)
         {
-            return new(
+            return new Nibble(
                 left.B3 || right.B3,
                 left.B2 || right.B2,
                 left.B1 || right.B1,
@@ -140,7 +140,7 @@ namespace Symbolica.Representation.TestUtils
 
         public static Nibble operator ^(Nibble left, Nibble right)
         {
-            return new(
+            return new Nibble(
                 left.B3 ^ right.B3,
                 left.B2 ^ right.B2,
                 left.B1 ^ right.B1,

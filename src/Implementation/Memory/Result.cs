@@ -22,17 +22,17 @@ namespace Symbolica.Implementation.Memory
 
         public static Result<TValue> Failure(ISpace failureSpace)
         {
-            return new(failureSpace, null);
+            return new Result<TValue>(failureSpace, null);
         }
 
         public static Result<TValue> Both(ISpace failureSpace, TValue value)
         {
-            return new(failureSpace, value);
+            return new Result<TValue>(failureSpace, value);
         }
 
         public static Result<TValue> Success(TValue value)
         {
-            return new(null, value);
+            return new Result<TValue>(null, value);
         }
     }
 }

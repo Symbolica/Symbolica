@@ -3,7 +3,7 @@
     <PropertyGroup>
         <AssemblyName>Symbolica.Collection</AssemblyName>
         <RootNamespace>Symbolica.Collection</RootNamespace>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
 </Project>

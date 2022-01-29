@@ -37,7 +37,7 @@ namespace Symbolica.Computation.Values.Constants
 
         public ConstantBool AsBool()
         {
-            return new(!_value.IsZero);
+            return new ConstantBool(!_value.IsZero);
         }
 
         public ConstantSingle AsSingle()
@@ -52,7 +52,7 @@ namespace Symbolica.Computation.Values.Constants
 
         public ConstantUnsigned Extend(Bits size)
         {
-            return new(size, _value);
+            return new ConstantUnsigned(size, _value);
         }
 
         public static implicit operator BigInteger(ConstantUnsigned value)
@@ -67,7 +67,7 @@ namespace Symbolica.Computation.Values.Constants
 
         public static ConstantUnsigned Create(Bits size, BigInteger value)
         {
-            return new(size, value.IsZero || value.Sign > 0 && value.GetBitLength() <= (uint) size
+            return new ConstantUnsigned(size, value.IsZero || value.Sign > 0 && value.GetBitLength() <= (uint) size
                 ? value
                 : Normalize(size, value));
         }

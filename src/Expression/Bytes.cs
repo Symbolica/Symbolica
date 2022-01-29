@@ -16,7 +16,7 @@ namespace Symbolica.Expression
 
         public static explicit operator Bytes(uint bytes)
         {
-            return new(bytes);
+            return new Bytes(bytes);
         }
 
         public static explicit operator uint(Bytes bytes)

@@ -13,7 +13,7 @@ namespace Symbolica.Abstraction
 
         public static explicit operator FunctionId(ulong id)
         {
-            return new(id);
+            return new FunctionId(id);
         }
 
         public static explicit operator ulong(FunctionId id)

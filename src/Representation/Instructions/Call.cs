@@ -64,7 +64,7 @@ namespace Symbolica.Representation.Instructions
 
             private Arguments Coerce(IFunction function)
             {
-                return new(_arguments
+                return new Arguments(_arguments
                     .Select((a, i) => Coerce(function.Parameters, a, i))
                     .ToArray());
             }
