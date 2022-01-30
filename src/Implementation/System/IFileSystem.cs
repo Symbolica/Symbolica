@@ -1,8 +1,7 @@
-﻿namespace Symbolica.Implementation.System
+﻿namespace Symbolica.Implementation.System;
+
+public interface IFileSystem
 {
-    public interface IFileSystem
-    {
-        IFile? GetFile(string path);
-        IDirectory? GetDirectory(string path);
-    }
+    IFile? GetFile(string path);
+    IDirectory? GetDirectory(string path);
 }

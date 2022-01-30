@@ -1,17 +1,16 @@
-﻿namespace Symbolica.Abstraction
+﻿namespace Symbolica.Abstraction;
+
+public enum StateError
 {
-    public enum StateError
-    {
-        Abort,
-        DivideByZero,
-        FailingAssertion,
-        InvalidJump,
-        InvalidMemoryFree,
-        InvalidMemoryMove,
-        InvalidMemoryRead,
-        InvalidMemoryWrite,
-        NonZeroExitCode,
-        OverlappingMemoryCopy,
-        UndefinedShift
-    }
+    Abort,
+    DivideByZero,
+    FailingAssertion,
+    InvalidJump,
+    InvalidMemoryFree,
+    InvalidMemoryMove,
+    InvalidMemoryRead,
+    InvalidMemoryWrite,
+    NonZeroExitCode,
+    OverlappingMemoryCopy,
+    UndefinedShift
 }

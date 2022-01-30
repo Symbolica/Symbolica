@@ -1,9 +1,8 @@
-﻿namespace Symbolica.Implementation.Memory
+﻿namespace Symbolica.Implementation.Memory;
+
+internal enum Section
 {
-    internal enum Section
-    {
-        Global,
-        Stack,
-        Heap
-    }
+    Global,
+    Stack,
+    Heap
 }

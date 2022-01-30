@@ -1,28 +1,27 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation.Instructions
+namespace Symbolica.Representation.Instructions;
+
+public sealed class FloatToSigned : IInstruction
 {
-    public sealed class FloatToSigned : IInstruction
+    private readonly IOperand[] _operands;
+    private readonly Bits _size;
+
+    public FloatToSigned(InstructionId id, IOperand[] operands, Bits size)
     {
-        private readonly IOperand[] _operands;
-        private readonly Bits _size;
+        Id = id;
+        _operands = operands;
+        _size = size;
+    }
 
-        public FloatToSigned(InstructionId id, IOperand[] operands, Bits size)
-        {
-            Id = id;
-            _operands = operands;
-            _size = size;
-        }
+    public InstructionId Id { get; }
 
-        public InstructionId Id { get; }
+    public void Execute(IState state)
+    {
+        var expression = _operands[0].Evaluate(state);
+        var result = expression.FloatToSigned(_size);
 
-        public void Execute(IState state)
-        {
-            var expression = _operands[0].Evaluate(state);
-            var result = expression.FloatToSigned(_size);
-
-            state.Stack.SetVariable(Id, result);
-        }
+        state.Stack.SetVariable(Id, result);
     }
 }

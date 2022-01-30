@@ -1,54 +1,53 @@
 ﻿using System;
 
-namespace Symbolica.Abstraction
+namespace Symbolica.Abstraction;
+
+public readonly struct GlobalId : IEquatable<GlobalId>
 {
-    public readonly struct GlobalId : IEquatable<GlobalId>
+    private readonly ulong _value;
+
+    private GlobalId(ulong value)
     {
-        private readonly ulong _value;
+        _value = value;
+    }
 
-        private GlobalId(ulong value)
-        {
-            _value = value;
-        }
+    public static explicit operator GlobalId(ulong id)
+    {
+        return new GlobalId(id);
+    }
 
-        public static explicit operator GlobalId(ulong id)
-        {
-            return new GlobalId(id);
-        }
+    public static explicit operator ulong(GlobalId id)
+    {
+        return id._value;
+    }
 
-        public static explicit operator ulong(GlobalId id)
-        {
-            return id._value;
-        }
+    public bool Equals(GlobalId other)
+    {
+        return _value == other._value;
+    }
 
-        public bool Equals(GlobalId other)
-        {
-            return _value == other._value;
-        }
+    public override bool Equals(object? obj)
+    {
+        return obj is GlobalId other && Equals(other);
+    }
 
-        public override bool Equals(object? obj)
-        {
-            return obj is GlobalId other && Equals(other);
-        }
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
 
-        public override int GetHashCode()
-        {
-            return _value.GetHashCode();
-        }
+    public static bool operator ==(GlobalId left, GlobalId right)
+    {
+        return left.Equals(right);
+    }
 
-        public static bool operator ==(GlobalId left, GlobalId right)
-        {
-            return left.Equals(right);
-        }
+    public static bool operator !=(GlobalId left, GlobalId right)
+    {
+        return !left.Equals(right);
+    }
 
-        public static bool operator !=(GlobalId left, GlobalId right)
-        {
-            return !left.Equals(right);
-        }
-
-        public override string ToString()
-        {
-            return _value.ToString();
-        }
+    public override string ToString()
+    {
+        return _value.ToString();
     }
 }

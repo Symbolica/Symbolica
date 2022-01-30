@@ -1,12 +1,11 @@
 ﻿using Symbolica.Representation;
 
-namespace Symbolica.Deserialization
+namespace Symbolica.Deserialization;
+
+public static class DeserializerFactory
 {
-    public static class DeserializerFactory
+    public static IDeserializer Create(IDeclarationFactory declarationFactory)
     {
-        public static IDeserializer Create(IDeclarationFactory declarationFactory)
-        {
-            return new Deserializer(new UnsafeContext(), declarationFactory);
-        }
+        return new Deserializer(new UnsafeContext(), declarationFactory);
     }
 }

@@ -3,10 +3,9 @@ using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
 
-namespace Symbolica.Implementation
+namespace Symbolica.Implementation;
+
+internal interface IPersistentGlobals
 {
-    internal interface IPersistentGlobals
-    {
-        (IExpression, Action<IState>, IPersistentGlobals) GetAddress(IMemoryProxy memory, GlobalId id);
-    }
+    (IExpression, Action<IState>, IPersistentGlobals) GetAddress(IMemoryProxy memory, GlobalId id);
 }

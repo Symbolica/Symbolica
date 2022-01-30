@@ -1,7 +1,6 @@
-﻿namespace Symbolica.Expression
+﻿namespace Symbolica.Expression;
+
+public interface ISpaceFactory
 {
-    public interface ISpaceFactory
-    {
-        ISpace CreateInitial(Bits pointerSize, bool useSymbolicGarbage);
-    }
+    ISpace CreateInitial(Bits pointerSize, bool useSymbolicGarbage);
 }

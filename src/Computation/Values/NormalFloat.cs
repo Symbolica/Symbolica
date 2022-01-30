@@ -2,91 +2,90 @@
 using Microsoft.Z3;
 using Symbolica.Expression;
 
-namespace Symbolica.Computation.Values
+namespace Symbolica.Computation.Values;
+
+internal sealed class NormalFloat : Float
 {
-    internal sealed class NormalFloat : Float
+    private readonly string _value;
+
+    public NormalFloat(Bits size, string value)
+        : base(size)
     {
-        private readonly string _value;
+        _value = value;
+    }
 
-        public NormalFloat(Bits size, string value)
-            : base(size)
+    public override FPExpr AsFloat(Context context)
+    {
+        var sort = Size.GetSort(context);
+        var (sign, significand, exponent) = ParseDecimal(_value);
+
+        return significand.IsZero
+            ? context.MkFPZero(sort, sign)
+            : Create(context, sort, sign, significand, exponent);
+    }
+
+    private static FPExpr Create(Context context, FPSort sort, bool sign, BigInteger significand, int exponent)
+    {
+        var (numerator, denominator) = exponent < 0
+            ? (significand, BigInteger.Pow(10, -exponent))
+            : (significand * BigInteger.Pow(10, exponent), BigInteger.One);
+
+        var precision = (int) sort.SBits;
+        var scale = precision - 1L;
+
+        var lower = BigInteger.One << (precision - 1);
+        while (numerator / denominator < lower)
         {
-            _value = value;
+            numerator <<= 1;
+            --scale;
         }
 
-        public override FPExpr AsFloat(Context context)
+        var upper = BigInteger.One << precision;
+        while (upper <= numerator / denominator)
         {
-            var sort = Size.GetSort(context);
-            var (sign, significand, exponent) = ParseDecimal(_value);
-
-            return significand.IsZero
-                ? context.MkFPZero(sort, sign)
-                : Create(context, sort, sign, significand, exponent);
+            denominator <<= 1;
+            ++scale;
         }
 
-        private static FPExpr Create(Context context, FPSort sort, bool sign, BigInteger significand, int exponent)
-        {
-            var (numerator, denominator) = exponent < 0
-                ? (significand, BigInteger.Pow(10, -exponent))
-                : (significand * BigInteger.Pow(10, exponent), BigInteger.One);
+        var quotient = numerator / denominator;
+        var remainder = numerator % denominator;
+        var midpoint = denominator >> 1;
 
-            var precision = (int) sort.SBits;
-            var scale = precision - 1L;
+        var (rounded, shift) = remainder > midpoint || remainder == midpoint && !quotient.IsEven
+            ? quotient == upper - BigInteger.One
+                ? (lower, scale + 1L)
+                : (quotient + BigInteger.One, scale)
+            : (quotient, scale);
 
-            var lower = BigInteger.One << (precision - 1);
-            while (numerator / denominator < lower)
-            {
-                numerator <<= 1;
-                --scale;
-            }
+        return context.MkFP(sign, shift, (ulong) (rounded % lower), sort);
+    }
 
-            var upper = BigInteger.One << precision;
-            while (upper <= numerator / denominator)
-            {
-                denominator <<= 1;
-                ++scale;
-            }
+    private static (bool, BigInteger, int) ParseDecimal(string value)
+    {
+        var sign = value[0] == '-';
 
-            var quotient = numerator / denominator;
-            var remainder = numerator % denominator;
-            var midpoint = denominator >> 1;
+        var (significand, exponent) = sign
+            ? ParseNonNegativeDecimal(value[1..])
+            : ParseNonNegativeDecimal(value);
 
-            var (rounded, shift) = remainder > midpoint || remainder == midpoint && !quotient.IsEven
-                ? quotient == upper - BigInteger.One
-                    ? (lower, scale + 1L)
-                    : (quotient + BigInteger.One, scale)
-                : (quotient, scale);
+        return (sign, significand, exponent);
+    }
 
-            return context.MkFP(sign, shift, (ulong) (rounded % lower), sort);
-        }
+    private static (BigInteger, int) ParseNonNegativeDecimal(string value)
+    {
+        var index = value.IndexOfAny(new[] {'e', 'E'});
 
-        private static (bool, BigInteger, int) ParseDecimal(string value)
-        {
-            var sign = value[0] == '-';
+        return index == -1
+            ? ParseStandardNonNegativeDecimal(value, 0)
+            : ParseStandardNonNegativeDecimal(value[..index], int.Parse(value[(index + 1)..]));
+    }
 
-            var (significand, exponent) = sign
-                ? ParseNonNegativeDecimal(value[1..])
-                : ParseNonNegativeDecimal(value);
+    private static (BigInteger, int) ParseStandardNonNegativeDecimal(string value, int exponent)
+    {
+        var index = value.IndexOf('.');
 
-            return (sign, significand, exponent);
-        }
-
-        private static (BigInteger, int) ParseNonNegativeDecimal(string value)
-        {
-            var index = value.IndexOfAny(new[] {'e', 'E'});
-
-            return index == -1
-                ? ParseStandardNonNegativeDecimal(value, 0)
-                : ParseStandardNonNegativeDecimal(value[..index], int.Parse(value[(index + 1)..]));
-        }
-
-        private static (BigInteger, int) ParseStandardNonNegativeDecimal(string value, int exponent)
-        {
-            var index = value.IndexOf('.');
-
-            return index == -1
-                ? (BigInteger.Parse(value), exponent)
-                : (BigInteger.Parse(value[..index] + value[(index + 1)..]), exponent - (value.Length - 1 - index));
-        }
+        return index == -1
+            ? (BigInteger.Parse(value), exponent)
+            : (BigInteger.Parse(value[..index] + value[(index + 1)..]), exponent - (value.Length - 1 - index));
     }
 }

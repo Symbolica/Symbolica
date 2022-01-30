@@ -1,12 +1,11 @@
 ﻿using Symbolica.Computation;
 
-namespace Symbolica
+namespace Symbolica;
+
+internal sealed class PooledContextFactory : IContextFactory
 {
-    internal sealed class PooledContextFactory : IContextFactory
+    public IContextHandle Create()
     {
-        public IContextHandle Create()
-        {
-            return PooledContextHandle.Create();
-        }
+        return PooledContextHandle.Create();
     }
 }

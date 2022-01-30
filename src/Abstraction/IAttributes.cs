@@ -1,7 +1,6 @@
-namespace Symbolica.Abstraction
+namespace Symbolica.Abstraction;
+
+public interface IAttributes
 {
-    public interface IAttributes
-    {
-        bool IsSignExtended { get; }
-    }
+    bool IsSignExtended { get; }
 }

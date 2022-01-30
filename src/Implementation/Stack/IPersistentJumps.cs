@@ -1,10 +1,9 @@
 ﻿using Symbolica.Expression;
 
-namespace Symbolica.Implementation.Stack
+namespace Symbolica.Implementation.Stack;
+
+internal interface IPersistentJumps
 {
-    internal interface IPersistentJumps
-    {
-        IPersistentJumps Add(IExpression continuation, bool useJumpBuffer, ISavedFrame frame);
-        Result<ISavedFrame> TryGet(ISpace space, IExpression continuation, bool useJumpBuffer);
-    }
+    IPersistentJumps Add(IExpression continuation, bool useJumpBuffer, ISavedFrame frame);
+    Result<ISavedFrame> TryGet(ISpace space, IExpression continuation, bool useJumpBuffer);
 }

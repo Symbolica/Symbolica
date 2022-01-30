@@ -1,10 +1,9 @@
-﻿namespace Symbolica.Abstraction
-{
-    public interface IFunction
-    {
-        FunctionId Id { get; }
-        IParameters Parameters { get; }
+﻿namespace Symbolica.Abstraction;
 
-        void Call(IState state, ICaller caller, IArguments arguments);
-    }
+public interface IFunction
+{
+    FunctionId Id { get; }
+    IParameters Parameters { get; }
+
+    void Call(IState state, ICaller caller, IArguments arguments);
 }

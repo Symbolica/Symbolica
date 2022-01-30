@@ -1,8 +1,7 @@
-﻿namespace Symbolica.Implementation.Stack
+﻿namespace Symbolica.Implementation.Stack;
+
+internal interface ISavedFrame
 {
-    internal interface ISavedFrame
-    {
-        IPersistentFrame Restore(bool useJumpBuffer,
-            IPersistentJumps jumps, IPersistentProgramCounter programCounter, IPersistentVariables variables);
-    }
+    IPersistentFrame Restore(bool useJumpBuffer,
+        IPersistentJumps jumps, IPersistentProgramCounter programCounter, IPersistentVariables variables);
 }

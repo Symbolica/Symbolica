@@ -1,18 +1,17 @@
 ﻿using Moq;
 using Symbolica.Abstraction;
 
-namespace Symbolica.Representation.TestUtils
-{
-    internal static class MockCaller
-    {
-        public static ICaller Create(InstructionId id)
-        {
-            var mockCaller = new Mock<ICaller>(MockBehavior.Strict);
-            mockCaller
-                .SetupGet(c => c.Id)
-                .Returns(id);
+namespace Symbolica.Representation.TestUtils;
 
-            return mockCaller.Object;
-        }
+internal static class MockCaller
+{
+    public static ICaller Create(InstructionId id)
+    {
+        var mockCaller = new Mock<ICaller>(MockBehavior.Strict);
+        mockCaller
+            .SetupGet(c => c.Id)
+            .Returns(id);
+
+        return mockCaller.Object;
     }
 }

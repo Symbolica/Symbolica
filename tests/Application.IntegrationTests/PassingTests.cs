@@ -6,47 +6,46 @@ using FluentAssertions;
 using Symbolica.Implementation;
 using Xunit;
 
-namespace Symbolica
+namespace Symbolica;
+
+public class PassingTests
 {
-    public class PassingTests
+    [Theory]
+    [ClassData(typeof(TestData))]
+    private async Task ShouldPass(string directory, string optimization, Options options)
     {
-        [Theory]
-        [ClassData(typeof(TestData))]
-        private async Task ShouldPass(string directory, string optimization, Options options)
+        var bytes = await Serializer.Serialize(directory, optimization);
+        var executor = new Executor(new PooledContextFactory(), options);
+
+        var (_, exception) = await executor.Run(bytes);
+
+        exception.Should().BeNull();
+    }
+
+    private sealed class TestData : TheoryData<string, string, Options>
+    {
+        public TestData()
         {
-            var bytes = await Serializer.Serialize(directory, optimization);
-            var executor = new Executor(new PooledContextFactory(), options);
-
-            var (_, exception) = await executor.Run(bytes);
-
-            exception.Should().BeNull();
+            Add(SignCases());
         }
 
-        private sealed class TestData : TheoryData<string, string, Options>
+        private static IEnumerable<(string, string, Options)> SignCases()
         {
-            public TestData()
-            {
-                Add(SignCases());
-            }
+            return
+                from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                from useSymbolicGarbage in new[] {false, true}
+                from useSymbolicAddresses in new[] {false, true}
+                from useSymbolicContinuations in new[] {false, true}
+                select (
+                    "sign",
+                    optimization,
+                    new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations));
+        }
 
-            private static IEnumerable<(string, string, Options)> SignCases()
-            {
-                return
-                    from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
-                    from useSymbolicGarbage in new[] {false, true}
-                    from useSymbolicAddresses in new[] {false, true}
-                    from useSymbolicContinuations in new[] {false, true}
-                    select (
-                        "sign",
-                        optimization,
-                        new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations));
-            }
-
-            private void Add(IEnumerable<(string, string, Options)> cases)
-            {
-                foreach (var (directory, optimization, options) in cases)
-                    Add(Path.Combine("..", "..", "..", "..", "pass", directory), optimization, options);
-            }
+        private void Add(IEnumerable<(string, string, Options)> cases)
+        {
+            foreach (var (directory, optimization, options) in cases)
+                Add(Path.Combine("..", "..", "..", "..", "pass", directory), optimization, options);
         }
     }
 }

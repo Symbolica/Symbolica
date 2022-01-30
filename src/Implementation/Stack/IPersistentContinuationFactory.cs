@@ -1,9 +1,8 @@
 ﻿using Symbolica.Expression;
 
-namespace Symbolica.Implementation.Stack
+namespace Symbolica.Implementation.Stack;
+
+internal interface IPersistentContinuationFactory
 {
-    internal interface IPersistentContinuationFactory
-    {
-        (IExpression, IPersistentContinuationFactory) Create(ISpace space, Bits size);
-    }
+    (IExpression, IPersistentContinuationFactory) Create(ISpace space, Bits size);
 }

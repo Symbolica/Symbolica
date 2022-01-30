@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Symbolica.Deserialization
+namespace Symbolica.Deserialization;
+
+internal interface IIdFactory
 {
-    internal interface IIdFactory
-    {
-        ulong GetOrCreate(IntPtr handle);
-    }
+    ulong GetOrCreate(IntPtr handle);
 }

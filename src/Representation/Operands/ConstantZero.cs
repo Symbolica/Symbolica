@@ -2,20 +2,19 @@
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation.Operands
+namespace Symbolica.Representation.Operands;
+
+public sealed class ConstantZero : IOperand
 {
-    public sealed class ConstantZero : IOperand
+    private readonly Bits _size;
+
+    public ConstantZero(Bits size)
     {
-        private readonly Bits _size;
+        _size = size;
+    }
 
-        public ConstantZero(Bits size)
-        {
-            _size = size;
-        }
-
-        public IExpression Evaluate(IState state)
-        {
-            return state.Space.CreateConstant(_size, BigInteger.Zero);
-        }
+    public IExpression Evaluate(IState state)
+    {
+        return state.Space.CreateConstant(_size, BigInteger.Zero);
     }
 }

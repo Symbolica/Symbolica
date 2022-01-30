@@ -1,10 +1,9 @@
 ﻿using LLVMSharp.Interop;
 using Symbolica.Abstraction;
 
-namespace Symbolica.Deserialization
+namespace Symbolica.Deserialization;
+
+internal interface IFunctionFactory
 {
-    internal interface IFunctionFactory
-    {
-        IFunction Create(LLVMValueRef function);
-    }
+    IFunction Create(LLVMValueRef function);
 }

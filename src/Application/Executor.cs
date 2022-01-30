@@ -8,42 +8,41 @@ using Symbolica.Implementation;
 using Symbolica.Implementation.System;
 using Symbolica.Representation;
 
-namespace Symbolica
+namespace Symbolica;
+
+internal sealed class Executor
 {
-    internal sealed class Executor
+    private readonly IContextFactory _contextFactory;
+    private readonly Options _options;
+
+    public Executor(IContextFactory contextFactory, Options options)
     {
-        private readonly IContextFactory _contextFactory;
-        private readonly Options _options;
+        _contextFactory = contextFactory;
+        _options = options;
+    }
 
-        public Executor(IContextFactory contextFactory, Options options)
-        {
-            _contextFactory = contextFactory;
-            _options = options;
-        }
+    public async Task<(ulong, Exception?)> Run(byte[] bytes)
+    {
+        var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
-        public async Task<(ulong, Exception?)> Run(byte[] bytes)
-        {
-            var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
+        var collectionFactory = new CollectionFactory();
 
-            var collectionFactory = new CollectionFactory();
+        var spaceFactory = new SpaceFactory(
+            new SymbolFactory(), new ModelFactory(),
+            _contextFactory, collectionFactory);
 
-            var spaceFactory = new SpaceFactory(
-                new SymbolFactory(), new ModelFactory(),
-                _contextFactory, collectionFactory);
+        var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
-            var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
+        using var statePool = new StatePool();
+        statePool.Add(executableFactory.CreateInitial(module, _options));
 
-            using var statePool = new StatePool();
-            statePool.Add(executableFactory.CreateInitial(module, _options));
+        return await statePool.Wait();
+    }
 
-            return await statePool.Wait();
-        }
-
-        private static IFileSystem CreateFileSystem()
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? new WslFileSystem(new FileSystem())
-                : new FileSystem();
-        }
+    private static IFileSystem CreateFileSystem()
+    {
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? new WslFileSystem(new FileSystem())
+            : new FileSystem();
     }
 }

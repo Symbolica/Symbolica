@@ -2,22 +2,21 @@
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation.Instructions
+namespace Symbolica.Representation.Instructions;
+
+public sealed class FloatTrue : IInstruction
 {
-    public sealed class FloatTrue : IInstruction
+    public FloatTrue(InstructionId id)
     {
-        public FloatTrue(InstructionId id)
-        {
-            Id = id;
-        }
+        Id = id;
+    }
 
-        public InstructionId Id { get; }
+    public InstructionId Id { get; }
 
-        public void Execute(IState state)
-        {
-            var result = state.Space.CreateConstant(Bits.One, BigInteger.One);
+    public void Execute(IState state)
+    {
+        var result = state.Space.CreateConstant(Bits.One, BigInteger.One);
 
-            state.Stack.SetVariable(Id, result);
-        }
+        state.Stack.SetVariable(Id, result);
     }
 }

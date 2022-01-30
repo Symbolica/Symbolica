@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 
-namespace Symbolica.Expression
+namespace Symbolica.Expression;
+
+public interface IExample : IEnumerable<KeyValuePair<string, string>>
 {
-    public interface IExample : IEnumerable<KeyValuePair<string, string>>
-    {
-    }
 }

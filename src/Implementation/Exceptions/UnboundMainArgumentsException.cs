@@ -1,14 +1,13 @@
 ﻿using System;
 using Symbolica.Expression;
 
-namespace Symbolica.Implementation.Exceptions
+namespace Symbolica.Implementation.Exceptions;
+
+[Serializable]
+public class UnboundMainArgumentsException : ErrorException
 {
-    [Serializable]
-    public class UnboundMainArgumentsException : ErrorException
+    public UnboundMainArgumentsException()
+        : base("The 'main' function cannot access any arguments.")
     {
-        public UnboundMainArgumentsException()
-            : base("The 'main' function cannot access any arguments.")
-        {
-        }
     }
 }

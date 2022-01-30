@@ -1,21 +1,20 @@
-﻿namespace Symbolica.Collection
+﻿namespace Symbolica.Collection;
+
+internal sealed class CollectionFactory : ICollectionFactory
 {
-    internal sealed class CollectionFactory : ICollectionFactory
+    public IPersistentStack<T> CreatePersistentStack<T>()
     {
-        public IPersistentStack<T> CreatePersistentStack<T>()
-        {
-            return PersistentStack<T>.Empty;
-        }
+        return PersistentStack<T>.Empty;
+    }
 
-        public IPersistentList<T> CreatePersistentList<T>()
-        {
-            return PersistentList<T>.Empty;
-        }
+    public IPersistentList<T> CreatePersistentList<T>()
+    {
+        return PersistentList<T>.Empty;
+    }
 
-        public IPersistentDictionary<TKey, TValue> CreatePersistentDictionary<TKey, TValue>()
-            where TKey : notnull
-        {
-            return PersistentDictionary<TKey, TValue>.Empty;
-        }
+    public IPersistentDictionary<TKey, TValue> CreatePersistentDictionary<TKey, TValue>()
+        where TKey : notnull
+    {
+        return PersistentDictionary<TKey, TValue>.Empty;
     }
 }

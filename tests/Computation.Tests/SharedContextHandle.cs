@@ -1,18 +1,17 @@
 ﻿using Microsoft.Z3;
 
-namespace Symbolica.Computation
+namespace Symbolica.Computation;
+
+internal sealed class SharedContextHandle : IContextHandle
 {
-    internal sealed class SharedContextHandle : IContextHandle
+    public SharedContextHandle(Context context)
     {
-        public SharedContextHandle(Context context)
-        {
-            Context = context;
-        }
+        Context = context;
+    }
 
-        public Context Context { get; }
+    public Context Context { get; }
 
-        public void Dispose()
-        {
-        }
+    public void Dispose()
+    {
     }
 }

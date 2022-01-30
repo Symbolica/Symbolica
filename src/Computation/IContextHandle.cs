@@ -1,10 +1,9 @@
 ﻿using System;
 using Microsoft.Z3;
 
-namespace Symbolica.Computation
+namespace Symbolica.Computation;
+
+public interface IContextHandle : IDisposable
 {
-    public interface IContextHandle : IDisposable
-    {
-        Context Context { get; }
-    }
+    Context Context { get; }
 }

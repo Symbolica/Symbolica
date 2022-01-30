@@ -1,18 +1,17 @@
 using Microsoft.Z3;
 using Symbolica.Expression;
 
-namespace Symbolica.Computation.Values
-{
-    internal abstract class BitVector : Integer
-    {
-        protected BitVector(Bits size)
-            : base(size)
-        {
-        }
+namespace Symbolica.Computation.Values;
 
-        public sealed override BoolExpr AsBool(Context context)
-        {
-            return context.MkNot(context.MkEq(AsBitVector(context), context.MkBV(0U, (uint) Size)));
-        }
+internal abstract class BitVector : Integer
+{
+    protected BitVector(Bits size)
+        : base(size)
+    {
+    }
+
+    public sealed override BoolExpr AsBool(Context context)
+    {
+        return context.MkNot(context.MkEq(AsBitVector(context), context.MkBV(0U, (uint) Size)));
     }
 }

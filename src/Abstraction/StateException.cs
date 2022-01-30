@@ -1,19 +1,18 @@
 ﻿using System;
 using Symbolica.Expression;
 
-namespace Symbolica.Abstraction
-{
-    [Serializable]
-    public class StateException : ErrorException
-    {
-        public StateException(StateError error, ISpace space)
-            : base(error.ToString())
-        {
-            Error = error;
-            Space = space;
-        }
+namespace Symbolica.Abstraction;
 
-        public StateError Error { get; }
-        public ISpace Space { get; }
+[Serializable]
+public class StateException : ErrorException
+{
+    public StateException(StateError error, ISpace space)
+        : base(error.ToString())
+    {
+        Error = error;
+        Space = space;
     }
+
+    public StateError Error { get; }
+    public ISpace Space { get; }
 }

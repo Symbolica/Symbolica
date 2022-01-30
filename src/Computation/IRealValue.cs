@@ -1,9 +1,8 @@
 ﻿using Microsoft.Z3;
 
-namespace Symbolica.Computation
+namespace Symbolica.Computation;
+
+internal interface IRealValue : IValue
 {
-    internal interface IRealValue : IValue
-    {
-        RealExpr AsReal(Context context);
-    }
+    RealExpr AsReal(Context context);
 }

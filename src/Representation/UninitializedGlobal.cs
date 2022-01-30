@@ -1,21 +1,20 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation
+namespace Symbolica.Representation;
+
+public sealed class UninitializedGlobal : IGlobal
 {
-    public sealed class UninitializedGlobal : IGlobal
+    public UninitializedGlobal(GlobalId id, Bits size)
     {
-        public UninitializedGlobal(GlobalId id, Bits size)
-        {
-            Id = id;
-            Size = size;
-        }
+        Id = id;
+        Size = size;
+    }
 
-        public GlobalId Id { get; }
-        public Bits Size { get; }
+    public GlobalId Id { get; }
+    public Bits Size { get; }
 
-        public void Initialize(IState state, IExpression address)
-        {
-        }
+    public void Initialize(IState state, IExpression address)
+    {
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace Symbolica.Abstraction
-{
-    public interface IInstruction
-    {
-        InstructionId Id { get; }
+﻿namespace Symbolica.Abstraction;
 
-        void Execute(IState state);
-    }
+public interface IInstruction
+{
+    InstructionId Id { get; }
+
+    void Execute(IState state);
 }

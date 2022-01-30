@@ -4,30 +4,29 @@ using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation
+namespace Symbolica.Representation;
+
+internal sealed class Arguments : IArguments
 {
-    internal sealed class Arguments : IArguments
+    private readonly IExpression[] _expressions;
+
+    public Arguments(IExpression[] expressions)
     {
-        private readonly IExpression[] _expressions;
+        _expressions = expressions;
+    }
 
-        public Arguments(IExpression[] expressions)
-        {
-            _expressions = expressions;
-        }
+    public IExpression Get(int index)
+    {
+        return _expressions[index];
+    }
 
-        public IExpression Get(int index)
-        {
-            return _expressions[index];
-        }
+    public IEnumerator<IExpression> GetEnumerator()
+    {
+        return _expressions.AsEnumerable().GetEnumerator();
+    }
 
-        public IEnumerator<IExpression> GetEnumerator()
-        {
-            return _expressions.AsEnumerable().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

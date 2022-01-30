@@ -1,13 +1,12 @@
 ﻿using Symbolica.Abstraction;
 
-namespace Symbolica.Implementation.Stack
-{
-    internal interface IPersistentProgramCounter
-    {
-        BasicBlockId PredecessorId { get; }
-        IInstruction Instruction { get; }
+namespace Symbolica.Implementation.Stack;
 
-        IPersistentProgramCounter TransferBasicBlock(BasicBlockId id);
-        IPersistentProgramCounter MoveNextInstruction();
-    }
+internal interface IPersistentProgramCounter
+{
+    BasicBlockId PredecessorId { get; }
+    IInstruction Instruction { get; }
+
+    IPersistentProgramCounter TransferBasicBlock(BasicBlockId id);
+    IPersistentProgramCounter MoveNextInstruction();
 }

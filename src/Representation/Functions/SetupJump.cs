@@ -1,26 +1,25 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 
-namespace Symbolica.Representation.Functions
+namespace Symbolica.Representation.Functions;
+
+internal sealed class SetupJump : IFunction
 {
-    internal sealed class SetupJump : IFunction
+    public SetupJump(FunctionId id, IParameters parameters)
     {
-        public SetupJump(FunctionId id, IParameters parameters)
-        {
-            Id = id;
-            Parameters = parameters;
-        }
+        Id = id;
+        Parameters = parameters;
+    }
 
-        public FunctionId Id { get; }
-        public IParameters Parameters { get; }
+    public FunctionId Id { get; }
+    public IParameters Parameters { get; }
 
-        public void Call(IState state, ICaller caller, IArguments arguments)
-        {
-            var address = arguments.Get(0);
+    public void Call(IState state, ICaller caller, IArguments arguments)
+    {
+        var address = arguments.Get(0);
 
-            state.Stack.Save(address, true);
+        state.Stack.Save(address, true);
 
-            state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, BigInteger.Zero));
-        }
+        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, BigInteger.Zero));
     }
 }

@@ -1,10 +1,9 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Implementation.Stack
+namespace Symbolica.Implementation.Stack;
+
+internal interface IVaList
 {
-    internal interface IVaList
-    {
-        IExpression Initialize(ISpace space, IStructType vaListType);
-    }
+    IExpression Initialize(ISpace space, IStructType vaListType);
 }

@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Symbolica.Expression
+namespace Symbolica.Expression;
+
+public interface IProposition : IDisposable
 {
-    public interface IProposition : IDisposable
-    {
-        ISpace FalseSpace { get; }
-        ISpace TrueSpace { get; }
-        bool CanBeFalse { get; }
-        bool CanBeTrue { get; }
-    }
+    ISpace FalseSpace { get; }
+    ISpace TrueSpace { get; }
+    bool CanBeFalse { get; }
+    bool CanBeTrue { get; }
 }

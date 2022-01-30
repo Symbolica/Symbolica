@@ -1,9 +1,8 @@
 ﻿using Symbolica.Expression;
 
-namespace Symbolica.Abstraction
+namespace Symbolica.Abstraction;
+
+public interface IOperand
 {
-    public interface IOperand
-    {
-        IExpression Evaluate(IState state);
-    }
+    IExpression Evaluate(IState state);
 }

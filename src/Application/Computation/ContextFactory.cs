@@ -1,10 +1,9 @@
-﻿namespace Symbolica.Computation
+﻿namespace Symbolica.Computation;
+
+internal sealed class ContextFactory : IContextFactory
 {
-    internal sealed class ContextFactory : IContextFactory
+    public IContextHandle Create()
     {
-        public IContextHandle Create()
-        {
-            return new ContextHandle();
-        }
+        return new ContextHandle();
     }
 }

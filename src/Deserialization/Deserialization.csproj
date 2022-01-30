@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Representation\Representation.csproj" />
+    <ProjectReference Include="..\Representation\Representation.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Symbolica.LLVMSharp" Version="0.1.0-master0002" />
+    <PackageReference Include="Symbolica.LLVMSharp" Version="0.1.0-master0002"/>
   </ItemGroup>
 
 </Project>

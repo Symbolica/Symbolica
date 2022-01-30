@@ -1,25 +1,24 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Representation.Exceptions;
 
-namespace Symbolica.Representation.Functions
+namespace Symbolica.Representation.Functions;
+
+internal sealed class Unsupported : IFunction
 {
-    internal sealed class Unsupported : IFunction
+    private readonly string _name;
+
+    public Unsupported(string name, FunctionId id, IParameters parameters)
     {
-        private readonly string _name;
+        _name = name;
+        Id = id;
+        Parameters = parameters;
+    }
 
-        public Unsupported(string name, FunctionId id, IParameters parameters)
-        {
-            _name = name;
-            Id = id;
-            Parameters = parameters;
-        }
+    public FunctionId Id { get; }
+    public IParameters Parameters { get; }
 
-        public FunctionId Id { get; }
-        public IParameters Parameters { get; }
-
-        public void Call(IState state, ICaller caller, IArguments arguments)
-        {
-            throw new UnsupportedFunctionException(_name);
-        }
+    public void Call(IState state, ICaller caller, IArguments arguments)
+    {
+        throw new UnsupportedFunctionException(_name);
     }
 }

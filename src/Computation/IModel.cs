@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Symbolica.Computation
+namespace Symbolica.Computation;
+
+public interface IModel : IDisposable
 {
-    public interface IModel : IDisposable
-    {
-        bool IsSatisfiable(IValue assertion);
-        BigInteger Evaluate(IValue value);
-        IEnumerable<KeyValuePair<string, string>> Evaluate();
-    }
+    bool IsSatisfiable(IValue assertion);
+    BigInteger Evaluate(IValue value);
+    IEnumerable<KeyValuePair<string, string>> Evaluate();
 }
