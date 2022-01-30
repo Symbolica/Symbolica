@@ -32,10 +32,10 @@ public class PassingTests
         private static IEnumerable<(string, string, Options)> SignCases()
         {
             return
-                from optimization in new[] { "--O0", "--O1", "--O2", "--Os", "--Oz" }
-                from useSymbolicGarbage in new[] { false, true }
-                from useSymbolicAddresses in new[] { false, true }
-                from useSymbolicContinuations in new[] { false, true }
+                from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                from useSymbolicGarbage in new[] {false, true}
+                from useSymbolicAddresses in new[] {false, true}
+                from useSymbolicContinuations in new[] {false, true}
                 select (
                     "sign",
                     optimization,

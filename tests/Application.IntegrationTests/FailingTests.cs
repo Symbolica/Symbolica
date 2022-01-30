@@ -39,25 +39,25 @@ public class FailingTests
         private static IEnumerable<(string, string, Options, StateError, string[])> SignCases()
         {
             return
-                from optimization in new[] { "--O0", "--O1", "--O2", "--Os", "--Oz" }
-                from useSymbolicGarbage in new[] { false, true }
-                from useSymbolicAddresses in new[] { false, true }
-                from useSymbolicContinuations in new[] { false, true }
+                from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                from useSymbolicGarbage in new[] {false, true}
+                from useSymbolicAddresses in new[] {false, true}
+                from useSymbolicContinuations in new[] {false, true}
                 select (
                     "sign",
                     optimization,
                     new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
                     StateError.FailingAssertion,
-                    new[] { "x" });
+                    new[] {"x"});
         }
 
         private static IEnumerable<(string, string, Options, StateError, string[])> BufferCases()
         {
             return
-                from optimization in new[] { "--O0", "--O1", "--O2", "--Os", "--Oz" }
-                from useSymbolicGarbage in new[] { false, true }
-                from useSymbolicAddresses in new[] { false, true }
-                from useSymbolicContinuations in new[] { false, true }
+                from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                from useSymbolicGarbage in new[] {false, true}
+                from useSymbolicAddresses in new[] {false, true}
+                from useSymbolicContinuations in new[] {false, true}
                 select (
                     "buffer",
                     optimization,
@@ -69,16 +69,16 @@ public class FailingTests
         private static IEnumerable<(string, string, Options, StateError, string[])> GeometricCases()
         {
             return
-                from optimization in new[] { "--O0", "--O1", "--O2", "--Os", "--Oz" }
-                from useSymbolicGarbage in new[] { false, true }
-                from useSymbolicAddresses in new[] { false, true }
-                from useSymbolicContinuations in new[] { false, true }
+                from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
+                from useSymbolicGarbage in new[] {false, true}
+                from useSymbolicAddresses in new[] {false, true}
+                from useSymbolicContinuations in new[] {false, true}
                 select (
                     "geometric",
                     optimization,
                     new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
                     StateError.DivideByZero,
-                    new[] { "n", "r" });
+                    new[] {"n", "r"});
         }
 
         private void Add(IEnumerable<(string, string, Options, StateError, string[])> cases)

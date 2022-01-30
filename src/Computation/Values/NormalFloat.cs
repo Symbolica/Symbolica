@@ -73,7 +73,7 @@ internal sealed class NormalFloat : Float
 
     private static (BigInteger, int) ParseNonNegativeDecimal(string value)
     {
-        var index = value.IndexOfAny(new[] { 'e', 'E' });
+        var index = value.IndexOfAny(new[] {'e', 'E'});
 
         return index == -1
             ? ParseStandardNonNegativeDecimal(value, 0)
