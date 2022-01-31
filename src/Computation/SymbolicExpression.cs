@@ -127,12 +127,12 @@ internal sealed class SymbolicExpression : IValueExpression
 
     public IExpression FloatNotEqual(IExpression expression)
     {
-        return FloatEqual(expression).Not();
+        return Binary(expression, (l, r) => new Not(new FloatEqual(l, r)));
     }
 
     public IExpression FloatOrdered(IExpression expression)
     {
-        return FloatUnordered(expression).Not();
+        return Binary(expression, (l, r) => new Not(new FloatUnordered(l, r)));
     }
 
     public IExpression FloatPower(IExpression expression)
@@ -184,7 +184,7 @@ internal sealed class SymbolicExpression : IValueExpression
 
     public IExpression NotEqual(IExpression expression)
     {
-        return Equal(expression).Not();
+        return Binary(expression, (l, r) => new Not(new Equal(l, r)));
     }
 
     public IExpression Or(IExpression expression)
@@ -196,7 +196,9 @@ internal sealed class SymbolicExpression : IValueExpression
 
     public IExpression Read(IExpression offset, Bits size)
     {
-        return LogicalShiftRight(offset).Truncate(size);
+        return Binary(offset, (b, o) => b is IWriteValue w
+            ? w.Read(o, size)
+            : new Read(b, o, size));
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -300,8 +302,7 @@ internal sealed class SymbolicExpression : IValueExpression
 
     public IExpression Write(IExpression offset, IExpression value)
     {
-        return new SymbolicWriteExpression(_contextFactory, _collectionFactory,
-            this, offset, value);
+        return Ternary(offset, value, (b, o, v) => new Write(b, o, v));
     }
 
     public IExpression Xor(IExpression expression)
@@ -320,16 +321,26 @@ internal sealed class SymbolicExpression : IValueExpression
 
     private IExpression Unary(Func<IValue, IValue> func)
     {
-        return new SymbolicExpression(_contextFactory, _collectionFactory,
-            func(Value), Constraints);
+        var value = func(Value);
+
+        return value is IConstantValue cv
+            ? new ConstantExpression(_contextFactory, _collectionFactory,
+                cv)
+            : new SymbolicExpression(_contextFactory, _collectionFactory,
+                value, Constraints);
     }
 
     private IExpression Binary(IExpression b, Func<IValue, IValue, IValue> func)
     {
         var y = (IValueExpression) b;
 
-        return new SymbolicExpression(_contextFactory, _collectionFactory,
-            func(Value, y.Value), Constraints.Concat(y.Constraints).ToArray());
+        var value = func(Value, y.Value);
+
+        return value is IConstantValue cv
+            ? new ConstantExpression(_contextFactory, _collectionFactory,
+                cv)
+            : new SymbolicExpression(_contextFactory, _collectionFactory,
+                value, Constraints.Concat(y.Constraints).ToArray());
     }
 
     private IExpression Ternary(IExpression b, IExpression c, Func<IValue, IValue, IValue, IValue> func)
@@ -337,8 +348,13 @@ internal sealed class SymbolicExpression : IValueExpression
         var y = (IValueExpression) b;
         var z = (IValueExpression) c;
 
-        return new SymbolicExpression(_contextFactory, _collectionFactory,
-            func(Value, y.Value, z.Value), Constraints.Concat(y.Constraints.Concat(z.Constraints)).ToArray());
+        var value = func(Value, y.Value, z.Value);
+
+        return value is IConstantValue cv
+            ? new ConstantExpression(_contextFactory, _collectionFactory,
+                cv)
+            : new SymbolicExpression(_contextFactory, _collectionFactory,
+                value, Constraints.Concat(y.Constraints.Concat(z.Constraints)).ToArray());
     }
 
     private IExpression Evaluate(IPersistentSpace space)
