@@ -33,16 +33,11 @@ internal sealed class Write : BitVector, IWriteValue
             ? cr.AsUnsigned().And(cw.AsUnsigned()).IsZero
                 ? _writeBuffer is IWriteValue w
                     ? w.Read(offset, size)
-                    : ReadDefault(offset, size)
+                    : new Read(_writeBuffer, offset, size)
                 : cr.AsUnsigned().Xor(cw.AsUnsigned()).IsZero
                     ? _writeValue
-                    : ReadDefault(offset, size)
-            : ReadDefault(offset, size);
-    }
-
-    private Read ReadDefault(IValue offset, Bits size)
-    {
-        return new Read(Flatten(), offset, size);
+                    : new Read(Flatten(), offset, size)
+            : new Read(Flatten(), offset, size);
     }
 
     private IValue Flatten()
