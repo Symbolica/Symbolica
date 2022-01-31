@@ -40,7 +40,7 @@ internal sealed class ConstantExpression : IValueExpression
     public IExpression Add(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() + r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().Add(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().Add(r));
     }
 
@@ -51,21 +51,21 @@ internal sealed class ConstantExpression : IValueExpression
             : Not().Constant.IsZero
                 ? expression
                 : Binary(expression,
-                    (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() & r.AsUnsigned()),
+                    (l, r) => l.AsUnsigned().And(r.AsUnsigned()),
                     (l, r) => l.AsSymbolic().And(r));
     }
 
     public IExpression ArithmeticShiftRight(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantSigned.Create(Size, (BigInteger) l.AsSigned() >> (int) r.AsUnsigned()),
+            (l, r) => l.AsSigned().ShiftRight(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().ArithmeticShiftRight(r));
     }
 
     public IExpression Equal(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsUnsigned() == r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().Equal(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().Equal(r));
     }
 
@@ -246,26 +246,26 @@ internal sealed class ConstantExpression : IValueExpression
     public IExpression LogicalShiftRight(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() >> (int) r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().ShiftRight(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().LogicalShiftRight(r));
     }
 
     public IExpression Multiply(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() * r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().Multiply(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().Multiply(r));
     }
 
     public IExpression Not()
     {
-        return Unary(v => ConstantUnsigned.Create(Size, ~(BigInteger) v.AsUnsigned()));
+        return Unary(v => v.AsUnsigned().Not());
     }
 
     public IExpression NotEqual(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsUnsigned() != r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().NotEqual(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().NotEqual(r));
     }
 
@@ -276,15 +276,14 @@ internal sealed class ConstantExpression : IValueExpression
             : Not().Constant.IsZero
                 ? this
                 : Binary(expression,
-                    (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() | r.AsUnsigned()),
+                    (l, r) => l.AsUnsigned().Or(r.AsUnsigned()),
                     (l, r) => l.AsSymbolic().Or(r));
     }
 
     public IExpression Read(IExpression offset, Bits size)
     {
         return Binary(offset,
-            (b, o) => b.AsBitVector(_collectionFactory)
-                .Read(o.AsUnsigned(), size),
+            (b, o) => b.AsBitVector(_collectionFactory).Read(o.AsUnsigned(), size),
             (b, o) => b.AsSymbolic().Read(o, size));
     }
 
@@ -300,49 +299,49 @@ internal sealed class ConstantExpression : IValueExpression
     public IExpression ShiftLeft(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() << (int) r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().ShiftLeft(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().ShiftLeft(r));
     }
 
     public IExpression SignedDivide(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantSigned.Create(Size, (BigInteger) l.AsSigned() / r.AsSigned()),
+            (l, r) => l.AsSigned().Divide(r.AsSigned()),
             (l, r) => l.AsSymbolic().SignedDivide(r));
     }
 
     public IExpression SignedGreater(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsSigned() > r.AsSigned()),
+            (l, r) => l.AsSigned().Greater(r.AsSigned()),
             (l, r) => l.AsSymbolic().SignedGreater(r));
     }
 
     public IExpression SignedGreaterOrEqual(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsSigned() >= r.AsSigned()),
+            (l, r) => l.AsSigned().GreaterOrEqual(r.AsSigned()),
             (l, r) => l.AsSymbolic().SignedGreaterOrEqual(r));
     }
 
     public IExpression SignedLess(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsSigned() < r.AsSigned()),
+            (l, r) => l.AsSigned().Less(r.AsSigned()),
             (l, r) => l.AsSymbolic().SignedLess(r));
     }
 
     public IExpression SignedLessOrEqual(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsSigned() <= r.AsSigned()),
+            (l, r) => l.AsSigned().LessOrEqual(r.AsSigned()),
             (l, r) => l.AsSymbolic().SignedLessOrEqual(r));
     }
 
     public IExpression SignedRemainder(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantSigned.Create(Size, (BigInteger) l.AsSigned() % r.AsSigned()),
+            (l, r) => l.AsSigned().Remainder(r.AsSigned()),
             (l, r) => l.AsSymbolic().SignedRemainder(r));
     }
 
@@ -351,8 +350,8 @@ internal sealed class ConstantExpression : IValueExpression
         return Unary(
             v => (uint) size switch
             {
-                32U => new ConstantSingle((float) (BigInteger) v.AsSigned()),
-                64U => new ConstantDouble((double) (BigInteger) v.AsSigned()),
+                32U => v.AsSigned().ToSingle(),
+                64U => v.AsSigned().ToDouble(),
                 _ => null
             },
             e => e.AsSymbolic().SignedToFloat(size));
@@ -368,56 +367,56 @@ internal sealed class ConstantExpression : IValueExpression
     public IExpression Subtract(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() - r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().Subtract(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().Subtract(r));
     }
 
     public IExpression Truncate(Bits size)
     {
         return size < Size
-            ? Unary(v => ConstantUnsigned.Create(size, v.AsUnsigned()))
+            ? Unary(v => v.AsUnsigned().Truncate(size))
             : this;
     }
 
     public IExpression UnsignedDivide(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() / r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().Divide(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().UnsignedDivide(r));
     }
 
     public IExpression UnsignedGreater(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsUnsigned() > r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().Greater(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().UnsignedGreater(r));
     }
 
     public IExpression UnsignedGreaterOrEqual(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsUnsigned() >= r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().GreaterOrEqual(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().UnsignedGreaterOrEqual(r));
     }
 
     public IExpression UnsignedLess(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsUnsigned() < r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().Less(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().UnsignedLess(r));
     }
 
     public IExpression UnsignedLessOrEqual(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => new ConstantBool((BigInteger) l.AsUnsigned() <= r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().LessOrEqual(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().UnsignedLessOrEqual(r));
     }
 
     public IExpression UnsignedRemainder(IExpression expression)
     {
         return Binary(expression,
-            (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() % r.AsUnsigned()),
+            (l, r) => l.AsUnsigned().Remainder(r.AsUnsigned()),
             (l, r) => l.AsSymbolic().UnsignedRemainder(r));
     }
 
@@ -426,8 +425,8 @@ internal sealed class ConstantExpression : IValueExpression
         return Unary(
             v => (uint) size switch
             {
-                32U => new ConstantSingle((float) (BigInteger) v.AsUnsigned()),
-                64U => new ConstantDouble((double) (BigInteger) v.AsUnsigned()),
+                32U => v.AsUnsigned().ToSingle(),
+                64U => v.AsUnsigned().ToDouble(),
                 _ => null
             },
             e => e.AsSymbolic().UnsignedToFloat(size));
@@ -437,8 +436,7 @@ internal sealed class ConstantExpression : IValueExpression
     {
         return Size == offset.Size
             ? Ternary(offset, value,
-                (b, o, v) => b.AsBitVector(_collectionFactory)
-                    .Write(o.AsUnsigned(), v.AsBitVector(_collectionFactory)),
+                (b, o, v) => b.AsBitVector(_collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(_collectionFactory)),
                 (b, o, v) => new SymbolicWriteExpression(_contextFactory, _collectionFactory,
                     b, o, v))
             : throw new InconsistentExpressionSizesException(Size, offset.Size);
@@ -451,7 +449,7 @@ internal sealed class ConstantExpression : IValueExpression
             : Not().Constant.IsZero
                 ? expression.Not()
                 : Binary(expression,
-                    (l, r) => ConstantUnsigned.Create(Size, (BigInteger) l.AsUnsigned() ^ r.AsUnsigned()),
+                    (l, r) => l.AsUnsigned().Xor(r.AsUnsigned()),
                     (l, r) => l.AsSymbolic().Xor(r));
     }
 

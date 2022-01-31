@@ -50,9 +50,54 @@ internal sealed class ConstantSigned : BitVector, IConstantValue
         return ConstantDouble.Create(this);
     }
 
+    public ConstantSigned Divide(ConstantSigned value)
+    {
+        return Create(Size, _value / value._value);
+    }
+
     public ConstantSigned Extend(Bits size)
     {
         return new ConstantSigned(size, _value);
+    }
+
+    public ConstantBool Greater(ConstantSigned value)
+    {
+        return new ConstantBool(_value > value._value);
+    }
+
+    public ConstantBool GreaterOrEqual(ConstantSigned value)
+    {
+        return new ConstantBool(_value >= value._value);
+    }
+
+    public ConstantBool Less(ConstantSigned value)
+    {
+        return new ConstantBool(_value < value._value);
+    }
+
+    public ConstantBool LessOrEqual(ConstantSigned value)
+    {
+        return new ConstantBool(_value <= value._value);
+    }
+
+    public ConstantSigned Remainder(ConstantSigned value)
+    {
+        return Create(Size, _value % value._value);
+    }
+
+    public ConstantSigned ShiftRight(ConstantUnsigned value)
+    {
+        return Create(Size, _value >> (int) (BigInteger) value);
+    }
+
+    public ConstantDouble ToDouble()
+    {
+        return new ConstantDouble((double) _value);
+    }
+
+    public ConstantSingle ToSingle()
+    {
+        return new ConstantSingle((float) _value);
     }
 
     public static implicit operator BigInteger(ConstantSigned value)
