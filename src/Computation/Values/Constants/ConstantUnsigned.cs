@@ -50,19 +50,114 @@ internal sealed class ConstantUnsigned : BitVector, IConstantValue
         return AsSigned().AsDouble();
     }
 
+    public ConstantUnsigned Add(ConstantUnsigned value)
+    {
+        return Create(Size, _value + value._value);
+    }
+
+    public ConstantUnsigned And(ConstantUnsigned value)
+    {
+        return Create(Size, _value & value._value);
+    }
+
+    public ConstantUnsigned Divide(ConstantUnsigned value)
+    {
+        return Create(Size, _value / value._value);
+    }
+
+    public ConstantBool Equal(ConstantUnsigned value)
+    {
+        return new ConstantBool(_value == value._value);
+    }
+
     public ConstantUnsigned Extend(Bits size)
     {
         return new ConstantUnsigned(size, _value);
     }
 
+    public ConstantBool Greater(ConstantUnsigned value)
+    {
+        return new ConstantBool(_value > value._value);
+    }
+
+    public ConstantBool GreaterOrEqual(ConstantUnsigned value)
+    {
+        return new ConstantBool(_value >= value._value);
+    }
+
+    public ConstantBool Less(ConstantUnsigned value)
+    {
+        return new ConstantBool(_value < value._value);
+    }
+
+    public ConstantBool LessOrEqual(ConstantUnsigned value)
+    {
+        return new ConstantBool(_value <= value._value);
+    }
+
+    public ConstantUnsigned Multiply(ConstantUnsigned value)
+    {
+        return Create(Size, _value * value._value);
+    }
+
+    public ConstantUnsigned Not()
+    {
+        return Create(Size, ~_value);
+    }
+
+    public ConstantBool NotEqual(ConstantUnsigned value)
+    {
+        return new ConstantBool(_value != value._value);
+    }
+
+    public ConstantUnsigned Or(ConstantUnsigned value)
+    {
+        return Create(Size, _value | value._value);
+    }
+
+    public ConstantUnsigned Remainder(ConstantUnsigned value)
+    {
+        return Create(Size, _value % value._value);
+    }
+
+    public ConstantUnsigned ShiftLeft(ConstantUnsigned value)
+    {
+        return Create(Size, _value << (int) value._value);
+    }
+
+    public ConstantUnsigned ShiftRight(ConstantUnsigned value)
+    {
+        return Create(Size, _value >> (int) value._value);
+    }
+
+    public ConstantUnsigned Subtract(ConstantUnsigned value)
+    {
+        return Create(Size, _value - value._value);
+    }
+
+    public ConstantDouble ToDouble()
+    {
+        return new ConstantDouble((double) _value);
+    }
+
+    public ConstantSingle ToSingle()
+    {
+        return new ConstantSingle((float) _value);
+    }
+
+    public ConstantUnsigned Truncate(Bits size)
+    {
+        return Create(size, _value);
+    }
+
+    public ConstantUnsigned Xor(ConstantUnsigned value)
+    {
+        return Create(Size, _value ^ value._value);
+    }
+
     public static implicit operator BigInteger(ConstantUnsigned value)
     {
         return value._value;
-    }
-
-    public static explicit operator int(ConstantUnsigned value)
-    {
-        return (int) (BigInteger) value;
     }
 
     public static ConstantUnsigned Create(Bits size, BigInteger value)
