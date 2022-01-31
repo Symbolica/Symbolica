@@ -29,15 +29,13 @@ internal sealed class Write : BitVector, IWriteValue
         var readMask = Mask(offset, size);
         var writeMask = Mask(_writeOffset, _writeValue.Size);
 
-        return readMask is IConstantValue r && writeMask is IConstantValue w
-            ? r.AsUnsigned().And(w.AsUnsigned()).IsZero
-                ? _writeBuffer is IWriteValue b
-                    ? b.Read(offset, size)
-                    : new Read(_writeBuffer, offset, size)
-                : r.AsUnsigned().Xor(w.AsUnsigned()).IsZero
-                    ? _writeValue
-                    : new Read(Flatten(), offset, size)
-            : new Read(Flatten(), offset, size);
+        return And(readMask, writeMask) is IConstantValue a && a.AsUnsigned().IsZero
+            ? _writeBuffer is IWriteValue b
+                ? b.Read(offset, size)
+                : new Read(_writeBuffer, offset, size)
+            : Xor(readMask, writeMask) is IConstantValue x && x.AsUnsigned().IsZero
+                ? _writeValue
+                : new Read(Flatten(), offset, size);
     }
 
     private IValue Flatten()
@@ -79,6 +77,13 @@ internal sealed class Write : BitVector, IWriteValue
         return left is IConstantValue l && right is IConstantValue r
             ? l.AsUnsigned().ShiftLeft(r.AsUnsigned())
             : new ShiftLeft(left, right);
+    }
+
+    private static IValue Xor(IValue left, IValue right)
+    {
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsUnsigned().Xor(r.AsUnsigned())
+            : new Xor(left, right);
     }
 
     private static IValue ZeroExtend(Bits size, IValue value)
