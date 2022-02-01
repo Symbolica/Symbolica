@@ -9,28 +9,22 @@ using Xunit;
 
 namespace Symbolica.Computation;
 
-public class ConstantExpressionTests
+public class ExpressionTests
 {
     private static readonly IContextFactory ContextFactory = new SharedContextFactory();
     private static readonly ICollectionFactory CollectionFactory = new CollectionFactory();
 
-    private static ConstantExpression CreateConstant(IConstantValue value)
+    private static IExpression Create(IValue value)
     {
-        return new ConstantExpression(ContextFactory, CollectionFactory,
-            value);
-    }
-
-    private static SymbolicExpression CreateSymbolic(IValue value)
-    {
-        return SymbolicExpression.Create(ContextFactory, CollectionFactory,
+        return Expression.Create(ContextFactory, CollectionFactory,
             value, Enumerable.Empty<Func<IExpression, IExpression>>());
     }
 
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForAdd(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.Add(constantRight).Constant;
         var symbolic = symbolicLeft.Add(symbolicRight).Constant;
@@ -41,8 +35,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForAnd(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.And(constantRight).Constant;
         var symbolic = symbolicLeft.And(symbolicRight).Constant;
@@ -53,8 +47,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForArithmeticShiftRight(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.ArithmeticShiftRight(constantRight).Constant;
         var symbolic = symbolicLeft.ArithmeticShiftRight(symbolicRight).Constant;
@@ -65,8 +59,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.Equal(constantRight).Constant;
         var symbolic = symbolicLeft.Equal(symbolicRight).Constant;
@@ -78,8 +72,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatAdd(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatAdd(constantRight).GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicLeft.FloatAdd(symbolicRight).GetNanNormalizedConstant(ContextFactory);
@@ -91,8 +85,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleUnaryTestData))]
     [ClassData(typeof(DoubleUnaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatCeiling(
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.FloatCeiling().GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicExpression.FloatCeiling().GetNanNormalizedConstant(ContextFactory);
@@ -104,8 +98,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleConvertTestData))]
     [ClassData(typeof(DoubleConvertTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatConvert(Bits size,
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.FloatConvert(size).GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicExpression.FloatConvert(size).GetNanNormalizedConstant(ContextFactory);
@@ -117,8 +111,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatDivide(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatDivide(constantRight).GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicLeft.FloatDivide(symbolicRight).GetNanNormalizedConstant(ContextFactory);
@@ -130,8 +124,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatEqual(constantRight).Constant;
         var symbolic = symbolicLeft.FloatEqual(symbolicRight).Constant;
@@ -143,8 +137,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleUnaryTestData))]
     [ClassData(typeof(DoubleUnaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatFloor(
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.FloatFloor().GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicExpression.FloatFloor().GetNanNormalizedConstant(ContextFactory);
@@ -156,8 +150,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatGreater(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatGreater(constantRight).Constant;
         var symbolic = symbolicLeft.FloatGreater(symbolicRight).Constant;
@@ -169,8 +163,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatGreaterOrEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatGreaterOrEqual(constantRight).Constant;
         var symbolic = symbolicLeft.FloatGreaterOrEqual(symbolicRight).Constant;
@@ -182,8 +176,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatLess(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatLess(constantRight).Constant;
         var symbolic = symbolicLeft.FloatLess(symbolicRight).Constant;
@@ -195,8 +189,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatLessOrEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatLessOrEqual(constantRight).Constant;
         var symbolic = symbolicLeft.FloatLessOrEqual(symbolicRight).Constant;
@@ -208,8 +202,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatMultiply(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatMultiply(constantRight).GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicLeft.FloatMultiply(symbolicRight).GetNanNormalizedConstant(ContextFactory);
@@ -221,8 +215,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleUnaryTestData))]
     [ClassData(typeof(DoubleUnaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatNegate(
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.FloatNegate().GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicExpression.FloatNegate().GetNanNormalizedConstant(ContextFactory);
@@ -234,8 +228,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatNotEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatNotEqual(constantRight).Constant;
         var symbolic = symbolicLeft.FloatNotEqual(symbolicRight).Constant;
@@ -247,8 +241,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatOrdered(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatOrdered(constantRight).Constant;
         var symbolic = symbolicLeft.FloatOrdered(symbolicRight).Constant;
@@ -260,8 +254,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SinglePowerTestData))]
     [ClassData(typeof(DoublePowerTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatPower(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatPower(constantRight).FloatToSigned(constantLeft.Size).Constant;
         var symbolic = symbolicLeft.FloatPower(symbolicRight).FloatToSigned(symbolicLeft.Size).Constant;
@@ -273,8 +267,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatRemainder(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatRemainder(constantRight).GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicLeft.FloatRemainder(symbolicRight).GetNanNormalizedConstant(ContextFactory);
@@ -286,8 +280,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatSubtract(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatSubtract(constantRight).GetNanNormalizedConstant(ContextFactory);
         var symbolic = symbolicLeft.FloatSubtract(symbolicRight).GetNanNormalizedConstant(ContextFactory);
@@ -299,8 +293,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleToSignedTestData))]
     [ClassData(typeof(DoubleToSignedTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatToSigned(Bits size,
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.FloatToSigned(size).Constant;
         var symbolic = symbolicExpression.FloatToSigned(size).Constant;
@@ -312,8 +306,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleToUnsignedTestData))]
     [ClassData(typeof(DoubleToUnsignedTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatToUnsigned(Bits size,
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.FloatToUnsigned(size).Constant;
         var symbolic = symbolicExpression.FloatToUnsigned(size).Constant;
@@ -325,8 +319,8 @@ public class ConstantExpressionTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForFloatUnordered(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.FloatUnordered(constantRight).Constant;
         var symbolic = symbolicLeft.FloatUnordered(symbolicRight).Constant;
@@ -337,8 +331,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForLogicalShiftRight(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.LogicalShiftRight(constantRight).Constant;
         var symbolic = symbolicLeft.LogicalShiftRight(symbolicRight).Constant;
@@ -349,8 +343,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForMultiply(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.Multiply(constantRight).Constant;
         var symbolic = symbolicLeft.Multiply(symbolicRight).Constant;
@@ -361,8 +355,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(UnaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForNot(
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.Not().Constant;
         var symbolic = symbolicExpression.Not().Constant;
@@ -373,8 +367,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForNotEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.NotEqual(constantRight).Constant;
         var symbolic = symbolicLeft.NotEqual(symbolicRight).Constant;
@@ -385,8 +379,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForOr(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.Or(constantRight).Constant;
         var symbolic = symbolicLeft.Or(symbolicRight).Constant;
@@ -397,8 +391,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(ReadTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForRead(Bits size,
-        ConstantExpression constantBuffer, ConstantExpression constantOffset,
-        SymbolicExpression symbolicBuffer, SymbolicExpression symbolicOffset)
+        IExpression constantBuffer, IExpression constantOffset,
+        IExpression symbolicBuffer, IExpression symbolicOffset)
     {
         var constant = constantBuffer.Read(constantOffset, size).Constant;
         var symbolic = symbolicBuffer.Read(symbolicOffset, size).Constant;
@@ -409,8 +403,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForShiftLeft(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.ShiftLeft(constantRight).Constant;
         var symbolic = symbolicLeft.ShiftLeft(symbolicRight).Constant;
@@ -421,8 +415,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedDivide(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         if (constantRight.Constant == 0)
             return;
@@ -436,8 +430,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedGreater(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.SignedGreater(constantRight).Constant;
         var symbolic = symbolicLeft.SignedGreater(symbolicRight).Constant;
@@ -448,8 +442,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedGreaterOrEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.SignedGreaterOrEqual(constantRight).Constant;
         var symbolic = symbolicLeft.SignedGreaterOrEqual(symbolicRight).Constant;
@@ -460,8 +454,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedLess(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.SignedLess(constantRight).Constant;
         var symbolic = symbolicLeft.SignedLess(symbolicRight).Constant;
@@ -472,8 +466,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedLessOrEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.SignedLessOrEqual(constantRight).Constant;
         var symbolic = symbolicLeft.SignedLessOrEqual(symbolicRight).Constant;
@@ -484,8 +478,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedRemainder(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         if (constantRight.Constant == 0)
             return;
@@ -499,8 +493,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignedToFloat(Bits size,
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.SignedToFloat(size).Constant;
         var symbolic = symbolicExpression.SignedToFloat(size).Constant;
@@ -511,8 +505,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(ExtendTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSignExtend(Bits size,
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.SignExtend(size).Constant;
         var symbolic = symbolicExpression.SignExtend(size).Constant;
@@ -523,8 +517,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForSubtract(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.Subtract(constantRight).Constant;
         var symbolic = symbolicLeft.Subtract(symbolicRight).Constant;
@@ -535,8 +529,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(TruncateTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForTruncate(Bits size,
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.Truncate(size).Constant;
         var symbolic = symbolicExpression.Truncate(size).Constant;
@@ -547,8 +541,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedDivide(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         if (constantRight.Constant == 0)
             return;
@@ -562,8 +556,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedGreater(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.UnsignedGreater(constantRight).Constant;
         var symbolic = symbolicLeft.UnsignedGreater(symbolicRight).Constant;
@@ -574,8 +568,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedGreaterOrEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.UnsignedGreaterOrEqual(constantRight).Constant;
         var symbolic = symbolicLeft.UnsignedGreaterOrEqual(symbolicRight).Constant;
@@ -586,8 +580,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedLess(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.UnsignedLess(constantRight).Constant;
         var symbolic = symbolicLeft.UnsignedLess(symbolicRight).Constant;
@@ -598,8 +592,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedLessOrEqual(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.UnsignedLessOrEqual(constantRight).Constant;
         var symbolic = symbolicLeft.UnsignedLessOrEqual(symbolicRight).Constant;
@@ -610,8 +604,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedRemainder(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         if (constantRight.Constant == 0)
             return;
@@ -625,8 +619,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForUnsignedToFloat(Bits size,
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.UnsignedToFloat(size).Constant;
         var symbolic = symbolicExpression.UnsignedToFloat(size).Constant;
@@ -637,8 +631,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(WriteTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForWrite(
-        ConstantExpression constantBuffer, ConstantExpression constantOffset, ConstantExpression constantValue,
-        SymbolicExpression symbolicBuffer, SymbolicExpression symbolicOffset, SymbolicExpression symbolicValue)
+        IExpression constantBuffer, IExpression constantOffset, IExpression constantValue,
+        IExpression symbolicBuffer, IExpression symbolicOffset, IExpression symbolicValue)
     {
         var constant = constantBuffer.Write(constantOffset, constantValue).Constant;
         var symbolic = symbolicBuffer.Write(symbolicOffset, symbolicValue).Constant;
@@ -649,8 +643,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForXor(
-        ConstantExpression constantLeft, ConstantExpression constantRight,
-        SymbolicExpression symbolicLeft, SymbolicExpression symbolicRight)
+        IExpression constantLeft, IExpression constantRight,
+        IExpression symbolicLeft, IExpression symbolicRight)
     {
         var constant = constantLeft.Xor(constantRight).Constant;
         var symbolic = symbolicLeft.Xor(symbolicRight).Constant;
@@ -661,8 +655,8 @@ public class ConstantExpressionTests
     [Theory]
     [ClassData(typeof(ExtendTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForZeroExtend(Bits size,
-        ConstantExpression constantExpression,
-        SymbolicExpression symbolicExpression)
+        IExpression constantExpression,
+        IExpression symbolicExpression)
     {
         var constant = constantExpression.ZeroExtend(size).Constant;
         var symbolic = symbolicExpression.ZeroExtend(size).Constant;
@@ -671,14 +665,14 @@ public class ConstantExpressionTests
     }
 
     private sealed class UnaryTestData : TheoryData<
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public UnaryTestData()
         {
             foreach (var value in Values())
-                Add(CreateConstant(value),
-                    CreateSymbolic(value));
+                Add(Create(value),
+                    Create(new SymbolicUnsigned(value)));
         }
 
         private static IEnumerable<ConstantUnsigned> Values()
@@ -688,17 +682,17 @@ public class ConstantExpressionTests
     }
 
     private sealed class BinaryTestData : TheoryData<
-        ConstantExpression, ConstantExpression,
-        SymbolicExpression, SymbolicExpression>
+        IExpression, IExpression,
+        IExpression, IExpression>
     {
         public BinaryTestData()
         {
             foreach (var left in Values())
             foreach (var right in Values())
-                Add(CreateConstant(left),
-                    CreateConstant(right),
-                    CreateSymbolic(left),
-                    CreateSymbolic(right));
+                Add(Create(left),
+                    Create(right),
+                    Create(new SymbolicUnsigned(left)),
+                    Create(new SymbolicUnsigned(right)));
         }
 
         private static IEnumerable<ConstantUnsigned> Values()
@@ -708,8 +702,8 @@ public class ConstantExpressionTests
     }
 
     private sealed class ReadTestData : TheoryData<Bits,
-        ConstantExpression, ConstantExpression,
-        SymbolicExpression, SymbolicExpression>
+        IExpression, IExpression,
+        IExpression, IExpression>
     {
         public ReadTestData()
         {
@@ -717,10 +711,10 @@ public class ConstantExpressionTests
             foreach (var offset in Offsets())
             foreach (var size in Sizes())
                 Add(size,
-                    CreateConstant(buffer),
-                    CreateConstant(offset),
-                    CreateSymbolic(buffer),
-                    CreateSymbolic(offset));
+                    Create(buffer),
+                    Create(offset),
+                    Create(new SymbolicUnsigned(buffer)),
+                    Create(new SymbolicUnsigned(offset)));
         }
 
         private static IEnumerable<ConstantUnsigned> Buffers()
@@ -746,20 +740,20 @@ public class ConstantExpressionTests
     }
 
     private sealed class WriteTestData : TheoryData<
-        ConstantExpression, ConstantExpression, ConstantExpression,
-        SymbolicExpression, SymbolicExpression, SymbolicExpression>
+        IExpression, IExpression, IExpression,
+        IExpression, IExpression, IExpression>
     {
         public WriteTestData()
         {
             foreach (var buffer in Buffers())
             foreach (var offset in Offsets())
             foreach (var value in Values())
-                Add(CreateConstant(buffer),
-                    CreateConstant(offset),
-                    CreateConstant(value),
-                    CreateSymbolic(buffer),
-                    CreateSymbolic(offset),
-                    CreateSymbolic(value));
+                Add(Create(buffer),
+                    Create(offset),
+                    Create(value),
+                    Create(new SymbolicUnsigned(buffer)),
+                    Create(new SymbolicUnsigned(offset)),
+                    Create(new SymbolicUnsigned(value)));
         }
 
         private static IEnumerable<ConstantUnsigned> Buffers()
@@ -787,16 +781,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class ExtendTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public ExtendTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(value),
-                    CreateSymbolic(value));
+                    Create(value),
+                    Create(new SymbolicUnsigned(value)));
         }
 
         private static IEnumerable<Bits> Sizes()
@@ -811,16 +805,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class TruncateTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public TruncateTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(value),
-                    CreateSymbolic(value));
+                    Create(value),
+                    Create(new SymbolicUnsigned(value)));
         }
 
         private static IEnumerable<Bits> Sizes()
@@ -835,16 +829,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class ToFloatTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public ToFloatTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(value),
-                    CreateSymbolic(value));
+                    Create(value),
+                    Create(new SymbolicUnsigned(value)));
         }
 
         private static IEnumerable<Bits> Sizes()
@@ -858,19 +852,19 @@ public class ConstantExpressionTests
 
         private static IEnumerable<ConstantUnsigned> Values()
         {
-            return Enumerable.Range(-10, 21).Select(v => ConstantUnsigned.Create((Bits) 32U, v));
+            return Enumerable.Range(-10, 10).Select(v => ConstantUnsigned.Create((Bits) 32U, v));
         }
     }
 
     private sealed class SingleUnaryTestData : TheoryData<
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public SingleUnaryTestData()
         {
             foreach (var value in Values())
-                Add(CreateConstant(new ConstantSingle(value)),
-                    CreateSymbolic(new ConstantSingle(value)));
+                Add(Create(new ConstantSingle(value)),
+                    Create(new SymbolicSingle(value)));
         }
 
         private static IEnumerable<float> Values()
@@ -898,17 +892,17 @@ public class ConstantExpressionTests
     }
 
     private sealed class SingleBinaryTestData : TheoryData<
-        ConstantExpression, ConstantExpression,
-        SymbolicExpression, SymbolicExpression>
+        IExpression, IExpression,
+        IExpression, IExpression>
     {
         public SingleBinaryTestData()
         {
             foreach (var left in Values())
             foreach (var right in Values())
-                Add(CreateConstant(new ConstantSingle(left)),
-                    CreateConstant(new ConstantSingle(right)),
-                    CreateSymbolic(new ConstantSingle(left)),
-                    CreateSymbolic(new ConstantSingle(right)));
+                Add(Create(new ConstantSingle(left)),
+                    Create(new ConstantSingle(right)),
+                    Create(new SymbolicSingle(left)),
+                    Create(new SymbolicSingle(right)));
         }
 
         private static IEnumerable<float> Values()
@@ -936,17 +930,17 @@ public class ConstantExpressionTests
     }
 
     private sealed class SinglePowerTestData : TheoryData<
-        ConstantExpression, ConstantExpression,
-        SymbolicExpression, SymbolicExpression>
+        IExpression, IExpression,
+        IExpression, IExpression>
     {
         public SinglePowerTestData()
         {
             foreach (var left in Values())
             foreach (var right in Values())
-                Add(CreateConstant(new ConstantSingle(left)),
-                    CreateConstant(new ConstantSingle(right)),
-                    CreateSymbolic(new ConstantSingle(left)),
-                    CreateSymbolic(new ConstantSingle(right)));
+                Add(Create(new ConstantSingle(left)),
+                    Create(new ConstantSingle(right)),
+                    Create(new SymbolicSingle(left)),
+                    Create(new SymbolicSingle(right)));
         }
 
         private static IEnumerable<float> Values()
@@ -956,16 +950,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class SingleConvertTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public SingleConvertTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(new ConstantSingle(value)),
-                    CreateSymbolic(new ConstantSingle(value)));
+                    Create(new ConstantSingle(value)),
+                    Create(new SymbolicSingle(value)));
         }
 
         private static IEnumerable<Bits> Sizes()
@@ -1002,16 +996,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class SingleToSignedTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public SingleToSignedTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(new ConstantSingle(value)),
-                    CreateSymbolic(new ConstantSingle(value)));
+                    Create(new ConstantSingle(value)),
+                    Create(new SymbolicSingle(value)));
         }
 
         private static IEnumerable<Bits> Sizes()
@@ -1043,16 +1037,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class SingleToUnsignedTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public SingleToUnsignedTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(new ConstantSingle(value)),
-                    CreateSymbolic(new ConstantSingle(value)));
+                    Create(new ConstantSingle(value)),
+                    Create(new SymbolicSingle(value)));
         }
 
         private static IEnumerable<Bits> Sizes()
@@ -1078,14 +1072,14 @@ public class ConstantExpressionTests
     }
 
     private sealed class DoubleUnaryTestData : TheoryData<
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public DoubleUnaryTestData()
         {
             foreach (var value in Values())
-                Add(CreateConstant(new ConstantDouble(value)),
-                    CreateSymbolic(new ConstantDouble(value)));
+                Add(Create(new ConstantDouble(value)),
+                    Create(new SymbolicDouble(value)));
         }
 
         private static IEnumerable<double> Values()
@@ -1113,17 +1107,17 @@ public class ConstantExpressionTests
     }
 
     private sealed class DoubleBinaryTestData : TheoryData<
-        ConstantExpression, ConstantExpression,
-        SymbolicExpression, SymbolicExpression>
+        IExpression, IExpression,
+        IExpression, IExpression>
     {
         public DoubleBinaryTestData()
         {
             foreach (var left in Values())
             foreach (var right in Values())
-                Add(CreateConstant(new ConstantDouble(left)),
-                    CreateConstant(new ConstantDouble(right)),
-                    CreateSymbolic(new ConstantDouble(left)),
-                    CreateSymbolic(new ConstantDouble(right)));
+                Add(Create(new ConstantDouble(left)),
+                    Create(new ConstantDouble(right)),
+                    Create(new SymbolicDouble(left)),
+                    Create(new SymbolicDouble(right)));
         }
 
         private static IEnumerable<double> Values()
@@ -1151,17 +1145,17 @@ public class ConstantExpressionTests
     }
 
     private sealed class DoublePowerTestData : TheoryData<
-        ConstantExpression, ConstantExpression,
-        SymbolicExpression, SymbolicExpression>
+        IExpression, IExpression,
+        IExpression, IExpression>
     {
         public DoublePowerTestData()
         {
             foreach (var left in Values())
             foreach (var right in Values())
-                Add(CreateConstant(new ConstantDouble(left)),
-                    CreateConstant(new ConstantDouble(right)),
-                    CreateSymbolic(new ConstantDouble(left)),
-                    CreateSymbolic(new ConstantDouble(right)));
+                Add(Create(new ConstantDouble(left)),
+                    Create(new ConstantDouble(right)),
+                    Create(new SymbolicDouble(left)),
+                    Create(new SymbolicDouble(right)));
         }
 
         private static IEnumerable<double> Values()
@@ -1171,16 +1165,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class DoubleConvertTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public DoubleConvertTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(new ConstantDouble(value)),
-                    CreateSymbolic(new ConstantDouble(value)));
+                    Create(new ConstantDouble(value)),
+                    Create(new SymbolicDouble(value)));
         }
 
         private static IEnumerable<Bits> Sizes()
@@ -1217,16 +1211,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class DoubleToSignedTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public DoubleToSignedTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(new ConstantDouble(value)),
-                    CreateSymbolic(new ConstantDouble(value)));
+                    Create(new ConstantDouble(value)),
+                    Create(new SymbolicDouble(value)));
         }
 
         private static IEnumerable<Bits> Sizes()
@@ -1258,16 +1252,16 @@ public class ConstantExpressionTests
     }
 
     private sealed class DoubleToUnsignedTestData : TheoryData<Bits,
-        ConstantExpression,
-        SymbolicExpression>
+        IExpression,
+        IExpression>
     {
         public DoubleToUnsignedTestData()
         {
             foreach (var size in Sizes())
             foreach (var value in Values())
                 Add(size,
-                    CreateConstant(new ConstantDouble(value)),
-                    CreateSymbolic(new ConstantDouble(value)));
+                    Create(new ConstantDouble(value)),
+                    Create(new SymbolicDouble(value)));
         }
 
         private static IEnumerable<Bits> Sizes()

@@ -54,21 +54,14 @@ internal sealed class PersistentSpace : IPersistentSpace
 
     public IExpression CreateConstant(Bits size, BigInteger value)
     {
-        return new ConstantExpression(_contextFactory, _collectionFactory,
-            ConstantUnsigned.Create(size, value));
+        return Expression.Create(_contextFactory, _collectionFactory,
+            ConstantUnsigned.Create(size, value), Enumerable.Empty<Func<IExpression, IExpression>>());
     }
 
     public IExpression CreateConstantFloat(Bits size, string value)
     {
-        return (uint) size switch
-        {
-            32U => new ConstantExpression(_contextFactory, _collectionFactory,
-                new ConstantSingle(float.Parse(value))),
-            64U => new ConstantExpression(_contextFactory, _collectionFactory,
-                new ConstantDouble(double.Parse(value))),
-            _ => SymbolicExpression.Create(_contextFactory, _collectionFactory,
-                new NormalFloat(size, value), Enumerable.Empty<Func<IExpression, IExpression>>())
-        };
+        return Expression.Create(_contextFactory, _collectionFactory,
+            size.ParseFloat(value), Enumerable.Empty<Func<IExpression, IExpression>>());
     }
 
     public IExpression CreateGarbage(Bits size)
@@ -81,7 +74,7 @@ internal sealed class PersistentSpace : IPersistentSpace
     public IExpression CreateSymbolic(Bits size,
         string? name, IEnumerable<Func<IExpression, IExpression>> constraints)
     {
-        return SymbolicExpression.Create(_contextFactory, _collectionFactory,
+        return Expression.Create(_contextFactory, _collectionFactory,
             Symbol.Create(_symbolFactory, size, name), constraints);
     }
 
