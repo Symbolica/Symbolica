@@ -353,18 +353,6 @@ public class ExpressionTests
     }
 
     [Theory]
-    [ClassData(typeof(UnaryTestData))]
-    private void ShouldCreateEquivalentConstantAndSymbolicValuesForNot(
-        IExpression constantExpression,
-        IExpression symbolicExpression)
-    {
-        var constant = constantExpression.Not().Constant;
-        var symbolic = symbolicExpression.Not().Constant;
-
-        constant.Should().Be(symbolic);
-    }
-
-    [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstantAndSymbolicValuesForNotEqual(
         IExpression constantLeft, IExpression constantRight,
@@ -662,23 +650,6 @@ public class ExpressionTests
         var symbolic = symbolicExpression.ZeroExtend(size).Constant;
 
         constant.Should().Be(symbolic);
-    }
-
-    private sealed class UnaryTestData : TheoryData<
-        IExpression,
-        IExpression>
-    {
-        public UnaryTestData()
-        {
-            foreach (var value in Values())
-                Add(Create(value),
-                    Create(new SymbolicUnsigned(value)));
-        }
-
-        private static IEnumerable<ConstantUnsigned> Values()
-        {
-            return Enumerable.Range(-8, 24).Select(v => ConstantUnsigned.Create((Bits) 4U, v));
-        }
     }
 
     private sealed class BinaryTestData : TheoryData<

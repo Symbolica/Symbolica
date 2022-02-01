@@ -57,13 +57,9 @@ internal sealed class Expression : IExpression
 
     public IExpression And(IExpression expression)
     {
-        return Constant.IsZero
-            ? this
-            : Not().Constant.IsZero
-                ? expression
-                : Binary(expression,
-                    (l, r) => l.AsUnsigned().And(r.AsUnsigned()),
-                    (l, r) => new And(l, r));
+        return Binary(expression,
+            (l, r) => l.AsUnsigned().And(r.AsUnsigned()),
+            (l, r) => new And(l, r));
     }
 
     public IExpression ArithmeticShiftRight(IExpression expression)
@@ -272,13 +268,6 @@ internal sealed class Expression : IExpression
             (l, r) => new Multiply(l, r));
     }
 
-    public IExpression Not()
-    {
-        return Unary(
-            v => v.AsUnsigned().Not(),
-            v => new Not(v));
-    }
-
     public IExpression NotEqual(IExpression expression)
     {
         return Binary(expression,
@@ -288,13 +277,9 @@ internal sealed class Expression : IExpression
 
     public IExpression Or(IExpression expression)
     {
-        return Constant.IsZero
-            ? expression
-            : Not().Constant.IsZero
-                ? this
-                : Binary(expression,
-                    (l, r) => l.AsUnsigned().Or(r.AsUnsigned()),
-                    (l, r) => new Or(l, r));
+        return Binary(expression,
+            (l, r) => l.AsUnsigned().Or(r.AsUnsigned()),
+            (l, r) => new Or(l, r));
     }
 
     public IExpression Read(IExpression offset, Bits size)
@@ -470,13 +455,9 @@ internal sealed class Expression : IExpression
 
     public IExpression Xor(IExpression expression)
     {
-        return Constant.IsZero
-            ? expression
-            : Not().Constant.IsZero
-                ? expression.Not()
-                : Binary(expression,
-                    (l, r) => l.AsUnsigned().Xor(r.AsUnsigned()),
-                    (l, r) => new Xor(l, r));
+        return Binary(expression,
+            (l, r) => l.AsUnsigned().Xor(r.AsUnsigned()),
+            (l, r) => new Xor(l, r));
     }
 
     public IExpression ZeroExtend(Bits size)
