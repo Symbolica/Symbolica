@@ -301,7 +301,7 @@ internal sealed class Expression : IExpression
     {
         return Binary(offset,
             (b, o) => b.AsBitVector(_collectionFactory).Read(o.AsUnsigned(), size),
-            (b, o) => b is IWriteValue w
+            (b, o) => b is Write w
                 ? w.Read(o, size)
                 : new Read(b, o, size));
     }

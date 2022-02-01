@@ -5,7 +5,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values.Symbolics;
 
-internal sealed class Write : BitVector, IWriteValue
+internal sealed class Write : BitVector
 {
     private readonly IValue _writeBuffer;
     private readonly IValue _writeOffset;
@@ -30,7 +30,7 @@ internal sealed class Write : BitVector, IWriteValue
         var writeMask = Mask(_writeOffset, _writeValue.Size);
 
         return And(readMask, writeMask) is IConstantValue a && a.AsUnsigned().IsZero
-            ? _writeBuffer is IWriteValue b
+            ? _writeBuffer is Write b
                 ? b.Read(offset, size)
                 : new Read(_writeBuffer, offset, size)
             : Xor(readMask, writeMask) is IConstantValue x && x.AsUnsigned().IsZero
