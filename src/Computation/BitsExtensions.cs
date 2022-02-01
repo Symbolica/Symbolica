@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
+using Symbolica.Computation.Values;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -27,5 +28,15 @@ internal static class BitsExtensions
         var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);
 
         return ConstantUnsigned.Create(self, nan);
+    }
+
+    public static IValue ParseFloat(this Bits self, string value)
+    {
+        return (uint) self switch
+        {
+            32U => new ConstantSingle(float.Parse(value)),
+            64U => new ConstantDouble(double.Parse(value)),
+            _ => new NormalFloat(self, value)
+        };
     }
 }

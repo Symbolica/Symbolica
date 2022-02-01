@@ -35,7 +35,6 @@ public interface IExpression
     IExpression FloatUnordered(IExpression expression);
     IExpression LogicalShiftRight(IExpression expression);
     IExpression Multiply(IExpression expression);
-    IExpression Not();
     IExpression NotEqual(IExpression expression);
     IExpression Or(IExpression expression);
     IExpression Read(IExpression offset, Bits size);
