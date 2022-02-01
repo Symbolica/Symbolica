@@ -32,10 +32,15 @@ internal sealed class Write : BitVector
         return And(readMask, writeMask) is IConstantValue a && a.AsUnsigned().IsZero
             ? _writeBuffer is Write b
                 ? b.Read(offset, size)
-                : new Read(_writeBuffer, offset, size)
+                : Read(_writeBuffer, offset, size)
             : Xor(readMask, writeMask) is IConstantValue x && x.AsUnsigned().IsZero
                 ? _writeValue
-                : new Read(Flatten(), offset, size);
+                : Read(Flatten(), offset, size);
+    }
+
+    private static IValue Read(IValue buffer, IValue offset, Bits size)
+    {
+        return Truncate(size, LogicalShiftRight(buffer, offset));
     }
 
     private IValue Flatten()
@@ -58,6 +63,13 @@ internal sealed class Write : BitVector
             : new And(left, right);
     }
 
+    private static IValue LogicalShiftRight(IValue left, IValue right)
+    {
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsUnsigned().ShiftRight(r.AsUnsigned())
+            : new LogicalShiftRight(left, right);
+    }
+
     private static IValue Not(IValue value)
     {
         return value is IConstantValue v
@@ -77,6 +89,13 @@ internal sealed class Write : BitVector
         return left is IConstantValue l && right is IConstantValue r
             ? l.AsUnsigned().ShiftLeft(r.AsUnsigned())
             : new ShiftLeft(left, right);
+    }
+
+    private static IValue Truncate(Bits size, IValue value)
+    {
+        return value is IConstantValue v
+            ? v.AsUnsigned().Truncate(size)
+            : new Truncate(size, value);
     }
 
     private static IValue Xor(IValue left, IValue right)
