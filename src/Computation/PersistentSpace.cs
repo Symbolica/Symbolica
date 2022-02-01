@@ -67,12 +67,16 @@ internal sealed class PersistentSpace : IPersistentSpace
     public IExpression CreateGarbage(Bits size)
     {
         return _useSymbolicGarbage
-            ? CreateSymbolic(size, null, Enumerable.Empty<Func<IExpression, IExpression>>())
+            ? CreateSymbolic(size, null)
             : CreateConstant(size, BigInteger.Zero);
     }
 
-    public IExpression CreateSymbolic(Bits size,
-        string? name, IEnumerable<Func<IExpression, IExpression>> constraints)
+    public IExpression CreateSymbolic(Bits size, string? name)
+    {
+        return CreateSymbolic(size, name, Enumerable.Empty<Func<IExpression, IExpression>>());
+    }
+
+    public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> constraints)
     {
         return Expression.Create(_contextFactory, _collectionFactory,
             Symbol.Create(_symbolFactory, size, name), constraints);

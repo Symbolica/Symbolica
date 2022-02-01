@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions;
@@ -22,7 +20,6 @@ internal sealed class Symbolize : IFunction
         var size = (Bytes) (uint) arguments.Get(1).Constant;
         var name = state.ReadString(arguments.Get(2));
 
-        state.Memory.Write(address, state.Space.CreateSymbolic(size.ToBits(), name,
-            Enumerable.Empty<Func<IExpression, IExpression>>()));
+        state.Memory.Write(address, state.Space.CreateSymbolic(size.ToBits(), name));
     }
 }

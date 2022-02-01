@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack;
 
@@ -8,8 +6,7 @@ internal sealed class SymbolicContinuationFactory : IPersistentContinuationFacto
 {
     public (IExpression, IPersistentContinuationFactory) Create(ISpace space, Bits size)
     {
-        var continuation = space.CreateSymbolic(size, null,
-            Enumerable.Empty<Func<IExpression, IExpression>>());
+        var continuation = space.CreateSymbolic(size, null);
 
         return (continuation, this);
     }
