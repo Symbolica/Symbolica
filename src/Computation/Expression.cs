@@ -5,9 +5,7 @@ using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
-using Symbolica.Computation.Values;
 using Symbolica.Computation.Values.Constants;
-using Symbolica.Computation.Values.Symbolics;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -50,245 +48,147 @@ internal sealed class Expression : IExpression
 
     public IExpression Add(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Add(r.AsUnsigned()),
-            (l, r) => new Add(l, r));
+        return Binary(expression, Values.Add.Create);
     }
 
     public IExpression And(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().And(r.AsUnsigned()),
-            (l, r) => new And(l, r));
+        return Binary(expression, Values.And.Create);
     }
 
     public IExpression ArithmeticShiftRight(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsSigned().ShiftRight(r.AsUnsigned()),
-            (l, r) => new ArithmeticShiftRight(l, r));
+        return Binary(expression, Values.ArithmeticShiftRight.Create);
     }
 
     public IExpression Equal(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Equal(r.AsUnsigned()),
-            (l, r) => new Equal(l, r));
+        return Binary(expression, Values.Equal.Create);
     }
 
     public IExpression FloatAdd(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantSingle(l + r),
-            (l, r) => new ConstantDouble(l + r),
-            (l, r) => new FloatAdd(l, r));
+        return Binary(expression, Values.FloatAdd.Create);
     }
 
     public IExpression FloatCeiling()
     {
-        return Unary(
-            v => new ConstantSingle(MathF.Ceiling(v)),
-            v => new ConstantDouble(Math.Ceiling(v)),
-            v => new FloatCeiling(v));
+        return Unary(Values.FloatCeiling.Create);
     }
 
     public IExpression FloatConvert(Bits size)
     {
-        return Unary(
-            v => (uint) size switch
-            {
-                32U => new ConstantSingle(v),
-                64U => new ConstantDouble(v),
-                _ => new FloatConvert(size, new ConstantSingle(v))
-            },
-            v => (uint) size switch
-            {
-                32U => new ConstantSingle((float) v),
-                64U => new ConstantDouble(v),
-                _ => new FloatConvert(size, new ConstantDouble(v))
-            },
-            v => v is IRealValue r
-                ? new RealConvert(size, r)
-                : new FloatConvert(size, v));
+        return Unary(v => Values.FloatConvert.Create(size, v));
     }
 
     public IExpression FloatDivide(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantSingle(l / r),
-            (l, r) => new ConstantDouble(l / r),
-            (l, r) => new FloatDivide(l, r));
+        return Binary(expression, Values.FloatDivide.Create);
     }
 
     public IExpression FloatEqual(IExpression expression)
     {
-        return Binary(expression,
-            // ReSharper disable CompareOfFloatsByEqualityOperator
-            (l, r) => new ConstantBool(l == r),
-            (l, r) => new ConstantBool(l == r),
-            // ReSharper restore CompareOfFloatsByEqualityOperator
-            (l, r) => new FloatEqual(l, r));
+        return Binary(expression, Values.FloatEqual.Create);
     }
 
     public IExpression FloatFloor()
     {
-        return Unary(
-            v => new ConstantSingle(MathF.Floor(v)),
-            v => new ConstantDouble(Math.Floor(v)),
-            v => new FloatFloor(v));
+        return Unary(Values.FloatFloor.Create);
     }
 
     public IExpression FloatGreater(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantBool(l > r),
-            (l, r) => new ConstantBool(l > r),
-            (l, r) => new FloatGreater(l, r));
+        return Binary(expression, Values.FloatGreater.Create);
     }
 
     public IExpression FloatGreaterOrEqual(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantBool(l >= r),
-            (l, r) => new ConstantBool(l >= r),
-            (l, r) => new FloatGreaterOrEqual(l, r));
+        return Binary(expression, Values.FloatGreaterOrEqual.Create);
     }
 
     public IExpression FloatLess(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantBool(l < r),
-            (l, r) => new ConstantBool(l < r),
-            (l, r) => new FloatLess(l, r));
+        return Binary(expression, Values.FloatLess.Create);
     }
 
     public IExpression FloatLessOrEqual(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantBool(l <= r),
-            (l, r) => new ConstantBool(l <= r),
-            (l, r) => new FloatLessOrEqual(l, r));
+        return Binary(expression, Values.FloatLessOrEqual.Create);
     }
 
     public IExpression FloatMultiply(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantSingle(l * r),
-            (l, r) => new ConstantDouble(l * r),
-            (l, r) => new FloatMultiply(l, r));
+        return Binary(expression, Values.FloatMultiply.Create);
     }
 
     public IExpression FloatNegate()
     {
-        return Unary(
-            v => new ConstantSingle(-v),
-            v => new ConstantDouble(-v),
-            v => new FloatNegate(v));
+        return Unary(Values.FloatNegate.Create);
     }
 
     public IExpression FloatNotEqual(IExpression expression)
     {
-        return Binary(expression,
-            // ReSharper disable CompareOfFloatsByEqualityOperator
-            (l, r) => new ConstantBool(l != r),
-            (l, r) => new ConstantBool(l != r),
-            // ReSharper restore CompareOfFloatsByEqualityOperator
-            (l, r) => new Not(new FloatEqual(l, r)));
+        return Binary(expression, Values.FloatNotEqual.Create);
     }
 
     public IExpression FloatOrdered(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantBool(!(float.IsNaN(l) || float.IsNaN(r))),
-            (l, r) => new ConstantBool(!(double.IsNaN(l) || double.IsNaN(r))),
-            (l, r) => new Not(new FloatUnordered(l, r)));
+        return Binary(expression, Values.FloatOrdered.Create);
     }
 
     public IExpression FloatPower(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantSingle(MathF.Pow(l, r)),
-            (l, r) => new ConstantDouble(Math.Pow(l, r)),
-            (l, r) => new FloatPower(l, r));
+        return Binary(expression, Values.FloatPower.Create);
     }
 
     public IExpression FloatRemainder(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantSingle(MathF.IEEERemainder(l, r)),
-            (l, r) => new ConstantDouble(Math.IEEERemainder(l, r)),
-            (l, r) => new FloatRemainder(l, r));
+        return Binary(expression, Values.FloatRemainder.Create);
     }
 
     public IExpression FloatSubtract(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantSingle(l - r),
-            (l, r) => new ConstantDouble(l - r),
-            (l, r) => new FloatSubtract(l, r));
+        return Binary(expression, Values.FloatSubtract.Create);
     }
 
     public IExpression FloatToSigned(Bits size)
     {
-        return Unary(
-            v => ConstantSigned.Create(size, (BigInteger) v),
-            v => ConstantSigned.Create(size, (BigInteger) v),
-            v => v is IRealValue r
-                ? new RealToSigned(size, r)
-                : new FloatToSigned(size, v));
+        return Unary(v => Values.FloatToSigned.Create(size, v));
     }
 
     public IExpression FloatToUnsigned(Bits size)
     {
-        return Unary(
-            v => ConstantUnsigned.Create(size, (BigInteger) v),
-            v => ConstantUnsigned.Create(size, (BigInteger) v),
-            v => new FloatToUnsigned(size, v));
+        return Unary(v => Values.FloatToUnsigned.Create(size, v));
     }
 
     public IExpression FloatUnordered(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => new ConstantBool(float.IsNaN(l) || float.IsNaN(r)),
-            (l, r) => new ConstantBool(double.IsNaN(l) || double.IsNaN(r)),
-            (l, r) => new FloatUnordered(l, r));
+        return Binary(expression, Values.FloatUnordered.Create);
     }
 
     public IExpression LogicalShiftRight(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().ShiftRight(r.AsUnsigned()),
-            (l, r) => new LogicalShiftRight(l, r));
+        return Binary(expression, Values.LogicalShiftRight.Create);
     }
 
     public IExpression Multiply(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Multiply(r.AsUnsigned()),
-            (l, r) => new Multiply(l, r));
+        return Binary(expression, Values.Multiply.Create);
     }
 
     public IExpression NotEqual(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().NotEqual(r.AsUnsigned()),
-            (l, r) => new Not(new Equal(l, r)));
+        return Binary(expression, Values.NotEqual.Create);
     }
 
     public IExpression Or(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Or(r.AsUnsigned()),
-            (l, r) => new Or(l, r));
+        return Binary(expression, Values.Or.Create);
     }
 
     public IExpression Read(IExpression offset, Bits size)
     {
-        return Binary(offset,
-            (b, o) => b.AsBitVector(_collectionFactory).Read(o.AsUnsigned(), size),
-            (b, o) => b is Write w
-                ? w.Read(o, size)
-                : new Truncate(size, new LogicalShiftRight(b, o)));
+        return Binary(offset, (b, o) => Values.Read.Create(_collectionFactory, b, o, size));
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -298,197 +198,126 @@ internal sealed class Expression : IExpression
                 ? v.AsBool()
                     ? trueValue
                     : falseValue
-                : Ternary(trueValue, falseValue,
-                    (p, t, f) => p.AsBool() ? t : f,
-                    (p, t, f) => new Select(p, t, f))
+                : Ternary(trueValue, falseValue, Values.Select.Create)
             : throw new InconsistentExpressionSizesException(trueValue.Size, falseValue.Size);
     }
 
     public IExpression ShiftLeft(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().ShiftLeft(r.AsUnsigned()),
-            (l, r) => new ShiftLeft(l, r));
+        return Binary(expression, Values.ShiftLeft.Create);
     }
 
     public IExpression SignedDivide(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsSigned().Divide(r.AsSigned()),
-            (l, r) => new SignedDivide(l, r));
+        return Binary(expression, Values.SignedDivide.Create);
     }
 
     public IExpression SignedGreater(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsSigned().Greater(r.AsSigned()),
-            (l, r) => new SignedGreater(l, r));
+        return Binary(expression, Values.SignedGreater.Create);
     }
 
     public IExpression SignedGreaterOrEqual(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsSigned().GreaterOrEqual(r.AsSigned()),
-            (l, r) => new SignedGreaterOrEqual(l, r));
+        return Binary(expression, Values.SignedGreaterOrEqual.Create);
     }
 
     public IExpression SignedLess(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsSigned().Less(r.AsSigned()),
-            (l, r) => new SignedLess(l, r));
+        return Binary(expression, Values.SignedLess.Create);
     }
 
     public IExpression SignedLessOrEqual(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsSigned().LessOrEqual(r.AsSigned()),
-            (l, r) => new SignedLessOrEqual(l, r));
+        return Binary(expression, Values.SignedLessOrEqual.Create);
     }
 
     public IExpression SignedRemainder(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsSigned().Remainder(r.AsSigned()),
-            (l, r) => new SignedRemainder(l, r));
+        return Binary(expression, Values.SignedRemainder.Create);
     }
 
     public IExpression SignedToFloat(Bits size)
     {
-        return Unary(
-            v => (uint) size switch
-            {
-                32U => v.AsSigned().ToSingle(),
-                64U => v.AsSigned().ToDouble(),
-                _ => new SignedToFloat(size, v)
-            },
-            v => new SignedToFloat(size, v));
+        return Unary(v => Values.SignedToFloat.Create(size, v));
     }
 
     public IExpression SignExtend(Bits size)
     {
         return size > Size
-            ? Unary(
-                v => v.AsSigned().Extend(size),
-                v => new SignExtend(size, v))
+            ? Unary(v => Values.SignExtend.Create(size, v))
             : this;
     }
 
     public IExpression Subtract(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Subtract(r.AsUnsigned()),
-            (l, r) => new Subtract(l, r));
+        return Binary(expression, Values.Subtract.Create);
     }
 
     public IExpression Truncate(Bits size)
     {
         return size < Size
-            ? Unary(
-                v => v.AsUnsigned().Truncate(size),
-                v => new Truncate(size, v))
+            ? Unary(v => Values.Truncate.Create(size, v))
             : this;
     }
 
     public IExpression UnsignedDivide(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Divide(r.AsUnsigned()),
-            (l, r) => new UnsignedDivide(l, r));
+        return Binary(expression, Values.UnsignedDivide.Create);
     }
 
     public IExpression UnsignedGreater(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Greater(r.AsUnsigned()),
-            (l, r) => new UnsignedGreater(l, r));
+        return Binary(expression, Values.UnsignedGreater.Create);
     }
 
     public IExpression UnsignedGreaterOrEqual(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().GreaterOrEqual(r.AsUnsigned()),
-            (l, r) => new UnsignedGreaterOrEqual(l, r));
+        return Binary(expression, Values.UnsignedGreaterOrEqual.Create);
     }
 
     public IExpression UnsignedLess(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Less(r.AsUnsigned()),
-            (l, r) => new UnsignedLess(l, r));
+        return Binary(expression, Values.UnsignedLess.Create);
     }
 
     public IExpression UnsignedLessOrEqual(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().LessOrEqual(r.AsUnsigned()),
-            (l, r) => new UnsignedLessOrEqual(l, r));
+        return Binary(expression, Values.UnsignedLessOrEqual.Create);
     }
 
     public IExpression UnsignedRemainder(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Remainder(r.AsUnsigned()),
-            (l, r) => new UnsignedRemainder(l, r));
+        return Binary(expression, Values.UnsignedRemainder.Create);
     }
 
     public IExpression UnsignedToFloat(Bits size)
     {
-        return Unary(
-            v => (uint) size switch
-            {
-                32U => v.AsUnsigned().ToSingle(),
-                64U => v.AsUnsigned().ToDouble(),
-                _ => new UnsignedToFloat(size, v)
-            },
-            v => new UnsignedToFloat(size, v));
+        return Unary(v => Values.UnsignedToFloat.Create(size, v));
     }
 
     public IExpression Write(IExpression offset, IExpression value)
     {
         return Size == offset.Size
-            ? Ternary(offset, value,
-                (b, o, v) => b.AsBitVector(_collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(_collectionFactory)),
-                (b, o, v) => new Write(b, o, v))
+            ? Ternary(offset, value, (b, o, v) => Values.Write.Create(_collectionFactory, b, o, v))
             : throw new InconsistentExpressionSizesException(Size, offset.Size);
     }
 
     public IExpression Xor(IExpression expression)
     {
-        return Binary(expression,
-            (l, r) => l.AsUnsigned().Xor(r.AsUnsigned()),
-            (l, r) => new Xor(l, r));
+        return Binary(expression, Values.Xor.Create);
     }
 
     public IExpression ZeroExtend(Bits size)
     {
         return size > Size
-            ? Unary(
-                v => v.AsUnsigned().Extend(size),
-                v => new ZeroExtend(size, v))
+            ? Unary(v => Values.ZeroExtend.Create(size, v))
             : this;
     }
 
-    private IExpression Unary(
-        Func<float, IValue> constantSingle,
-        Func<double, IValue> constantDouble,
-        Func<IValue, IValue> symbolic)
+    private IExpression Unary(Func<IValue, IValue> func)
     {
-        return Unary(
-            a => (uint) Size switch
-            {
-                32U => constantSingle(a.AsSingle()),
-                64U => constantDouble(a.AsDouble()),
-                _ => symbolic(a)
-            },
-            symbolic);
-    }
-
-    private IExpression Unary(
-        Func<IConstantValue, IValue> constant,
-        Func<IValue, IValue> symbolic)
-    {
-        var value = Unary(_value, constant, symbolic);
+        var value = func(_value);
 
         return value is IConstantValue
             ? Create(_contextFactory, _collectionFactory,
@@ -497,42 +326,16 @@ internal sealed class Expression : IExpression
                 value, _constraints);
     }
 
-    private static IValue Unary(IValue x,
-        Func<IConstantValue, IValue> constant,
-        Func<IValue, IValue> symbolic)
+    private IExpression Binary(IExpression y, Func<IValue, IValue, IValue> func)
     {
-        return x is IConstantValue cx
-            ? constant(cx)
-            : symbolic(x);
+        return Size == y.Size
+            ? Binary((Expression) y, func)
+            : throw new InconsistentExpressionSizesException(Size, y.Size);
     }
 
-    private IExpression Binary(IExpression y,
-        Func<float, float, IValue> constantSingle,
-        Func<double, double, IValue> constantDouble,
-        Func<IValue, IValue, IValue> symbolic)
+    private IExpression Binary(Expression y, Func<IValue, IValue, IValue> func)
     {
-        return Binary(y,
-            (a, b) => (uint) Size switch
-            {
-                32U => constantSingle(a.AsSingle(), b.AsSingle()),
-                64U => constantDouble(a.AsDouble(), b.AsDouble()),
-                _ => symbolic(a, b)
-            },
-            symbolic);
-    }
-
-    private IExpression Binary(IExpression y,
-        Func<IConstantValue, IConstantValue, IValue> constant,
-        Func<IValue, IValue, IValue> symbolic)
-    {
-        return Binary((Expression) y, constant, symbolic);
-    }
-
-    private IExpression Binary(Expression y,
-        Func<IConstantValue, IConstantValue, IValue> constant,
-        Func<IValue, IValue, IValue> symbolic)
-    {
-        var value = Binary(_value, y._value, constant, symbolic);
+        var value = func(_value, y._value);
 
         return value is IConstantValue
             ? Create(_contextFactory, _collectionFactory,
@@ -541,42 +344,20 @@ internal sealed class Expression : IExpression
                 value, _constraints.Concat(y._constraints).ToArray());
     }
 
-    private static IValue Binary(IValue x, IValue y,
-        Func<IConstantValue, IConstantValue, IValue> constant,
-        Func<IValue, IValue, IValue> symbolic)
+    private IExpression Ternary(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
     {
-        return x is IConstantValue cx && y is IConstantValue cy
-            ? constant(cx, cy)
-            : symbolic(x, y);
+        return Ternary((Expression) y, (Expression) z, func);
     }
 
-    private IExpression Ternary(IExpression y, IExpression z,
-        Func<IConstantValue, IConstantValue, IConstantValue, IValue> constant,
-        Func<IValue, IValue, IValue, IValue> symbolic)
+    private IExpression Ternary(Expression y, Expression z, Func<IValue, IValue, IValue, IValue> func)
     {
-        return Ternary((Expression) y, (Expression) z, constant, symbolic);
-    }
-
-    private IExpression Ternary(Expression y, Expression z,
-        Func<IConstantValue, IConstantValue, IConstantValue, IValue> constant,
-        Func<IValue, IValue, IValue, IValue> symbolic)
-    {
-        var value = Ternary(_value, y._value, z._value, constant, symbolic);
+        var value = func(_value, y._value, z._value);
 
         return value is IConstantValue
             ? Create(_contextFactory, _collectionFactory,
                 value)
             : Create(_contextFactory, _collectionFactory,
                 value, _constraints.Concat(y._constraints.Concat(z._constraints)).ToArray());
-    }
-
-    private static IValue Ternary(IValue x, IValue y, IValue z,
-        Func<IConstantValue, IConstantValue, IConstantValue, IValue> constant,
-        Func<IValue, IValue, IValue, IValue> symbolic)
-    {
-        return x is IConstantValue cx && y is IConstantValue cy && z is IConstantValue cz
-            ? constant(cx, cy, cz)
-            : symbolic(x, y, z);
     }
 
     private BigInteger AsConstant()
