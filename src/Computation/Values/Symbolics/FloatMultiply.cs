@@ -1,4 +1,5 @@
 ﻿using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values.Symbolics;
 
@@ -7,7 +8,7 @@ internal sealed class FloatMultiply : Float
     private readonly IValue _left;
     private readonly IValue _right;
 
-    public FloatMultiply(IValue left, IValue right)
+    private FloatMultiply(IValue left, IValue right)
         : base(left.Size)
     {
         _left = left;
@@ -17,5 +18,13 @@ internal sealed class FloatMultiply : Float
     public override FPExpr AsFloat(Context context)
     {
         return context.MkFPMul(context.MkFPRNE(), _left.AsFloat(context), _right.AsFloat(context));
+    }
+
+    public static IValue Create(IValue left, IValue right)
+    {
+        return Value.Binary(left, right,
+            (l, r) => new ConstantSingle(l * r),
+            (l, r) => new ConstantDouble(l * r),
+            (l, r) => new FloatMultiply(l, r));
     }
 }

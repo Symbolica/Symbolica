@@ -1,4 +1,5 @@
 ﻿using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values.Symbolics;
 
@@ -7,7 +8,7 @@ internal sealed class FloatEqual : Bool
     private readonly IValue _left;
     private readonly IValue _right;
 
-    public FloatEqual(IValue left, IValue right)
+    private FloatEqual(IValue left, IValue right)
     {
         _left = left;
         _right = right;
@@ -16,5 +17,15 @@ internal sealed class FloatEqual : Bool
     public override BoolExpr AsBool(Context context)
     {
         return context.MkFPEq(_left.AsFloat(context), _right.AsFloat(context));
+    }
+
+    public static IValue Create(IValue left, IValue right)
+    {
+        return Value.Binary(left, right,
+            // ReSharper disable CompareOfFloatsByEqualityOperator
+            (l, r) => new ConstantBool(l == r),
+            (l, r) => new ConstantBool(l == r),
+            // ReSharper restore CompareOfFloatsByEqualityOperator
+            (l, r) => new FloatEqual(l, r));
     }
 }

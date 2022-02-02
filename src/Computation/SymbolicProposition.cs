@@ -32,6 +32,6 @@ internal sealed class SymbolicProposition : IProposition
     {
         var model = space.GetModel(constraints);
 
-        return new SymbolicProposition(space, model, assertion, new Not(assertion));
+        return new SymbolicProposition(space, model, assertion, Not.Create(assertion));
     }
 }

@@ -7,7 +7,7 @@ internal sealed class UnsignedLess : Bool
     private readonly IValue _left;
     private readonly IValue _right;
 
-    public UnsignedLess(IValue left, IValue right)
+    private UnsignedLess(IValue left, IValue right)
     {
         _left = left;
         _right = right;
@@ -16,5 +16,12 @@ internal sealed class UnsignedLess : Bool
     public override BoolExpr AsBool(Context context)
     {
         return context.MkBVULT(_left.AsBitVector(context), _right.AsBitVector(context));
+    }
+
+    public static IValue Create(IValue left, IValue right)
+    {
+        return Value.Binary(left, right,
+            (l, r) => l.AsUnsigned().Less(r.AsUnsigned()),
+            (l, r) => new UnsignedLess(l, r));
     }
 }

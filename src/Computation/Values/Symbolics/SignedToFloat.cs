@@ -7,7 +7,7 @@ internal sealed class SignedToFloat : Float
 {
     private readonly IValue _value;
 
-    public SignedToFloat(Bits size, IValue value)
+    private SignedToFloat(Bits size, IValue value)
         : base(size)
     {
         _value = value;
@@ -16,5 +16,17 @@ internal sealed class SignedToFloat : Float
     public override FPExpr AsFloat(Context context)
     {
         return context.MkFPToFP(context.MkFPRNE(), _value.AsBitVector(context), Size.GetSort(context), true);
+    }
+
+    public static IValue Create(Bits size, IValue value)
+    {
+        return Value.Unary(value,
+            v => (uint) size switch
+            {
+                32U => v.AsSigned().ToSingle(),
+                64U => v.AsSigned().ToDouble(),
+                _ => new SignedToFloat(size, v)
+            },
+            v => new SignedToFloat(size, v));
     }
 }

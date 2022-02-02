@@ -7,7 +7,7 @@ internal sealed class SignedLess : Bool
     private readonly IValue _left;
     private readonly IValue _right;
 
-    public SignedLess(IValue left, IValue right)
+    private SignedLess(IValue left, IValue right)
     {
         _left = left;
         _right = right;
@@ -16,5 +16,12 @@ internal sealed class SignedLess : Bool
     public override BoolExpr AsBool(Context context)
     {
         return context.MkBVSLT(_left.AsBitVector(context), _right.AsBitVector(context));
+    }
+
+    public static IValue Create(IValue left, IValue right)
+    {
+        return Value.Binary(left, right,
+            (l, r) => l.AsSigned().Less(r.AsSigned()),
+            (l, r) => new SignedLess(l, r));
     }
 }

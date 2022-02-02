@@ -7,7 +7,7 @@ internal sealed class Or : Integer
     private readonly IValue _left;
     private readonly IValue _right;
 
-    public Or(IValue left, IValue right)
+    private Or(IValue left, IValue right)
         : base(left.Size)
     {
         _left = left;
@@ -22,5 +22,12 @@ internal sealed class Or : Integer
     public override BoolExpr AsBool(Context context)
     {
         return context.MkOr(_left.AsBool(context), _right.AsBool(context));
+    }
+
+    public static IValue Create(IValue left, IValue right)
+    {
+        return Value.Binary(left, right,
+            (l, r) => l.AsUnsigned().Or(r.AsUnsigned()),
+            (l, r) => new Or(l, r));
     }
 }

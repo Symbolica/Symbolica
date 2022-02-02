@@ -49,147 +49,147 @@ internal sealed class Expression : IExpression
 
     public IExpression Add(IExpression expression)
     {
-        return Binary(expression, BitVector.Add);
+        return Binary(expression, Values.Symbolics.Add.Create);
     }
 
     public IExpression And(IExpression expression)
     {
-        return Binary(expression, Integer.And);
+        return Binary(expression, Values.Symbolics.And.Create);
     }
 
     public IExpression ArithmeticShiftRight(IExpression expression)
     {
-        return Binary(expression, BitVector.ArithmeticShiftRight);
+        return Binary(expression, Values.Symbolics.ArithmeticShiftRight.Create);
     }
 
     public IExpression Equal(IExpression expression)
     {
-        return Binary(expression, BitVector.Equal);
+        return Binary(expression, Values.Symbolics.Equal.Create);
     }
 
     public IExpression FloatAdd(IExpression expression)
     {
-        return Binary(expression, Float.Add);
+        return Binary(expression, Values.Symbolics.FloatAdd.Create);
     }
 
     public IExpression FloatCeiling()
     {
-        return Unary(Float.Ceiling);
+        return Unary(Values.Symbolics.FloatCeiling.Create);
     }
 
     public IExpression FloatConvert(Bits size)
     {
-        return Unary(v => Float.Convert(size, v));
+        return Unary(v => Values.Symbolics.FloatConvert.Create(size, v));
     }
 
     public IExpression FloatDivide(IExpression expression)
     {
-        return Binary(expression, Float.Divide);
+        return Binary(expression, Values.Symbolics.FloatDivide.Create);
     }
 
     public IExpression FloatEqual(IExpression expression)
     {
-        return Binary(expression, Float.Equal);
+        return Binary(expression, Values.Symbolics.FloatEqual.Create);
     }
 
     public IExpression FloatFloor()
     {
-        return Unary(Float.Floor);
+        return Unary(Values.Symbolics.FloatFloor.Create);
     }
 
     public IExpression FloatGreater(IExpression expression)
     {
-        return Binary(expression, Float.Greater);
+        return Binary(expression, Values.Symbolics.FloatGreater.Create);
     }
 
     public IExpression FloatGreaterOrEqual(IExpression expression)
     {
-        return Binary(expression, Float.GreaterOrEqual);
+        return Binary(expression, Values.Symbolics.FloatGreaterOrEqual.Create);
     }
 
     public IExpression FloatLess(IExpression expression)
     {
-        return Binary(expression, Float.Less);
+        return Binary(expression, Values.Symbolics.FloatLess.Create);
     }
 
     public IExpression FloatLessOrEqual(IExpression expression)
     {
-        return Binary(expression, Float.LessOrEqual);
+        return Binary(expression, Values.Symbolics.FloatLessOrEqual.Create);
     }
 
     public IExpression FloatMultiply(IExpression expression)
     {
-        return Binary(expression, Float.Multiply);
+        return Binary(expression, Values.Symbolics.FloatMultiply.Create);
     }
 
     public IExpression FloatNegate()
     {
-        return Unary(Float.Negate);
+        return Unary(Values.Symbolics.FloatNegate.Create);
     }
 
     public IExpression FloatNotEqual(IExpression expression)
     {
-        return Binary(expression, Float.NotEqual);
+        return Binary(expression, Values.Symbolics.FloatNotEqual.Create);
     }
 
     public IExpression FloatOrdered(IExpression expression)
     {
-        return Binary(expression, Float.Ordered);
+        return Binary(expression, Values.Symbolics.FloatOrdered.Create);
     }
 
     public IExpression FloatPower(IExpression expression)
     {
-        return Binary(expression, Float.Power);
+        return Binary(expression, Values.Symbolics.FloatPower.Create);
     }
 
     public IExpression FloatRemainder(IExpression expression)
     {
-        return Binary(expression, Float.Remainder);
+        return Binary(expression, Values.Symbolics.FloatRemainder.Create);
     }
 
     public IExpression FloatSubtract(IExpression expression)
     {
-        return Binary(expression, Float.Subtract);
+        return Binary(expression, Values.Symbolics.FloatSubtract.Create);
     }
 
     public IExpression FloatToSigned(Bits size)
     {
-        return Unary(v => Float.ToSigned(size, v));
+        return Unary(v => Values.Symbolics.FloatToSigned.Create(size, v));
     }
 
     public IExpression FloatToUnsigned(Bits size)
     {
-        return Unary(v => Float.ToUnsigned(size, v));
+        return Unary(v => Values.Symbolics.FloatToUnsigned.Create(size, v));
     }
 
     public IExpression FloatUnordered(IExpression expression)
     {
-        return Binary(expression, Float.Unordered);
+        return Binary(expression, Values.Symbolics.FloatUnordered.Create);
     }
 
     public IExpression LogicalShiftRight(IExpression expression)
     {
-        return Binary(expression, BitVector.LogicalShiftRight);
+        return Binary(expression, Values.Symbolics.LogicalShiftRight.Create);
     }
 
     public IExpression Multiply(IExpression expression)
     {
-        return Binary(expression, BitVector.Multiply);
+        return Binary(expression, Values.Symbolics.Multiply.Create);
     }
 
     public IExpression NotEqual(IExpression expression)
     {
-        return Binary(expression, BitVector.NotEqual);
+        return Binary(expression, Values.Symbolics.NotEqual.Create);
     }
 
     public IExpression Or(IExpression expression)
     {
-        return Binary(expression, Integer.Or);
+        return Binary(expression, Values.Symbolics.Or.Create);
     }
 
     public IExpression Read(IExpression offset, Bits size)
     {
-        return Binary(offset, (b, o) => BitVector.Read(_collectionFactory, b, o, size));
+        return Binary(offset, (b, o) => Values.Symbolics.Read.Create(_collectionFactory, b, o, size));
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -199,120 +199,120 @@ internal sealed class Expression : IExpression
                 ? v.AsBool()
                     ? trueValue
                     : falseValue
-                : Ternary(trueValue, falseValue, Value.Select)
+                : Ternary(trueValue, falseValue, Values.Symbolics.Select.Create)
             : throw new InconsistentExpressionSizesException(trueValue.Size, falseValue.Size);
     }
 
     public IExpression ShiftLeft(IExpression expression)
     {
-        return Binary(expression, BitVector.ShiftLeft);
+        return Binary(expression, Values.Symbolics.ShiftLeft.Create);
     }
 
     public IExpression SignedDivide(IExpression expression)
     {
-        return Binary(expression, BitVector.SignedDivide);
+        return Binary(expression, Values.Symbolics.SignedDivide.Create);
     }
 
     public IExpression SignedGreater(IExpression expression)
     {
-        return Binary(expression, BitVector.SignedGreater);
+        return Binary(expression, Values.Symbolics.SignedGreater.Create);
     }
 
     public IExpression SignedGreaterOrEqual(IExpression expression)
     {
-        return Binary(expression, BitVector.SignedGreaterOrEqual);
+        return Binary(expression, Values.Symbolics.SignedGreaterOrEqual.Create);
     }
 
     public IExpression SignedLess(IExpression expression)
     {
-        return Binary(expression, BitVector.SignedLess);
+        return Binary(expression, Values.Symbolics.SignedLess.Create);
     }
 
     public IExpression SignedLessOrEqual(IExpression expression)
     {
-        return Binary(expression, BitVector.SignedLessOrEqual);
+        return Binary(expression, Values.Symbolics.SignedLessOrEqual.Create);
     }
 
     public IExpression SignedRemainder(IExpression expression)
     {
-        return Binary(expression, BitVector.SignedRemainder);
+        return Binary(expression, Values.Symbolics.SignedRemainder.Create);
     }
 
     public IExpression SignedToFloat(Bits size)
     {
-        return Unary(v => BitVector.SignedToFloat(size, v));
+        return Unary(v => Values.Symbolics.SignedToFloat.Create(size, v));
     }
 
     public IExpression SignExtend(Bits size)
     {
         return size > Size
-            ? Unary(v => BitVector.SignExtend(size, v))
+            ? Unary(v => Values.Symbolics.SignExtend.Create(size, v))
             : this;
     }
 
     public IExpression Subtract(IExpression expression)
     {
-        return Binary(expression, BitVector.Subtract);
+        return Binary(expression, Values.Symbolics.Subtract.Create);
     }
 
     public IExpression Truncate(Bits size)
     {
         return size < Size
-            ? Unary(v => BitVector.Truncate(size, v))
+            ? Unary(v => Values.Symbolics.Truncate.Create(size, v))
             : this;
     }
 
     public IExpression UnsignedDivide(IExpression expression)
     {
-        return Binary(expression, BitVector.UnsignedDivide);
+        return Binary(expression, Values.Symbolics.UnsignedDivide.Create);
     }
 
     public IExpression UnsignedGreater(IExpression expression)
     {
-        return Binary(expression, BitVector.UnsignedGreater);
+        return Binary(expression, Values.Symbolics.UnsignedGreater.Create);
     }
 
     public IExpression UnsignedGreaterOrEqual(IExpression expression)
     {
-        return Binary(expression, BitVector.UnsignedGreaterOrEqual);
+        return Binary(expression, Values.Symbolics.UnsignedGreaterOrEqual.Create);
     }
 
     public IExpression UnsignedLess(IExpression expression)
     {
-        return Binary(expression, BitVector.UnsignedLess);
+        return Binary(expression, Values.Symbolics.UnsignedLess.Create);
     }
 
     public IExpression UnsignedLessOrEqual(IExpression expression)
     {
-        return Binary(expression, BitVector.UnsignedLessOrEqual);
+        return Binary(expression, Values.Symbolics.UnsignedLessOrEqual.Create);
     }
 
     public IExpression UnsignedRemainder(IExpression expression)
     {
-        return Binary(expression, BitVector.UnsignedRemainder);
+        return Binary(expression, Values.Symbolics.UnsignedRemainder.Create);
     }
 
     public IExpression UnsignedToFloat(Bits size)
     {
-        return Unary(v => BitVector.UnsignedToFloat(size, v));
+        return Unary(v => Values.Symbolics.UnsignedToFloat.Create(size, v));
     }
 
     public IExpression Write(IExpression offset, IExpression value)
     {
         return Size == offset.Size
-            ? Ternary(offset, value, (b, o, v) => BitVector.Write(_collectionFactory, b, o, v))
+            ? Ternary(offset, value, (b, o, v) => Values.Symbolics.Write.Create(_collectionFactory, b, o, v))
             : throw new InconsistentExpressionSizesException(Size, offset.Size);
     }
 
     public IExpression Xor(IExpression expression)
     {
-        return Binary(expression, Integer.Xor);
+        return Binary(expression, Values.Symbolics.Xor.Create);
     }
 
     public IExpression ZeroExtend(Bits size)
     {
         return size > Size
-            ? Unary(v => BitVector.ZeroExtend(size, v))
+            ? Unary(v => Values.Symbolics.ZeroExtend.Create(size, v))
             : this;
     }
 

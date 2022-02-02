@@ -7,7 +7,7 @@ internal sealed class Xor : Integer
     private readonly IValue _left;
     private readonly IValue _right;
 
-    public Xor(IValue left, IValue right)
+    private Xor(IValue left, IValue right)
         : base(left.Size)
     {
         _left = left;
@@ -22,5 +22,12 @@ internal sealed class Xor : Integer
     public override BoolExpr AsBool(Context context)
     {
         return context.MkXor(_left.AsBool(context), _right.AsBool(context));
+    }
+
+    public static IValue Create(IValue left, IValue right)
+    {
+        return Value.Binary(left, right,
+            (l, r) => l.AsUnsigned().Xor(r.AsUnsigned()),
+            (l, r) => new Xor(l, r));
     }
 }

@@ -6,7 +6,7 @@ internal sealed class Not : Integer
 {
     private readonly IValue _value;
 
-    public Not(IValue value)
+    private Not(IValue value)
         : base(value.Size)
     {
         _value = value;
@@ -20,5 +20,12 @@ internal sealed class Not : Integer
     public override BoolExpr AsBool(Context context)
     {
         return context.MkNot(_value.AsBool(context));
+    }
+
+    public static IValue Create(IValue value)
+    {
+        return Value.Unary(value,
+            v => v.AsUnsigned().Not(),
+            v => new Not(v));
     }
 }

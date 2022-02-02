@@ -7,7 +7,7 @@ internal sealed class Add : BitVector
     private readonly IValue _left;
     private readonly IValue _right;
 
-    public Add(IValue left, IValue right)
+    private Add(IValue left, IValue right)
         : base(left.Size)
     {
         _left = left;
@@ -17,5 +17,12 @@ internal sealed class Add : BitVector
     public override BitVecExpr AsBitVector(Context context)
     {
         return context.MkBVAdd(_left.AsBitVector(context), _right.AsBitVector(context));
+    }
+
+    public static IValue Create(IValue left, IValue right)
+    {
+        return Value.Binary(left, right,
+            (l, r) => l.AsUnsigned().Add(r.AsUnsigned()),
+            (l, r) => new Add(l, r));
     }
 }

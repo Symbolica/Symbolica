@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Microsoft.Z3;
+using Symbolica.Collection;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -11,7 +12,7 @@ internal sealed class Write : BitVector
     private readonly IValue _writeOffset;
     private readonly IValue _writeValue;
 
-    public Write(IValue writeBuffer, IValue writeOffset, IValue writeValue)
+    private Write(IValue writeBuffer, IValue writeOffset, IValue writeValue)
         : base(writeBuffer.Size)
     {
         _writeBuffer = writeBuffer;
@@ -24,35 +25,37 @@ internal sealed class Write : BitVector
         return Flatten().AsBitVector(context);
     }
 
-    public IValue Read(IValue offset, Bits size)
+    public IValue Read(ICollectionFactory collectionFactory, IValue offset, Bits size)
     {
         var readMask = Mask(offset, size);
         var writeMask = Mask(_writeOffset, _writeValue.Size);
 
-        return And(readMask, writeMask) is IConstantValue a && a.AsUnsigned().IsZero
-            ? _writeBuffer is Write b
-                ? b.Read(offset, size)
-                : Read(_writeBuffer, offset, size)
-            : Xor(readMask, writeMask) is IConstantValue x && x.AsUnsigned().IsZero
+        return And.Create(readMask, writeMask) is IConstantValue a && a.AsUnsigned().IsZero
+            ? _writeBuffer is Write w
+                ? w.Read(collectionFactory, offset, size)
+                : Symbolics.Read.Create(collectionFactory, _writeBuffer, offset, size)
+            : Xor.Create(readMask, writeMask) is IConstantValue x && x.AsUnsigned().IsZero
                 ? _writeValue
-                : Read(Flatten(), offset, size);
-    }
-
-    private static IValue Read(IValue buffer, IValue offset, Bits size)
-    {
-        return Truncate(size, LogicalShiftRight(buffer, offset));
+                : Symbolics.Read.Create(collectionFactory, Flatten(), offset, size);
     }
 
     private IValue Flatten()
     {
         var writeMask = Mask(_writeOffset, _writeValue.Size);
-        var writeData = ShiftLeft(ZeroExtend(Size, _writeValue), _writeOffset);
+        var writeData = ShiftLeft.Create(ZeroExtend.Create(Size, _writeValue), _writeOffset);
 
-        return Or(And(_writeBuffer, Not(writeMask)), writeData);
+        return Or.Create(And.Create(_writeBuffer, Not.Create(writeMask)), writeData);
     }
 
     private IValue Mask(IValue offset, Bits size)
     {
-        return ShiftLeft(ZeroExtend(Size, Not(ConstantUnsigned.Create(size, BigInteger.Zero))), offset);
+        return ShiftLeft.Create(ConstantUnsigned.Create(size, BigInteger.Zero).Not().Extend(Size), offset);
+    }
+
+    public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, IValue value)
+    {
+        return Value.Ternary(buffer, offset, value,
+            (b, o, v) => b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory)),
+            (b, o, v) => new Write(b, o, v));
     }
 }

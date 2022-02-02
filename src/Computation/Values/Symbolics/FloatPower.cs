@@ -1,5 +1,7 @@
-﻿using Microsoft.Z3;
+﻿using System;
+using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
+using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values.Symbolics;
 
@@ -8,7 +10,7 @@ internal sealed class FloatPower : Float, IRealValue
     private readonly IValue _left;
     private readonly IValue _right;
 
-    public FloatPower(IValue left, IValue right)
+    private FloatPower(IValue left, IValue right)
         : base(left.Size)
     {
         _left = left;
@@ -31,5 +33,13 @@ internal sealed class FloatPower : Float, IRealValue
             : context.MkFPToReal(_right.AsFloat(context));
 
         return (RealExpr) context.MkPower(left, right);
+    }
+
+    public static IValue Create(IValue left, IValue right)
+    {
+        return Value.Binary(left, right,
+            (l, r) => new ConstantSingle(MathF.Pow(l, r)),
+            (l, r) => new ConstantDouble(Math.Pow(l, r)),
+            (l, r) => new FloatPower(l, r));
     }
 }
