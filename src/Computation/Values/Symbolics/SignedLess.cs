@@ -20,7 +20,7 @@ internal sealed class SignedLess : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsSigned().Less(r.AsSigned()),
             (l, r) => new SignedLess(l, r));
     }

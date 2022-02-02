@@ -21,7 +21,7 @@ internal sealed class FloatFloor : Float
 
     public static IValue Create(IValue value)
     {
-        return Value.Unary(value,
+        return Value.Create(value,
             v => new ConstantSingle(MathF.Floor(v)),
             v => new ConstantDouble(Math.Floor(v)),
             v => new FloatFloor(v));

@@ -21,7 +21,7 @@ internal sealed class ShiftLeft : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsUnsigned().ShiftLeft(r.AsUnsigned()),
             (l, r) => new ShiftLeft(l, r));
     }

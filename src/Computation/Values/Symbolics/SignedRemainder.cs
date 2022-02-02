@@ -21,7 +21,7 @@ internal sealed class SignedRemainder : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsSigned().Remainder(r.AsSigned()),
             (l, r) => new SignedRemainder(l, r));
     }

@@ -20,7 +20,7 @@ internal sealed class SignExtend : BitVector
 
     public static IValue Create(Bits size, IValue value)
     {
-        return Value.Unary(value,
+        return Value.Create(value,
             v => v.AsSigned().Extend(size),
             v => new SignExtend(size, v));
     }

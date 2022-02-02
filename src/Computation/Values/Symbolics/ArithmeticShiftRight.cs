@@ -21,7 +21,7 @@ internal sealed class ArithmeticShiftRight : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsSigned().ShiftRight(r.AsUnsigned()),
             (l, r) => new ArithmeticShiftRight(l, r));
     }

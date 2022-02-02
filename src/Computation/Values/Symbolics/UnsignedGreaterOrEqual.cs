@@ -20,7 +20,7 @@ internal sealed class UnsignedGreaterOrEqual : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsUnsigned().GreaterOrEqual(r.AsUnsigned()),
             (l, r) => new UnsignedGreaterOrEqual(l, r));
     }

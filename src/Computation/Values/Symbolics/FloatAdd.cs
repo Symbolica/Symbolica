@@ -22,7 +22,7 @@ internal sealed class FloatAdd : Float
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => new ConstantSingle(l + r),
             (l, r) => new ConstantDouble(l + r),
             (l, r) => new FloatAdd(l, r));

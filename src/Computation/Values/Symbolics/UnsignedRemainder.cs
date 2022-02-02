@@ -21,7 +21,7 @@ internal sealed class UnsignedRemainder : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsUnsigned().Remainder(r.AsUnsigned()),
             (l, r) => new UnsignedRemainder(l, r));
     }

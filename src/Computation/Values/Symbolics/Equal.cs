@@ -22,7 +22,7 @@ internal sealed class Equal : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsUnsigned().Equal(r.AsUnsigned()),
             (l, r) => new Equal(l, r));
     }

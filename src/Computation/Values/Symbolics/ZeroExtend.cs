@@ -20,7 +20,7 @@ internal sealed class ZeroExtend : BitVector
 
     public static IValue Create(Bits size, IValue value)
     {
-        return Value.Unary(value,
+        return Value.Create(value,
             v => v.AsUnsigned().Extend(size),
             v => new ZeroExtend(size, v));
     }

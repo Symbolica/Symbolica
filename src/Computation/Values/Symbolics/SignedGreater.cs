@@ -20,7 +20,7 @@ internal sealed class SignedGreater : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsSigned().Greater(r.AsSigned()),
             (l, r) => new SignedGreater(l, r));
     }

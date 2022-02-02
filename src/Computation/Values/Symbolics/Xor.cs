@@ -26,7 +26,7 @@ internal sealed class Xor : Integer
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsUnsigned().Xor(r.AsUnsigned()),
             (l, r) => new Xor(l, r));
     }

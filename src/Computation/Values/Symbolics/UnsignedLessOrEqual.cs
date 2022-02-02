@@ -20,7 +20,7 @@ internal sealed class UnsignedLessOrEqual : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsUnsigned().LessOrEqual(r.AsUnsigned()),
             (l, r) => new UnsignedLessOrEqual(l, r));
     }

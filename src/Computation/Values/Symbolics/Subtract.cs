@@ -21,7 +21,7 @@ internal sealed class Subtract : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsUnsigned().Subtract(r.AsUnsigned()),
             (l, r) => new Subtract(l, r));
     }

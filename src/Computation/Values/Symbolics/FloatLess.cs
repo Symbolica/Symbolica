@@ -21,7 +21,7 @@ internal sealed class FloatLess : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => new ConstantBool(l < r),
             (l, r) => new ConstantBool(l < r),
             (l, r) => new FloatLess(l, r));

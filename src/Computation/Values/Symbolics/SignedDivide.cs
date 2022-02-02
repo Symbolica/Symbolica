@@ -21,7 +21,7 @@ internal sealed class SignedDivide : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             (l, r) => l.AsSigned().Divide(r.AsSigned()),
             (l, r) => new SignedDivide(l, r));
     }

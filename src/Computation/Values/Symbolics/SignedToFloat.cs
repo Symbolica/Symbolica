@@ -20,7 +20,7 @@ internal sealed class SignedToFloat : Float
 
     public static IValue Create(Bits size, IValue value)
     {
-        return Value.Unary(value,
+        return Value.Create(value,
             v => (uint) size switch
             {
                 32U => v.AsSigned().ToSingle(),

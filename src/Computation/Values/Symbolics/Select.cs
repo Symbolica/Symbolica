@@ -41,7 +41,7 @@ internal sealed class Select : IValue
 
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
     {
-        return Value.Ternary(predicate, trueValue, falseValue,
+        return Value.Create(predicate, trueValue, falseValue,
             (p, t, f) => p.AsBool() ? t : f,
             (p, t, f) => new Select(p, t, f));
     }

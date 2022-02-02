@@ -24,7 +24,7 @@ internal sealed class Not : Integer
 
     public static IValue Create(IValue value)
     {
-        return Value.Unary(value,
+        return Value.Create(value,
             v => v.AsUnsigned().Not(),
             v => new Not(v));
     }

@@ -21,7 +21,7 @@ internal sealed class FloatEqual : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Binary(left, right,
+        return Value.Create(left, right,
             // ReSharper disable CompareOfFloatsByEqualityOperator
             (l, r) => new ConstantBool(l == r),
             (l, r) => new ConstantBool(l == r),

@@ -54,7 +54,7 @@ internal sealed class Write : BitVector
 
     public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, IValue value)
     {
-        return Value.Ternary(buffer, offset, value,
+        return Value.Create(buffer, offset, value,
             (b, o, v) => b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory)),
             (b, o, v) => new Write(b, o, v));
     }
