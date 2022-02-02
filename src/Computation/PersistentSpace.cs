@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
-using Symbolica.Computation.Values;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
