@@ -5,7 +5,7 @@ namespace Symbolica.Abstraction;
 public interface ISystem
 {
     IExpression GetThreadAddress();
-    int Open(string path);
+    int Open(IExpression path);
     int Duplicate(int descriptor);
     int Close(int descriptor);
     long Seek(int descriptor, long offset, uint whence);

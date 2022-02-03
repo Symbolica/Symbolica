@@ -31,9 +31,9 @@ internal sealed class PersistentSystem : IPersistentSystem
             : (_threadAddress, this);
     }
 
-    public (int, IPersistentSystem) Open(string path)
+    public (int, IPersistentSystem) Open(ISpace space, IMemory memory, IExpression path)
     {
-        var description = _descriptionFactory.Create(path);
+        var description = _descriptionFactory.Create(space, memory, path);
 
         return description == null
             ? (-1, this)

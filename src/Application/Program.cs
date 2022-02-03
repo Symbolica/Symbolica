@@ -7,6 +7,7 @@ using Symbolica.Implementation;
 
 var bytes = await Serializer.Serialize(args[0], args.LastOrDefault(a => a.StartsWith("--O")) ?? "--O0");
 var executor = new Executor(new ContextFactory(), new Options(
+    ulong.TryParse(args.SkipWhile(a => a != "--symbolic-file-size").Skip(1).FirstOrDefault(), out var symbolicFileSize) ? symbolicFileSize : 1,
     args.Contains("--use-symbolic-garbage"),
     args.Contains("--use-symbolic-addresses"),
     args.Contains("--use-symbolic-continuations")));

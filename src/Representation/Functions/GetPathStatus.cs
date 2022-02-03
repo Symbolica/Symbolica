@@ -15,7 +15,7 @@ internal sealed class GetPathStatus : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var path = state.ReadString(arguments.Get(0));
+        var path = arguments.Get(0);
         var address = arguments.Get(1);
 
         var descriptor = state.System.Open(path);

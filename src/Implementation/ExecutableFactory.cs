@@ -30,7 +30,7 @@ public sealed class ExecutableFactory
         var globals = PersistentGlobals.Create(module, _collectionFactory);
         var memory = new MemoryProxy(space, CreateMemory(module, options));
         var stack = new StackProxy(space, memory, CreateStack(module, options));
-        var system = new SystemProxy(space, memory, CreateSystem(module));
+        var system = new SystemProxy(space, memory, CreateSystem(module, options.SymbolicFileSize));
 
         return new State(new NoOp(), module, space,
             globals, memory, stack, system);
@@ -65,9 +65,9 @@ public sealed class ExecutableFactory
             continuationFactory, _collectionFactory);
     }
 
-    private IPersistentSystem CreateSystem(IModule module)
+    private IPersistentSystem CreateSystem(IModule module, ulong symbolicFileSize)
     {
-        var descriptionFactory = new DescriptionFactory(_fileSystem);
+        var descriptionFactory = new DescriptionFactory(_fileSystem, symbolicFileSize);
 
         return PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
     }
