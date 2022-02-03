@@ -20,8 +20,8 @@ internal sealed class Truncate : BitVector
 
     public static IValue Create(Bits size, IValue value)
     {
-        return Value.Create(value,
-            v => v.AsUnsigned().Truncate(size),
-            v => new Truncate(size, v));
+        return value is IConstantValue v
+            ? v.AsUnsigned().Truncate(size)
+            : new Truncate(size, value);
     }
 }

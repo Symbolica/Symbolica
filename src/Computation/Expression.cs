@@ -5,6 +5,7 @@ using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
+using Symbolica.Computation.Values;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -198,7 +199,7 @@ internal sealed class Expression : IExpression
                 ? v.AsBool()
                     ? trueValue
                     : falseValue
-                : Ternary(trueValue, falseValue, Values.Select.Create)
+                : Ternary(trueValue, falseValue, (p, t, f) => new Select(p, t, f))
             : throw new InconsistentExpressionSizesException(trueValue.Size, falseValue.Size);
     }
 

@@ -21,7 +21,7 @@ internal sealed class FloatCeiling : Float
 
     public static IValue Create(IValue value)
     {
-        return Value.Create(value,
+        return Unary(value,
             v => new ConstantSingle(MathF.Ceiling(v)),
             v => new ConstantDouble(Math.Ceiling(v)),
             v => new FloatCeiling(v));

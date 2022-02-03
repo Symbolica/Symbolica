@@ -20,8 +20,8 @@ internal sealed class UnsignedGreater : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsUnsigned().Greater(r.AsUnsigned()),
-            (l, r) => new UnsignedGreater(l, r));
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsUnsigned().Greater(r.AsUnsigned())
+            : new UnsignedGreater(left, right);
     }
 }

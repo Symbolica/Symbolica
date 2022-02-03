@@ -20,8 +20,8 @@ internal sealed class UnsignedLess : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsUnsigned().Less(r.AsUnsigned()),
-            (l, r) => new UnsignedLess(l, r));
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsUnsigned().Less(r.AsUnsigned())
+            : new UnsignedLess(left, right);
     }
 }

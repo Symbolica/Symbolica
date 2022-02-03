@@ -21,7 +21,7 @@ internal sealed class FloatUnordered : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
+        return Float.Binary(left, right,
             (l, r) => new ConstantBool(float.IsNaN(l) || float.IsNaN(r)),
             (l, r) => new ConstantBool(double.IsNaN(l) || double.IsNaN(r)),
             (l, r) => new FloatUnordered(l, r));

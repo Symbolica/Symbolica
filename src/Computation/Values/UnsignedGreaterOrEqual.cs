@@ -20,8 +20,8 @@ internal sealed class UnsignedGreaterOrEqual : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsUnsigned().GreaterOrEqual(r.AsUnsigned()),
-            (l, r) => new UnsignedGreaterOrEqual(l, r));
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsUnsigned().GreaterOrEqual(r.AsUnsigned())
+            : new UnsignedGreaterOrEqual(left, right);
     }
 }

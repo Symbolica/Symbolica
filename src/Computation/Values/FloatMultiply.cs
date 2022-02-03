@@ -22,7 +22,7 @@ internal sealed class FloatMultiply : Float
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
+        return Binary(left, right,
             (l, r) => new ConstantSingle(l * r),
             (l, r) => new ConstantDouble(l * r),
             (l, r) => new FloatMultiply(l, r));

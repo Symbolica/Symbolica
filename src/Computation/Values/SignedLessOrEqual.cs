@@ -20,8 +20,8 @@ internal sealed class SignedLessOrEqual : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsSigned().LessOrEqual(r.AsSigned()),
-            (l, r) => new SignedLessOrEqual(l, r));
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsSigned().LessOrEqual(r.AsSigned())
+            : new SignedLessOrEqual(left, right);
     }
 }

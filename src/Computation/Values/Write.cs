@@ -9,9 +9,9 @@ namespace Symbolica.Computation.Values;
 internal sealed class Write : BitVector
 {
     private readonly IValue _writeBuffer;
+    private readonly IValue _writeMask;
     private readonly IValue _writeOffset;
     private readonly IValue _writeValue;
-    private readonly IValue _writeMask;
 
     private Write(IValue writeBuffer, IValue writeOffset, IValue writeValue)
         : base(writeBuffer.Size)
@@ -27,17 +27,28 @@ internal sealed class Write : BitVector
         return Flatten().AsBitVector(context);
     }
 
-    public IValue Read(ICollectionFactory collectionFactory, IValue offset, Bits size)
+    public IValue LayerRead(ICollectionFactory collectionFactory, IValue offset, Bits size)
     {
-        var readMask = Mask(this, offset, size);
+        var mask = Mask(this, offset, size);
 
-        return NotOverlapsWith(readMask)
+        return NotOverlapsWith(mask)
             ? _writeBuffer is Write w
-                ? w.Read(collectionFactory, offset, size)
-                : Values.Read.Create(collectionFactory, _writeBuffer, offset, size)
-            : ExactlyAlignsWith(readMask)
+                ? w.LayerRead(collectionFactory, offset, size)
+                : Read.Create(collectionFactory, _writeBuffer, offset, size)
+            : ExactlyAlignsWith(mask)
                 ? _writeValue
-                : Values.Read.Create(collectionFactory, Flatten(), offset, size);
+                : Read.Create(collectionFactory, Flatten(), offset, size);
+    }
+
+    private IValue LayerWrite(ICollectionFactory collectionFactory, IValue offset, IValue value)
+    {
+        var mask = Mask(this, offset, value.Size);
+
+        return NotOverlapsWith(mask)
+            ? new Write(Create(collectionFactory, _writeBuffer, offset, value), _writeOffset, _writeValue)
+            : ExactlyAlignsWith(mask)
+                ? new Write(_writeBuffer, offset, value)
+                : new Write(this, offset, value);
     }
 
     private IValue Flatten()
@@ -64,18 +75,10 @@ internal sealed class Write : BitVector
 
     public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, IValue value)
     {
-        return Value.Create(buffer, offset, value,
-            (b, o, v) => b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory)),
-            (b, o, v) =>
-            {
-                var mask = Mask(b, o, v.Size);
-                return b is Write w
-                    ? w.NotOverlapsWith(mask)
-                        ? new Write(Create(collectionFactory, w._writeBuffer, o, v), w._writeOffset, w._writeValue)
-                        : w.ExactlyAlignsWith(mask)
-                            ? new Write(w._writeBuffer, o, v)
-                            : new Write(b, o, v)
-                    : new Write(b, o, v);
-            });
+        return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
+            ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
+            : buffer is Write w
+                ? w.LayerWrite(collectionFactory, offset, value)
+                : new Write(buffer, offset, value);
     }
 }
