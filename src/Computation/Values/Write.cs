@@ -66,8 +66,16 @@ internal sealed class Write : BitVector
     {
         return Value.Create(buffer, offset, value,
             (b, o, v) => b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory)),
-            (b, o, v) => b is Write w && w.NotOverlapsWith(Mask(b, o, v.Size))
-                ? new Write(Create(collectionFactory, w._writeBuffer, o, v), w._writeOffset, w._writeValue)
-                : new Write(b, o, v));
+            (b, o, v) =>
+            {
+                var mask = Mask(b, o, v.Size);
+                return b is Write w
+                    ? w.NotOverlapsWith(mask)
+                        ? new Write(Create(collectionFactory, w._writeBuffer, o, v), w._writeOffset, w._writeValue)
+                        : w.ExactlyAlignsWith(mask)
+                            ? new Write(w._writeBuffer, o, v)
+                            : new Write(b, o, v)
+                    : new Write(b, o, v);
+            });
     }
 }
