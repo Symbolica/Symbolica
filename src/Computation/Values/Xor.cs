@@ -28,6 +28,14 @@ internal sealed class Xor : Integer
     {
         return Value.Create(left, right,
             (l, r) => l.AsUnsigned().Xor(r.AsUnsigned()),
-            (l, r) => new Xor(l, r));
+            (l, r) => l is IConstantValue
+                ? Create(r, l)
+                : r is IConstantValue c
+                    ? c.AsUnsigned().IsZero
+                        ? l
+                        : c.AsUnsigned().Not().IsZero
+                            ? Not.Create(l)
+                            : new Xor(l, r)
+                    : new Xor(l, r));
     }
 }

@@ -28,6 +28,14 @@ internal sealed class And : Integer
     {
         return Value.Create(left, right,
             (l, r) => l.AsUnsigned().And(r.AsUnsigned()),
-            (l, r) => new And(l, r));
+            (l, r) => l is IConstantValue
+                ? Create(r, l)
+                : r is IConstantValue c
+                    ? c.AsUnsigned().IsZero
+                        ? c
+                        : c.AsUnsigned().Not().IsZero
+                            ? l
+                            : new And(l, r)
+                    : new And(l, r));
     }
 }
