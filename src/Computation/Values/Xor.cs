@@ -25,12 +25,12 @@ internal sealed class Xor : Integer
         return context.MkXor(_left.AsBool(context), _right.AsBool(context));
     }
 
-    private static IValue ShortCircuit(ConstantUnsigned left, IValue right)
+    private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
     {
-        return left.IsZero
-            ? right
-            : left.Not().IsZero
-                ? Not.Create(right)
+        return right.IsZero
+            ? left
+            : right.Not().IsZero
+                ? Not.Create(left)
                 : new Xor(left, right);
     }
 
@@ -39,9 +39,9 @@ internal sealed class Xor : Integer
         return left is IConstantValue l
             ? right is IConstantValue r
                 ? l.AsUnsigned().Xor(r.AsUnsigned())
-                : ShortCircuit(l.AsUnsigned(), right)
+                : ShortCircuit(right, l.AsUnsigned())
             : right is IConstantValue c
-                ? ShortCircuit(c.AsUnsigned(), left)
+                ? ShortCircuit(left, c.AsUnsigned())
                 : new Xor(left, right);
     }
 }

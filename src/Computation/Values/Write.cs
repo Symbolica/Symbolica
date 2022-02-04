@@ -31,11 +31,9 @@ internal sealed class Write : BitVector
     {
         var mask = Mask(this, offset, size);
 
-        return NotOverlapsWith(mask)
-            ? _writeBuffer is Write w
-                ? w.LayerRead(collectionFactory, offset, size)
-                : Read.Create(collectionFactory, _writeBuffer, offset, size)
-            : ExactlyAlignsWith(mask)
+        return IsNotOverlapping(mask)
+            ? Read.Create(collectionFactory, _writeBuffer, offset, size)
+            : IsAligned(mask)
                 ? _writeValue
                 : Read.Create(collectionFactory, Flatten(), offset, size);
     }
@@ -44,11 +42,21 @@ internal sealed class Write : BitVector
     {
         var mask = Mask(this, offset, value.Size);
 
-        return NotOverlapsWith(mask)
+        return IsNotOverlapping(mask)
             ? new Write(Create(collectionFactory, _writeBuffer, offset, value), _writeOffset, _writeValue)
-            : ExactlyAlignsWith(mask)
+            : IsAligned(mask)
                 ? new Write(_writeBuffer, offset, value)
                 : new Write(this, offset, value);
+    }
+
+    private bool IsNotOverlapping(IValue mask)
+    {
+        return And.Create(mask, _writeMask) is IConstantValue a && a.AsUnsigned().IsZero;
+    }
+
+    private bool IsAligned(IValue mask)
+    {
+        return Xor.Create(mask, _writeMask) is IConstantValue x && x.AsUnsigned().IsZero;
     }
 
     private IValue Flatten()
@@ -56,16 +64,6 @@ internal sealed class Write : BitVector
         var writeData = ShiftLeft.Create(ZeroExtend.Create(Size, _writeValue), _writeOffset);
 
         return Or.Create(And.Create(_writeBuffer, Not.Create(_writeMask)), writeData);
-    }
-
-    private bool ExactlyAlignsWith(IValue mask)
-    {
-        return Xor.Create(mask, _writeMask) is IConstantValue x && x.AsUnsigned().IsZero;
-    }
-
-    private bool NotOverlapsWith(IValue mask)
-    {
-        return And.Create(mask, _writeMask) is IConstantValue a && a.AsUnsigned().IsZero;
     }
 
     private static IValue Mask(IValue buffer, IValue offset, Bits size)

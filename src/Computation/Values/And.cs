@@ -25,12 +25,12 @@ internal sealed class And : Integer
         return context.MkAnd(_left.AsBool(context), _right.AsBool(context));
     }
 
-    private static IValue ShortCircuit(ConstantUnsigned left, IValue right)
+    private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
     {
-        return left.IsZero
-            ? left
-            : left.Not().IsZero
-                ? right
+        return right.IsZero
+            ? right
+            : right.Not().IsZero
+                ? left
                 : new And(left, right);
     }
 
@@ -39,9 +39,9 @@ internal sealed class And : Integer
         return left is IConstantValue l
             ? right is IConstantValue r
                 ? l.AsUnsigned().And(r.AsUnsigned())
-                : ShortCircuit(l.AsUnsigned(), right)
+                : ShortCircuit(right, l.AsUnsigned())
             : right is IConstantValue c
-                ? ShortCircuit(c.AsUnsigned(), left)
+                ? ShortCircuit(left, c.AsUnsigned())
                 : new And(left, right);
     }
 }
