@@ -9,9 +9,9 @@ namespace Symbolica.Computation.Values;
 internal sealed class Write : BitVector
 {
     private readonly IValue _writeBuffer;
+    private readonly IValue _writeMask;
     private readonly IValue _writeOffset;
     private readonly IValue _writeValue;
-    private readonly IValue _writeMask;
 
     private Write(IValue writeBuffer, IValue writeOffset, IValue writeValue)
         : base(writeBuffer.Size)
@@ -27,17 +27,36 @@ internal sealed class Write : BitVector
         return Flatten().AsBitVector(context);
     }
 
-    public IValue Read(ICollectionFactory collectionFactory, IValue offset, Bits size)
+    public IValue LayerRead(ICollectionFactory collectionFactory, IValue offset, Bits size)
     {
-        var readMask = Mask(this, offset, size);
+        var mask = Mask(this, offset, size);
 
-        return NotOverlapsWith(readMask)
-            ? _writeBuffer is Write w
-                ? w.Read(collectionFactory, offset, size)
-                : Values.Read.Create(collectionFactory, _writeBuffer, offset, size)
-            : ExactlyAlignsWith(readMask)
+        return IsNotOverlapping(mask)
+            ? Read.Create(collectionFactory, _writeBuffer, offset, size)
+            : IsAligned(mask)
                 ? _writeValue
-                : Values.Read.Create(collectionFactory, Flatten(), offset, size);
+                : Read.Create(collectionFactory, Flatten(), offset, size);
+    }
+
+    private IValue LayerWrite(ICollectionFactory collectionFactory, IValue offset, IValue value)
+    {
+        var mask = Mask(this, offset, value.Size);
+
+        return IsNotOverlapping(mask)
+            ? new Write(Create(collectionFactory, _writeBuffer, offset, value), _writeOffset, _writeValue)
+            : IsAligned(mask)
+                ? new Write(_writeBuffer, offset, value)
+                : new Write(this, offset, value);
+    }
+
+    private bool IsNotOverlapping(IValue mask)
+    {
+        return And.Create(mask, _writeMask) is IConstantValue a && a.AsUnsigned().IsZero;
+    }
+
+    private bool IsAligned(IValue mask)
+    {
+        return Xor.Create(mask, _writeMask) is IConstantValue x && x.AsUnsigned().IsZero;
     }
 
     private IValue Flatten()
@@ -47,16 +66,6 @@ internal sealed class Write : BitVector
         return Or.Create(And.Create(_writeBuffer, Not.Create(_writeMask)), writeData);
     }
 
-    private bool ExactlyAlignsWith(IValue mask)
-    {
-        return Xor.Create(mask, _writeMask) is IConstantValue x && x.AsUnsigned().IsZero;
-    }
-
-    private bool NotOverlapsWith(IValue mask)
-    {
-        return And.Create(mask, _writeMask) is IConstantValue a && a.AsUnsigned().IsZero;
-    }
-
     private static IValue Mask(IValue buffer, IValue offset, Bits size)
     {
         return ShiftLeft.Create(ConstantUnsigned.Create(size, BigInteger.Zero).Not().Extend(buffer.Size), offset);
@@ -64,18 +73,10 @@ internal sealed class Write : BitVector
 
     public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, IValue value)
     {
-        return Value.Create(buffer, offset, value,
-            (b, o, v) => b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory)),
-            (b, o, v) =>
-            {
-                var mask = Mask(b, o, v.Size);
-                return b is Write w
-                    ? w.NotOverlapsWith(mask)
-                        ? new Write(Create(collectionFactory, w._writeBuffer, o, v), w._writeOffset, w._writeValue)
-                        : w.ExactlyAlignsWith(mask)
-                            ? new Write(w._writeBuffer, o, v)
-                            : new Write(b, o, v)
-                    : new Write(b, o, v);
-            });
+        return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
+            ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
+            : buffer is Write w
+                ? w.LayerWrite(collectionFactory, offset, value)
+                : new Write(buffer, offset, value);
     }
 }

@@ -22,7 +22,7 @@ internal sealed class FloatToSigned : BitVector
 
     public static IValue Create(Bits size, IValue value)
     {
-        return Value.Create(value,
+        return Float.Unary(value,
             v => ConstantSigned.Create(size, (BigInteger) v),
             v => ConstantSigned.Create(size, (BigInteger) v),
             v => v is IRealValue r

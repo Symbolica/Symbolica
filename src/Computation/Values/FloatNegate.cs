@@ -20,7 +20,7 @@ internal sealed class FloatNegate : Float
 
     public static IValue Create(IValue value)
     {
-        return Value.Create(value,
+        return Unary(value,
             v => new ConstantSingle(-v),
             v => new ConstantDouble(-v),
             v => new FloatNegate(v));

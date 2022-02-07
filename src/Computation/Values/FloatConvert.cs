@@ -21,7 +21,7 @@ internal sealed class FloatConvert : Float
 
     public static IValue Create(Bits size, IValue value)
     {
-        return Value.Create(value,
+        return Unary(value,
             v => (uint) size switch
             {
                 32U => new ConstantSingle(v),

@@ -22,7 +22,7 @@ internal sealed class FloatToUnsigned : BitVector
 
     public static IValue Create(Bits size, IValue value)
     {
-        return Value.Create(value,
+        return Float.Unary(value,
             v => ConstantUnsigned.Create(size, (BigInteger) v),
             v => ConstantUnsigned.Create(size, (BigInteger) v),
             v => new FloatToUnsigned(size, v));

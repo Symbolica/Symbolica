@@ -20,8 +20,8 @@ internal sealed class UnsignedLessOrEqual : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsUnsigned().LessOrEqual(r.AsUnsigned()),
-            (l, r) => new UnsignedLessOrEqual(l, r));
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsUnsigned().LessOrEqual(r.AsUnsigned())
+            : new UnsignedLessOrEqual(left, right);
     }
 }

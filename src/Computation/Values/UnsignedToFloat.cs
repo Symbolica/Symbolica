@@ -20,13 +20,13 @@ internal sealed class UnsignedToFloat : Float
 
     public static IValue Create(Bits size, IValue value)
     {
-        return Value.Create(value,
-            v => (uint) size switch
+        return value is IConstantValue v
+            ? (uint) size switch
             {
                 32U => v.AsUnsigned().ToSingle(),
                 64U => v.AsUnsigned().ToDouble(),
                 _ => new UnsignedToFloat(size, v)
-            },
-            v => new UnsignedToFloat(size, v));
+            }
+            : new UnsignedToFloat(size, value);
     }
 }

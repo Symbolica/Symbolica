@@ -1,4 +1,5 @@
 ﻿using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
@@ -24,18 +25,23 @@ internal sealed class Or : Integer
         return context.MkOr(_left.AsBool(context), _right.AsBool(context));
     }
 
+    private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
+    {
+        return right.IsZero
+            ? left
+            : right.Not().IsZero
+                ? right
+                : new Or(left, right);
+    }
+
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsUnsigned().Or(r.AsUnsigned()),
-            (l, r) => l is IConstantValue
-                ? Create(r, l)
-                : r is IConstantValue c
-                    ? c.AsUnsigned().IsZero
-                        ? l
-                        : c.AsUnsigned().Not().IsZero
-                            ? c
-                            : new Or(l, r)
-                    : new Or(l, r));
+        return left is IConstantValue l
+            ? right is IConstantValue r
+                ? l.AsUnsigned().Or(r.AsUnsigned())
+                : ShortCircuit(right, l.AsUnsigned())
+            : right is IConstantValue c
+                ? ShortCircuit(left, c.AsUnsigned())
+                : new Or(left, right);
     }
 }

@@ -21,8 +21,8 @@ internal sealed class UnsignedDivide : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsUnsigned().Divide(r.AsUnsigned()),
-            (l, r) => new UnsignedDivide(l, r));
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsUnsigned().Divide(r.AsUnsigned())
+            : new UnsignedDivide(left, right);
     }
 }

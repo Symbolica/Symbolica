@@ -37,7 +37,7 @@ internal sealed class FloatPower : Float, IRealValue
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
+        return Binary(left, right,
             (l, r) => new ConstantSingle(MathF.Pow(l, r)),
             (l, r) => new ConstantDouble(Math.Pow(l, r)),
             (l, r) => new FloatPower(l, r));

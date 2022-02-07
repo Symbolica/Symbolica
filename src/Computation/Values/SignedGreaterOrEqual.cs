@@ -20,8 +20,8 @@ internal sealed class SignedGreaterOrEqual : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsSigned().GreaterOrEqual(r.AsSigned()),
-            (l, r) => new SignedGreaterOrEqual(l, r));
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsSigned().GreaterOrEqual(r.AsSigned())
+            : new SignedGreaterOrEqual(left, right);
     }
 }

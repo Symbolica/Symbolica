@@ -20,8 +20,8 @@ internal sealed class SignedGreater : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
-            (l, r) => l.AsSigned().Greater(r.AsSigned()),
-            (l, r) => new SignedGreater(l, r));
+        return left is IConstantValue l && right is IConstantValue r
+            ? l.AsSigned().Greater(r.AsSigned())
+            : new SignedGreater(left, right);
     }
 }

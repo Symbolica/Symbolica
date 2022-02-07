@@ -23,7 +23,7 @@ internal sealed class FloatRemainder : Float
 
     public static IValue Create(IValue left, IValue right)
     {
-        return Value.Create(left, right,
+        return Binary(left, right,
             (l, r) => new ConstantSingle(MathF.IEEERemainder(l, r)),
             (l, r) => new ConstantDouble(Math.IEEERemainder(l, r)),
             (l, r) => new FloatRemainder(l, r));
