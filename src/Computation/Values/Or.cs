@@ -22,7 +22,9 @@ internal sealed class Or : Integer
 
     public override BoolExpr AsBool(Context context)
     {
-        return context.MkOr(_left.AsBool(context), _right.AsBool(context));
+        return _left is Bool || _right is Bool
+            ? context.MkOr(_left.AsBool(context), _right.AsBool(context))
+            : AsBitVector(context).AsBool(context);
     }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)

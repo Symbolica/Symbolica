@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using FluentAssertions;
 using Symbolica.Abstraction;
-using Symbolica.Representation.TestUtils;
 using Xunit;
 
 namespace Symbolica.Representation.Functions;

@@ -22,7 +22,9 @@ internal sealed class Xor : Integer
 
     public override BoolExpr AsBool(Context context)
     {
-        return context.MkXor(_left.AsBool(context), _right.AsBool(context));
+        return _left is Bool || _right is Bool
+            ? context.MkXor(_left.AsBool(context), _right.AsBool(context))
+            : AsBitVector(context).AsBool(context);
     }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
