@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values;
@@ -365,16 +364,7 @@ internal sealed class Expression : IExpression
     {
         using var handle = _contextFactory.Create();
 
-        return _value is Float && _value.AsFloat(handle.Context).Simplify().IsFPNaN
-            ? Size.GetNan(handle.Context)
-            : AsConstant(_value.AsBitVector(handle.Context).Simplify());
-    }
-
-    private static BigInteger AsConstant(Expr expr)
-    {
-        return expr.IsNumeral
-            ? ((BitVecNum) expr).BigInteger
-            : throw new IrreducibleSymbolicExpressionException();
+        return _value.AsConstant(handle.Context);
     }
 
     private IExpression Evaluate(IPersistentSpace space)
