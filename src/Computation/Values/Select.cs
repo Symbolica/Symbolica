@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Numerics;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -17,6 +18,11 @@ internal sealed class Select : IValue
     }
 
     public Bits Size => _trueValue.Size;
+
+    public BigInteger AsConstant(Context context)
+    {
+        return AsBitVector(context).AsConstant();
+    }
 
     public BitVecExpr AsBitVector(Context context)
     {
