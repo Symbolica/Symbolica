@@ -6,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class FloatPowerTests
 {
-    private static readonly IContext Context = DisposableContext.Create();
+    private static readonly DisposableContext Context = new();
 
     [Theory]
     [ClassData(typeof(SinglePowerTestData))]

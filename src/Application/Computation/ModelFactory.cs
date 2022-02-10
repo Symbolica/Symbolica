@@ -4,8 +4,9 @@ namespace Symbolica.Computation;
 
 internal sealed class ModelFactory : IModelFactory
 {
-    public IModel Create(IContextFactory contextFactory, IEnumerable<IValue> assertions)
+    public IModel Create<TContext>(IEnumerable<IValue> assertions)
+        where TContext : IContext, new()
     {
-        return Model.Create(contextFactory, assertions);
+        return Model<TContext>.Create(assertions);
     }
 }

@@ -6,7 +6,8 @@ using Microsoft.Z3;
 
 namespace Symbolica.Computation;
 
-internal sealed class Model : IModel
+internal sealed class Model<TContext> : IModel
+    where TContext : IContext, new()
 {
     private readonly IContext _context;
     private readonly Solver _solver;
@@ -48,12 +49,12 @@ internal sealed class Model : IModel
             : Enumerable.Empty<KeyValuePair<string, string>>();
     }
 
-    public static IModel Create(IContextFactory contextFactory, IEnumerable<IValue> assertions)
+    public static IModel Create(IEnumerable<IValue> assertions)
     {
-        var context = contextFactory.Create();
+        var context = new TContext();
         var solver = context.Execute(c => c.MkSolver(c.MkTactic("smt")));
         solver.Assert(assertions.Select(a => a.AsBool(context)).ToArray());
 
-        return new Model(context, solver);
+        return new Model<TContext>(context, solver);
     }
 }

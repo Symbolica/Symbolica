@@ -8,7 +8,7 @@ namespace Symbolica.Computation;
 
 public class NormalFloatTests
 {
-    private static readonly IContext Context = DisposableContext.Create();
+    private static readonly DisposableContext Context = new();
 
     [Theory]
     [InlineData("0")]

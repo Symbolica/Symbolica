@@ -10,9 +10,11 @@ internal sealed class PooledContext : IContext
     private static readonly ConcurrentBag<IContext> Contexts = new();
     private readonly IContext _context;
 
-    private PooledContext(IContext context)
+    public PooledContext()
     {
-        _context = context;
+        _context = Contexts.TryTake(out var context)
+            ? context
+            : new DisposableContext();
     }
 
     public void Dispose()
@@ -24,12 +26,5 @@ internal sealed class PooledContext : IContext
         where TResult : Z3Object
     {
         return _context.Execute(func);
-    }
-
-    public static IContext Create()
-    {
-        return new PooledContext(Contexts.TryTake(out var context)
-            ? context
-            : DisposableContext.Create());
     }
 }

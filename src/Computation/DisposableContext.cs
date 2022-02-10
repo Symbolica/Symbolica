@@ -7,9 +7,9 @@ public sealed class DisposableContext : IContext
 {
     private readonly Context _context;
 
-    private DisposableContext(Context context)
+    public DisposableContext()
     {
-        _context = context;
+        _context = new Context();
     }
 
     public void Dispose()
@@ -21,10 +21,5 @@ public sealed class DisposableContext : IContext
         where TResult : Z3Object
     {
         return func(_context);
-    }
-
-    public static IContext Create()
-    {
-        return new DisposableContext(new Context());
     }
 }

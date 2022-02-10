@@ -4,5 +4,6 @@ namespace Symbolica.Computation;
 
 public interface IModelFactory
 {
-    IModel Create(IContextFactory contextFactory, IEnumerable<IValue> assertions);
+    IModel Create<TContext>(IEnumerable<IValue> assertions)
+        where TContext : IContext, new();
 }

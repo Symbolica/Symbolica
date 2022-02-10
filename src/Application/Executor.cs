@@ -12,25 +12,20 @@ namespace Symbolica;
 
 internal sealed class Executor
 {
-    private readonly IContextFactory _contextFactory;
     private readonly Options _options;
 
-    public Executor(IContextFactory contextFactory, Options options)
+    public Executor(Options options)
     {
-        _contextFactory = contextFactory;
         _options = options;
     }
 
-    public async Task<(ulong, Exception?)> Run(byte[] bytes)
+    public async Task<(ulong, Exception?)> Run<TContext>(byte[] bytes)
+        where TContext : IContext, new()
     {
         var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
         var collectionFactory = new CollectionFactory();
-
-        var spaceFactory = new SpaceFactory(
-            new SymbolFactory(), new ModelFactory(),
-            _contextFactory, collectionFactory);
-
+        var spaceFactory = new SpaceFactory<TContext>(new SymbolFactory(), new ModelFactory(), collectionFactory);
         var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
         using var statePool = new StatePool();

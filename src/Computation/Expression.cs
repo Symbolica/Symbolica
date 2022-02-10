@@ -10,17 +10,16 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class Expression : IExpression
+internal sealed class Expression<TContext> : IExpression
+    where TContext : IContext, new()
 {
     private readonly ICollectionFactory _collectionFactory;
     private readonly IValue[] _constraints;
-    private readonly IContextFactory _contextFactory;
     private readonly IValue _value;
 
-    private Expression(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+    private Expression(ICollectionFactory collectionFactory,
         IValue value, IValue[] constraints)
     {
-        _contextFactory = contextFactory;
         _collectionFactory = collectionFactory;
         _value = value;
         _constraints = constraints;
@@ -320,49 +319,49 @@ internal sealed class Expression : IExpression
         var value = func(_value);
 
         return value is IConstantValue
-            ? Create(_contextFactory, _collectionFactory,
+            ? Create(_collectionFactory,
                 value)
-            : Create(_contextFactory, _collectionFactory,
+            : Create(_collectionFactory,
                 value, _constraints);
     }
 
     private IExpression Binary(IExpression y, Func<IValue, IValue, IValue> func)
     {
         return Size == y.Size
-            ? Binary((Expression) y, func)
+            ? Binary((Expression<TContext>) y, func)
             : throw new InconsistentExpressionSizesException(Size, y.Size);
     }
 
-    private IExpression Binary(Expression y, Func<IValue, IValue, IValue> func)
+    private IExpression Binary(Expression<TContext> y, Func<IValue, IValue, IValue> func)
     {
         var value = func(_value, y._value);
 
         return value is IConstantValue
-            ? Create(_contextFactory, _collectionFactory,
+            ? Create(_collectionFactory,
                 value)
-            : Create(_contextFactory, _collectionFactory,
+            : Create(_collectionFactory,
                 value, _constraints.Concat(y._constraints).ToArray());
     }
 
     private IExpression Ternary(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
     {
-        return Ternary((Expression) y, (Expression) z, func);
+        return Ternary((Expression<TContext>) y, (Expression<TContext>) z, func);
     }
 
-    private IExpression Ternary(Expression y, Expression z, Func<IValue, IValue, IValue, IValue> func)
+    private IExpression Ternary(Expression<TContext> y, Expression<TContext> z, Func<IValue, IValue, IValue, IValue> func)
     {
         var value = func(_value, y._value, z._value);
 
         return value is IConstantValue
-            ? Create(_contextFactory, _collectionFactory,
+            ? Create(_collectionFactory,
                 value)
-            : Create(_contextFactory, _collectionFactory,
+            : Create(_collectionFactory,
                 value, _constraints.Concat(y._constraints.Concat(z._constraints)).ToArray());
     }
 
     private BigInteger AsConstant()
     {
-        using var context = _contextFactory.Create();
+        using var context = new TContext();
 
         return _value.AsConstant(context);
     }
@@ -371,33 +370,33 @@ internal sealed class Expression : IExpression
     {
         using var model = space.GetModel(_constraints);
 
-        return Create(_contextFactory, _collectionFactory,
+        return Create(_collectionFactory,
             ConstantUnsigned.Create(Size, model.Evaluate(_value)));
     }
 
-    private static IExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+    private static IExpression Create(ICollectionFactory collectionFactory,
         IValue value)
     {
-        return Create(contextFactory, collectionFactory,
+        return Create(collectionFactory,
             value, Array.Empty<IValue>());
     }
 
-    private static IExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+    private static IExpression Create(ICollectionFactory collectionFactory,
         IValue value, IValue[] constraints)
     {
-        return new Expression(contextFactory, collectionFactory,
+        return new Expression<TContext>(collectionFactory,
             value, constraints);
     }
 
-    public static IExpression Create(IContextFactory contextFactory, ICollectionFactory collectionFactory,
+    public static IExpression Create(ICollectionFactory collectionFactory,
         IValue value, IEnumerable<Func<IExpression, IExpression>> constraints)
     {
-        var unconstrained = Create(contextFactory, collectionFactory,
+        var unconstrained = Create(collectionFactory,
             value);
 
-        return Create(contextFactory, collectionFactory,
+        return Create(collectionFactory,
             value, constraints
-                .Select(c => ((Expression) c(unconstrained))._value)
+                .Select(c => ((Expression<TContext>) c(unconstrained))._value)
                 .ToArray());
     }
 }

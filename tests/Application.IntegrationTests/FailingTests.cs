@@ -18,9 +18,9 @@ public class FailingTests
         StateError error, string[] symbols)
     {
         var bytes = await Serializer.Serialize(directory, optimization);
-        var executor = new Executor(new PooledContextFactory(), options);
+        var executor = new Executor(options);
 
-        var (_, exception) = await executor.Run(bytes);
+        var (_, exception) = await executor.Run<PooledContext>(bytes);
 
         var stateException = exception.Should().BeOfType<StateException>();
         stateException.Which.Error.Should().Be(error);

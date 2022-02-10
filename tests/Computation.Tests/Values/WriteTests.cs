@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Symbolica.Collection;
 using Symbolica.Computation.Values.TestData;
 using Xunit;
 
@@ -7,8 +6,8 @@ namespace Symbolica.Computation.Values;
 
 public class WriteTests
 {
-    private static readonly ICollectionFactory CollectionFactory = new CollectionFactory();
-    private static readonly IContext Context = DisposableContext.Create();
+    private static readonly CollectionFactory CollectionFactory = new();
+    private static readonly DisposableContext Context = new();
 
     [Theory]
     [ClassData(typeof(WriteTestData))]
