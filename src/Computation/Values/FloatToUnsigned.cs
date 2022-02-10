@@ -15,9 +15,9 @@ internal sealed class FloatToUnsigned : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkFPToBV(context.MkFPRTZ(), _value.AsFloat(context), (uint) Size, false);
+        return context.Execute(c => c.MkFPToBV(c.MkFPRTZ(), _value.AsFloat(context), (uint) Size, false));
     }
 
     public static IValue Create(Bits size, IValue value)

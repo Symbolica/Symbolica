@@ -8,20 +8,20 @@ namespace Symbolica.Computation;
 
 internal static class BitsExtensions
 {
-    public static FPSort GetSort(this Bits self, Context context)
+    public static FPSort GetSort(this Bits self, IContext context)
     {
-        return (uint) self switch
+        return context.Execute(c => (uint) self switch
         {
-            16U => context.MkFPSort16(),
-            32U => context.MkFPSort32(),
-            64U => context.MkFPSort64(),
-            80U => context.MkFPSort(15U, 65U),
-            128U => context.MkFPSort128(),
+            16U => c.MkFPSort16(),
+            32U => c.MkFPSort32(),
+            64U => c.MkFPSort64(),
+            80U => c.MkFPSort(15U, 65U),
+            128U => c.MkFPSort128(),
             _ => throw new UnsupportedFloatingPointTypeException(self)
-        };
+        });
     }
 
-    public static BigInteger GetNan(this Bits self, Context context)
+    public static BigInteger GetNan(this Bits self, IContext context)
     {
         var sort = self.GetSort(context);
         var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);

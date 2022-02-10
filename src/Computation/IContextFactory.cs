@@ -2,5 +2,5 @@
 
 public interface IContextFactory
 {
-    IContextHandle Create();
+    IContext Create();
 }

@@ -14,9 +14,9 @@ internal sealed class Multiply : BitVector
         _right = right;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkBVMul(_left.AsBitVector(context), _right.AsBitVector(context));
+        return context.Execute(c => c.MkBVMul(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

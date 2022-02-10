@@ -14,9 +14,9 @@ internal sealed class FloatFloor : Float
         _value = value;
     }
 
-    public override FPExpr AsFloat(Context context)
+    public override FPExpr AsFloat(IContext context)
     {
-        return context.MkFPRoundToIntegral(context.MkFPRTN(), _value.AsFloat(context));
+        return context.Execute(c => c.MkFPRoundToIntegral(c.MkFPRTN(), _value.AsFloat(context)));
     }
 
     public static IValue Create(IValue value)

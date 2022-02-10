@@ -15,9 +15,9 @@ internal sealed class FloatDivide : Float
         _right = right;
     }
 
-    public override FPExpr AsFloat(Context context)
+    public override FPExpr AsFloat(IContext context)
     {
-        return context.MkFPDiv(context.MkFPRNE(), _left.AsFloat(context), _right.AsFloat(context));
+        return context.Execute(c => c.MkFPDiv(c.MkFPRNE(), _left.AsFloat(context), _right.AsFloat(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

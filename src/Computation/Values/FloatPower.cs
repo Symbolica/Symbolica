@@ -17,22 +17,22 @@ internal sealed class FloatPower : Float, IRealValue
         _right = right;
     }
 
-    public override FPExpr AsFloat(Context context)
+    public override FPExpr AsFloat(IContext context)
     {
         throw new UnsupportedSymbolicArithmeticException();
     }
 
-    public RealExpr AsReal(Context context)
+    public RealExpr AsReal(IContext context)
     {
         var left = _left is IRealValue l
             ? l.AsReal(context)
-            : context.MkFPToReal(_left.AsFloat(context));
+            : context.Execute(c => c.MkFPToReal(_left.AsFloat(context)));
 
         var right = _right is IRealValue r
             ? r.AsReal(context)
-            : context.MkFPToReal(_right.AsFloat(context));
+            : context.Execute(c => c.MkFPToReal(_right.AsFloat(context)));
 
-        return (RealExpr) context.MkPower(left, right);
+        return context.Execute(c => (RealExpr) c.MkPower(left, right));
     }
 
     public static IValue Create(IValue left, IValue right)

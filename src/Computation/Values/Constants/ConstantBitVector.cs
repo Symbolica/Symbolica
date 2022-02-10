@@ -17,7 +17,7 @@ internal sealed class ConstantBitVector : BitVector, IConstantValue
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
         return AsUnsigned().AsBitVector(context);
     }

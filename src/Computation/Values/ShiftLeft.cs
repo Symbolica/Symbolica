@@ -14,9 +14,9 @@ internal sealed class ShiftLeft : BitVector
         _right = right;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkBVSHL(_left.AsBitVector(context), _right.AsBitVector(context));
+        return context.Execute(c => c.MkBVSHL(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

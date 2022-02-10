@@ -4,8 +4,8 @@ namespace Symbolica;
 
 internal sealed class PooledContextFactory : IContextFactory
 {
-    public IContextHandle Create()
+    public IContext Create()
     {
-        return PooledContextHandle.Create();
+        return PooledContext.Create();
     }
 }

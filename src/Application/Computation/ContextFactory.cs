@@ -2,8 +2,8 @@
 
 internal sealed class ContextFactory : IContextFactory
 {
-    public IContextHandle Create()
+    public IContext Create()
     {
-        return new ContextHandle();
+        return DisposableContext.Create();
     }
 }

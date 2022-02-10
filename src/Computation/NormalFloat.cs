@@ -14,17 +14,17 @@ internal sealed class NormalFloat : Float
         _value = value;
     }
 
-    public override FPExpr AsFloat(Context context)
+    public override FPExpr AsFloat(IContext context)
     {
         var sort = Size.GetSort(context);
         var (sign, significand, exponent) = ParseDecimal(_value);
 
         return significand.IsZero
-            ? context.MkFPZero(sort, sign)
+            ? context.Execute(c => c.MkFPZero(sort, sign))
             : Create(context, sort, sign, significand, exponent);
     }
 
-    private static FPExpr Create(Context context, FPSort sort, bool sign, BigInteger significand, int exponent)
+    private static FPExpr Create(IContext context, FPSort sort, bool sign, BigInteger significand, int exponent)
     {
         var (numerator, denominator) = exponent < 0
             ? (significand, BigInteger.Pow(10, -exponent))
@@ -57,7 +57,7 @@ internal sealed class NormalFloat : Float
                 : (quotient + BigInteger.One, scale)
             : (quotient, scale);
 
-        return context.MkFP(sign, shift, (ulong) (rounded % lower), sort);
+        return context.Execute(c => c.MkFP(sign, shift, (ulong) (rounded % lower), sort));
     }
 
     private static (bool, BigInteger, int) ParseDecimal(string value)

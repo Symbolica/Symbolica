@@ -17,9 +17,9 @@ internal sealed class ConstantSingle : Float, IConstantValue
         _value = value;
     }
 
-    public override FPExpr AsFloat(Context context)
+    public override FPExpr AsFloat(IContext context)
     {
-        return context.MkFP(_value, Size.GetSort(context));
+        return context.Execute(c => c.MkFP(_value, Size.GetSort(context)));
     }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)

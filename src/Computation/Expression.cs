@@ -362,9 +362,9 @@ internal sealed class Expression : IExpression
 
     private BigInteger AsConstant()
     {
-        using var handle = _contextFactory.Create();
+        using var context = _contextFactory.Create();
 
-        return _value.AsConstant(handle.Context);
+        return _value.AsConstant(context);
     }
 
     private IExpression Evaluate(IPersistentSpace space)

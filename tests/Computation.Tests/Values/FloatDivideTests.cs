@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.Z3;
 using Symbolica.Computation.Values.TestData;
 using Xunit;
 
@@ -7,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class FloatDivideTests
 {
-    private static readonly Context Context = new();
+    private static readonly IContext Context = DisposableContext.Create();
 
     [Theory]
     [ClassData(typeof(SingleBinaryTestData))]

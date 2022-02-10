@@ -16,7 +16,7 @@ internal sealed class Symbol : BitVector
         _name = name;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
         return _symbolFactory.Create(context, Size, _name);
     }

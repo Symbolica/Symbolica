@@ -14,9 +14,9 @@ internal sealed class SymbolicFloat : Float
         _func = func;
     }
 
-    public override FPExpr AsFloat(Context context)
+    public override FPExpr AsFloat(IContext context)
     {
-        return _func(context);
+        return context.Execute(_func);
     }
 
     public static SymbolicFloat Create(float value)

@@ -13,8 +13,8 @@ internal sealed class RealToSigned : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkInt2BV((uint) Size, context.MkReal2Int(_value.AsReal(context)));
+        return context.Execute(c => c.MkInt2BV((uint) Size, c.MkReal2Int(_value.AsReal(context))));
     }
 }

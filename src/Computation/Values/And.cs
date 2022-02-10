@@ -15,15 +15,15 @@ internal sealed class And : Integer
         _right = right;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkBVAND(_left.AsBitVector(context), _right.AsBitVector(context));
+        return context.Execute(c => c.MkBVAND(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
-    public override BoolExpr AsBool(Context context)
+    public override BoolExpr AsBool(IContext context)
     {
         return _left is Bool || _right is Bool
-            ? context.MkAnd(_left.AsBool(context), _right.AsBool(context))
+            ? context.Execute(c => c.MkAnd(_left.AsBool(context), _right.AsBool(context)))
             : AsBitVector(context).AsBool(context);
     }
 

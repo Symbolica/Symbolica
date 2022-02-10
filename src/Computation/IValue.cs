@@ -8,8 +8,8 @@ public interface IValue
 {
     Bits Size { get; }
 
-    BigInteger AsConstant(Context context);
-    BitVecExpr AsBitVector(Context context);
-    BoolExpr AsBool(Context context);
-    FPExpr AsFloat(Context context);
+    BigInteger AsConstant(IContext context);
+    BitVecExpr AsBitVector(IContext context);
+    BoolExpr AsBool(IContext context);
+    FPExpr AsFloat(IContext context);
 }

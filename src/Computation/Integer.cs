@@ -13,16 +13,16 @@ internal abstract class Integer : IValue
 
     public Bits Size { get; }
 
-    public BigInteger AsConstant(Context context)
+    public BigInteger AsConstant(IContext context)
     {
         return AsBitVector(context).AsConstant();
     }
 
-    public abstract BitVecExpr AsBitVector(Context context);
-    public abstract BoolExpr AsBool(Context context);
+    public abstract BitVecExpr AsBitVector(IContext context);
+    public abstract BoolExpr AsBool(IContext context);
 
-    public FPExpr AsFloat(Context context)
+    public FPExpr AsFloat(IContext context)
     {
-        return context.MkFPToFP(AsBitVector(context), Size.GetSort(context));
+        return context.Execute(c => c.MkFPToFP(AsBitVector(context), Size.GetSort(context)));
     }
 }
