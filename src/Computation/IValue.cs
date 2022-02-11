@@ -4,7 +4,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-public interface IValue
+internal interface IValue
 {
     Bits Size { get; }
 

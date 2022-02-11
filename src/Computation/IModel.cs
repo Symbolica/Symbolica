@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Symbolica.Computation;
 
-public interface IModel : IDisposable
+internal interface IModel : IDisposable
 {
     bool IsSatisfiable(IValue assertion);
     BigInteger Evaluate(IValue value);

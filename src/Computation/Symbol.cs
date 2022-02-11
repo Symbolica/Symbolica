@@ -7,22 +7,20 @@ namespace Symbolica.Computation;
 internal sealed class Symbol : BitVector
 {
     private readonly string _name;
-    private readonly ISymbolFactory _symbolFactory;
 
-    private Symbol(ISymbolFactory symbolFactory, Bits size, string name)
+    private Symbol(Bits size, string name)
         : base(size)
     {
-        _symbolFactory = symbolFactory;
         _name = name;
     }
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return _symbolFactory.Create(context, Size, _name);
+        return context.Execute(c => c.MkBVConst(_name, (uint) Size));
     }
 
-    public static IValue Create(ISymbolFactory symbolFactory, Bits size, string? name)
+    public static IValue Create(Bits size, string? name)
     {
-        return new Symbol(symbolFactory, size, name ?? Guid.NewGuid().ToString());
+        return new Symbol(size, name ?? Guid.NewGuid().ToString());
     }
 }
