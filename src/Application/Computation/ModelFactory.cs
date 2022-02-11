@@ -7,6 +7,6 @@ internal sealed class ModelFactory : IModelFactory
     public IModel Create<TContext>(IEnumerable<IValue> assertions)
         where TContext : IContext, new()
     {
-        return Model<TContext>.Create(assertions);
+        return Model.Create<TContext>(assertions);
     }
 }
