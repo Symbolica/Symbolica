@@ -10,7 +10,7 @@ internal abstract class BitVector : Integer
     {
     }
 
-    public sealed override BoolExpr AsBool(Context context)
+    public sealed override BoolExpr AsBool(IContext context)
     {
         return AsBitVector(context).AsBool(context);
     }

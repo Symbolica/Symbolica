@@ -13,9 +13,9 @@ internal sealed class SignedLess : Bool
         _right = right;
     }
 
-    public override BoolExpr AsBool(Context context)
+    public override BoolExpr AsBool(IContext context)
     {
-        return context.MkBVSLT(_left.AsBitVector(context), _right.AsBitVector(context));
+        return context.Execute(c => c.MkBVSLT(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

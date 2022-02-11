@@ -22,7 +22,7 @@ internal sealed class Write : BitVector
         _writeMask = Mask(writeBuffer, writeOffset, writeValue.Size);
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
         return Flatten().AsBitVector(context);
     }

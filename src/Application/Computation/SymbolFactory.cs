@@ -5,8 +5,8 @@ namespace Symbolica.Computation;
 
 internal sealed class SymbolFactory : ISymbolFactory
 {
-    public BitVecExpr Create(Context context, Bits size, string name)
+    public BitVecExpr Create(IContext context, Bits size, string name)
     {
-        return context.MkBVConst(name, (uint) size);
+        return context.Execute(c => c.MkBVConst(name, (uint) size));
     }
 }

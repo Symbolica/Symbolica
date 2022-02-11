@@ -15,8 +15,8 @@ internal static class BitVecExprExtensions
             : throw new IrreducibleSymbolicExpressionException();
     }
 
-    public static BoolExpr AsBool(this BitVecExpr self, Context context)
+    public static BoolExpr AsBool(this BitVecExpr self, IContext context)
     {
-        return context.MkNot(context.MkEq(self, context.MkBV(0U, self.SortSize)));
+        return context.Execute(c => c.MkNot(c.MkEq(self, c.MkBV(0U, self.SortSize))));
     }
 }

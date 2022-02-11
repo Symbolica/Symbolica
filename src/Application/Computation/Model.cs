@@ -8,24 +8,24 @@ namespace Symbolica.Computation;
 
 internal sealed class Model : IModel
 {
-    private readonly IContextHandle _handle;
+    private readonly IContext _context;
     private readonly Solver _solver;
 
-    private Model(IContextHandle handle, Solver solver)
+    private Model(IContext context, Solver solver)
     {
-        _handle = handle;
+        _context = context;
         _solver = solver;
     }
 
     public void Dispose()
     {
-        _handle.Dispose();
+        _context.Dispose();
     }
 
     public bool IsSatisfiable(IValue assertion)
     {
         // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
-        return _solver.Check(assertion.AsBool(_handle.Context)) switch
+        return _solver.Check(assertion.AsBool(_context)) switch
         {
             Status.UNSATISFIABLE => false,
             Status.SATISFIABLE => true,
@@ -36,7 +36,7 @@ internal sealed class Model : IModel
     public BigInteger Evaluate(IValue value)
     {
         return _solver.Check() == Status.SATISFIABLE
-            ? ((BitVecNum) _solver.Model.Eval(value.AsBitVector(_handle.Context), true)).BigInteger
+            ? ((BitVecNum) _solver.Model.Eval(value.AsBitVector(_context), true)).BigInteger
             : throw new Exception("The model cannot be evaluated.");
     }
 
@@ -48,12 +48,13 @@ internal sealed class Model : IModel
             : Enumerable.Empty<KeyValuePair<string, string>>();
     }
 
-    public static IModel Create(IContextFactory contextFactory, IEnumerable<IValue> assertions)
+    public static IModel Create<TContext>(IEnumerable<IValue> assertions)
+        where TContext : IContext, new()
     {
-        var handle = contextFactory.Create();
-        var solver = handle.Context.MkSolver(handle.Context.MkTactic("smt"));
-        solver.Assert(assertions.Select(a => a.AsBool(handle.Context)).ToArray());
+        var context = new TContext();
+        var solver = context.Execute(c => c.MkSolver(c.MkTactic("smt")));
+        solver.Assert(assertions.Select(a => a.AsBool(context)).ToArray());
 
-        return new Model(handle, solver);
+        return new Model(context, solver);
     }
 }

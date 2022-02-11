@@ -14,9 +14,9 @@ internal sealed class ArithmeticShiftRight : BitVector
         _right = right;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkBVASHR(_left.AsBitVector(context), _right.AsBitVector(context));
+        return context.Execute(c => c.MkBVASHR(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

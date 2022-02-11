@@ -4,5 +4,5 @@ namespace Symbolica.Computation;
 
 internal interface IRealValue : IValue
 {
-    RealExpr AsReal(Context context);
+    RealExpr AsReal(IContext context);
 }

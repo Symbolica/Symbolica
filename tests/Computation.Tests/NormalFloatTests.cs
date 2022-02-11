@@ -8,7 +8,7 @@ namespace Symbolica.Computation;
 
 public class NormalFloatTests
 {
-    private static readonly Context Context = new();
+    private static readonly DisposableContext Context = new();
 
     [Theory]
     [InlineData("0")]
@@ -40,7 +40,7 @@ public class NormalFloatTests
 
         var expr = normalFloat.AsFloat(Context);
 
-        var actual = BitConverter.GetBytes(((BitVecNum) Context.MkFPToIEEEBV(expr).Simplify()).UInt);
+        var actual = BitConverter.GetBytes(Context.Execute(c => (BitVecNum) c.MkFPToIEEEBV(expr).Simplify()).UInt);
         var expected = BitConverter.GetBytes(float.Parse(value));
 
         actual.Should().BeEquivalentTo(expected);
@@ -76,7 +76,7 @@ public class NormalFloatTests
 
         var expr = normalFloat.AsFloat(Context);
 
-        var actual = BitConverter.GetBytes(((BitVecNum) Context.MkFPToIEEEBV(expr).Simplify()).UInt64);
+        var actual = BitConverter.GetBytes(Context.Execute(c => (BitVecNum) c.MkFPToIEEEBV(expr).Simplify()).UInt64);
         var expected = BitConverter.GetBytes(double.Parse(value));
 
         actual.Should().BeEquivalentTo(expected);

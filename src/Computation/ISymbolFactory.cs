@@ -5,5 +5,5 @@ namespace Symbolica.Computation;
 
 public interface ISymbolFactory
 {
-    BitVecExpr Create(Context context, Bits size, string name);
+    BitVecExpr Create(IContext context, Bits size, string name);
 }

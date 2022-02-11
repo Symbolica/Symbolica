@@ -19,29 +19,29 @@ internal sealed class Select : IValue
 
     public Bits Size => _trueValue.Size;
 
-    public BigInteger AsConstant(Context context)
+    public BigInteger AsConstant(IContext context)
     {
         return AsBitVector(context).AsConstant();
     }
 
-    public BitVecExpr AsBitVector(Context context)
+    public BitVecExpr AsBitVector(IContext context)
     {
-        return (BitVecExpr) context.MkITE(_predicate.AsBool(context),
+        return context.Execute(c => (BitVecExpr) c.MkITE(_predicate.AsBool(context),
             _trueValue.AsBitVector(context),
-            _falseValue.AsBitVector(context));
+            _falseValue.AsBitVector(context)));
     }
 
-    public BoolExpr AsBool(Context context)
+    public BoolExpr AsBool(IContext context)
     {
-        return (BoolExpr) context.MkITE(_predicate.AsBool(context),
+        return context.Execute(c => (BoolExpr) c.MkITE(_predicate.AsBool(context),
             _trueValue.AsBool(context),
-            _falseValue.AsBool(context));
+            _falseValue.AsBool(context)));
     }
 
-    public FPExpr AsFloat(Context context)
+    public FPExpr AsFloat(IContext context)
     {
-        return (FPExpr) context.MkITE(_predicate.AsBool(context),
+        return context.Execute(c => (FPExpr) c.MkITE(_predicate.AsBool(context),
             _trueValue.AsFloat(context),
-            _falseValue.AsFloat(context));
+            _falseValue.AsFloat(context)));
     }
 }

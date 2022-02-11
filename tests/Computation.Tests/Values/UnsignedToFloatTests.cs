@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.Z3;
 using Symbolica.Computation.Values.TestData;
 using Symbolica.Expression;
 using Xunit;
@@ -8,7 +7,7 @@ namespace Symbolica.Computation.Values;
 
 public class UnsignedToFloatTests
 {
-    private static readonly Context Context = new();
+    private static readonly DisposableContext Context = new();
 
     [Theory]
     [ClassData(typeof(ToFloatTestData))]

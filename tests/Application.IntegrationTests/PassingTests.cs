@@ -15,9 +15,9 @@ public class PassingTests
     private async Task ShouldPass(string directory, string optimization, Options options)
     {
         var bytes = await Serializer.Serialize(directory, optimization);
-        var executor = new Executor(new PooledContextFactory(), options);
+        var executor = new Executor(options);
 
-        var (_, exception) = await executor.Run(bytes);
+        var (_, exception) = await executor.Run<PooledContext>(bytes);
 
         exception.Should().BeNull();
     }

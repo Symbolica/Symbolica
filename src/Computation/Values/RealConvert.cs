@@ -14,12 +14,12 @@ internal sealed class RealConvert : Float, IRealValue
         _value = value;
     }
 
-    public override FPExpr AsFloat(Context context)
+    public override FPExpr AsFloat(IContext context)
     {
         throw new UnsupportedSymbolicArithmeticException();
     }
 
-    public RealExpr AsReal(Context context)
+    public RealExpr AsReal(IContext context)
     {
         return _value.AsReal(context);
     }

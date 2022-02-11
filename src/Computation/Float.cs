@@ -14,24 +14,24 @@ internal abstract class Float : IValue
 
     public Bits Size { get; }
 
-    public BigInteger AsConstant(Context context)
+    public BigInteger AsConstant(IContext context)
     {
         return AsFloat(context).Simplify().IsFPNaN
             ? Size.GetNan(context)
             : AsBitVector(context).AsConstant();
     }
 
-    public BitVecExpr AsBitVector(Context context)
+    public BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkFPToIEEEBV(AsFloat(context));
+        return context.Execute(c => c.MkFPToIEEEBV(AsFloat(context)));
     }
 
-    public BoolExpr AsBool(Context context)
+    public BoolExpr AsBool(IContext context)
     {
-        return context.MkNot(context.MkFPIsZero(AsFloat(context)));
+        return context.Execute(c => c.MkNot(c.MkFPIsZero(AsFloat(context))));
     }
 
-    public abstract FPExpr AsFloat(Context context);
+    public abstract FPExpr AsFloat(IContext context);
 
     public static IValue Unary(IValue value,
         Func<float, IValue> constantSingle,

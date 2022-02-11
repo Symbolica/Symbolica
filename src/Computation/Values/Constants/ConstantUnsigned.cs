@@ -17,9 +17,9 @@ internal sealed class ConstantUnsigned : BitVector, IConstantValue
 
     public bool IsZero => _value.IsZero;
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkBV(_value.ToString(), (uint) Size);
+        return context.Execute(c => c.MkBV(_value.ToString(), (uint) Size));
     }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)

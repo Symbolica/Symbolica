@@ -13,9 +13,9 @@ internal sealed class ZeroExtend : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(Context context)
+    public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.MkZeroExt((uint) (Size - _value.Size), _value.AsBitVector(context));
+        return context.Execute(c => c.MkZeroExt((uint) (Size - _value.Size), _value.AsBitVector(context)));
     }
 
     public static IValue Create(Bits size, IValue value)
