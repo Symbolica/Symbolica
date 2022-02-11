@@ -6,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class OrTests
 {
-    private static readonly DisposableContext<ContextHandle> Context = new();
+    private static readonly Context<ContextHandle> Context = new();
 
     [Theory]
     [ClassData(typeof(BinaryTestData))]

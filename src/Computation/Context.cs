@@ -3,12 +3,12 @@ using Microsoft.Z3;
 
 namespace Symbolica.Computation;
 
-internal sealed class DisposableContext<TContextHandle> : IContext
+internal sealed class Context<TContextHandle> : IContext
     where TContextHandle : IContextHandle, new()
 {
     private readonly TContextHandle _contextHandle;
 
-    public DisposableContext()
+    public Context()
     {
         _contextHandle = new TContextHandle();
     }

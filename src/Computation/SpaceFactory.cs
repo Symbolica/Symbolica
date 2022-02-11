@@ -15,7 +15,7 @@ public sealed class SpaceFactory<TContextHandle> : ISpaceFactory
 
     public ISpace CreateInitial(Bits pointerSize, bool useSymbolicGarbage)
     {
-        return PersistentSpace<DisposableContext<TContextHandle>>.Create(
+        return PersistentSpace<Context<TContextHandle>>.Create(
             pointerSize, useSymbolicGarbage, _collectionFactory);
     }
 }
