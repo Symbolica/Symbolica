@@ -40,7 +40,9 @@ internal sealed class And : Integer
     {
         return left is IConstantValue cl
             ? cl.AsUnsigned().And(right)
-            : new And(left, right);
+            : left is And l
+                ? new And(l._left, Create(l._right, right))
+                : new And(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)

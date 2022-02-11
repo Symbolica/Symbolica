@@ -40,7 +40,9 @@ internal sealed class Or : Integer
     {
         return left is IConstantValue cl
             ? cl.AsUnsigned().Or(right)
-            : new Or(left, right);
+            : left is Or l
+                ? new Or(l._left, Create(l._right, right))
+                : new Or(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)
