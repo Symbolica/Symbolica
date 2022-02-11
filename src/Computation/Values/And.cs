@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.IO.Pipes;
+using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
@@ -33,17 +34,22 @@ internal sealed class And : Integer
             ? right
             : right.Not().IsZero
                 ? left
-                : new And(left, right);
+                : Create(left, right);
+    }
+
+    private static IValue Create(IValue left, ConstantUnsigned right)
+    {
+        return left is IConstantValue cl
+            ? cl.AsUnsigned().And(right)
+            : new And(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)
     {
-        return left is IConstantValue l
-            ? right is IConstantValue r
-                ? l.AsUnsigned().And(r.AsUnsigned())
-                : ShortCircuit(right, l.AsUnsigned())
-            : right is IConstantValue c
-                ? ShortCircuit(left, c.AsUnsigned())
+        return right is IConstantValue r
+            ? ShortCircuit(left, r.AsUnsigned())
+            : left is IConstantValue l
+                ? ShortCircuit(right, l.AsUnsigned())
                 : new And(left, right);
     }
 }

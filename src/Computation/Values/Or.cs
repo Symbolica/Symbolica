@@ -33,17 +33,22 @@ internal sealed class Or : Integer
             ? left
             : right.Not().IsZero
                 ? right
-                : new Or(left, right);
+                : Create(left, right);
+    }
+
+    private static IValue Create(IValue left, ConstantUnsigned right)
+    {
+        return left is IConstantValue cl
+            ? cl.AsUnsigned().Or(right)
+            : new Or(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)
     {
-        return left is IConstantValue l
-            ? right is IConstantValue r
-                ? l.AsUnsigned().Or(r.AsUnsigned())
-                : ShortCircuit(right, l.AsUnsigned())
-            : right is IConstantValue c
-                ? ShortCircuit(left, c.AsUnsigned())
+        return right is IConstantValue r
+            ? ShortCircuit(left, r.AsUnsigned())
+            : left is IConstantValue l
+                ? ShortCircuit(right, l.AsUnsigned())
                 : new Or(left, right);
     }
 }

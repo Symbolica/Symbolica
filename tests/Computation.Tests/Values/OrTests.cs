@@ -1,4 +1,7 @@
-﻿using FluentAssertions;
+﻿using System.Numerics;
+using FluentAssertions;
+using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Computation.Values.TestData;
 using Xunit;
 
@@ -42,5 +45,43 @@ public class OrTests
         var symbolic = Or.Create(symbolicLeft, symbolicRight).AsBool(Context).Simplify();
 
         constant.Should().BeEquivalentTo(symbolic);
+    }
+
+    [Theory]
+    [ClassData(typeof(UnaryTestData))]
+    private void ShouldShortCircuitToOtherWhenEitherArgumentIsZero(
+        ConstantUnsigned constant, SymbolicUnsigned symbolic)
+    {
+        static Expr Or(IValue left, IValue right)
+        {
+            return Values.Or.Create(left, right).AsBitVector(Context).Simplify();
+        }
+
+        var zero = ConstantUnsigned.Create(constant.Size, BigInteger.Zero);
+        new[] {
+            Or(constant, zero),
+            Or(zero, constant),
+            Or(symbolic, zero),
+            Or(zero, symbolic)
+        }.Should().AllBeEquivalentTo(constant.AsBitVector(Context).Simplify());
+    }
+
+    [Theory]
+    [ClassData(typeof(UnaryTestData))]
+    private void ShouldShortCircuitToOnesWhenEitherArgumentIsOne(
+        ConstantUnsigned constant, SymbolicUnsigned symbolic)
+    {
+        static Expr Or(IValue left, IValue right)
+        {
+            return Values.Or.Create(left, right).AsBitVector(Context).Simplify();
+        }
+
+        var ones = Not.Create(ConstantUnsigned.Create(constant.Size, BigInteger.Zero));
+        new[] {
+            Or(constant, ones),
+            Or(ones, constant),
+            Or(symbolic, ones),
+            Or(ones, symbolic)
+        }.Should().AllBeEquivalentTo(ones.AsBitVector(Context).Simplify());
     }
 }
