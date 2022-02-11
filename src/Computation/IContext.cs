@@ -5,7 +5,7 @@ namespace Symbolica.Computation;
 
 internal interface IContext : IDisposable
 {
-    Solver CreateSolver(Func<Context, Solver> func);
+    Solver CreateSolver();
 
     TSort CreateSort<TSort>(Func<Context, TSort> func)
         where TSort : Sort;

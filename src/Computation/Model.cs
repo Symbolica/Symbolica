@@ -52,7 +52,7 @@ internal sealed class Model : IModel
         where TContext : IContext, new()
     {
         var context = new TContext();
-        var solver = context.CreateSolver(c => c.MkSolver(c.MkTactic("smt")));
+        var solver = context.CreateSolver();
         solver.Assert(assertions.Select(a => a.AsBool(context)).ToArray());
 
         return new Model(context, solver);

@@ -18,9 +18,9 @@ internal sealed class DisposableContext<TContextHandle> : IContext
         _contextHandle.Dispose();
     }
 
-    public Solver CreateSolver(Func<Context, Solver> func)
+    public Solver CreateSolver()
     {
-        return func(_contextHandle.Context);
+        return _contextHandle.Context.MkSolver(_contextHandle.Context.MkTactic("smt"));
     }
 
     public TSort CreateSort<TSort>(Func<Context, TSort> func)
