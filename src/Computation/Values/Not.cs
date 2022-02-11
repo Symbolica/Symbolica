@@ -14,12 +14,12 @@ internal sealed class Not : Integer
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => c.MkBVNot(_value.AsBitVector(context)));
+        return context.CreateExpr(c => c.MkBVNot(_value.AsBitVector(context)));
     }
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => c.MkNot(_value.AsBool(context)));
+        return context.CreateExpr(c => c.MkNot(_value.AsBool(context)));
     }
 
     public static IValue Create(IValue value)

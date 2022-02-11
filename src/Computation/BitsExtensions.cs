@@ -10,7 +10,7 @@ internal static class BitsExtensions
 {
     public static FPSort GetSort(this Bits self, IContext context)
     {
-        return context.Execute(c => (uint) self switch
+        return context.CreateSort(c => (uint) self switch
         {
             16U => c.MkFPSort16(),
             32U => c.MkFPSort32(),

@@ -5,6 +5,11 @@ namespace Symbolica.Computation;
 
 public interface IContext : IDisposable
 {
-    TResult Execute<TResult>(Func<Context, TResult> func)
-        where TResult : Z3Object;
+    Solver CreateSolver(Func<Context, Solver> func);
+
+    TSort CreateSort<TSort>(Func<Context, TSort> func)
+        where TSort : Sort;
+
+    TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
+        where TExpr : Expr;
 }

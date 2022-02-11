@@ -22,9 +22,20 @@ internal sealed class PooledContext : IContext
         Contexts.Add(_context);
     }
 
-    public TResult Execute<TResult>(Func<Context, TResult> func)
-        where TResult : Z3Object
+    public Solver CreateSolver(Func<Context, Solver> func)
     {
-        return _context.Execute(func);
+        return _context.CreateSolver(func);
+    }
+
+    public TSort CreateSort<TSort>(Func<Context, TSort> func)
+        where TSort : Sort
+    {
+        return _context.CreateSort(func);
+    }
+
+    public TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
+        where TExpr : Expr
+    {
+        return _context.CreateExpr(func);
     }
 }

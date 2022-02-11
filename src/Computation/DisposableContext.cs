@@ -17,8 +17,19 @@ public sealed class DisposableContext : IContext
         _context.Dispose();
     }
 
-    public TResult Execute<TResult>(Func<Context, TResult> func)
-        where TResult : Z3Object
+    public Solver CreateSolver(Func<Context, Solver> func)
+    {
+        return func(_context);
+    }
+
+    public TSort CreateSort<TSort>(Func<Context, TSort> func)
+        where TSort : Sort
+    {
+        return func(_context);
+    }
+
+    public TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
+        where TExpr : Expr
     {
         return func(_context);
     }

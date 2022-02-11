@@ -15,7 +15,7 @@ internal sealed class UnsignedLess : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => c.MkBVULT(_left.AsBitVector(context), _right.AsBitVector(context)));
+        return context.CreateExpr(c => c.MkBVULT(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

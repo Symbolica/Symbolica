@@ -16,7 +16,9 @@ internal sealed class FloatUnordered : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => c.MkOr(c.MkFPIsNaN(_left.AsFloat(context)), c.MkFPIsNaN(_right.AsFloat(context))));
+        return context.CreateExpr(c => c.MkOr(
+            c.MkFPIsNaN(_left.AsFloat(context)),
+            c.MkFPIsNaN(_right.AsFloat(context))));
     }
 
     public static IValue Create(IValue left, IValue right)

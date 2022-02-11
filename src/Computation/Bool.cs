@@ -12,6 +12,8 @@ internal abstract class Bool : Integer
 
     public sealed override BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => (BitVecExpr) c.MkITE(AsBool(context), c.MkBV(new[] {true}), c.MkBV(new[] {false})));
+        return context.CreateExpr(c => (BitVecExpr) c.MkITE(AsBool(context),
+            c.MkBV(new[] {true}),
+            c.MkBV(new[] {false})));
     }
 }

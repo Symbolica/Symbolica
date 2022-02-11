@@ -17,7 +17,7 @@ internal sealed class FloatToSigned : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => c.MkFPToBV(c.MkFPRTZ(), _value.AsFloat(context), (uint) Size, true));
+        return context.CreateExpr(c => c.MkFPToBV(c.MkFPRTZ(), _value.AsFloat(context), (uint) Size, true));
     }
 
     public static IValue Create(Bits size, IValue value)

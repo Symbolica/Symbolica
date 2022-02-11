@@ -23,6 +23,6 @@ internal abstract class Integer : IValue
 
     public FPExpr AsFloat(IContext context)
     {
-        return context.Execute(c => c.MkFPToFP(AsBitVector(context), Size.GetSort(context)));
+        return context.CreateExpr(c => c.MkFPToFP(AsBitVector(context), Size.GetSort(context)));
     }
 }

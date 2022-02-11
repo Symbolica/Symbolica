@@ -15,7 +15,7 @@ internal sealed class ConstantBool : Bool, IConstantValue
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => c.MkBool(_value));
+        return context.CreateExpr(c => c.MkBool(_value));
     }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)
