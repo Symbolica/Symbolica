@@ -13,18 +13,13 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 {
     private readonly IPersistentStack<IValue> _assertions;
     private readonly ICollectionFactory _collectionFactory;
-    private readonly IModelFactory _modelFactory;
-    private readonly ISymbolFactory _symbolFactory;
     private readonly bool _useSymbolicGarbage;
 
-    private PersistentSpace(Bits pointerSize, bool useSymbolicGarbage,
-        ISymbolFactory symbolFactory, IModelFactory modelFactory, ICollectionFactory collectionFactory,
+    private PersistentSpace(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory,
         IPersistentStack<IValue> assertions)
     {
         PointerSize = pointerSize;
         _useSymbolicGarbage = useSymbolicGarbage;
-        _symbolFactory = symbolFactory;
-        _modelFactory = modelFactory;
         _collectionFactory = collectionFactory;
         _assertions = assertions;
     }
@@ -33,14 +28,13 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IPersistentSpace Assert(IValue assertion)
     {
-        return new PersistentSpace<TContext>(PointerSize, _useSymbolicGarbage,
-            _symbolFactory, _modelFactory, _collectionFactory,
+        return new PersistentSpace<TContext>(PointerSize, _useSymbolicGarbage, _collectionFactory,
             _assertions.Push(assertion));
     }
 
     public IModel GetModel(IValue[] constraints)
     {
-        return _modelFactory.Create<TContext>(constraints.Concat(_assertions));
+        return Model.Create<TContext>(constraints.Concat(_assertions));
     }
 
     public IExample GetExample()
@@ -75,14 +69,12 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
     public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> constraints)
     {
         return Expression<TContext>.Create(_collectionFactory,
-            Symbol.Create(_symbolFactory, size, name), constraints);
+            Symbol.Create(size, name), constraints);
     }
 
-    public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage,
-        ISymbolFactory symbolFactory, IModelFactory modelFactory, ICollectionFactory collectionFactory)
+    public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
     {
-        return new PersistentSpace<TContext>(pointerSize, useSymbolicGarbage,
-            symbolFactory, modelFactory, collectionFactory,
+        return new PersistentSpace<TContext>(pointerSize, useSymbolicGarbage, collectionFactory,
             collectionFactory.CreatePersistentStack<IValue>());
     }
 }

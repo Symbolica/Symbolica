@@ -25,7 +25,7 @@ internal sealed class Executor
         var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
         var collectionFactory = new CollectionFactory();
-        var spaceFactory = new SpaceFactory<TContext>(new SymbolFactory(), new ModelFactory(), collectionFactory);
+        var spaceFactory = new SpaceFactory<TContext>(collectionFactory);
         var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
         using var statePool = new StatePool();
