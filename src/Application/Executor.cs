@@ -19,13 +19,13 @@ internal sealed class Executor
         _options = options;
     }
 
-    public async Task<(ulong, Exception?)> Run<TContext>(byte[] bytes)
-        where TContext : IContext, new()
+    public async Task<(ulong, Exception?)> Run<TContextHandle>(byte[] bytes)
+        where TContextHandle : IContextHandle, new()
     {
         var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
         var collectionFactory = new CollectionFactory();
-        var spaceFactory = new SpaceFactory<TContext>(collectionFactory);
+        var spaceFactory = new SpaceFactory<TContextHandle>(collectionFactory);
         var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
         using var statePool = new StatePool();

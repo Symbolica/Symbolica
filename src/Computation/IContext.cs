@@ -3,7 +3,7 @@ using Microsoft.Z3;
 
 namespace Symbolica.Computation;
 
-public interface IContext : IDisposable
+internal interface IContext : IDisposable
 {
     Solver CreateSolver(Func<Context, Solver> func);
 

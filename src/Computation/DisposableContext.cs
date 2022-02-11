@@ -3,34 +3,35 @@ using Microsoft.Z3;
 
 namespace Symbolica.Computation;
 
-public sealed class DisposableContext : IContext
+internal sealed class DisposableContext<TContextHandle> : IContext
+    where TContextHandle : IContextHandle, new()
 {
-    private readonly Context _context;
+    private readonly TContextHandle _contextHandle;
 
     public DisposableContext()
     {
-        _context = new Context();
+        _contextHandle = new TContextHandle();
     }
 
     public void Dispose()
     {
-        _context.Dispose();
+        _contextHandle.Dispose();
     }
 
     public Solver CreateSolver(Func<Context, Solver> func)
     {
-        return func(_context);
+        return func(_contextHandle.Context);
     }
 
     public TSort CreateSort<TSort>(Func<Context, TSort> func)
         where TSort : Sort
     {
-        return func(_context);
+        return func(_contextHandle.Context);
     }
 
     public TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
         where TExpr : Expr
     {
-        return func(_context);
+        return func(_contextHandle.Context);
     }
 }

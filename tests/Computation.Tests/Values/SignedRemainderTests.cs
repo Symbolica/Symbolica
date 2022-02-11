@@ -6,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class SignedRemainderTests
 {
-    private static readonly DisposableContext Context = new();
+    private static readonly DisposableContext<ContextHandle> Context = new();
 
     [Theory]
     [ClassData(typeof(DivideTestData))]
