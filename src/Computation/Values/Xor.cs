@@ -33,17 +33,22 @@ internal sealed class Xor : Integer
             ? left
             : right.Not().IsZero
                 ? Not.Create(left)
-                : new Xor(left, right);
+                : Create(left, right);
+    }
+
+    private static IValue Create(IValue left, ConstantUnsigned right)
+    {
+        return left is IConstantValue cl
+            ? cl.AsUnsigned().Xor(right)
+            : new Xor(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)
     {
-        return left is IConstantValue l
-            ? right is IConstantValue r
-                ? l.AsUnsigned().Xor(r.AsUnsigned())
-                : ShortCircuit(right, l.AsUnsigned())
-            : right is IConstantValue c
-                ? ShortCircuit(left, c.AsUnsigned())
+        return right is IConstantValue r
+            ? ShortCircuit(left, r.AsUnsigned())
+            : left is IConstantValue l
+                ? ShortCircuit(right, l.AsUnsigned())
                 : new Xor(left, right);
     }
 }
