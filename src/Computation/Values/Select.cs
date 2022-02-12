@@ -26,21 +26,21 @@ internal sealed class Select : IValue
 
     public BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => (BitVecExpr) c.MkITE(_predicate.AsBool(context),
+        return context.CreateExpr(c => (BitVecExpr) c.MkITE(_predicate.AsBool(context),
             _trueValue.AsBitVector(context),
             _falseValue.AsBitVector(context)));
     }
 
     public BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => (BoolExpr) c.MkITE(_predicate.AsBool(context),
+        return context.CreateExpr(c => (BoolExpr) c.MkITE(_predicate.AsBool(context),
             _trueValue.AsBool(context),
             _falseValue.AsBool(context)));
     }
 
     public FPExpr AsFloat(IContext context)
     {
-        return context.Execute(c => (FPExpr) c.MkITE(_predicate.AsBool(context),
+        return context.CreateExpr(c => (FPExpr) c.MkITE(_predicate.AsBool(context),
             _trueValue.AsFloat(context),
             _falseValue.AsFloat(context)));
     }

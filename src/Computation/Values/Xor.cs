@@ -17,13 +17,13 @@ internal sealed class Xor : Integer
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => c.MkBVXOR(_left.AsBitVector(context), _right.AsBitVector(context)));
+        return context.CreateExpr(c => c.MkBVXOR(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
     public override BoolExpr AsBool(IContext context)
     {
         return _left is Bool || _right is Bool
-            ? context.Execute(c => c.MkXor(_left.AsBool(context), _right.AsBool(context)))
+            ? context.CreateExpr(c => c.MkXor(_left.AsBool(context), _right.AsBool(context)))
             : AsBitVector(context).AsBool(context);
     }
 

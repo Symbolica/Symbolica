@@ -23,12 +23,12 @@ internal abstract class Float : IValue
 
     public BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => c.MkFPToIEEEBV(AsFloat(context)));
+        return context.CreateExpr(c => c.MkFPToIEEEBV(AsFloat(context)));
     }
 
     public BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => c.MkNot(c.MkFPIsZero(AsFloat(context))));
+        return context.CreateExpr(c => c.MkNot(c.MkFPIsZero(AsFloat(context))));
     }
 
     public abstract FPExpr AsFloat(IContext context);

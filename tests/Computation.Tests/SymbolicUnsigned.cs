@@ -16,6 +16,6 @@ internal sealed class SymbolicUnsigned : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => c.MkBV(_value.ToString(), (uint) Size));
+        return context.CreateExpr(c => c.MkBV(_value.ToString(), (uint) Size));
     }
 }

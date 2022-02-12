@@ -19,7 +19,7 @@ internal sealed class ConstantDouble : Float, IConstantValue
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.Execute(c => c.MkFP(_value, Size.GetSort(context)));
+        return context.CreateExpr(c => c.MkFP(_value, Size.GetSort(context)));
     }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)

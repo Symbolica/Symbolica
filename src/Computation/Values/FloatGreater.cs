@@ -16,7 +16,7 @@ internal sealed class FloatGreater : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => c.MkFPGt(_left.AsFloat(context), _right.AsFloat(context)));
+        return context.CreateExpr(c => c.MkFPGt(_left.AsFloat(context), _right.AsFloat(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

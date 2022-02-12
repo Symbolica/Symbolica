@@ -15,7 +15,7 @@ internal sealed class Truncate : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => c.MkExtract((uint) (Size - Bits.One), 0U, _value.AsBitVector(context)));
+        return context.CreateExpr(c => c.MkExtract((uint) (Size - Bits.One), 0U, _value.AsBitVector(context)));
     }
 
     public static IValue Create(Bits size, IValue value)

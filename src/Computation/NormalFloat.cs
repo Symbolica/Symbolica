@@ -20,7 +20,7 @@ internal sealed class NormalFloat : Float
         var (sign, significand, exponent) = ParseDecimal(_value);
 
         return significand.IsZero
-            ? context.Execute(c => c.MkFPZero(sort, sign))
+            ? context.CreateExpr(c => c.MkFPZero(sort, sign))
             : Create(context, sort, sign, significand, exponent);
     }
 
@@ -57,7 +57,7 @@ internal sealed class NormalFloat : Float
                 : (quotient + BigInteger.One, scale)
             : (quotient, scale);
 
-        return context.Execute(c => c.MkFP(sign, shift, (ulong) (rounded % lower), sort));
+        return context.CreateExpr(c => c.MkFP(sign, shift, (ulong) (rounded % lower), sort));
     }
 
     private static (bool, BigInteger, int) ParseDecimal(string value)

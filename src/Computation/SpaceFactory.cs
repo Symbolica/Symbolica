@@ -3,8 +3,8 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-public sealed class SpaceFactory<TContext> : ISpaceFactory
-    where TContext : IContext, new()
+public sealed class SpaceFactory<TContextHandle> : ISpaceFactory
+    where TContextHandle : IContextHandle, new()
 {
     private readonly ICollectionFactory _collectionFactory;
 
@@ -15,6 +15,7 @@ public sealed class SpaceFactory<TContext> : ISpaceFactory
 
     public ISpace CreateInitial(Bits pointerSize, bool useSymbolicGarbage)
     {
-        return PersistentSpace<TContext>.Create(pointerSize, useSymbolicGarbage, _collectionFactory);
+        return PersistentSpace<Context<TContextHandle>>.Create(
+            pointerSize, useSymbolicGarbage, _collectionFactory);
     }
 }

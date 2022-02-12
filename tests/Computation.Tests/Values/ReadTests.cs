@@ -8,7 +8,7 @@ namespace Symbolica.Computation.Values;
 public class ReadTests
 {
     private static readonly CollectionFactory CollectionFactory = new();
-    private static readonly DisposableContext Context = new();
+    private static readonly Context<ContextHandle> Context = new();
 
     [Theory]
     [ClassData(typeof(ReadTestData))]

@@ -20,7 +20,7 @@ public class FailingTests
         var bytes = await Serializer.Serialize(directory, optimization);
         var executor = new Executor(options);
 
-        var (_, exception) = await executor.Run<PooledContext>(bytes);
+        var (_, exception) = await executor.Run<PooledContextHandle>(bytes);
 
         var stateException = exception.Should().BeOfType<StateException>();
         stateException.Which.Error.Should().Be(error);

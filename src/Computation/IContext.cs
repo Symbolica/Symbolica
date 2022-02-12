@@ -3,8 +3,13 @@ using Microsoft.Z3;
 
 namespace Symbolica.Computation;
 
-public interface IContext : IDisposable
+internal interface IContext : IDisposable
 {
-    TResult Execute<TResult>(Func<Context, TResult> func)
-        where TResult : Z3Object;
+    Solver CreateSolver();
+
+    TSort CreateSort<TSort>(Func<Context, TSort> func)
+        where TSort : Sort;
+
+    TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
+        where TExpr : Expr;
 }

@@ -17,6 +17,6 @@ internal static class BitVecExprExtensions
 
     public static BoolExpr AsBool(this BitVecExpr self, IContext context)
     {
-        return context.Execute(c => c.MkNot(c.MkEq(self, c.MkBV(0U, self.SortSize))));
+        return context.CreateExpr(c => c.MkNot(c.MkEq(self, c.MkBV(0U, self.SortSize))));
     }
 }

@@ -6,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class UnsignedLessTests
 {
-    private static readonly DisposableContext Context = new();
+    private static readonly Context<ContextHandle> Context = new();
 
     [Theory]
     [ClassData(typeof(BinaryTestData))]

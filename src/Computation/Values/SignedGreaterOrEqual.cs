@@ -15,7 +15,7 @@ internal sealed class SignedGreaterOrEqual : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => c.MkBVSGE(_left.AsBitVector(context), _right.AsBitVector(context)));
+        return context.CreateExpr(c => c.MkBVSGE(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

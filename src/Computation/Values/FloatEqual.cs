@@ -16,7 +16,7 @@ internal sealed class FloatEqual : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.Execute(c => c.MkFPEq(_left.AsFloat(context), _right.AsFloat(context)));
+        return context.CreateExpr(c => c.MkFPEq(_left.AsFloat(context), _right.AsFloat(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

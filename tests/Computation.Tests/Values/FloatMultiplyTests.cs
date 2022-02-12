@@ -6,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class FloatMultiplyTests
 {
-    private static readonly DisposableContext Context = new();
+    private static readonly Context<ContextHandle> Context = new();
 
     [Theory]
     [ClassData(typeof(SingleBinaryTestData))]

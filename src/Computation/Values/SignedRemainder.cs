@@ -16,7 +16,7 @@ internal sealed class SignedRemainder : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => c.MkBVSRem(_left.AsBitVector(context), _right.AsBitVector(context)));
+        return context.CreateExpr(c => c.MkBVSRem(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
     public static IValue Create(IValue left, IValue right)

@@ -15,7 +15,8 @@ internal sealed class SignedToFloat : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.Execute(c => c.MkFPToFP(c.MkFPRNE(), _value.AsBitVector(context), Size.GetSort(context), true));
+        return context.CreateExpr(c =>
+            c.MkFPToFP(c.MkFPRNE(), _value.AsBitVector(context), Size.GetSort(context), true));
     }
 
     public static IValue Create(Bits size, IValue value)

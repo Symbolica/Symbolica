@@ -16,7 +16,7 @@ internal sealed class Symbol : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.Execute(c => c.MkBVConst(_name, (uint) Size));
+        return context.CreateExpr(c => c.MkBVConst(_name, (uint) Size));
     }
 
     public static IValue Create(Bits size, string? name)
