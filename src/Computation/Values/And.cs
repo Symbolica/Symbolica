@@ -1,5 +1,4 @@
-﻿using System.IO.Pipes;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
