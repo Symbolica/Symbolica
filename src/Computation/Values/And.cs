@@ -38,11 +38,12 @@ internal sealed class And : Integer
 
     private static IValue Create(IValue left, ConstantUnsigned right)
     {
-        return left is IConstantValue cl
-            ? cl.AsUnsigned().And(right)
-            : left is And l
-                ? new And(l._left, Create(l._right, right))
-                : new And(left, right);
+        return left switch
+        {
+            IConstantValue l => l.AsUnsigned().And(right),
+            And l => new And(l._left, Create(l._right, right)),
+            _ => new And(left, right)
+        };
     }
 
     public static IValue Create(IValue left, IValue right)
