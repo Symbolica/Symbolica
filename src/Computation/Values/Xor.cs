@@ -40,7 +40,9 @@ internal sealed class Xor : Integer
     {
         return left is IConstantValue cl
             ? cl.AsUnsigned().Xor(right)
-            : new Xor(left, right);
+            : left is Xor l
+                ? new Xor(l._left, Create(l._right, right))
+                : new Xor(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)
