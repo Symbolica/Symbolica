@@ -38,11 +38,12 @@ internal sealed class Xor : Integer
 
     private static IValue Create(IValue left, ConstantUnsigned right)
     {
-        return left is IConstantValue cl
-            ? cl.AsUnsigned().Xor(right)
-            : left is Xor l
-                ? new Xor(l._left, Create(l._right, right))
-                : new Xor(left, right);
+        return left switch
+        {
+            IConstantValue l => l.AsUnsigned().Xor(right),
+            Xor l => new Xor(l._left, Create(l._right, right)),
+            _ => new Xor(left, right)
+        };
     }
 
     public static IValue Create(IValue left, IValue right)

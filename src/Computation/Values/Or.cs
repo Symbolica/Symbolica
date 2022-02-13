@@ -38,11 +38,12 @@ internal sealed class Or : Integer
 
     private static IValue Create(IValue left, ConstantUnsigned right)
     {
-        return left is IConstantValue cl
-            ? cl.AsUnsigned().Or(right)
-            : left is Or l
-                ? new Or(l._left, Create(l._right, right))
-                : new Or(left, right);
+        return left switch
+        {
+            IConstantValue l => l.AsUnsigned().Or(right),
+            Or l => new Or(l._left, Create(l._right, right)),
+            _ => new Or(left, right)
+        };
     }
 
     public static IValue Create(IValue left, IValue right)
