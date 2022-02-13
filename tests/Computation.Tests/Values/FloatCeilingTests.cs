@@ -12,51 +12,51 @@ public class FloatCeilingTests
     [ClassData(typeof(SingleUnaryTestData))]
     [ClassData(typeof(DoubleUnaryTestData))]
     private void ShouldCreateEquivalentConstants(
-        IConstantValue constantValue,
-        SymbolicFloat symbolicValue)
+        IValue value0,
+        IValue value1)
     {
-        var constant = FloatCeiling.Create(constantValue).AsConstant(Context);
-        var symbolic = FloatCeiling.Create(symbolicValue).AsConstant(Context);
+        var result0 = FloatCeiling.Create(value0).AsConstant(Context);
+        var result1 = FloatCeiling.Create(value1).AsConstant(Context);
 
-        constant.Should().Be(symbolic);
+        result0.Should().Be(result1);
     }
 
     [Theory]
     [ClassData(typeof(SingleUnaryTestData))]
     [ClassData(typeof(DoubleUnaryTestData))]
     private void ShouldCreateEquivalentBitVectors(
-        IConstantValue constantValue,
-        SymbolicFloat symbolicValue)
+        IValue value0,
+        IValue value1)
     {
-        var constant = FloatCeiling.Create(constantValue).AsBitVector(Context).Simplify();
-        var symbolic = FloatCeiling.Create(symbolicValue).AsBitVector(Context).Simplify();
+        var result0 = FloatCeiling.Create(value0).AsBitVector(Context).Simplify();
+        var result1 = FloatCeiling.Create(value1).AsBitVector(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(SingleUnaryTestData))]
     [ClassData(typeof(DoubleUnaryTestData))]
     private void ShouldCreateEquivalentBooleans(
-        IConstantValue constantValue,
-        SymbolicFloat symbolicValue)
+        IValue value0,
+        IValue value1)
     {
-        var constant = FloatCeiling.Create(constantValue).AsBool(Context).Simplify();
-        var symbolic = FloatCeiling.Create(symbolicValue).AsBool(Context).Simplify();
+        var result0 = FloatCeiling.Create(value0).AsBool(Context).Simplify();
+        var result1 = FloatCeiling.Create(value1).AsBool(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(SingleUnaryTestData))]
     [ClassData(typeof(DoubleUnaryTestData))]
     private void ShouldCreateEquivalentFloats(
-        IConstantValue constantValue,
-        SymbolicFloat symbolicValue)
+        IValue value0,
+        IValue value1)
     {
-        var constant = FloatCeiling.Create(constantValue).AsFloat(Context).Simplify();
-        var symbolic = FloatCeiling.Create(symbolicValue).AsFloat(Context).Simplify();
+        var result0 = FloatCeiling.Create(value0).AsFloat(Context).Simplify();
+        var result1 = FloatCeiling.Create(value1).AsFloat(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 }

@@ -12,48 +12,48 @@ public class UnsignedToFloatTests
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
     private void ShouldCreateEquivalentConstants(Bits size,
-        IConstantValue constantValue,
-        SymbolicUnsigned symbolicValue)
+        IValue value0,
+        IValue value1)
     {
-        var constant = UnsignedToFloat.Create(size, constantValue).AsConstant(Context);
-        var symbolic = UnsignedToFloat.Create(size, symbolicValue).AsConstant(Context);
+        var result0 = UnsignedToFloat.Create(size, value0).AsConstant(Context);
+        var result1 = UnsignedToFloat.Create(size, value1).AsConstant(Context);
 
-        constant.Should().Be(symbolic);
+        result0.Should().Be(result1);
     }
 
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
     private void ShouldCreateEquivalentBitVectors(Bits size,
-        IConstantValue constantValue,
-        SymbolicUnsigned symbolicValue)
+        IValue value0,
+        IValue value1)
     {
-        var constant = UnsignedToFloat.Create(size, constantValue).AsBitVector(Context).Simplify();
-        var symbolic = UnsignedToFloat.Create(size, symbolicValue).AsBitVector(Context).Simplify();
+        var result0 = UnsignedToFloat.Create(size, value0).AsBitVector(Context).Simplify();
+        var result1 = UnsignedToFloat.Create(size, value1).AsBitVector(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
     private void ShouldCreateEquivalentBooleans(Bits size,
-        IConstantValue constantValue,
-        SymbolicUnsigned symbolicValue)
+        IValue value0,
+        IValue value1)
     {
-        var constant = UnsignedToFloat.Create(size, constantValue).AsBool(Context).Simplify();
-        var symbolic = UnsignedToFloat.Create(size, symbolicValue).AsBool(Context).Simplify();
+        var result0 = UnsignedToFloat.Create(size, value0).AsBool(Context).Simplify();
+        var result1 = UnsignedToFloat.Create(size, value1).AsBool(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
     private void ShouldCreateEquivalentFloats(Bits size,
-        IConstantValue constantValue,
-        SymbolicUnsigned symbolicValue)
+        IValue value0,
+        IValue value1)
     {
-        var constant = UnsignedToFloat.Create(size, constantValue).AsFloat(Context).Simplify();
-        var symbolic = UnsignedToFloat.Create(size, symbolicValue).AsFloat(Context).Simplify();
+        var result0 = UnsignedToFloat.Create(size, value0).AsFloat(Context).Simplify();
+        var result1 = UnsignedToFloat.Create(size, value1).AsFloat(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 }

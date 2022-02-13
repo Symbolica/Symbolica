@@ -12,59 +12,63 @@ public class FloatPowerTests
     [ClassData(typeof(SinglePowerTestData))]
     [ClassData(typeof(DoublePowerTestData))]
     private void ShouldCreateEquivalentConstants(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = FloatToSigned.Create(constantLeft.Size,
-            FloatPower.Create(constantLeft, constantRight)).AsConstant(Context);
-        var symbolic = FloatToSigned.Create(symbolicLeft.Size,
-            FloatPower.Create(symbolicLeft, symbolicRight)).AsConstant(Context);
+        var real0 = FloatPower.Create(left0, right0);
+        var real1 = FloatPower.Create(left1, right1);
 
-        constant.Should().Be(symbolic);
+        var result0 = FloatToSigned.Create(real0.Size, real0).AsConstant(Context);
+        var result1 = FloatToSigned.Create(real1.Size, real1).AsConstant(Context);
+
+        result0.Should().Be(result1);
     }
 
     [Theory]
     [ClassData(typeof(SinglePowerTestData))]
     [ClassData(typeof(DoublePowerTestData))]
     private void ShouldCreateEquivalentBitVectors(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = FloatToSigned.Create(constantLeft.Size,
-            FloatPower.Create(constantLeft, constantRight)).AsBitVector(Context).Simplify();
-        var symbolic = FloatToSigned.Create(symbolicLeft.Size,
-            FloatPower.Create(symbolicLeft, symbolicRight)).AsBitVector(Context).Simplify();
+        var real0 = FloatPower.Create(left0, right0);
+        var real1 = FloatPower.Create(left1, right1);
 
-        constant.Should().BeEquivalentTo(symbolic);
+        var result0 = FloatToSigned.Create(real0.Size, real0).AsBitVector(Context).Simplify();
+        var result1 = FloatToSigned.Create(real1.Size, real1).AsBitVector(Context).Simplify();
+
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(SinglePowerTestData))]
     [ClassData(typeof(DoublePowerTestData))]
     private void ShouldCreateEquivalentBooleans(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = FloatToSigned.Create(constantLeft.Size,
-            FloatPower.Create(constantLeft, constantRight)).AsBool(Context).Simplify();
-        var symbolic = FloatToSigned.Create(symbolicLeft.Size,
-            FloatPower.Create(symbolicLeft, symbolicRight)).AsBool(Context).Simplify();
+        var real0 = FloatPower.Create(left0, right0);
+        var real1 = FloatPower.Create(left1, right1);
 
-        constant.Should().BeEquivalentTo(symbolic);
+        var result0 = FloatToSigned.Create(real0.Size, real0).AsBool(Context).Simplify();
+        var result1 = FloatToSigned.Create(real1.Size, real1).AsBool(Context).Simplify();
+
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(SinglePowerTestData))]
     [ClassData(typeof(DoublePowerTestData))]
     private void ShouldCreateEquivalentFloats(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = FloatToSigned.Create(constantLeft.Size,
-            FloatPower.Create(constantLeft, constantRight)).AsFloat(Context).Simplify();
-        var symbolic = FloatToSigned.Create(symbolicLeft.Size,
-            FloatPower.Create(symbolicLeft, symbolicRight)).AsFloat(Context).Simplify();
+        var real0 = FloatPower.Create(left0, right0);
+        var real1 = FloatPower.Create(left1, right1);
 
-        constant.Should().BeEquivalentTo(symbolic);
+        var result0 = FloatToSigned.Create(real0.Size, real0).AsFloat(Context).Simplify();
+        var result1 = FloatToSigned.Create(real1.Size, real1).AsFloat(Context).Simplify();
+
+        result0.Should().BeEquivalentTo(result1);
     }
 }
