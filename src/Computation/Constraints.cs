@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
+using Symbolica.Computation.Exceptions;
 
 namespace Symbolica.Computation;
 
@@ -22,12 +22,14 @@ internal sealed class Constraints : IConstraints
 
     public bool IsSatisfiable(IValue assertion)
     {
-        // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
-        return _context.Check(assertion.AsBool(_context)) switch
+        var status = _context.Check(assertion.AsBool(_context));
+
+        return status switch
         {
             Status.UNSATISFIABLE => false,
             Status.SATISFIABLE => true,
-            _ => throw new Exception("Satisfiability is unknown.")
+            Status.UNKNOWN => throw new UnexpectedSatisfiabilityException(status),
+            _ => throw new UnexpectedSatisfiabilityException(status)
         };
     }
 
