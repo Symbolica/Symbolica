@@ -18,8 +18,6 @@ internal sealed class Context<TContextHandle> : IContext
         _solver = new Lazy<Solver>(CreateSolver);
     }
 
-    public Solver Solver => _solver.Value;
-
     public void Dispose()
     {
         _contextHandle.Dispose();
@@ -27,7 +25,7 @@ internal sealed class Context<TContextHandle> : IContext
 
     public void Assert(IEnumerable<BoolExpr> assertions)
     {
-        Solver.Add(assertions);
+        _solver.Value.Add(assertions);
     }
 
     public void Assert(string name, IEnumerable<BoolExpr> assertions)
@@ -37,6 +35,21 @@ internal sealed class Context<TContextHandle> : IContext
 
         _names.Add(name);
         Assert(assertions);
+    }
+
+    public Status Check(BoolExpr assertion)
+    {
+        return _solver.Value.Check(assertion);
+    }
+
+    public BitVecNum Evaluate(BitVecExpr variable)
+    {
+        return (BitVecNum) CreateModel(_solver.Value).Eval(variable, true);
+    }
+
+    public IEnumerable<KeyValuePair<FuncDecl, Expr>> Evaluate()
+    {
+        return CreateModel(_solver.Value).Consts;
     }
 
     public TSort CreateSort<TSort>(Func<Context, TSort> func)
@@ -60,5 +73,12 @@ internal sealed class Context<TContextHandle> : IContext
         where TZ3Object : Z3Object
     {
         return func(_contextHandle.Context);
+    }
+
+    private static Model CreateModel(Solver solver)
+    {
+        return solver.Check() == Status.SATISFIABLE
+            ? solver.Model
+            : throw new Exception("The model cannot be evaluated.");
     }
 }

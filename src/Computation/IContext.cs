@@ -6,10 +6,11 @@ namespace Symbolica.Computation;
 
 internal interface IContext : IDisposable
 {
-    Solver Solver { get; }
-
     void Assert(IEnumerable<BoolExpr> assertions);
     void Assert(string name, IEnumerable<BoolExpr> assertions);
+    Status Check(BoolExpr assertion);
+    BitVecNum Evaluate(BitVecExpr variable);
+    IEnumerable<KeyValuePair<FuncDecl, Expr>> Evaluate();
 
     TSort CreateSort<TSort>(Func<Context, TSort> func)
         where TSort : Sort;
