@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
-using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -32,14 +31,12 @@ internal sealed class Expression<TContext> : IExpression
     {
         return _value is IConstantValue
             ? this
-            : Evaluate((IPersistentSpace) space);
+            : Create(((IPersistentSpace) space).Assertions.GetConstant);
     }
 
     public IProposition GetProposition(ISpace space)
     {
-        return _value is IConstantValue v
-            ? ConstantProposition.Create(space, v)
-            : SymbolicProposition.Create((IPersistentSpace) space, _value);
+        return ((IPersistentSpace) space).Assertions.GetProposition(_value);
     }
 
     public IExpression Add(IExpression expression)
@@ -332,14 +329,6 @@ internal sealed class Expression<TContext> : IExpression
         using var context = new TContext();
 
         return _value.AsConstant(context);
-    }
-
-    private IExpression Evaluate(IPersistentSpace space)
-    {
-        using var constraints = space.GetConstraints();
-
-        return new Expression<TContext>(_collectionFactory,
-            ConstantUnsigned.Create(Size, constraints.Evaluate(_value)));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,

@@ -25,6 +25,7 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
     }
 
     public Bits PointerSize { get; }
+    public IAssertions Assertions => new Assertions(this);
 
     public IPersistentSpace Assert(IValue assertion)
     {
