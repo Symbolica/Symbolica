@@ -23,7 +23,7 @@ public sealed class ConstantSequence : IOperand
         foreach (var element in _elements)
         {
             var value = element.Evaluate(state);
-            sequence = sequence.Write(state.Space.CreateConstant(_size, (uint) offset), value);
+            sequence = sequence.Write(state.Space, state.Space.CreateConstant(_size, (uint) offset), value);
             offset += value.Size;
         }
 

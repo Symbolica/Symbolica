@@ -42,7 +42,7 @@ internal sealed class MemorySet : IFunction
             var buffer = state.Space.CreateZero(size);
 
             foreach (var offset in Enumerable.Range(0, (int) bytes))
-                buffer.Write(state.Space.CreateConstant(size, offset), _value);
+                buffer.Write(state.Space, state.Space.CreateConstant(size, offset), _value);
 
             state.Memory.Write(_destination, buffer);
         }

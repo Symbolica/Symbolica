@@ -21,19 +21,19 @@ internal sealed class Struct : IStruct
 
     public IExpression Read(ISpace space, int index)
     {
-        return Expression.Read(GetOffset(space, index), _sizes[index]);
+        return Expression.Read(space, GetOffset(space, index), _sizes[index]);
     }
 
     public IStruct Write(ISpace space, int index, IExpression value)
     {
         return new Struct(_offsets, _sizes,
-            Expression.Write(GetOffset(space, index), value));
+            Expression.Write(space, GetOffset(space, index), value));
     }
 
     public IStruct Write(ISpace space, int index, BigInteger value)
     {
         return new Struct(_offsets, _sizes,
-            Expression.Write(GetOffset(space, index), space.CreateConstant(_sizes[index], value)));
+            Expression.Write(space, GetOffset(space, index), space.CreateConstant(_sizes[index], value)));
     }
 
     private IExpression GetOffset(ISpace space, int index)
