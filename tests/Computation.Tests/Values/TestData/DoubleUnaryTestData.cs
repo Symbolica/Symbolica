@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Computation.Values.Constants;
 using Xunit;
@@ -6,14 +7,22 @@ using Xunit;
 namespace Symbolica.Computation.Values.TestData;
 
 internal sealed class DoubleUnaryTestData : TheoryData<
-    IConstantValue,
-    SymbolicFloat>
+    IValue,
+    IValue>
 {
     public DoubleUnaryTestData()
     {
+        var types = new Func<double, IValue>[]
+        {
+            v => new ConstantDouble(v),
+            v => new SymbolicDouble(v)
+        };
+
         foreach (var value in Values())
-            Add(new ConstantDouble(value),
-                SymbolicFloat.Create(value));
+        foreach (var value0 in types)
+        foreach (var value1 in types)
+            Add(value0(value),
+                value1(value));
     }
 
     private static IEnumerable<double> Values()

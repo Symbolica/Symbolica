@@ -12,51 +12,51 @@ public class FloatDivideTests
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentConstants(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = FloatDivide.Create(constantLeft, constantRight).AsConstant(Context);
-        var symbolic = FloatDivide.Create(symbolicLeft, symbolicRight).AsConstant(Context);
+        var result0 = FloatDivide.Create(left0, right0).AsConstant(Context);
+        var result1 = FloatDivide.Create(left1, right1).AsConstant(Context);
 
-        constant.Should().Be(symbolic);
+        result0.Should().Be(result1);
     }
 
     [Theory]
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentBitVectors(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = FloatDivide.Create(constantLeft, constantRight).AsBitVector(Context).Simplify();
-        var symbolic = FloatDivide.Create(symbolicLeft, symbolicRight).AsBitVector(Context).Simplify();
+        var result0 = FloatDivide.Create(left0, right0).AsBitVector(Context).Simplify();
+        var result1 = FloatDivide.Create(left1, right1).AsBitVector(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentBooleans(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = FloatDivide.Create(constantLeft, constantRight).AsBool(Context).Simplify();
-        var symbolic = FloatDivide.Create(symbolicLeft, symbolicRight).AsBool(Context).Simplify();
+        var result0 = FloatDivide.Create(left0, right0).AsBool(Context).Simplify();
+        var result1 = FloatDivide.Create(left1, right1).AsBool(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
     private void ShouldCreateEquivalentFloats(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicFloat symbolicLeft, SymbolicFloat symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = FloatDivide.Create(constantLeft, constantRight).AsFloat(Context).Simplify();
-        var symbolic = FloatDivide.Create(symbolicLeft, symbolicRight).AsFloat(Context).Simplify();
+        var result0 = FloatDivide.Create(left0, right0).AsFloat(Context).Simplify();
+        var result1 = FloatDivide.Create(left1, right1).AsFloat(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 }

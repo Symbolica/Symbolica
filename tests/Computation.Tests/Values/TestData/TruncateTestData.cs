@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
@@ -7,16 +8,24 @@ using Xunit;
 namespace Symbolica.Computation.Values.TestData;
 
 internal sealed class TruncateTestData : TheoryData<Bits,
-    IConstantValue,
-    SymbolicUnsigned>
+    IValue,
+    IValue>
 {
     public TruncateTestData()
     {
+        var types = new Func<ConstantUnsigned, IValue>[]
+        {
+            v => v,
+            v => new SymbolicUnsigned(v)
+        };
+
         foreach (var size in Sizes())
         foreach (var value in Values())
+        foreach (var value0 in types)
+        foreach (var value1 in types)
             Add(size,
-                value,
-                new SymbolicUnsigned(value));
+                value0(value),
+                value1(value));
     }
 
     private static IEnumerable<Bits> Sizes()

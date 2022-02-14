@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 using Xunit;
@@ -6,16 +7,28 @@ using Xunit;
 namespace Symbolica.Computation.Values.TestData;
 
 internal sealed class WriteTestData : TheoryData<
-    IConstantValue, IConstantValue, IConstantValue,
-    SymbolicUnsigned, SymbolicUnsigned, SymbolicUnsigned>
+    IValue, IValue, IValue,
+    IValue, IValue, IValue>
 {
     public WriteTestData()
     {
+        var types = new Func<ConstantUnsigned, IValue>[]
+        {
+            v => v,
+            v => new SymbolicUnsigned(v)
+        };
+
         foreach (var buffer in Buffers())
         foreach (var offset in Offsets())
         foreach (var value in Values())
-            Add(buffer, offset, value,
-                new SymbolicUnsigned(buffer), new SymbolicUnsigned(offset), new SymbolicUnsigned(value));
+        foreach (var buffer0 in types)
+        foreach (var offset0 in types)
+        foreach (var buffer1 in types)
+        foreach (var offset1 in types)
+        foreach (var value0 in types)
+        foreach (var value1 in types)
+            Add(buffer0(buffer), offset0(offset), value0(value),
+                buffer1(buffer), offset1(offset), value1(value));
     }
 
     private static IEnumerable<ConstantUnsigned> Buffers()

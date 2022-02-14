@@ -19,7 +19,9 @@ internal sealed class Not : Integer
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkNot(_value.AsBool(context)));
+        return _value is Bool
+            ? context.CreateExpr(c => c.MkNot(_value.AsBool(context)))
+            : AsBitVector(context).AsBool(context);
     }
 
     public static IValue Create(IValue value)

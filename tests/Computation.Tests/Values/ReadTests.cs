@@ -13,42 +13,36 @@ public class ReadTests
     [Theory]
     [ClassData(typeof(ReadTestData))]
     private void ShouldCreateEquivalentConstants(Bits size,
-        IConstantValue constantBuffer, IConstantValue constantOffset,
-        SymbolicUnsigned symbolicBuffer, SymbolicUnsigned symbolicOffset)
+        IValue buffer0, IValue offset0,
+        IValue buffer1, IValue offset1)
     {
-        var constant = Read.Create(CollectionFactory,
-            constantBuffer, constantOffset, size).AsConstant(Context);
-        var symbolic = Read.Create(CollectionFactory,
-            symbolicBuffer, symbolicOffset, size).AsConstant(Context);
+        var result0 = Read.Create(CollectionFactory, buffer0, offset0, size).AsConstant(Context);
+        var result1 = Read.Create(CollectionFactory, buffer1, offset1, size).AsConstant(Context);
 
-        constant.Should().Be(symbolic);
+        result0.Should().Be(result1);
     }
 
     [Theory]
     [ClassData(typeof(ReadTestData))]
     private void ShouldCreateEquivalentBitVectors(Bits size,
-        IConstantValue constantBuffer, IConstantValue constantOffset,
-        SymbolicUnsigned symbolicBuffer, SymbolicUnsigned symbolicOffset)
+        IValue buffer0, IValue offset0,
+        IValue buffer1, IValue offset1)
     {
-        var constant = Read.Create(CollectionFactory,
-            constantBuffer, constantOffset, size).AsBitVector(Context).Simplify();
-        var symbolic = Read.Create(CollectionFactory,
-            symbolicBuffer, symbolicOffset, size).AsBitVector(Context).Simplify();
+        var result0 = Read.Create(CollectionFactory, buffer0, offset0, size).AsBitVector(Context).Simplify();
+        var result1 = Read.Create(CollectionFactory, buffer1, offset1, size).AsBitVector(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(ReadTestData))]
     private void ShouldCreateEquivalentBooleans(Bits size,
-        IConstantValue constantBuffer, IConstantValue constantOffset,
-        SymbolicUnsigned symbolicBuffer, SymbolicUnsigned symbolicOffset)
+        IValue buffer0, IValue offset0,
+        IValue buffer1, IValue offset1)
     {
-        var constant = Read.Create(CollectionFactory,
-            constantBuffer, constantOffset, size).AsBool(Context).Simplify();
-        var symbolic = Read.Create(CollectionFactory,
-            symbolicBuffer, symbolicOffset, size).AsBool(Context).Simplify();
+        var result0 = Read.Create(CollectionFactory, buffer0, offset0, size).AsBool(Context).Simplify();
+        var result1 = Read.Create(CollectionFactory, buffer1, offset1, size).AsBool(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 }

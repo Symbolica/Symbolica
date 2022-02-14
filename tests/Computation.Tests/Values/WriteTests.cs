@@ -12,42 +12,36 @@ public class WriteTests
     [Theory]
     [ClassData(typeof(WriteTestData))]
     private void ShouldCreateEquivalentConstants(
-        IConstantValue constantBuffer, IConstantValue constantOffset, IConstantValue constantValue,
-        SymbolicUnsigned symbolicBuffer, SymbolicUnsigned symbolicOffset, SymbolicUnsigned symbolicValue)
+        IValue buffer0, IValue offset0, IValue value0,
+        IValue buffer1, IValue offset1, IValue value1)
     {
-        var constant = Write.Create(CollectionFactory,
-            constantBuffer, constantOffset, constantValue).AsConstant(Context);
-        var symbolic = Write.Create(CollectionFactory,
-            symbolicBuffer, symbolicOffset, symbolicValue).AsConstant(Context);
+        var result0 = Write.Create(CollectionFactory, buffer0, offset0, value0).AsConstant(Context);
+        var result1 = Write.Create(CollectionFactory, buffer1, offset1, value1).AsConstant(Context);
 
-        constant.Should().Be(symbolic);
+        result0.Should().Be(result1);
     }
 
     [Theory]
     [ClassData(typeof(WriteTestData))]
     private void ShouldCreateEquivalentBitVectors(
-        IConstantValue constantBuffer, IConstantValue constantOffset, IConstantValue constantValue,
-        SymbolicUnsigned symbolicBuffer, SymbolicUnsigned symbolicOffset, SymbolicUnsigned symbolicValue)
+        IValue buffer0, IValue offset0, IValue value0,
+        IValue buffer1, IValue offset1, IValue value1)
     {
-        var constant = Write.Create(CollectionFactory,
-            constantBuffer, constantOffset, constantValue).AsBitVector(Context).Simplify();
-        var symbolic = Write.Create(CollectionFactory,
-            symbolicBuffer, symbolicOffset, symbolicValue).AsBitVector(Context).Simplify();
+        var result0 = Write.Create(CollectionFactory, buffer0, offset0, value0).AsBitVector(Context).Simplify();
+        var result1 = Write.Create(CollectionFactory, buffer1, offset1, value1).AsBitVector(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(WriteTestData))]
     private void ShouldCreateEquivalentBooleans(
-        IConstantValue constantBuffer, IConstantValue constantOffset, IConstantValue constantValue,
-        SymbolicUnsigned symbolicBuffer, SymbolicUnsigned symbolicOffset, SymbolicUnsigned symbolicValue)
+        IValue buffer0, IValue offset0, IValue value0,
+        IValue buffer1, IValue offset1, IValue value1)
     {
-        var constant = Write.Create(CollectionFactory,
-            constantBuffer, constantOffset, constantValue).AsBool(Context).Simplify();
-        var symbolic = Write.Create(CollectionFactory,
-            symbolicBuffer, symbolicOffset, symbolicValue).AsBool(Context).Simplify();
+        var result0 = Write.Create(CollectionFactory, buffer0, offset0, value0).AsBool(Context).Simplify();
+        var result1 = Write.Create(CollectionFactory, buffer1, offset1, value1).AsBool(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 }

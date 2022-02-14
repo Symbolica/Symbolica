@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using FluentAssertions;
-using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Computation.Values.TestData;
 using Xunit;
@@ -14,74 +13,84 @@ public class XorTests
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentConstants(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicUnsigned symbolicLeft, SymbolicUnsigned symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = Xor.Create(constantLeft, constantRight).AsConstant(Context);
-        var symbolic = Xor.Create(symbolicLeft, symbolicRight).AsConstant(Context);
+        var result0 = Xor.Create(left0, right0).AsConstant(Context);
+        var result1 = Xor.Create(left1, right1).AsConstant(Context);
 
-        constant.Should().Be(symbolic);
+        result0.Should().Be(result1);
     }
 
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentBitVectors(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicUnsigned symbolicLeft, SymbolicUnsigned symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = Xor.Create(constantLeft, constantRight).AsBitVector(Context).Simplify();
-        var symbolic = Xor.Create(symbolicLeft, symbolicRight).AsBitVector(Context).Simplify();
+        var result0 = Xor.Create(left0, right0).AsBitVector(Context).Simplify();
+        var result1 = Xor.Create(left1, right1).AsBitVector(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentBooleans(
-        IConstantValue constantLeft, IConstantValue constantRight,
-        SymbolicUnsigned symbolicLeft, SymbolicUnsigned symbolicRight)
+        IValue left0, IValue right0,
+        IValue left1, IValue right1)
     {
-        var constant = Xor.Create(constantLeft, constantRight).AsBool(Context).Simplify();
-        var symbolic = Xor.Create(symbolicLeft, symbolicRight).AsBool(Context).Simplify();
+        var result0 = Xor.Create(left0, right0).AsBool(Context).Simplify();
+        var result1 = Xor.Create(left1, right1).AsBool(Context).Simplify();
 
-        constant.Should().BeEquivalentTo(symbolic);
+        result0.Should().BeEquivalentTo(result1);
     }
 
     [Theory]
-    [ClassData(typeof(UnaryTestData))]
-    private void ShouldShortCircuitToOtherWhenEitherArgumentIsZero(
-        ConstantUnsigned constant, SymbolicUnsigned symbolic)
+    [ClassData(typeof(IdentityTestData))]
+    private void ShouldShortCircuitToLeftWhenRightIsZero(IValue value)
     {
-        static Expr Xor(IValue left, IValue right)
-        {
-            return Values.Xor.Create(left, right).AsBitVector(Context).Simplify();
-        }
+        var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        var zero = ConstantUnsigned.Create(constant.Size, BigInteger.Zero);
-        new[] {
-            Xor(constant, zero),
-            Xor(zero, constant),
-            Xor(symbolic, zero),
-            Xor(zero, symbolic)
-        }.Should().AllBeEquivalentTo(constant.AsBitVector(Context).Simplify());
+        var actual = Xor.Create(value, zero).AsBitVector(Context).Simplify();
+        var expected = value.AsBitVector(Context).Simplify();
+
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Theory]
-    [ClassData(typeof(UnaryTestData))]
-    private void ShouldShortCircuitToNotOtherWhenEitherArgumentIsOne(
-        ConstantUnsigned constant, SymbolicUnsigned symbolic)
+    [ClassData(typeof(IdentityTestData))]
+    private void ShouldShortCircuitToRightWhenLeftIsZero(IValue value)
     {
-        static Expr Xor(IValue left, IValue right)
-        {
-            return Values.Xor.Create(left, right).AsBitVector(Context).Simplify();
-        }
+        var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        var ones = Not.Create(ConstantUnsigned.Create(constant.Size, BigInteger.Zero));
-        new[] {
-            Xor(constant, ones),
-            Xor(ones, constant),
-            Xor(symbolic, ones),
-            Xor(ones, symbolic)
-        }.Should().AllBeEquivalentTo(Not.Create(constant).AsBitVector(Context).Simplify());
+        var actual = Xor.Create(zero, value).AsBitVector(Context).Simplify();
+        var expected = value.AsBitVector(Context).Simplify();
+
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Theory]
+    [ClassData(typeof(IdentityTestData))]
+    private void ShouldShortCircuitToNotLeftWhenRightIsOnes(IValue value)
+    {
+        var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
+
+        var actual = Xor.Create(value, ones).AsBitVector(Context).Simplify();
+        var expected = Not.Create(value).AsBitVector(Context).Simplify();
+
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Theory]
+    [ClassData(typeof(IdentityTestData))]
+    private void ShouldShortCircuitToNotRightWhenLeftIsOnes(IValue value)
+    {
+        var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
+
+        var actual = Xor.Create(ones, value).AsBitVector(Context).Simplify();
+        var expected = Not.Create(value).AsBitVector(Context).Simplify();
+
+        actual.Should().BeEquivalentTo(expected);
     }
 }
