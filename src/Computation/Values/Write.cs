@@ -27,36 +27,42 @@ internal sealed class Write : BitVector
         return Flatten().AsBitVector(context);
     }
 
-    public IValue LayerRead(ICollectionFactory collectionFactory, IValue offset, Bits size)
+    public IValue LayerRead(ICollectionFactory collectionFactory, IAssertions assertions, IValue offset, Bits size)
     {
         var mask = Mask(this, offset, size);
 
-        return IsNotOverlapping(mask)
-            ? Read.Create(collectionFactory, _writeBuffer, offset, size)
-            : IsAligned(mask)
+        return IsNotOverlapping(assertions, mask)
+            ? Read.Create(collectionFactory, assertions, _writeBuffer, offset, size)
+            : IsAligned(assertions, mask)
                 ? _writeValue
-                : Read.Create(collectionFactory, Flatten(), offset, size);
+                : Read.Create(collectionFactory, assertions, Flatten(), offset, size);
     }
 
-    private IValue LayerWrite(ICollectionFactory collectionFactory, IValue offset, IValue value)
+    private IValue LayerWrite(ICollectionFactory collectionFactory, IAssertions assertions, IValue offset, IValue value)
     {
         var mask = Mask(this, offset, value.Size);
 
-        return IsNotOverlapping(mask)
-            ? new Write(Create(collectionFactory, _writeBuffer, offset, value), _writeOffset, _writeValue)
-            : IsAligned(mask)
+        return IsNotOverlapping(assertions, mask)
+            ? new Write(Create(collectionFactory, assertions, _writeBuffer, offset, value), _writeOffset, _writeValue)
+            : IsAligned(assertions, mask)
                 ? new Write(_writeBuffer, offset, value)
                 : new Write(this, offset, value);
     }
 
-    private bool IsNotOverlapping(IValue mask)
+    private bool IsNotOverlapping(IAssertions assertions, IValue mask)
     {
-        return And.Create(mask, _writeMask) is IConstantValue a && a.AsUnsigned().IsZero;
+        var isOverlapping = And.Create(mask, _writeMask);
+        using var proposition = assertions.GetProposition(isOverlapping);
+
+        return !proposition.CanBeTrue;
     }
 
-    private bool IsAligned(IValue mask)
+    private bool IsAligned(IAssertions assertions, IValue mask)
     {
-        return Xor.Create(mask, _writeMask) is IConstantValue x && x.AsUnsigned().IsZero;
+        var isNotAligned = Xor.Create(mask, _writeMask);
+        using var proposition = assertions.GetProposition(isNotAligned);
+
+        return !proposition.CanBeTrue;
     }
 
     private IValue Flatten()
@@ -71,12 +77,13 @@ internal sealed class Write : BitVector
         return ShiftLeft.Create(ConstantUnsigned.Create(size, BigInteger.Zero).Not().Extend(buffer.Size), offset);
     }
 
-    public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, IValue value)
+    public static IValue Create(ICollectionFactory collectionFactory, IAssertions assertions,
+        IValue buffer, IValue offset, IValue value)
     {
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
             : buffer is Write w
-                ? w.LayerWrite(collectionFactory, offset, value)
+                ? w.LayerWrite(collectionFactory, assertions, offset, value)
                 : new Write(buffer, offset, value);
     }
 }
