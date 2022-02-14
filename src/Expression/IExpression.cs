@@ -37,7 +37,7 @@ public interface IExpression
     IExpression Multiply(IExpression expression);
     IExpression NotEqual(IExpression expression);
     IExpression Or(IExpression expression);
-    IExpression Read(IExpression offset, Bits size);
+    IExpression Read(ISpace space, IExpression offset, Bits size);
     IExpression Select(IExpression trueValue, IExpression falseValue);
     IExpression ShiftLeft(IExpression expression);
     IExpression SignedDivide(IExpression expression);
@@ -57,7 +57,7 @@ public interface IExpression
     IExpression UnsignedLessOrEqual(IExpression expression);
     IExpression UnsignedRemainder(IExpression expression);
     IExpression UnsignedToFloat(Bits size);
-    IExpression Write(IExpression offset, IExpression value);
+    IExpression Write(ISpace space, IExpression offset, IExpression value);
     IExpression Xor(IExpression expression);
     IExpression ZeroExtend(Bits size);
 }

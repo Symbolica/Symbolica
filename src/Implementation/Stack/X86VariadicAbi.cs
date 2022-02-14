@@ -25,7 +25,7 @@ internal sealed class X86VariadicAbi : IVariadicAbi
         var value = space.CreateConstant(bytes.ToBits(), BigInteger.Zero);
 
         foreach (var (argument, offset) in varargs.Zip(offsets, (a, o) => (a, o)))
-            value = value.Write(space.CreateConstant(value.Size, (uint) offset), argument);
+            value = value.Write(space, space.CreateConstant(value.Size, (uint) offset), argument);
 
         var address = memory.Allocate(Section.Stack, value.Size);
         memory.Write(address, value);

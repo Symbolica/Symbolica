@@ -41,11 +41,11 @@ internal sealed class PersistentBlock : IPersistentBlock
             ? proposition.CanBeTrue
                 ? Result<IPersistentBlock>.Both(
                     proposition.FalseSpace,
-                    Write(GetOffset(space, address, isFullyInside), value))
+                    Write(space, GetOffset(space, address, isFullyInside), value))
                 : Result<IPersistentBlock>.Failure(
                     proposition.FalseSpace)
             : Result<IPersistentBlock>.Success(
-                Write(GetOffset(space, address), value));
+                Write(space, GetOffset(space, address), value));
     }
 
     public Result<IExpression> TryRead(ISpace space, IExpression address, Bits size)
@@ -61,11 +61,11 @@ internal sealed class PersistentBlock : IPersistentBlock
             ? proposition.CanBeTrue
                 ? Result<IExpression>.Both(
                     proposition.FalseSpace,
-                    Read(GetOffset(space, address, isFullyInside), size))
+                    Read(space, GetOffset(space, address, isFullyInside), size))
                 : Result<IExpression>.Failure(
                     proposition.FalseSpace)
             : Result<IExpression>.Success(
-                Read(GetOffset(space, address), size));
+                Read(space, GetOffset(space, address), size));
     }
 
     private bool IsZeroOffset(ISpace space, IExpression address)
@@ -103,13 +103,13 @@ internal sealed class PersistentBlock : IPersistentBlock
                 space.CreateConstant(_data.Size, (uint) _data.Size));
     }
 
-    private IPersistentBlock Write(IExpression offset, IExpression value)
+    private IPersistentBlock Write(ISpace space, IExpression offset, IExpression value)
     {
-        return new PersistentBlock(_section, Address, _data.Write(offset, value));
+        return new PersistentBlock(_section, Address, _data.Write(space, offset, value));
     }
 
-    private IExpression Read(IExpression offset, Bits size)
+    private IExpression Read(ISpace space, IExpression offset, Bits size)
     {
-        return _data.Read(offset, size);
+        return _data.Read(space, offset, size);
     }
 }
