@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Z3;
+using Symbolica.Computation.Exceptions;
 
 namespace Symbolica.Computation;
 
@@ -77,8 +78,10 @@ internal sealed class Context<TContextHandle> : IContext
 
     private static Model CreateModel(Solver solver)
     {
-        return solver.Check() == Status.SATISFIABLE
+        var status = solver.Check();
+
+        return status == Status.SATISFIABLE
             ? solver.Model
-            : throw new Exception("The model cannot be evaluated.");
+            : throw new InvalidModelException(status);
     }
 }
