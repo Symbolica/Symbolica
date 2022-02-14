@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+﻿using System.Numerics;
+using FluentAssertions;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Computation.Values.TestData;
 using Xunit;
 
@@ -42,5 +44,53 @@ public class OrTests
         var result1 = Or.Create(left1, right1).AsBool(Context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
+    }
+
+    [Theory]
+    [ClassData(typeof(IdentityTestData))]
+    private void ShouldShortCircuitToLeftWhenRightIsZero(IValue value)
+    {
+        var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
+
+        var actual = Or.Create(value, zero).AsBitVector(Context).Simplify();
+        var expected = value.AsBitVector(Context).Simplify();
+
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Theory]
+    [ClassData(typeof(IdentityTestData))]
+    private void ShouldShortCircuitToRightWhenLeftIsZero(IValue value)
+    {
+        var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
+
+        var actual = Or.Create(zero, value).AsBitVector(Context).Simplify();
+        var expected = value.AsBitVector(Context).Simplify();
+
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Theory]
+    [ClassData(typeof(IdentityTestData))]
+    private void ShouldShortCircuitToOnesWhenRightIsOnes(IValue value)
+    {
+        var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
+
+        var actual = Or.Create(value, ones).AsBitVector(Context).Simplify();
+        var expected = ones.AsBitVector(Context).Simplify();
+
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Theory]
+    [ClassData(typeof(IdentityTestData))]
+    private void ShouldShortCircuitToOnesWhenLeftIsOnes(IValue value)
+    {
+        var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
+
+        var actual = Or.Create(ones, value).AsBitVector(Context).Simplify();
+        var expected = ones.AsBitVector(Context).Simplify();
+
+        actual.Should().BeEquivalentTo(expected);
     }
 }
