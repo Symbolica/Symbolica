@@ -368,10 +368,10 @@ internal sealed class Expression<TContext> : IExpression
 
     private IExpression Evaluate(IPersistentSpace space)
     {
-        using var model = space.GetModel(_assertions);
+        using var constraints = space.GetConstraints(_assertions);
 
         return Create(_collectionFactory,
-            ConstantUnsigned.Create(Size, model.Evaluate(_value)));
+            ConstantUnsigned.Create(Size, constraints.Evaluate(_value)));
     }
 
     private static IExpression Create(ICollectionFactory collectionFactory,

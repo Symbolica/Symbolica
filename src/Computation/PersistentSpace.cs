@@ -32,9 +32,9 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
             _assertions.Push(assertion));
     }
 
-    public IModel GetModel(IValue[] assertions)
+    public IConstraints GetConstraints(IValue[] assertions)
     {
-        return Model.Create<TContext>(assertions.Concat(_assertions));
+        return Constraints.Create<TContext>(assertions.Concat(_assertions));
     }
 
     public IExample GetExample()
