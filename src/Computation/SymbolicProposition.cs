@@ -28,9 +28,9 @@ internal sealed class SymbolicProposition : IProposition
         _model.Dispose();
     }
 
-    public static IProposition Create(IPersistentSpace space, IValue assertion, IValue[] constraints)
+    public static IProposition Create(IPersistentSpace space, IValue assertion, IValue[] assertions)
     {
-        var model = space.GetModel(constraints);
+        var model = space.GetModel(assertions);
 
         return new SymbolicProposition(space, model, assertion, Not.Create(assertion));
     }

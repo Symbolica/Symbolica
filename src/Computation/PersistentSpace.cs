@@ -32,9 +32,9 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
             _assertions.Push(assertion));
     }
 
-    public IModel GetModel(IValue[] constraints)
+    public IModel GetModel(IValue[] assertions)
     {
-        return Model.Create<TContext>(constraints.Concat(_assertions));
+        return Model.Create<TContext>(assertions.Concat(_assertions));
     }
 
     public IExample GetExample()
@@ -66,10 +66,10 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
         return CreateSymbolic(size, name, Enumerable.Empty<Func<IExpression, IExpression>>());
     }
 
-    public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> constraints)
+    public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions)
     {
         return Expression<TContext>.Create(_collectionFactory,
-            Symbol.Create(size, name), constraints);
+            Symbol.Create(size, name), assertions);
     }
 
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
