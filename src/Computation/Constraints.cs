@@ -6,12 +6,12 @@ using Microsoft.Z3;
 
 namespace Symbolica.Computation;
 
-internal sealed class Model : IModel
+internal sealed class Constraints : IConstraints
 {
     private readonly IContext _context;
     private readonly Solver _solver;
 
-    private Model(IContext context, Solver solver)
+    private Constraints(IContext context, Solver solver)
     {
         _context = context;
         _solver = solver;
@@ -48,13 +48,13 @@ internal sealed class Model : IModel
             : Enumerable.Empty<KeyValuePair<string, string>>();
     }
 
-    public static IModel Create<TContext>(IEnumerable<IValue> assertions)
+    public static IConstraints Create<TContext>(IEnumerable<IValue> assertions)
         where TContext : IContext, new()
     {
         var context = new TContext();
         var solver = context.CreateSolver();
         solver.Assert(assertions.Select(a => a.AsBool(context)).ToArray());
 
-        return new Model(context, solver);
+        return new Constraints(context, solver);
     }
 }

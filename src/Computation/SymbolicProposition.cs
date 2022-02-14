@@ -6,32 +6,32 @@ namespace Symbolica.Computation;
 internal sealed class SymbolicProposition : IProposition
 {
     private readonly IValue _assertion;
-    private readonly IModel _model;
+    private readonly IConstraints _constraints;
     private readonly IValue _negation;
     private readonly IPersistentSpace _space;
 
-    private SymbolicProposition(IPersistentSpace space, IModel model, IValue assertion, IValue negation)
+    private SymbolicProposition(IPersistentSpace space, IConstraints constraints, IValue assertion, IValue negation)
     {
         _space = space;
-        _model = model;
+        _constraints = constraints;
         _assertion = assertion;
         _negation = negation;
     }
 
     public ISpace FalseSpace => _space.Assert(_negation);
     public ISpace TrueSpace => _space.Assert(_assertion);
-    public bool CanBeFalse => _model.IsSatisfiable(_negation);
-    public bool CanBeTrue => _model.IsSatisfiable(_assertion);
+    public bool CanBeFalse => _constraints.IsSatisfiable(_negation);
+    public bool CanBeTrue => _constraints.IsSatisfiable(_assertion);
 
     public void Dispose()
     {
-        _model.Dispose();
+        _constraints.Dispose();
     }
 
-    public static IProposition Create(IPersistentSpace space, IValue assertion, IValue[] constraints)
+    public static IProposition Create(IPersistentSpace space, IValue assertion, IValue[] assertions)
     {
-        var model = space.GetModel(constraints);
+        var constraints = space.GetConstraints(assertions);
 
-        return new SymbolicProposition(space, model, assertion, Not.Create(assertion));
+        return new SymbolicProposition(space, constraints, assertion, Not.Create(assertion));
     }
 }

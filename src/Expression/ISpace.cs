@@ -13,5 +13,5 @@ public interface ISpace
     IExpression CreateConstantFloat(Bits size, string value);
     IExpression CreateGarbage(Bits size);
     IExpression CreateSymbolic(Bits size, string? name);
-    IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> constraints);
+    IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions);
 }

@@ -13,16 +13,16 @@ namespace Symbolica.Computation;
 internal sealed class Expression<TContext> : IExpression
     where TContext : IContext, new()
 {
+    private readonly IValue[] _assertions;
     private readonly ICollectionFactory _collectionFactory;
-    private readonly IValue[] _constraints;
     private readonly IValue _value;
 
     private Expression(ICollectionFactory collectionFactory,
-        IValue value, IValue[] constraints)
+        IValue value, IValue[] assertions)
     {
         _collectionFactory = collectionFactory;
         _value = value;
-        _constraints = constraints;
+        _assertions = assertions;
     }
 
     public Bits Size => _value.Size;
@@ -42,7 +42,7 @@ internal sealed class Expression<TContext> : IExpression
     {
         return _value is IConstantValue v
             ? ConstantProposition.Create(space, v)
-            : SymbolicProposition.Create((IPersistentSpace) space, _value, _constraints);
+            : SymbolicProposition.Create((IPersistentSpace) space, _value, _assertions);
     }
 
     public IExpression Add(IExpression expression)
@@ -322,7 +322,7 @@ internal sealed class Expression<TContext> : IExpression
             ? Create(_collectionFactory,
                 value)
             : Create(_collectionFactory,
-                value, _constraints);
+                value, _assertions);
     }
 
     private IExpression Binary(IExpression y, Func<IValue, IValue, IValue> func)
@@ -340,7 +340,7 @@ internal sealed class Expression<TContext> : IExpression
             ? Create(_collectionFactory,
                 value)
             : Create(_collectionFactory,
-                value, _constraints.Concat(y._constraints).ToArray());
+                value, _assertions.Concat(y._assertions).ToArray());
     }
 
     private IExpression Ternary(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
@@ -356,7 +356,7 @@ internal sealed class Expression<TContext> : IExpression
             ? Create(_collectionFactory,
                 value)
             : Create(_collectionFactory,
-                value, _constraints.Concat(y._constraints.Concat(z._constraints)).ToArray());
+                value, _assertions.Concat(y._assertions.Concat(z._assertions)).ToArray());
     }
 
     private BigInteger AsConstant()
@@ -368,10 +368,10 @@ internal sealed class Expression<TContext> : IExpression
 
     private IExpression Evaluate(IPersistentSpace space)
     {
-        using var model = space.GetModel(_constraints);
+        using var constraints = space.GetConstraints(_assertions);
 
         return Create(_collectionFactory,
-            ConstantUnsigned.Create(Size, model.Evaluate(_value)));
+            ConstantUnsigned.Create(Size, constraints.Evaluate(_value)));
     }
 
     private static IExpression Create(ICollectionFactory collectionFactory,
@@ -382,20 +382,20 @@ internal sealed class Expression<TContext> : IExpression
     }
 
     private static IExpression Create(ICollectionFactory collectionFactory,
-        IValue value, IValue[] constraints)
+        IValue value, IValue[] assertions)
     {
         return new Expression<TContext>(collectionFactory,
-            value, constraints);
+            value, assertions);
     }
 
     public static IExpression Create(ICollectionFactory collectionFactory,
-        IValue value, IEnumerable<Func<IExpression, IExpression>> constraints)
+        IValue value, IEnumerable<Func<IExpression, IExpression>> assertions)
     {
         var unconstrained = Create(collectionFactory,
             value);
 
         return Create(collectionFactory,
-            value, constraints
+            value, assertions
                 .Select(c => ((Expression<TContext>) c(unconstrained))._value)
                 .ToArray());
     }
