@@ -31,36 +31,38 @@ internal sealed record Write : BitVector
         return Equals(other as Write);
     }
 
-    public IValue LayerRead(ICollectionFactory collectionFactory, IValue offset, Bits size)
+    public IValue LayerRead(ICollectionFactory collectionFactory, ISolver solver, IValue offset, Bits size)
     {
         var mask = Mask(this, offset, size);
 
-        return IsNotOverlapping(mask)
-            ? Read.Create(collectionFactory, _writeBuffer, offset, size)
-            : IsAligned(mask)
+        return IsNotOverlapping(solver, mask)
+            ? Read.Create(collectionFactory, solver, _writeBuffer, offset, size)
+            : IsAligned(solver, mask)
                 ? _writeValue
-                : Read.Create(collectionFactory, Flatten(), offset, size);
+                : Read.Create(collectionFactory, solver, Flatten(), offset, size);
     }
 
-    private IValue LayerWrite(ICollectionFactory collectionFactory, IValue offset, IValue value)
+    private IValue LayerWrite(ICollectionFactory collectionFactory, ISolver solver, IValue offset, IValue value)
     {
         var mask = Mask(this, offset, value.Size);
 
-        return IsNotOverlapping(mask)
-            ? new Write(Create(collectionFactory, _writeBuffer, offset, value), _writeOffset, _writeValue)
-            : IsAligned(mask)
+        return IsNotOverlapping(solver, mask)
+            ? new Write(Create(collectionFactory, solver, _writeBuffer, offset, value), _writeOffset, _writeValue)
+            : IsAligned(solver, mask)
                 ? new Write(_writeBuffer, offset, value)
                 : new Write(this, offset, value);
     }
 
-    private bool IsNotOverlapping(IValue mask)
+    private bool IsNotOverlapping(ISolver solver, IValue mask)
     {
-        return And.Create(mask, _writeMask) is IConstantValue a && a.AsUnsigned().IsZero;
+        var isOverlapping = And.Create(mask, _writeMask);
+        return !solver.IsSatisfiable(isOverlapping);
     }
 
-    private bool IsAligned(IValue mask)
+    private bool IsAligned(ISolver solver, IValue mask)
     {
-        return Xor.Create(mask, _writeMask) is IConstantValue x && x.AsUnsigned().IsZero;
+        var isNotAligned = Xor.Create(mask, _writeMask);
+        return !solver.IsSatisfiable(isNotAligned);
     }
 
     private IValue Flatten()
@@ -75,12 +77,13 @@ internal sealed record Write : BitVector
         return ShiftLeft.Create(ConstantUnsigned.CreateZero(size).Not().Extend(buffer.Size), offset);
     }
 
-    public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, IValue value)
+    public static IValue Create(ICollectionFactory collectionFactory, ISolver solver,
+        IValue buffer, IValue offset, IValue value)
     {
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
             : buffer is Write w
-                ? w.LayerWrite(collectionFactory, offset, value)
+                ? w.LayerWrite(collectionFactory, solver, offset, value)
                 : new Write(buffer, offset, value);
     }
 }
