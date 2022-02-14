@@ -70,8 +70,7 @@ internal sealed class Context<TContextHandle> : IContext
         return Create(c => c.MkSolver(c.MkTactic("smt")));
     }
 
-    private TZ3Object Create<TZ3Object>(Func<Context, TZ3Object> func)
-        where TZ3Object : Z3Object
+    private TResult Create<TResult>(Func<Context, TResult> func)
     {
         return func(_contextHandle.Context);
     }
