@@ -22,7 +22,7 @@ public sealed class ConstantStruct : IOperand
         {
             var value = element.Operand.Evaluate(state);
             var offset = state.Space.CreateConstant(_size, (uint) element.Offset);
-            expression = expression.Write(offset, value);
+            expression = expression.Write(state.Space, offset, value);
         }
 
         return expression;
