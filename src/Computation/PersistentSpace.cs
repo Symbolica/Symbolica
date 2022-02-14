@@ -32,9 +32,9 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
             _assertions.Push(assertion));
     }
 
-    public IConstraints GetConstraints(IValue[] assertions)
+    public IConstraints GetConstraints()
     {
-        return Constraints.Create<TContext>(assertions.Concat(_assertions));
+        return Constraints.Create<TContext>(_assertions);
     }
 
     public IExample GetExample()
@@ -44,14 +44,14 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IExpression CreateConstant(Bits size, BigInteger value)
     {
-        return Expression<TContext>.Create(_collectionFactory,
-            ConstantUnsigned.Create(size, value), Enumerable.Empty<Func<IExpression, IExpression>>());
+        return new Expression<TContext>(_collectionFactory,
+            ConstantUnsigned.Create(size, value));
     }
 
     public IExpression CreateConstantFloat(Bits size, string value)
     {
-        return Expression<TContext>.Create(_collectionFactory,
-            size.ParseFloat(value), Enumerable.Empty<Func<IExpression, IExpression>>());
+        return new Expression<TContext>(_collectionFactory,
+            size.ParseFloat(value));
     }
 
     public IExpression CreateGarbage(Bits size)
@@ -68,8 +68,8 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions)
     {
-        return Expression<TContext>.Create(_collectionFactory,
-            Symbol.Create(size, name), assertions);
+        return Expression<TContext>.CreateSymbolic(_collectionFactory,
+            size, name ?? Guid.NewGuid().ToString(), assertions);
     }
 
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)

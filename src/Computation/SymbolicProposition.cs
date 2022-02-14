@@ -28,9 +28,9 @@ internal sealed class SymbolicProposition : IProposition
         _constraints.Dispose();
     }
 
-    public static IProposition Create(IPersistentSpace space, IValue assertion, IValue[] assertions)
+    public static IProposition Create(IPersistentSpace space, IValue assertion)
     {
-        var constraints = space.GetConstraints(assertions);
+        var constraints = space.GetConstraints();
 
         return new SymbolicProposition(space, constraints, assertion, Not.Create(assertion));
     }

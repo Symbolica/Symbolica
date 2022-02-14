@@ -9,12 +9,10 @@ namespace Symbolica.Computation;
 internal sealed class Constraints : IConstraints
 {
     private readonly IContext _context;
-    private readonly Solver _solver;
 
-    private Constraints(IContext context, Solver solver)
+    private Constraints(IContext context)
     {
         _context = context;
-        _solver = solver;
     }
 
     public void Dispose()
@@ -25,7 +23,7 @@ internal sealed class Constraints : IConstraints
     public bool IsSatisfiable(IValue assertion)
     {
         // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
-        return _solver.Check(assertion.AsBool(_context)) switch
+        return _context.Solver.Check(assertion.AsBool(_context)) switch
         {
             Status.UNSATISFIABLE => false,
             Status.SATISFIABLE => true,
@@ -35,15 +33,17 @@ internal sealed class Constraints : IConstraints
 
     public BigInteger Evaluate(IValue value)
     {
-        return _solver.Check() == Status.SATISFIABLE
-            ? ((BitVecNum) _solver.Model.Eval(value.AsBitVector(_context), true)).BigInteger
+        var expr = value.AsBitVector(_context);
+
+        return _context.Solver.Check() == Status.SATISFIABLE
+            ? ((BitVecNum) _context.Solver.Model.Eval(expr, true)).BigInteger
             : throw new Exception("The model cannot be evaluated.");
     }
 
     public IEnumerable<KeyValuePair<string, string>> Evaluate()
     {
-        return _solver.Check() == Status.SATISFIABLE
-            ? _solver.Model.Consts.Select(
+        return _context.Solver.Check() == Status.SATISFIABLE
+            ? _context.Solver.Model.Consts.Select(
                 p => new KeyValuePair<string, string>(p.Key.Name.ToString(), p.Value.ToString()))
             : Enumerable.Empty<KeyValuePair<string, string>>();
     }
@@ -52,9 +52,8 @@ internal sealed class Constraints : IConstraints
         where TContext : IContext, new()
     {
         var context = new TContext();
-        var solver = context.CreateSolver();
-        solver.Assert(assertions.Select(a => a.AsBool(context)).ToArray());
+        context.Assert(assertions.Select(a => a.AsBool(context)));
 
-        return new Constraints(context, solver);
+        return new Constraints(context);
     }
 }

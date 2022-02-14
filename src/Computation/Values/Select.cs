@@ -10,7 +10,7 @@ internal sealed class Select : IValue
     private readonly IValue _predicate;
     private readonly IValue _trueValue;
 
-    public Select(IValue predicate, IValue trueValue, IValue falseValue)
+    private Select(IValue predicate, IValue trueValue, IValue falseValue)
     {
         _predicate = predicate;
         _trueValue = trueValue;
@@ -43,5 +43,14 @@ internal sealed class Select : IValue
         return context.CreateExpr(c => (FPExpr) c.MkITE(_predicate.AsBool(context),
             _trueValue.AsFloat(context),
             _falseValue.AsFloat(context)));
+    }
+
+    public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
+    {
+        return predicate is IConstantValue p
+            ? p.AsBool()
+                ? trueValue
+                : falseValue
+            : new Select(predicate, trueValue, falseValue);
     }
 }
