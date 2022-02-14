@@ -31,12 +31,12 @@ internal sealed class Expression<TContext> : IExpression
     {
         return _value is IConstantValue
             ? this
-            : Create(((IPersistentSpace) space).Assertions.GetConstant);
+            : Create(GetAssertions(space).GetConstant);
     }
 
     public IProposition GetProposition(ISpace space)
     {
-        return ((IPersistentSpace) space).Assertions.GetProposition(_value);
+        return GetAssertions(space).GetProposition(_value);
     }
 
     public IExpression Add(IExpression expression)
@@ -181,8 +181,7 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Read(ISpace space, IExpression offset, Bits size)
     {
-        return Create(offset, (b, o) =>
-            Values.Read.Create(_collectionFactory, ((IPersistentSpace) space).Assertions, b, o, size));
+        return Create(offset, (b, o) => Values.Read.Create(_collectionFactory, GetAssertions(space), b, o, size));
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -289,8 +288,7 @@ internal sealed class Expression<TContext> : IExpression
     public IExpression Write(ISpace space, IExpression offset, IExpression value)
     {
         return Size == offset.Size
-            ? Create(offset, value, (b, o, v) =>
-                Values.Write.Create(_collectionFactory, ((IPersistentSpace) space).Assertions, b, o, v))
+            ? Create(offset, value, (b, o, v) => Values.Write.Create(_collectionFactory, GetAssertions(space), b, o, v))
             : throw new InconsistentExpressionSizesException(Size, offset.Size);
     }
 
@@ -331,6 +329,11 @@ internal sealed class Expression<TContext> : IExpression
         using var context = new TContext();
 
         return _value.AsConstant(context);
+    }
+
+    private static IAssertions GetAssertions(ISpace space)
+    {
+        return ((IPersistentSpace) space).Assertions;
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
