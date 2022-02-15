@@ -44,12 +44,12 @@ internal sealed class Constraints : IConstraints
         // _simplifiedAssertionTracer.WriteLine($"{id}, {boolExpr.Simplify().SExpr()}");
         // _simplifiedAssertionTracer.Flush();
 
-        if (AssertionCount(assertion) > 50)
-        {
-            var printedExpr = PrintAssertion(assertion, 0);
-            _bigAssertionTracer.WriteLine($"{id}, {printedExpr}");
-            _bigAssertionTracer.Flush();
-        }
+        // if (AssertionCount(assertion) > 50)
+        // {
+        //     var printedExpr = PrintAssertion(assertion, 0);
+        //     _bigAssertionTracer.WriteLine($"{id}, {printedExpr}");
+        //     _bigAssertionTracer.Flush();
+        // }
 
         _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Starting satisfiability check.");
         _solverTracer.Flush();
