@@ -40,8 +40,8 @@ internal sealed class Write : BitVector
     {
         public static SymbolicOffset Create(IValue value, IAssertions assertions)
         {
-            var order = assertions.GetConstant(value).AsUnsigned();
-            return new SymbolicOffset(value, order, new(null, null));
+            var rank = assertions.GetConstant(value).AsUnsigned();
+            return new SymbolicOffset(value, rank, new(null, null));
         }
 
         public IOffset RefineBounds(Bounds<BigInteger?> bounds)
@@ -118,19 +118,19 @@ internal sealed class Write : BitVector
         }
     }
 
-    private readonly IValue _writeBuffer;
+    private readonly IValue _buffer;
 
     private readonly ImmutableList<WriteData> _disjointWrites;
 
     private Write(IValue writeBuffer, ImmutableList<WriteData> disjointWrites)
             : base(writeBuffer.Size)
     {
-        _writeBuffer = writeBuffer;
+        _buffer = writeBuffer;
         _disjointWrites = disjointWrites;
     }
 
     // TODO: Add all the write data values in here
-    public override IEnumerable<IValue> Children => new[] { _writeBuffer };
+    public override IEnumerable<IValue> Children => new[] { _buffer };
 
     public override string? PrintedValue => null;
 
@@ -142,14 +142,10 @@ internal sealed class Write : BitVector
     public IValue LayerRead(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue offset, Bits size)
     {
-        var lookup = WriteData.Create(_writeBuffer, offset, ConstantUnsigned.Create(size, BigInteger.Zero), assertions);
+        var lookup = WriteData.Create(_buffer, offset, ConstantUnsigned.Create(size, BigInteger.Zero), assertions);
         var result = _disjointWrites.BinarySearch(lookup);
         if (result < 0)
         {
-            // If not found then we have to consider the ones either side.
-            // If overlaps with neither then read from the layer below.
-            // If it overlaps with one of them then check for alignment and do an exact read.
-            // Otherwise flatten and read (be careful when trying to smart about which Writes to include as in general we'd need to perform a search to determine which writes are potentially in range of this one if it's not disjoint).
             var index = ~result;
             WriteData? lower = index > 0 ? _disjointWrites[index - 1] : null;
             WriteData? upper = index < _disjointWrites.Count ? _disjointWrites[index] : null;
@@ -161,11 +157,10 @@ internal sealed class Write : BitVector
                     ? upper.Value.IsAlignedWith(lookup, assertions)
                         ? upper.Value.Value
                         : Read.Create(collectionFactory, assertions, Flatten(), offset, size)
-                    : Read.Create(collectionFactory, assertions, _writeBuffer, offset, size);
+                    : Read.Create(collectionFactory, assertions, _buffer, offset, size);
         }
         else
         {
-            // If found a value then we know it's overlapping and we need to check for alignment
             WriteData candidate = _disjointWrites[result];
             return candidate.IsAlignedWith(lookup, assertions)
                 ? candidate.Value
@@ -173,62 +168,104 @@ internal sealed class Write : BitVector
         }
     }
 
-    private IValue LayerWrite(IAssertions assertions, WriteData writeData)
+    private IValue LayerWrite(ICollectionFactory collectionFactory, IAssertions assertions, WriteData writeData)
     {
+        IValue Overwrite(int index, WriteData oldData)
+        {
+            return new Write(_buffer, _disjointWrites.SetItem(index, writeData.RefineBounds(oldData.Bounds)));
+        }
+
+        IValue NewLayer()
+        {
+            return new Write(this, ImmutableList.Create(writeData));
+        }
+
         var result = _disjointWrites.BinarySearch(writeData);
         if (result < 0)
         {
-            // If not found then we have to consider the ones either side.
-            // If overlaps with neither then slot in this new disjoint write.
-            // If it overlaps with one of them then check for alignment again.
-            // Otherwise write it as a whole new Write layer.
+            ImmutableList<T> TryUpdate<T>(ImmutableList<T> list, int index, T? value)
+                where T : struct
+            {
+                return index >= 0 && index < list.Count && value.HasValue
+                    ? list.SetItem(index, value.Value)
+                    : list;
+            }
+
+            ImmutableList<WriteData> RefineBounds(int index, WriteData? lower, WriteData? upper)
+            {
+                return
+                    TryUpdate(
+                        TryUpdate(_disjointWrites, index - 1, lower?.RefineBounds(new(null, writeData.Bounds.Lower ?? writeData.Offset.Rank))),
+                        index,
+                        upper?.RefineBounds(new(writeData.Bounds.Upper ?? (writeData.Offset.Rank + (uint) writeData.Value.Size), null)));
+            }
+
+            IValue WriteConstant(IConstantValue buffer, IConstantValue offset, IConstantValue value, int index, WriteData? lower, WriteData? upper)
+            {
+                return new Write(
+                    ConstantWrite(collectionFactory, buffer, offset, value),
+                    RefineBounds(index, lower, upper));
+            }
+
+            IValue WriteDisjoint(int index, WriteData? lower, WriteData? upper)
+            {
+                var disjointWrites =
+                    RefineBounds(index, lower, upper)
+                    .Insert(
+                        index,
+                        writeData.RefineBounds(
+                            new(
+                                lower?.Bounds.Upper ?? (lower?.Offset.Rank + (uint?) lower?.Value.Size),
+                                upper?.Bounds.Lower ?? upper?.Offset.Rank)));
+
+                return new Write(_buffer, ImmutableList.CreateRange(disjointWrites));
+            }
+
             var index = ~result;
             WriteData? lower = index > 0 ? _disjointWrites[index - 1] : null;
             WriteData? upper = index < _disjointWrites.Count ? _disjointWrites[index] : null;
             return lower is not null && lower.Value.IsOverlappingWith(writeData, assertions)
                 ? lower.Value.IsAlignedWith(writeData, assertions)
-                    ? new Write(_writeBuffer, _disjointWrites.Insert(index - 1, writeData))
-                    : new Write(this, ImmutableList.Create(writeData))
+                    ? Overwrite(index - 1, lower.Value)
+                    : NewLayer()
                 : upper is not null && upper.Value.IsOverlappingWith(writeData, assertions)
                     ? upper.Value.IsAlignedWith(writeData, assertions)
-                        ? new Write(_writeBuffer, _disjointWrites.Insert(index, writeData))
-                        : new Write(this, ImmutableList.Create(writeData))
-                    : new Write(
-                        _writeBuffer,
-                        ImmutableList.CreateRange(
-                            _disjointWrites
-                                .Take(index - 1)
-                                .Concat(
-                                    new[]
-                                    {
-                                        lower?.RefineBounds(new(null, writeData.Bounds.Lower)),
-                                        writeData.RefineBounds(new(lower?.Bounds.Upper, upper?.Bounds.Lower)),
-                                        upper?.RefineBounds(new(writeData.Bounds.Upper, null))
-                                    }.Where(x => x is not null).Cast<WriteData>())
-                                .Concat(_disjointWrites.Skip(index + 1))));
+                        ? Overwrite(index, upper.Value)
+                        : NewLayer()
+                    // TODO: In the non-overlapping case we should always recurse but need to refactor this
+                    // so that it can backtrack if this write can't 'fit' in the layer below.
+                    // Otherwise we could end up naively clobbering whole layers or introducing very thin intermediate layers
+                    : _buffer is IConstantValue b && writeData.Offset.Value is IConstantValue o && writeData.Value is IConstantValue v
+                        ? WriteConstant(b, o, v, index, lower, upper)
+                        : WriteDisjoint(index, lower, upper);
         }
         else
         {
-            // If found a value then we know it's overlapping and we need to check for alignment
             WriteData candidate = _disjointWrites[result];
             return candidate.IsAlignedWith(writeData, assertions)
-                ? new Write(_writeBuffer, _disjointWrites.Insert(result, writeData))
-                : new Write(this, ImmutableList.Create(writeData));
+                ? Overwrite(result, candidate)
+                : NewLayer();
         }
     }
 
     private IValue Flatten()
     {
-        return _disjointWrites.Aggregate(_writeBuffer, (b, write) => write.Flatten(b));
+        return _disjointWrites.Aggregate(_buffer, (b, write) => write.Flatten(b));
+    }
+
+    private static IValue ConstantWrite(ICollectionFactory collectionFactory,
+        IConstantValue buffer, IConstantValue offset, IConstantValue value)
+    {
+        return buffer.AsBitVector(collectionFactory).Write(offset.AsUnsigned(), value.AsBitVector(collectionFactory));
     }
 
     public static IValue Create(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue buffer, IValue offset, IValue value)
     {
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
-            ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
+            ? ConstantWrite(collectionFactory, b, o, v)
             : buffer is Write w
-                ? w.LayerWrite(assertions, WriteData.Create(buffer, offset, value, assertions))
+                ? w.LayerWrite(collectionFactory, assertions, WriteData.Create(buffer, offset, value, assertions))
                 : new Write(buffer, ImmutableList.Create(WriteData.Create(buffer, offset, value, assertions)));
     }
 }
