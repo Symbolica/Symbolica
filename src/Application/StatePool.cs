@@ -35,7 +35,6 @@ internal sealed class StatePool : IDisposable
 
         Task.Run(() =>
         {
-            var exeId = Guid.NewGuid();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             try
@@ -50,7 +49,7 @@ internal sealed class StatePool : IDisposable
                     var example = error is StateException stateException
                         ? string.Join(", ", stateException.Space.GetExample().Select(p => $"{p.Key}={p.Value}"))
                         : string.Empty;
-                    _errorTracer.WriteLine($"{exeId}, {error.Message}, {example}");
+                    _errorTracer.WriteLine($"{executable.Id}, {error.Message}, {example}");
                     _errorTracer.Flush();
                 }
                 else
@@ -61,7 +60,7 @@ internal sealed class StatePool : IDisposable
             finally
             {
                 Interlocked.Add(ref _executedInstructions, executable.ExecutedInstructions);
-                _stateTracer.WriteLine($"{exeId}, {depth}, {executable.ExecutedInstructions}, {stopwatch.Elapsed}");
+                _stateTracer.WriteLine($"{executable.Id}, {depth}, {executable.ExecutedInstructions}, {stopwatch.Elapsed}");
                 _stateTracer.Flush();
                 _countdownEvent.Signal();
             }

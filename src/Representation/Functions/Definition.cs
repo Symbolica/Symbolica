@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -9,6 +11,7 @@ namespace Symbolica.Representation.Functions;
 
 public sealed class Definition : IDefinition
 {
+    private static readonly TextWriterTraceListener _traceTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/stack-traces.txt"));
     private readonly IReadOnlyDictionary<BasicBlockId, IBasicBlock> _basicBlocks;
     private readonly BasicBlockId _entryId;
     private readonly bool _isVariadic;
@@ -43,6 +46,8 @@ public sealed class Definition : IDefinition
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
+        // _traceTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {state.Id}, Entering {Name}.");
+        // _traceTracer.Flush();
         state.Stack.Wind(caller, _isVariadic
             ? new Invocation(this,
                 new Arguments(arguments.Take(Parameters.Count).ToArray()),

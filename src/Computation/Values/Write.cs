@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
@@ -12,6 +14,31 @@ namespace Symbolica.Computation.Values;
 
 internal sealed class Write : BitVector
 {
+    private static readonly TextWriterTraceListener _tracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/writes.txt"));
+
+    private static void Trace(string message)
+    {
+        _tracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {message}");
+        _tracer.Flush();
+    }
+
+    private static T Time<T>(Func<T> f, string name)
+    {
+        Trace($"Started {name}");
+
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        var result = f();
+        stopwatch.Stop();
+
+        // if (stopwatch.Elapsed > TimeSpan.FromSeconds(5))
+        //     Debugger.Break();
+
+        Trace($"Completed {name} in {stopwatch.ElapsedMilliseconds}");
+        _tracer.Flush();
+        return result;
+    }
+
     private readonly record struct Bounds<T>(T Lower, T Upper);
 
     private interface IOffset : IComparable<IOffset>
@@ -75,28 +102,37 @@ internal sealed class Write : BitVector
             return Or.Create(And.Create(buffer, Not.Create(Mask)), writeData);
         }
 
-        public bool IsOverlappingWith(WriteData other, IAssertions assertions)
+        private bool BoundsCanOverlap(WriteData other)
         {
-            if (other.Bounds.Lower < Bounds.Lower)
-            {
-                return other.IsOverlappingWith(this, assertions);
-            }
-            if (Bounds.Upper <= other.Bounds.Lower)
+            return (other.Bounds.Lower ?? 0) < (Bounds.Lower ?? 0)
+                ? other.BoundsCanOverlap(this)
+                : Bounds.Upper is null || Bounds.Upper > (other.Bounds.Lower ?? 0);
+        }
+
+        public bool IsOverlappingAny(IEnumerable<WriteData> others, IAssertions assertions)
+        {
+            if (!others.Any(BoundsCanOverlap))
             {
                 return false;
             }
-            var isOverlapping = And.Create(Mask, other.Mask);
-            using var proposition = assertions.GetProposition(isOverlapping);
+            var isOverlapping = And.Create(Mask, others.Aggregate(ConstantUnsigned.Create(Mask.Size, BigInteger.Zero) as IValue, (acc, w) => Or.Create(acc, w.Mask)));
+            return Time(() =>
+            {
+                using var proposition = assertions.GetProposition(isOverlapping);
 
-            return proposition.CanBeTrue;
+                return proposition.CanBeTrue;
+            }, nameof(IsOverlappingAny));
         }
 
         public bool IsAlignedWith(WriteData other, IAssertions assertions)
         {
             var isNotAligned = Xor.Create(Mask, other.Mask);
-            using var proposition = assertions.GetProposition(isNotAligned);
+            return Time(() =>
+            {
+                using var proposition = assertions.GetProposition(isNotAligned);
 
-            return !proposition.CanBeTrue;
+                return !proposition.CanBeTrue;
+            }, $"{nameof(IsAlignedWith)}-{Offset.GetType()}-{other.Offset.GetType()}");
         }
 
         public WriteData RefineBounds(Bounds<BigInteger?> bounds) =>
@@ -136,116 +172,153 @@ internal sealed class Write : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
+        Trace("As bit vector");
         return Flatten().AsBitVector(context);
+    }
+
+    private IValue CumulativeMask() =>
+        _disjointWrites.Aggregate(
+            ConstantUnsigned.Create(_buffer.Size, BigInteger.Zero) as IValue,
+            (acc, write) => Or.Create(acc, write.Mask));
+
+    private bool IsDisjointFromThisLayer(IAssertions assertions, WriteData writeData)
+    {
+        return !assertions.GetProposition(And.Create(writeData.Mask, CumulativeMask())).CanBeTrue;
     }
 
     public IValue LayerRead(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue offset, Bits size)
     {
-        var lookup = WriteData.Create(_buffer, offset, ConstantUnsigned.Create(size, BigInteger.Zero), assertions);
-        var result = _disjointWrites.BinarySearch(lookup);
-        if (result < 0)
+        return Time(() =>
         {
-            var index = ~result;
-            WriteData? lower = index > 0 ? _disjointWrites[index - 1] : null;
-            WriteData? upper = index < _disjointWrites.Count ? _disjointWrites[index] : null;
-            return lower is not null && lower.Value.IsOverlappingWith(lookup, assertions)
-                ? lower.Value.IsAlignedWith(lookup, assertions)
-                    ? lower.Value.Value
-                    : Read.Create(collectionFactory, assertions, Flatten(), offset, size)
-                : upper is not null && upper.Value.IsOverlappingWith(lookup, assertions)
-                    ? upper.Value.IsAlignedWith(lookup, assertions)
-                        ? upper.Value.Value
-                        : Read.Create(collectionFactory, assertions, Flatten(), offset, size)
-                    : Read.Create(collectionFactory, assertions, _buffer, offset, size);
-        }
-        else
-        {
-            WriteData candidate = _disjointWrites[result];
-            return candidate.IsAlignedWith(lookup, assertions)
-                ? candidate.Value
-                : Read.Create(collectionFactory, assertions, Flatten(), offset, size);
-        }
+
+            var lookup = WriteData.Create(_buffer, offset, ConstantUnsigned.Create(size, BigInteger.Zero), assertions);
+
+            IValue ReadLayerBelow()
+            {
+                Trace("Read layer below");
+                // Debug.Assert(IsDisjointFromThisLayer(assertions, lookup));
+                return Read.Create(collectionFactory, assertions, _buffer, offset, size);
+            }
+
+            IValue OverlappingRead()
+            {
+                Trace("Overlapping read");
+                return Read.Create(collectionFactory, assertions, Flatten(), offset, size);
+            }
+
+            var result = _disjointWrites.BinarySearch(lookup);
+            if (result < 0)
+            {
+                var index = ~result;
+                WriteData? lower = index > 0 ? _disjointWrites[index - 1] : null;
+                WriteData? upper = index < _disjointWrites.Count ? _disjointWrites[index] : null;
+                return !lookup.IsOverlappingAny(new[] { lower, upper }.Where(x => x is not null).Cast<WriteData>(), assertions)
+                    ? ReadLayerBelow()
+                    : lower is not null && lower?.Offset is SymbolicOffset && lower.Value.IsAlignedWith(lookup, assertions)
+                        ? lower.Value.Value
+                        : upper is not null && upper?.Offset is SymbolicOffset && upper.Value.IsAlignedWith(lookup, assertions)
+                            ? upper.Value.Value
+                            : OverlappingRead();
+            }
+            else
+            {
+                WriteData candidate = _disjointWrites[result];
+                return candidate.IsAlignedWith(lookup, assertions)
+                    ? candidate.Value
+                    : OverlappingRead();
+            }
+        },
+        "Layer read");
     }
 
     private IValue LayerWrite(ICollectionFactory collectionFactory, IAssertions assertions, WriteData writeData)
     {
-        IValue Overwrite(int index, WriteData oldData)
+        return Time(() =>
         {
-            return new Write(_buffer, _disjointWrites.SetItem(index, writeData.RefineBounds(oldData.Bounds)));
-        }
-
-        IValue NewLayer()
-        {
-            return new Write(this, ImmutableList.Create(writeData));
-        }
-
-        var result = _disjointWrites.BinarySearch(writeData);
-        if (result < 0)
-        {
-            ImmutableList<T> TryUpdate<T>(ImmutableList<T> list, int index, T? value)
-                where T : struct
+            IValue Overwrite(int index, WriteData oldData)
             {
-                return index >= 0 && index < list.Count && value.HasValue
-                    ? list.SetItem(index, value.Value)
-                    : list;
+                Trace("Overwrite");
+                return new Write(_buffer, _disjointWrites.SetItem(index, writeData.RefineBounds(oldData.Bounds)));
             }
 
-            ImmutableList<WriteData> RefineBounds(int index, WriteData? lower, WriteData? upper)
+            IValue NewLayer()
             {
-                return
-                    TryUpdate(
-                        TryUpdate(_disjointWrites, index - 1, lower?.RefineBounds(new(null, writeData.Bounds.Lower ?? writeData.Offset.Rank))),
-                        index,
-                        upper?.RefineBounds(new(writeData.Bounds.Upper ?? (writeData.Offset.Rank + (uint) writeData.Value.Size), null)));
+                Trace("New layer");
+                return new Write(this, ImmutableList.Create(writeData));
             }
 
-            IValue WriteConstant(IConstantValue buffer, IConstantValue offset, IConstantValue value, int index, WriteData? lower, WriteData? upper)
+            var result = _disjointWrites.BinarySearch(writeData);
+            if (result < 0)
             {
-                return new Write(
-                    ConstantWrite(collectionFactory, buffer, offset, value),
-                    RefineBounds(index, lower, upper));
-            }
+                ImmutableList<T> TryUpdate<T>(ImmutableList<T> list, int index, T? value)
+                    where T : struct
+                {
+                    return index >= 0 && index < list.Count && value.HasValue
+                        ? list.SetItem(index, value.Value)
+                        : list;
+                }
 
-            IValue WriteDisjoint(int index, WriteData? lower, WriteData? upper)
-            {
-                var disjointWrites =
-                    RefineBounds(index, lower, upper)
-                    .Insert(
-                        index,
-                        writeData.RefineBounds(
-                            new(
-                                lower?.Bounds.Upper ?? (lower?.Offset.Rank + (uint?) lower?.Value.Size),
-                                upper?.Bounds.Lower ?? upper?.Offset.Rank)));
+                ImmutableList<WriteData> RefineBounds(int index, WriteData? lower, WriteData? upper)
+                {
+                    return
+                        TryUpdate(
+                            TryUpdate(_disjointWrites, index - 1, lower?.RefineBounds(new(null, writeData.Bounds.Lower ?? writeData.Offset.Rank))),
+                            index,
+                            upper?.RefineBounds(new(writeData.Bounds.Upper ?? (writeData.Offset.Rank + (uint) writeData.Value.Size), null)));
+                }
 
-                return new Write(_buffer, ImmutableList.CreateRange(disjointWrites));
-            }
+                IValue WriteConstant(IConstantValue buffer, IConstantValue offset, IConstantValue value, int index, WriteData? lower, WriteData? upper)
+                {
+                    Trace("Write constant");
+                    return new Write(
+                        ConstantWrite(collectionFactory, buffer, offset, value),
+                        RefineBounds(index, lower, upper));
+                }
 
-            var index = ~result;
-            WriteData? lower = index > 0 ? _disjointWrites[index - 1] : null;
-            WriteData? upper = index < _disjointWrites.Count ? _disjointWrites[index] : null;
-            return lower is not null && lower.Value.IsOverlappingWith(writeData, assertions)
-                ? lower.Value.IsAlignedWith(writeData, assertions)
-                    ? Overwrite(index - 1, lower.Value)
-                    : NewLayer()
-                : upper is not null && upper.Value.IsOverlappingWith(writeData, assertions)
-                    ? upper.Value.IsAlignedWith(writeData, assertions)
-                        ? Overwrite(index, upper.Value)
-                        : NewLayer()
+                IValue WriteDisjoint(int index, WriteData? lower, WriteData? upper)
+                {
+                    Trace("Write disjoint");
+                    // Debug.Assert(IsDisjointFromThisLayer(assertions, writeData));
+                    var disjointWrites =
+                        RefineBounds(index, lower, upper)
+                        .Insert(
+                            index,
+                            writeData.RefineBounds(
+                                new(
+                                    lower?.Bounds.Upper ?? (lower?.Offset.Rank + (uint?) lower?.Value.Size),
+                                    upper?.Bounds.Lower ?? upper?.Offset.Rank)));
+
+                    return new Write(_buffer, ImmutableList.CreateRange(disjointWrites));
+                }
+
+                // if (writeData.Offset is SymbolicOffset)
+                //     Debugger.Break();
+
+                var index = ~result;
+                WriteData? lower = index > 0 ? _disjointWrites[index - 1] : null;
+                WriteData? upper = index < _disjointWrites.Count ? _disjointWrites[index] : null;
+                return !writeData.IsOverlappingAny(new[] { lower, upper }.Where(x => x is not null).Cast<WriteData>(), assertions)
                     // TODO: In the non-overlapping case we should always recurse but need to refactor this
                     // so that it can backtrack if this write can't 'fit' in the layer below.
                     // Otherwise we could end up naively clobbering whole layers or introducing very thin intermediate layers
-                    : _buffer is IConstantValue b && writeData.Offset.Value is IConstantValue o && writeData.Value is IConstantValue v
+                    ? _buffer is IConstantValue b && writeData.Offset.Value is IConstantValue o && writeData.Value is IConstantValue v
                         ? WriteConstant(b, o, v, index, lower, upper)
-                        : WriteDisjoint(index, lower, upper);
-        }
-        else
-        {
-            WriteData candidate = _disjointWrites[result];
-            return candidate.IsAlignedWith(writeData, assertions)
-                ? Overwrite(result, candidate)
-                : NewLayer();
-        }
+                        : WriteDisjoint(index, lower, upper)
+                    : lower is not null && lower.Value.IsAlignedWith(writeData, assertions)
+                        ? Overwrite(index - 1, lower.Value)
+                        : upper is not null && upper.Value.IsAlignedWith(writeData, assertions)
+                            ? Overwrite(index, upper.Value)
+                            : NewLayer();
+            }
+            else
+            {
+                WriteData candidate = _disjointWrites[result];
+                return candidate.IsAlignedWith(writeData, assertions)
+                    ? Overwrite(result, candidate)
+                    : NewLayer();
+            }
+        }, "Layer write");
     }
 
     private IValue Flatten()

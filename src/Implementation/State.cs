@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -21,6 +22,7 @@ internal sealed class State : IState, IExecutable
     public State(IStateAction initialAction, IModule module, ISpace space,
         IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
     {
+        Id = Guid.NewGuid();
         ExecutedInstructions = 0UL;
         _forks = new List<IExecutable>();
         _isActive = true;
@@ -46,6 +48,7 @@ internal sealed class State : IState, IExecutable
         return _forks;
     }
 
+    public Guid Id { get; }
     public ulong ExecutedInstructions { get; private set; }
     public ISpace Space { get; }
     public IMemory Memory => _memory;
