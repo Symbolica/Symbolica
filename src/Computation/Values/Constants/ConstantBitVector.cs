@@ -62,10 +62,10 @@ internal sealed class ConstantBitVector : BitVector, IConstantValue
         return new ConstantBitVector(Size, _value.SetRange(GetIndex(offset), value._value));
     }
 
-    public static ConstantBitVector Create(ICollectionFactory collectionFactory, Bits size, ConstantUnsigned value)
+    public static ConstantBitVector Create(ICollectionFactory collectionFactory, ConstantUnsigned value)
     {
-        return new ConstantBitVector(size,
-            collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(size, value)));
+        return new ConstantBitVector(value.Size,
+            collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(value.Size, value)));
     }
 
     private static IEnumerable<byte> GetBytes(Bits size, BigInteger value)
