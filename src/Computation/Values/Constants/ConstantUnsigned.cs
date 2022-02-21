@@ -24,7 +24,7 @@ internal sealed class ConstantUnsigned : BitVector, IConstantValue
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)
     {
-        return ConstantBitVector.Create(collectionFactory, Size, this);
+        return ConstantBitVector.Create(collectionFactory, this);
     }
 
     public ConstantUnsigned AsUnsigned()
