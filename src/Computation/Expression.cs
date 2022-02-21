@@ -329,6 +329,16 @@ internal sealed class Expression : IExpression
             func(_value, ((Expression) y)._value, ((Expression) z)._value));
     }
 
+    public static IExpression CreateAggregateOffset(ICollectionFactory collectionFactory,
+        IExpression baseAddress, (Bytes, IExpression)[] offsets)
+    {
+        return new Expression(collectionFactory,
+            AggregateOffset.Create(
+                ((Expression) baseAddress)._value,
+                offsets.Select(
+                    o => ((BigInteger) (uint) o.Item1, ((Expression) o.Item2)._value)).ToArray()));
+    }
+
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
         Bits size, string name, IEnumerable<Func<IExpression, IExpression>> assertions)
     {

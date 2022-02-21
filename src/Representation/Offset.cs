@@ -5,10 +5,10 @@ namespace Symbolica.Representation;
 
 public sealed class Offset : IOperand
 {
-    private readonly IOperand _elementSize;
+    private readonly Bytes _elementSize;
     private readonly IOperand _index;
 
-    public Offset(IOperand elementSize, IOperand index)
+    public Offset(Bytes elementSize, IOperand index)
     {
         _elementSize = elementSize;
         _index = index;
@@ -16,9 +16,9 @@ public sealed class Offset : IOperand
 
     public IExpression Evaluate(IState state)
     {
-        var count = _index.Evaluate(state);
-        var size = _elementSize.Evaluate(state);
+        var index = _index.Evaluate(state);
+        var elementSize = state.Space.CreateConstant(state.Space.PointerSize, (uint) _elementSize);
 
-        return count.SignExtend(state.Space.PointerSize).Multiply(size);
+        return index.SignExtend(state.Space.PointerSize).Multiply(elementSize);
     }
 }
