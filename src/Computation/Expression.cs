@@ -34,7 +34,13 @@ internal sealed class Expression : IExpression
     {
         using var solver = ((IPersistentSpace) space).CreateSolver();
 
-        return solver.GetExampleValue(_value);
+        return solver.GetExampleValue(
+            _value switch
+            {
+                Address<Bits> a => a.Aggregate(),
+                Address<Bytes> a => a.Aggregate(),
+                _ => _value
+            });
     }
 
     public IProposition GetProposition(ISpace space)
@@ -328,6 +334,20 @@ internal sealed class Expression : IExpression
     {
         return new Expression(_collectionFactory,
             func(_value, ((Expression) y)._value, ((Expression) z)._value));
+    }
+
+    public static IExpression CreateAddress(ICollectionFactory collectionFactory,
+        IExpression baseAddress, Offset[] offsets)
+    {
+        return new Expression(collectionFactory,
+            Address<Bytes>.Create(
+                ((Expression) baseAddress)._value,
+                offsets.Select(
+                    o => new Offset<Bytes>(
+                        o.AggregateSize,
+                        o.AggregateType,
+                        o.FieldSize,
+                        ((Expression) o.Value)._value))));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
