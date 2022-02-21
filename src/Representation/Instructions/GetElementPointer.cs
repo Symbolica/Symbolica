@@ -1,14 +1,16 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
 public sealed class GetElementPointer : IInstruction
 {
-    private readonly IOperand[] _offsets;
+    private readonly (Bytes, IOperand)[] _offsets;
     private readonly IOperand[] _operands;
 
-    public GetElementPointer(InstructionId id, IOperand[] operands, IOperand[] offsets)
+    public GetElementPointer(InstructionId id, IOperand[] operands, (Bytes, IOperand)[] offsets)
     {
         Id = id;
         _operands = operands;
@@ -19,9 +21,11 @@ public sealed class GetElementPointer : IInstruction
 
     public void Execute(IState state)
     {
-        var address = _operands[0].Evaluate(state);
-        var result = _offsets.Aggregate(address, (l, r) => l.Add(r.Evaluate(state)));
+        var baseAddress = _operands[0].Evaluate(state);
+        var offsets = _offsets.Select((o) => (o.Item1, o.Item2.Evaluate(state))).ToArray();
 
-        state.Stack.SetVariable(Id, result);
+        var aggregateOffset = state.Space.CreateAggregateOffset(baseAddress, offsets);
+
+        state.Stack.SetVariable(Id, aggregateOffset);
     }
 }

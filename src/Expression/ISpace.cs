@@ -9,6 +9,7 @@ public interface ISpace
     Bits PointerSize { get; }
 
     IExample GetExample();
+    IExpression CreateAggregateOffset(IExpression baseAddress, (Bytes, IExpression)[] offsets);
     IExpression CreateConstant(Bits size, BigInteger value);
     IExpression CreateConstantFloat(Bits size, string value);
     IExpression CreateGarbage(Bits size);

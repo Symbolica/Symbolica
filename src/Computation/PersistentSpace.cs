@@ -46,6 +46,11 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
         return Example.Create(this);
     }
 
+    public IExpression CreateAggregateOffset(IExpression baseAddress, (Bytes, IExpression)[] offsets)
+    {
+        return Expression<TContext>.CreateAggregateOffset(_collectionFactory, baseAddress, offsets);
+    }
+
     public IExpression CreateConstant(Bits size, BigInteger value)
     {
         return new Expression<TContext>(_collectionFactory,

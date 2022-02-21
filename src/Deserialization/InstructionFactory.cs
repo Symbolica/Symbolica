@@ -74,7 +74,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(
                 id,
                 operands,
-                GetGepOffsets(instruction, operands)),
+                GetGepOffsets(instruction, operands).ToArray()),
             LLVMOpcode.LLVMTrunc => new Truncate(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMZExt => new ZeroExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMSExt => new SignExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
@@ -180,12 +180,33 @@ internal sealed class InstructionFactory : IInstructionFactory
         return new Attributes(isSignExtended);
     }
 
-    private IOperand[] GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
+    private IEnumerable<(Bytes, IOperand)> GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
     {
-        return GetOffsets<IOperand, IOperand>(instruction,
-                instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt), operands.Skip(1),
-                s => new ConstantOffset(s), (s, i) => new Offset(new ConstantOffset(s), i))
-            .ToArray();
+        var constantIndices = instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt);
+        var indices = operands.Skip(1);
+        var indexedType = instruction.GetOperand(0U).TypeOf;
+
+        foreach (var (constantIndex, index) in constantIndices.Zip(indices))
+            if (indexedType.Kind == LLVMTypeKind.LLVMStructTypeKind)
+            {
+                yield return
+                    (indexedType.GetStoreSize(_targetData), new ConstantOffset(indexedType.GetElementOffset(_targetData, constantIndex)));
+                indexedType = indexedType.StructGetTypeAtIndex(constantIndex);
+            }
+            else
+            {
+                var elementType = indexedType.ElementType;
+                var elementSize = elementType.GetStoreSize(_targetData);
+                var size = indexedType.Kind switch
+                {
+                    LLVMTypeKind.LLVMArrayTypeKind => (Bytes) (indexedType.ArrayLength * (uint) elementSize),
+                    LLVMTypeKind.LLVMPointerTypeKind => elementSize,
+                    LLVMTypeKind.LLVMVectorTypeKind => (Bytes) (indexedType.VectorSize * (uint) elementSize),
+                    _ => throw new Exception($"Lol wut, tried to GEP into a {indexedType.Kind}.")
+                };
+                yield return (size, new Offset(elementSize, index));
+                indexedType = elementType;
+            }
     }
 
     private Bits[] GetAggregateOffsets(LLVMValueRef instruction)
