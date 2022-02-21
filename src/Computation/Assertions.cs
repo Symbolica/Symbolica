@@ -14,6 +14,9 @@ internal sealed class Assertions : IAssertions
 
     public IConstantValue GetValue(IValue value)
     {
+        if (value is IConstantValue v)
+            return v;
+
         using var constraints = _space.GetConstraints();
 
         return ConstantUnsigned.Create(value.Size, constraints.GetValue(value));

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LLVMSharp.Interop;
 using Symbolica.Abstraction;
@@ -39,7 +40,7 @@ internal sealed class InstructionFactory : IInstructionFactory
         {
             LLVMOpcode.LLVMRet => new Return(id, operands),
             LLVMOpcode.LLVMBr => new Branch(id, operands),
-            LLVMOpcode.LLVMSwitch => new Switch(id, operands),
+            LLVMOpcode.LLVMSwitch => new Representation.Instructions.Switch(id, operands),
             LLVMOpcode.LLVMIndirectBr => new IndirectBranch(id, operands),
             LLVMOpcode.LLVMInvoke => new Invoke(
                 CreateCall(id, operands, instruction),
@@ -74,7 +75,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(
                 id,
                 operands,
-                GetGepOffsets(instruction, operands)),
+                GetGepOffsetsChecked(instruction, operands).ToArray()),
             LLVMOpcode.LLVMTrunc => new Truncate(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMZExt => new ZeroExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMSExt => new SignExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
@@ -86,7 +87,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMFPExt => new FloatExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMPtrToInt => new PointerToInteger(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMIntToPtr => new IntegerToPointer(id, operands, instruction.TypeOf.GetSize(_targetData)),
-            LLVMOpcode.LLVMBitCast => new BitCast(id, operands),
+            LLVMOpcode.LLVMBitCast => new BitCast(id, operands, GetBitCastSize(instruction)),
             LLVMOpcode.LLVMAddrSpaceCast => new Unsupported(id, "addrspacecast"),
             LLVMOpcode.LLVMICmp => instruction.ICmpPredicate switch
             {
@@ -158,6 +159,23 @@ internal sealed class InstructionFactory : IInstructionFactory
         };
     }
 
+    private Bits GetBitCastSize(LLVMValueRef instruction)
+    {
+        var type = instruction.TypeOf;
+        return (type.Kind switch
+        {
+            // This is a bit hacky really
+            // It "works" for now because the only types we alter in a bitcast are Addresses
+            // which are pointers and so all we care about is the size of the thing being pointed to
+            // as that will be the FieldSize.
+            // In general we probably need to plumb through the entire type information for this cast
+            // and decide at a later point which information we actually need from that based on the type
+            // being bitcast.
+            LLVMTypeKind.LLVMPointerTypeKind => type.ElementType,
+            _ => type
+        }).GetStoreSize(_targetData).ToBits();
+    }
+
     private Call CreateCall(InstructionId id, IOperand[] operands, LLVMValueRef instruction)
     {
         return new Call(
@@ -180,12 +198,60 @@ internal sealed class InstructionFactory : IInstructionFactory
         return new Attributes(isSignExtended);
     }
 
-    private IOperand[] GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
+    private IEnumerable<Representation.Offset> GetGepOffsetsChecked(LLVMValueRef instruction, IOperand[] operands)
     {
-        return GetOffsets<IOperand, IOperand>(instruction,
-                instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt), operands.Skip(1),
-                s => new ConstantOffset(s), (s, i) => new Offset(new ConstantOffset(s), i))
-            .ToArray();
+        var offsets = GetGepOffsets(instruction, operands).ToList();
+
+        bool CheckSizesArentIncreasing()
+        {
+            if (offsets.Count < 2)
+                return true;
+
+            return offsets
+                .Take(offsets.Count - 1)
+                .Zip(offsets.Skip(1))
+                .All(x => x.First.AggregateSize >= x.Second.AggregateSize);
+        }
+        Debug.Assert(CheckSizesArentIncreasing());
+        return offsets;
+    }
+
+    private IEnumerable<Representation.Offset> GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
+    {
+        var constantIndices = instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt);
+        var indices = operands.Skip(1);
+        var indexedType = instruction.GetOperand(0U).TypeOf;
+
+        foreach (var (constantIndex, index) in constantIndices.Zip(indices))
+            if (indexedType.Kind == LLVMTypeKind.LLVMStructTypeKind)
+            {
+                var fieldType = indexedType.StructGetTypeAtIndex(constantIndex);
+                yield return new Representation.Offset(
+                    indexedType.GetStoreSize(_targetData),
+                    "Struct",
+                    fieldType.GetStoreSize(_targetData),
+                    new StructOffset(indexedType.GetElementOffset(_targetData, constantIndex)));
+                indexedType = fieldType;
+            }
+            else
+            {
+                var elementType = indexedType.ElementType;
+                var elementSize = elementType.GetStoreSize(_targetData);
+                var (size, aggregateType) = indexedType.Kind switch
+                {
+                    LLVMTypeKind.LLVMArrayTypeKind => ((Bytes) (indexedType.ArrayLength * (uint) elementSize), "Array"),
+                    LLVMTypeKind.LLVMPointerTypeKind => (elementSize, "Pointer"),
+                    LLVMTypeKind.LLVMVectorTypeKind => ((Bytes) (indexedType.VectorSize * (uint) elementSize), "Vector"),
+                    _ => throw new Exception($"Lol wut, tried to GEP into a {indexedType.Kind}.")
+                };
+
+                yield return new Representation.Offset(
+                    size,
+                    aggregateType,
+                    elementSize,
+                    new ArrayOffset(elementSize, index));
+                indexedType = elementType;
+            }
     }
 
     private Bits[] GetAggregateOffsets(LLVMValueRef instruction)

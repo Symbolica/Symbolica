@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -25,6 +26,14 @@ internal sealed class Subtract : BitVector
         {
             (IConstantValue l, IConstantValue r) => l.AsUnsigned().Subtract(r.AsUnsigned()),
             (_, IConstantValue r) when r.AsUnsigned().IsZero => left,
+            (Address<Bits> l, IConstantValue r) => l.Subtract(r),
+            (Address<Bytes> l, IConstantValue r) => l.Subtract(r),
+            (IConstantValue l, Address<Bits> r) => r.Negate().Add(l),
+            (IConstantValue l, Address<Bytes> r) => r.Negate().Add(l),
+            (Address<Bits> l, _) => Create(l.Aggregate(), right),
+            (Address<Bytes> l, _) => Create(l.Aggregate(), right),
+            (_, Address<Bits> r) => Create(left, r.Aggregate()),
+            (_, Address<Bytes> r) => Create(left, r.Aggregate()),
             _ => new Subtract(left, right)
         };
     }

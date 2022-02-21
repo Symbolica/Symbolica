@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -20,8 +21,14 @@ internal sealed class UnsignedLessOrEqual : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return left is IConstantValue l && right is IConstantValue r
-            ? l.AsUnsigned().LessOrEqual(r.AsUnsigned())
-            : new UnsignedLessOrEqual(left, right);
+        return (left, right) switch
+        {
+            (IConstantValue l, IConstantValue r) => l.AsUnsigned().LessOrEqual(r.AsUnsigned()),
+            (Address<Bytes> l, _) => Create(l.Aggregate(), right),
+            (Address<Bits> l, _) => Create(l.Aggregate(), right),
+            (_, Address<Bytes> r) => Create(left, r.Aggregate()),
+            (_, Address<Bits> r) => Create(left, r.Aggregate()),
+            _ => new UnsignedLessOrEqual(left, right)
+        };
     }
 }

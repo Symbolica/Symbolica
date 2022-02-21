@@ -25,6 +25,8 @@ internal abstract class Float : IValue
 
     public abstract FPExpr AsFloat(IContext context);
 
+    public IValue BitCast(Bits targetSize) => this;
+
     public static IValue Unary(IValue value,
         Func<float, IValue> constantSingle,
         Func<double, IValue> constantDouble,

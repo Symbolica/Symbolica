@@ -22,6 +22,8 @@ public sealed class Load : IInstruction
         var address = _operands[0].Evaluate(state);
         var value = state.Memory.Read(address, _size);
 
+        // TODO: When loading an address it should be bitcast to the size being pointed to
+
         state.Stack.SetVariable(Id, value);
     }
 }

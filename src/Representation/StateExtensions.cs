@@ -22,7 +22,7 @@ internal static class StateExtensions
                 yield break;
 
             yield return character;
-            address = address.Add(state.Space.CreateConstant(address.Size, (uint) Bytes.One));
+            address = address.OffsetBy(Bytes.One);
         }
     }
 

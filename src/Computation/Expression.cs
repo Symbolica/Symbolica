@@ -5,6 +5,7 @@ using System.Numerics;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -28,11 +29,35 @@ internal sealed class Expression<TContext> : IExpression
         ? v.AsUnsigned()
         : AsConstant();
 
+    public IEnumerable<(IExpression, Bits)> GetAddresses(Bits length)
+    {
+        return _value switch
+        {
+            Address<Bits> a => a.GetAddresses(length).Select(x => (Create(_ => x.Item1), x.Item2)),
+            Address<Bytes> => throw new Exception($"Cannot get addresses for an {nameof(Address<Bytes>)}."),
+            _ => new[] { (Create(v => v), length) }
+        };
+    }
+
+    public IEnumerable<(IExpression, Bytes)> GetAddresses(Bytes length)
+    {
+        return _value switch
+        {
+            Address<Bytes> a => a.GetAddresses(length).Select(x => (Create(_ => x.Item1), x.Item2)),
+            Address<Bits> => throw new Exception($"Cannot get addresses for an {nameof(Address<Bits>)}."),
+            _ => new[] { (Create(v => v), length) }
+        };
+    }
+
     public IExpression GetValue(ISpace space)
     {
-        return _value is IConstantValue
-            ? this
-            : Create(((IPersistentSpace) space).Assertions.GetValue);
+        return _value switch
+        {
+            IConstantValue => this,
+            Address<Bits> a => Create(_ => a.Aggregate()).GetValue(space),
+            Address<Bytes> a => Create(_ => a.Aggregate()).GetValue(space),
+            _ => Create(((IPersistentSpace) space).Assertions.GetValue)
+        };
     }
 
     public IProposition GetProposition(ISpace space)
@@ -55,6 +80,11 @@ internal sealed class Expression<TContext> : IExpression
     public IExpression ArithmeticShiftRight(IExpression expression)
     {
         return Create(expression, Values.ArithmeticShiftRight.Create);
+    }
+
+    public IExpression BitCast(Bits targetSize)
+    {
+        return Create(v => v.BitCast(targetSize));
     }
 
     public IExpression Equal(IExpression expression)
@@ -177,6 +207,39 @@ internal sealed class Expression<TContext> : IExpression
         return Create(expression, Values.NotEqual.Create);
     }
 
+    public IExpression PointerToInteger(Bits size)
+    {
+        static IValue ConvertValue(IValue value)
+        {
+            return value switch
+            {
+                Address<Bytes> a => a.Aggregate(),
+                Address<Bits> a => a.Aggregate(),
+                _ => value
+            };
+        }
+        return Create(
+            v => Values.ZeroExtend.Create(
+                size,
+                Values.Truncate.Create(
+                    size,
+                    ConvertValue(v))));
+    }
+
+    public IExpression OffsetBy(Bytes offset)
+    {
+        IValue OffsetValue(IValue value)
+        {
+            return value switch
+            {
+                Address<Bytes> a => a.IncrementFinalOffset(offset),
+                Address<Bits> a => throw new Exception("Cant increment an address in bits by a byte "),
+                _ => Values.Add.Create(value, ConstantUnsigned.Create(value.Size, (uint) offset))
+            };
+        }
+        return Create(OffsetValue);
+    }
+
     public IExpression Or(IExpression expression)
     {
         return Create(expression, (l, r) => l is Bool || r is Bool
@@ -186,7 +249,9 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Read(ISpace space, IExpression offset, Bits size)
     {
-        return Create(offset, (b, o) => Values.Read.Create(_collectionFactory, GetAssertions(space), b, o, size));
+        return new Expression<TContext>(
+            _collectionFactory,
+            Values.Read.Create(_collectionFactory, GetAssertions(space), _value, ((Expression<TContext>) offset)._value, size));
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -251,6 +316,11 @@ internal sealed class Expression<TContext> : IExpression
         return Create(v => Values.Truncate.Create(size, v));
     }
 
+    public IExpression ToBits()
+    {
+        return Create(v => v.ToBits());
+    }
+
     public IExpression UnsignedDivide(IExpression expression)
     {
         return Create(expression, Values.UnsignedDivide.Create);
@@ -288,9 +358,7 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Write(ISpace space, IExpression offset, IExpression value)
     {
-        return Size == offset.Size
-            ? Create(offset, value, (b, o, v) => Values.Write.Create(_collectionFactory, GetAssertions(space), b, o, v))
-            : throw new InconsistentExpressionSizesException(Size, offset.Size);
+        return Create(offset, value, (b, o, v) => AggregateWrite.Create(_collectionFactory, GetAssertions(space), b, o, v));
     }
 
     public IExpression Xor(IExpression expression)
@@ -335,6 +403,20 @@ internal sealed class Expression<TContext> : IExpression
     private static IAssertions GetAssertions(ISpace space)
     {
         return ((IPersistentSpace) space).Assertions;
+    }
+
+    public static IExpression CreateAddress(ICollectionFactory collectionFactory,
+        IExpression baseAddress, Offset[] offsets)
+    {
+        return new Expression<TContext>(collectionFactory,
+            Address<Bytes>.Create(
+                ((Expression<TContext>) baseAddress)._value,
+                offsets.Select(
+                    o => new Offset<Bytes>(
+                        o.AggregateSize,
+                        o.AggregateType,
+                        o.FieldSize,
+                        ((Expression<TContext>) o.Value)._value)).ToArray()));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,

@@ -1,4 +1,4 @@
-﻿using Microsoft.Z3;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -38,6 +38,8 @@ internal sealed class Select : IValue
             _trueValue.AsFloat(context),
             _falseValue.AsFloat(context)));
     }
+
+    public IValue BitCast(Bits targetSize) => this;
 
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
     {
