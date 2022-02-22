@@ -72,14 +72,14 @@ internal sealed class Write : BitVector
 
     private IValue Flatten()
     {
-        var writeData = ShiftLeft.Create(ZeroExtend.Create(Size, _writeValue), _writeOffset);
+        var writeData = ShiftLeft.Create(ZeroExtend.Create(Size, _writeValue), ZeroExtend.Create(Size, _writeOffset));
 
         return Or.Create(And.Create(_writeBuffer, Not.Create(_writeMask)), writeData);
     }
 
     private static IValue Mask(IValue buffer, IValue offset, Bits size)
     {
-        return ShiftLeft.Create(ConstantUnsigned.Create(size, BigInteger.Zero).Not().Extend(buffer.Size), offset);
+        return ShiftLeft.Create(ConstantUnsigned.Create(size, BigInteger.Zero).Not().Extend(buffer.Size), ZeroExtend.Create(buffer.Size, offset));
     }
 
     public static IValue Create(ICollectionFactory collectionFactory, IAssertions assertions,

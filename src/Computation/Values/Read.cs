@@ -12,6 +12,6 @@ internal static class Read
             ? b.AsBitVector(collectionFactory).Read(o.AsUnsigned(), size)
             : buffer is Write w
                 ? w.LayerRead(collectionFactory, assertions, offset, size)
-                : Truncate.Create(size, LogicalShiftRight.Create(buffer, offset));
+                : Truncate.Create(size, LogicalShiftRight.Create(buffer, ZeroExtend.Create(buffer.Size, offset)));
     }
 }

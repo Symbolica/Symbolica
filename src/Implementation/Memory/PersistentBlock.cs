@@ -92,7 +92,7 @@ internal sealed class PersistentBlock : IPersistentBlock
         var offset = space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
             .Multiply(address.Subtract(Address));
 
-        return offset.ZeroExtend(_data.Size).Truncate(_data.Size);
+        return offset.Truncate(_data.Size);
     }
 
     private IExpression GetOffset(ISpace space, IExpression address, IExpression isFullyInside)

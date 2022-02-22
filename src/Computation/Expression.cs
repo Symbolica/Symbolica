@@ -186,7 +186,9 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Read(ISpace space, IExpression offset, Bits size)
     {
-        return Create(offset, (b, o) => Values.Read.Create(_collectionFactory, GetAssertions(space), b, o, size));
+        return new Expression<TContext>(
+            _collectionFactory,
+            Values.Read.Create(_collectionFactory, GetAssertions(space), _value, ((Expression<TContext>) offset)._value, size));
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -288,9 +290,7 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Write(ISpace space, IExpression offset, IExpression value)
     {
-        return Size == offset.Size
-            ? Create(offset, value, (b, o, v) => Values.Write.Create(_collectionFactory, GetAssertions(space), b, o, v))
-            : throw new InconsistentExpressionSizesException(Size, offset.Size);
+        return Create(offset, value, (b, o, v) => Values.Write.Create(_collectionFactory, GetAssertions(space), b, o, v));
     }
 
     public IExpression Xor(IExpression expression)
