@@ -18,7 +18,9 @@ internal static class Read
 
     private static IValue SymbolicRead(ISolver solver, IValue buffer, IValue offset, Bits size)
     {
-        var value = Truncate.Create(size, LogicalShiftRight.Create(buffer, offset));
+        var value = Truncate.Create(
+            size,
+            LogicalShiftRight.Create(buffer, Resize.Create(buffer.Size, offset)));
 
         return solver.TryGetSingleValue(value, out var constant)
             ? ConstantUnsigned.Create(value.Size, constant)

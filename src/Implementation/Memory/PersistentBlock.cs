@@ -89,10 +89,8 @@ internal sealed class PersistentBlock : IPersistentBlock
 
     private IExpression GetOffset(ISpace space, IExpression address)
     {
-        var offset = space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
+        return space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
             .Multiply(address.Subtract(Address));
-
-        return offset.ZeroExtend(_data.Size).Truncate(_data.Size);
     }
 
     private IExpression GetOffset(ISpace space, IExpression address, IExpression isFullyInside)
@@ -100,7 +98,7 @@ internal sealed class PersistentBlock : IPersistentBlock
         return isFullyInside
             .Select(
                 GetOffset(space, address),
-                space.CreateConstant(_data.Size, (uint) _data.Size));
+                space.CreateConstant(address.Size, (uint) _data.Size));
     }
 
     private IPersistentBlock Write(ISpace space, IExpression offset, IExpression value)
