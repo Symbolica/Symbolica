@@ -4,8 +4,8 @@ namespace Symbolica.Computation;
 
 internal interface IPersistentSpace : ISpace
 {
-    IAssertions Assertions { get; }
-
+    IConstantValue GetConstant(IValue value);
+    IProposition GetProposition(IValue value);
     IPersistentSpace Assert(IValue assertion);
     IConstraints GetConstraints();
 }

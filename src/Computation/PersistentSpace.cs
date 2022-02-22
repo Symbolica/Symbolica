@@ -25,7 +25,20 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
     }
 
     public Bits PointerSize { get; }
-    public IAssertions Assertions => new Assertions(this);
+
+    public IConstantValue GetConstant(IValue value)
+    {
+        using var constraints = GetConstraints();
+
+        return ConstantUnsigned.Create(value.Size, constraints.Evaluate(value));
+    }
+
+    public IProposition GetProposition(IValue value)
+    {
+        return value is IConstantValue v
+            ? ConstantProposition.Create(this, v)
+            : SymbolicProposition.Create(this, value);
+    }
 
     public IPersistentSpace Assert(IValue assertion)
     {

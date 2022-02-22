@@ -31,12 +31,12 @@ internal sealed class Expression<TContext> : IExpression
     {
         return _value is IConstantValue
             ? this
-            : Create(((IPersistentSpace) space).Assertions.GetConstant);
+            : Create(((IPersistentSpace) space).GetConstant);
     }
 
     public IProposition GetProposition(ISpace space)
     {
-        return ((IPersistentSpace) space).Assertions.GetProposition(_value);
+        return ((IPersistentSpace) space).GetProposition(_value);
     }
 
     public IExpression Add(IExpression expression)
