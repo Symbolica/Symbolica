@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
-using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
@@ -32,25 +31,29 @@ internal sealed class AggregateOffset : Integer
         return Aggregate().AsBool(context);
     }
 
-    internal AggregateOffset Multiply(IConstantValue value)
+    internal IValue Multiply(IConstantValue value)
     {
         return Create(
             Values.Multiply.Create(_baseAddress, value),
             _offsets.Select(o => (value.AsUnsigned() * o.Item1, Values.Multiply.Create(o.Item2, value))).ToArray());
     }
 
-    internal AggregateOffset Subtract(IValue value)
+    internal IValue Subtract(IValue value)
     {
         return Create(Values.Subtract.Create(_baseAddress, value), _offsets);
     }
+
+    private bool IsConstant => _baseAddress is IConstantValue && _offsets.All(o => o.Item2 is IConstantValue);
 
     private IValue Aggregate()
     {
         return _offsets.Aggregate(_baseAddress, (l, r) => Add.Create(l, r.Item2));
     }
 
-    public static AggregateOffset Create(IValue baseAddress, (BigInteger, IValue)[] offsets)
+    public static IValue Create(IValue baseAddress, (BigInteger, IValue)[] offsets)
     {
-        return new AggregateOffset(baseAddress, offsets);
+        var aggregateOffset = new AggregateOffset(baseAddress, offsets);
+        // TODO: Remove this nonsense once we're exploting AOs in Writes, but right now it's too slow without this as everything appears "symbolic".
+        return aggregateOffset.IsConstant ? aggregateOffset.Aggregate() : aggregateOffset;
     }
 }
