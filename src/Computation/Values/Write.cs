@@ -79,7 +79,7 @@ internal sealed record Write : BitVector
                 ? _writeValue is AggregateWrite aw
                     ? new Write(_writeBuffer, aggregateOffset.BaseAddress, aw.Write(collectionFactory, solver, aggregateOffset, value))
                     : new Write(_writeBuffer, aggregateOffset.BaseAddress, AggregateWrite.Create(collectionFactory, solver, _writeBuffer, aggregateOffset, value))
-                : new Write(this, aggregateOffset, AggregateWrite.Create(collectionFactory, solver, this, aggregateOffset, value));
+                : new Write(this, aggregateOffset.BaseAddress, AggregateWrite.Create(collectionFactory, solver, this, aggregateOffset, value));
     }
 
     private bool IsNotOverlapping(ISolver solver, IValue mask)

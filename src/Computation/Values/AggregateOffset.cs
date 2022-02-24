@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
@@ -59,7 +60,7 @@ internal sealed record AggregateOffset : Integer
     internal IValue Aggregate()
     {
         return AllOffsets
-            .Aggregate(BaseAddress, (l, r) => Add.Create(l, r.Item2));
+            .Aggregate(BaseAddress, (l, r) => Values.Add.Create(l, r.Item2));
     }
 
     internal bool IsBounded(ISolver solver, Bits valueSize)
@@ -72,7 +73,7 @@ internal sealed record AggregateOffset : Integer
                     aggregateOffset.Offset,
                     ConstantUnsigned.Create(aggregateOffset.Offset.Size, 0)),
                 SignedLessOrEqual.Create(
-                    Add.Create(aggregateOffset.Offset, ConstantUnsigned.Create(aggregateOffset.Offset.Size, fieldSize)),
+                    Values.Add.Create(aggregateOffset.Offset, ConstantUnsigned.Create(aggregateOffset.Offset.Size, fieldSize)),
                     ConstantUnsigned.Create(aggregateOffset.Offset.Size, aggregateOffset.AggregateSize)));
         }
 
@@ -94,7 +95,17 @@ internal sealed record AggregateOffset : Integer
             new ConstantBool(true) as IValue,
             (acc, o) => And.Create(acc, OffsetIsBounded(o)));
         _isBounded = !solver.IsSatisfiable(Not.Create(isContained));
+        if (!_isBounded.Value)
+            Debugger.Break();
         return _isBounded.Value;
+    }
+
+    internal IValue Add(IConstantValue value)
+    {
+        return Create(
+            Values.Add.Create(BaseAddress, value),
+            AllOffsets,
+            _isBounded);
     }
 
     internal IValue Multiply(IConstantValue value)
