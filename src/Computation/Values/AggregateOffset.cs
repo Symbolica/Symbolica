@@ -5,21 +5,28 @@ using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
 internal sealed class AggregateOffset : Integer
 {
-    private bool? _isBounded = null;
+    private bool? _isBounded;
     private readonly ImmutableList<(BigInteger, IValue)> _restOffsets;
 
-    private AggregateOffset(IValue baseAddress, IValue offset, BigInteger aggregateSize, ImmutableList<(BigInteger, IValue)> offsets)
+    private AggregateOffset(
+        IValue baseAddress,
+        IValue offset,
+        BigInteger aggregateSize,
+        ImmutableList<(BigInteger, IValue)> offsets,
+        bool? isBounded)
         : base(baseAddress.Size)
     {
         AggregateSize = aggregateSize;
         BaseAddress = baseAddress;
         Offset = offset;
         _restOffsets = offsets;
+        _isBounded = isBounded;
     }
 
     public BigInteger AggregateSize { get; }
@@ -50,26 +57,37 @@ internal sealed class AggregateOffset : Integer
             .Aggregate(BaseAddress, (l, r) => Add.Create(l, r.Item2));
     }
 
-    internal bool IsBounded(IAssertions assertions, IValue value)
+    internal bool IsBounded(IAssertions assertions, Bits valueSize)
     {
-        IValue OffsetIsBounded(BigInteger size, IValue offset)
+        IValue OffsetIsBounded(AggregateOffset aggregateOffset)
         {
+            var fieldSize = aggregateOffset.GetNext()?.AggregateSize ?? (uint) valueSize;
             return And.Create(
-                UnsignedGreaterOrEqual.Create(
-                    offset,
-                    ConstantUnsigned.Create(offset.Size, 0)),
-                UnsignedLessOrEqual.Create(
-                    Add.Create(offset, ConstantUnsigned.Create(offset.Size, (uint) value.Size)),
-                    ConstantUnsigned.Create(offset.Size, (uint) size)));
+                SignedGreaterOrEqual.Create(
+                    aggregateOffset.Offset,
+                    ConstantUnsigned.Create(aggregateOffset.Offset.Size, 0)),
+                SignedLessOrEqual.Create(
+                    Add.Create(aggregateOffset.Offset, ConstantUnsigned.Create(aggregateOffset.Offset.Size, fieldSize)),
+                    ConstantUnsigned.Create(aggregateOffset.Offset.Size, aggregateOffset.AggregateSize)));
         }
+
+        IEnumerable<AggregateOffset> Offsets(AggregateOffset? offset)
+        {
+            while (offset is not null)
+            {
+                yield return offset;
+                offset = offset.GetNext();
+            }
+        }
+
         if (_isBounded is not null)
         {
             return _isBounded.Value;
         }
 
-        var isContained = AllOffsets.Aggregate(
+        var isContained = Offsets(this).Aggregate(
             new ConstantBool(true) as IValue,
-            (acc, o) => And.Create(acc, OffsetIsBounded(o.Item1, o.Item2)));
+            (acc, o) => And.Create(acc, OffsetIsBounded(o)));
         using var proposition = assertions.GetProposition(isContained);
         _isBounded = !proposition.CanBeFalse;
         return _isBounded.Value;
@@ -80,24 +98,26 @@ internal sealed class AggregateOffset : Integer
         return Create(
             Values.Multiply.Create(BaseAddress, value),
             ImmutableList.CreateRange(
-                AllOffsets.Select(o => (value.AsUnsigned() * o.Item1, Values.Multiply.Create(o.Item2, value)))));
+                AllOffsets.Select(o => (value.AsUnsigned() * o.Item1, Values.Multiply.Create(o.Item2, value)))),
+                _isBounded);
     }
 
     internal IValue Subtract(IValue value)
     {
         return Create(
             Values.Subtract.Create(BaseAddress, value),
-            AllOffsets);
+            AllOffsets,
+            _isBounded);
     }
 
     internal AggregateOffset? GetNext()
     {
-        return _restOffsets.Count > 1
-            ? Create(ConstantUnsigned.Create(BaseAddress.Size, 0), _restOffsets)
+        return _restOffsets.Count > 0
+            ? Create(ConstantUnsigned.Create(BaseAddress.Size, 0), _restOffsets, _isBounded)
             : null;
     }
 
-    public static AggregateOffset Create(IValue baseAddress, IEnumerable<(BigInteger, IValue)> offsets)
+    private static AggregateOffset Create(IValue baseAddress, IEnumerable<(BigInteger, IValue)> offsets, bool? isBounded)
     {
         if (!offsets.Any())
         {
@@ -107,6 +127,12 @@ internal sealed class AggregateOffset : Integer
             baseAddress,
             offsets.First().Item2,
             offsets.First().Item1,
-            ImmutableList.CreateRange(offsets.Skip(1)));
+            ImmutableList.CreateRange(offsets.Skip(1)),
+            isBounded);
+    }
+
+    public static AggregateOffset Create(IValue baseAddress, IEnumerable<(BigInteger, IValue)> offsets)
+    {
+        return Create(baseAddress, offsets, null);
     }
 }

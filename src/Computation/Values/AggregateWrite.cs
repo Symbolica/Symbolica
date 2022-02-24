@@ -5,7 +5,6 @@ using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
-using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -35,16 +34,6 @@ internal sealed class AggregateWrite : BitVector
     {
         return Flatten().AsBitVector(context);
     }
-
-    // public int CompareTo(AggregateWrite? other)
-    // {
-    //     return (Offset, other?.Offset) switch
-    //     {
-    //         (IConstantValue x, IConstantValue y) => ((BigInteger) x.AsUnsigned()).CompareTo(y.AsUnsigned()),
-    //         (IConstantValue, _) => -1,
-    //         (_, _) => 1,
-    //     };
-    // }
 
     internal IValue Read(ICollectionFactory collectionFactory, IAssertions assertions,
         AggregateOffset aggregateOffset, Bits valueSize)
@@ -102,7 +91,7 @@ internal sealed class AggregateWrite : BitVector
     }
 
     // Assumes that aggregateOffset has already been checked to make sure all offset are in bounds
-    internal AggregateWrite Write(IAssertions assertions, AggregateOffset aggregateOffset, IValue value)
+    internal AggregateWrite Write(ICollectionFactory collectionFactory, IAssertions assertions, AggregateOffset aggregateOffset, IValue value)
     {
         var fieldOffset = aggregateOffset.Offset;
         var fieldSize = (Bits) (uint) aggregateOffset.AggregateSize;
@@ -111,8 +100,8 @@ internal sealed class AggregateWrite : BitVector
         {
             var nextOffset = aggregateOffset.GetNext();
             var newField = nextOffset is not null
-                ? match.Write(assertions, nextOffset, value)
-                : CreateLeaf(match.Size, Offset, value);
+                ? match.Write(collectionFactory, assertions, nextOffset, value)
+                : CreateLeaf(collectionFactory, assertions, match, Offset, value);
             return new AggregateWrite(_buffer, Offset, _fields.Replace(match, newField));
         }
 
@@ -133,7 +122,7 @@ internal sealed class AggregateWrite : BitVector
             return new AggregateWrite(
                 _buffer,
                 Offset,
-                _fields.Add(Create(_buffer, aggregateOffset, value)));
+                _fields.Add(Create(collectionFactory, assertions, _buffer, aggregateOffset, value)));
         }
 
         // Check for alignment with symbolic offsets
@@ -150,7 +139,7 @@ internal sealed class AggregateWrite : BitVector
         return new AggregateWrite(
             Flatten(),
             fieldOffset,
-            ImmutableList.Create(Create(_buffer, aggregateOffset, value)));
+            ImmutableList.Create(Create(collectionFactory, assertions, _buffer, aggregateOffset, value)));
     }
 
     private static IValue Mask(Bits bufferSize, IValue offset, Bits size)
@@ -226,7 +215,8 @@ internal sealed class AggregateWrite : BitVector
                 ZeroExtend.Create(buffer.Size, offset)));
     }
 
-    public static AggregateWrite Create(IValue buffer, AggregateOffset aggregateOffset, IValue value)
+    public static AggregateWrite Create(ICollectionFactory collectionFactory, IAssertions assertions,
+        IValue buffer, AggregateOffset aggregateOffset, IValue value)
     {
         var fieldOffset = aggregateOffset.Offset;
         var fieldSize = (Bits) (uint) aggregateOffset.AggregateSize;
@@ -234,22 +224,23 @@ internal sealed class AggregateWrite : BitVector
         var nextOffset = aggregateOffset.GetNext();
 
         return nextOffset is null
-            ? CreateLeaf(fieldSize, fieldOffset, value)
+            ? CreateLeaf(collectionFactory, assertions, fieldBuffer, fieldOffset, value)
             : new AggregateWrite(
                 fieldBuffer,
                 fieldOffset,
-                ImmutableList.Create(Create(fieldBuffer, nextOffset, value)));
+                ImmutableList.Create(Create(collectionFactory, assertions, fieldBuffer, nextOffset, value)));
     }
 
-    private static AggregateWrite CreateLeaf(Bits size, IValue offset, IValue value)
+    private static AggregateWrite CreateLeaf(ICollectionFactory collectionFactory, IAssertions assertions,
+        IValue buffer, IValue offset, IValue value)
     {
         // TODO: Can probably in the general case just call Write.Create here instead of throwing
         // like we do in Read by flattening this AggregateWrite and writing the new value on top of it
         // to create a new buffer for this level.
         return new AggregateWrite(
-            value.Size == size
+            value.Size == buffer.Size
                 ? value
-                : throw new InconsistentExpressionSizesException(size, value.Size),
+                : Values.Write.Create(collectionFactory, assertions, buffer, offset, value),
             offset,
             ImmutableList.Create<AggregateWrite>());
     }

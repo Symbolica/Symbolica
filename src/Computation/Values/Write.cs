@@ -44,6 +44,17 @@ internal sealed class Write : BitVector
                 : Read.Create(collectionFactory, assertions, Flatten(), offset, size);
     }
 
+    public IValue ReadAggregate(ICollectionFactory collectionFactory, IAssertions assertions, AggregateOffset aggregateOffset, Bits size)
+    {
+        var mask = Mask(this, aggregateOffset.BaseAddress, aggregateOffset.Size);
+
+        return IsNotOverlapping(assertions, mask)
+            ? Read.Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, size)
+            : IsAligned(assertions, mask)
+                ? Read.Create(collectionFactory, assertions, _writeValue, aggregateOffset, size)
+                : Read.Create(collectionFactory, assertions, Flatten(), aggregateOffset, size);
+    }
+
     private IValue LayerWrite(ICollectionFactory collectionFactory, IAssertions assertions, IValue offset, IValue value)
     {
         var mask = Mask(this, offset, value.Size);
@@ -62,8 +73,10 @@ internal sealed class Write : BitVector
         return IsNotOverlapping(assertions, mask)
             ? new Write(Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, value), _writeOffset, _writeValue)
             : IsAligned(assertions, mask)
-                ? new Write(_writeBuffer, aggregateOffset.BaseAddress, Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, value))
-                : new Write(this, aggregateOffset, value);
+                ? _writeValue is AggregateWrite aw
+                    ? new Write(_writeBuffer, aggregateOffset.BaseAddress, aw.Write(assertions, aggregateOffset, value))
+                    : new Write(_writeBuffer, aggregateOffset.BaseAddress, AggregateWrite.Create(_writeBuffer, aggregateOffset, value))
+                : new Write(this, aggregateOffset, AggregateWrite.Create(this, aggregateOffset, value));
     }
 
     private bool IsNotOverlapping(IAssertions assertions, IValue mask)
@@ -97,7 +110,11 @@ internal sealed class Write : BitVector
     public static IValue Create(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue buffer, IValue offset, IValue value)
     {
-        if (offset is AggregateOffset ao && ao.IsBounded(assertions, value))
+        // TODO: Split out indices from AggregateOffset so that we can distinguish between
+        // the entry point write and recursive ones.
+        // Then we can more easily merge these cases together because the initial case can do
+        // Create(collectionFactory, assertions, buffer, ao.BaseAddress, AggregateWrite.Create(buffer, ao, value))
+        if (offset is AggregateOffset ao && ao.IsBounded(assertions, value.Size))
         {
             return buffer is AggregateWrite aw
                 ? aw.Write(assertions, ao, value)
