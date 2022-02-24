@@ -97,6 +97,7 @@ internal sealed class PersistentBlock : IPersistentBlock
 
     private IExpression GetOffset(ISpace space, IExpression address, IExpression isFullyInside)
     {
+        // TODO: Can an Aggregate ever straddle blocks?
         return isFullyInside
             .Select(
                 GetOffset(space, address),

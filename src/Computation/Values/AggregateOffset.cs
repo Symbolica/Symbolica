@@ -1,23 +1,36 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
 internal sealed class AggregateOffset : Integer
 {
-    private readonly IValue _baseAddress;
-    private readonly (BigInteger, IValue)[] _offsets;
+    private bool? _isBounded = null;
+    private readonly ImmutableList<(BigInteger, IValue)> _restOffsets;
 
-    private AggregateOffset(IValue baseAddress, (BigInteger, IValue)[] offsets)
+    private AggregateOffset(IValue baseAddress, IValue offset, BigInteger aggregateSize, ImmutableList<(BigInteger, IValue)> offsets)
         : base(baseAddress.Size)
     {
-        _baseAddress = baseAddress;
-        _offsets = offsets;
+        AggregateSize = aggregateSize;
+        BaseAddress = baseAddress;
+        Offset = offset;
+        _restOffsets = offsets;
     }
 
-    public override IEnumerable<IValue> Children => new[] { _baseAddress }.Concat(_offsets.Select(x => x.Item2));
+    public BigInteger AggregateSize { get; }
+
+    public IValue BaseAddress { get; }
+
+    public IValue Offset { get; }
+
+    private IEnumerable<(BigInteger, IValue)> AllOffsets => new[] { (AggregateSize, Offset) }.Concat(_restOffsets);
+
+    public override IEnumerable<IValue> Children => new[] { BaseAddress }.Concat(AllOffsets.Select(x => x.Item2));
 
     public override string? PrintedValue => null;
 
@@ -31,29 +44,69 @@ internal sealed class AggregateOffset : Integer
         return Aggregate().AsBool(context);
     }
 
+    internal IValue Aggregate()
+    {
+        return AllOffsets
+            .Aggregate(BaseAddress, (l, r) => Add.Create(l, r.Item2));
+    }
+
+    internal bool IsBounded(IAssertions assertions, IValue value)
+    {
+        IValue OffsetIsBounded(BigInteger size, IValue offset)
+        {
+            return And.Create(
+                UnsignedGreaterOrEqual.Create(
+                    offset,
+                    ConstantUnsigned.Create(offset.Size, 0)),
+                UnsignedLessOrEqual.Create(
+                    Add.Create(offset, ConstantUnsigned.Create(offset.Size, (uint) value.Size)),
+                    ConstantUnsigned.Create(offset.Size, (uint) size)));
+        }
+        if (_isBounded is not null)
+        {
+            return _isBounded.Value;
+        }
+
+        var isContained = AllOffsets.Aggregate(
+            new ConstantBool(true) as IValue,
+            (acc, o) => And.Create(acc, OffsetIsBounded(o.Item1, o.Item2)));
+        using var proposition = assertions.GetProposition(isContained);
+        _isBounded = !proposition.CanBeFalse;
+        return _isBounded.Value;
+    }
+
     internal IValue Multiply(IConstantValue value)
     {
         return Create(
-            Values.Multiply.Create(_baseAddress, value),
-            _offsets.Select(o => (value.AsUnsigned() * o.Item1, Values.Multiply.Create(o.Item2, value))).ToArray());
+            Values.Multiply.Create(BaseAddress, value),
+            ImmutableList.CreateRange(
+                AllOffsets.Select(o => (value.AsUnsigned() * o.Item1, Values.Multiply.Create(o.Item2, value)))));
     }
 
     internal IValue Subtract(IValue value)
     {
-        return Create(Values.Subtract.Create(_baseAddress, value), _offsets);
+        return Create(
+            Values.Subtract.Create(BaseAddress, value),
+            AllOffsets);
     }
 
-    private bool IsConstant => _baseAddress is IConstantValue && _offsets.All(o => o.Item2 is IConstantValue);
-
-    private IValue Aggregate()
+    internal AggregateOffset? GetNext()
     {
-        return _offsets.Aggregate(_baseAddress, (l, r) => Add.Create(l, r.Item2));
+        return _restOffsets.Count > 1
+            ? Create(ConstantUnsigned.Create(BaseAddress.Size, 0), _restOffsets)
+            : null;
     }
 
-    public static IValue Create(IValue baseAddress, (BigInteger, IValue)[] offsets)
+    public static AggregateOffset Create(IValue baseAddress, IEnumerable<(BigInteger, IValue)> offsets)
     {
-        var aggregateOffset = new AggregateOffset(baseAddress, offsets);
-        // TODO: Remove this nonsense once we're exploting AOs in Writes, but right now it's too slow without this as everything appears "symbolic".
-        return aggregateOffset.IsConstant ? aggregateOffset.Aggregate() : aggregateOffset;
+        if (!offsets.Any())
+        {
+            throw new Exception($"{nameof(AggregateOffset)} must have at least one offset.");
+        }
+        return new AggregateOffset(
+            baseAddress,
+            offsets.First().Item2,
+            offsets.First().Item1,
+            ImmutableList.CreateRange(offsets.Skip(1)));
     }
 }

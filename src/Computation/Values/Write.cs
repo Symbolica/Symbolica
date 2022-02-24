@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
@@ -54,6 +55,17 @@ internal sealed class Write : BitVector
                 : new Write(this, offset, value);
     }
 
+    private Write WriteAggregate(ICollectionFactory collectionFactory, IAssertions assertions, AggregateOffset aggregateOffset, IValue value)
+    {
+        var mask = Mask(this, aggregateOffset.BaseAddress, aggregateOffset.Size);
+
+        return IsNotOverlapping(assertions, mask)
+            ? new Write(Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, value), _writeOffset, _writeValue)
+            : IsAligned(assertions, mask)
+                ? new Write(_writeBuffer, aggregateOffset.BaseAddress, Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, value))
+                : new Write(this, aggregateOffset, value);
+    }
+
     private bool IsNotOverlapping(IAssertions assertions, IValue mask)
     {
         var isOverlapping = And.Create(mask, _writeMask);
@@ -85,6 +97,14 @@ internal sealed class Write : BitVector
     public static IValue Create(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue buffer, IValue offset, IValue value)
     {
+        if (offset is AggregateOffset ao && ao.IsBounded(assertions, value))
+        {
+            return buffer is AggregateWrite aw
+                ? aw.Write(assertions, ao, value)
+                : buffer is Write w1
+                    ? w1.WriteAggregate(collectionFactory, assertions, ao, value)
+                    : new Write(buffer, ao.BaseAddress, AggregateWrite.Create(buffer, ao, value));
+        }
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
             : buffer is Write w
