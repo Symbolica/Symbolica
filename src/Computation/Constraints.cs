@@ -49,7 +49,7 @@ internal sealed class Constraints : IConstraints
         // _simplifiedAssertionTracer.WriteLine($"{id}, {boolExpr.Simplify().SExpr()}");
         // _simplifiedAssertionTracer.Flush();
 
-        if (AssertionCount(assertion) > 50)
+        if (AssertionCount(assertion) > 100)
         {
             var printedExpr = PrintAssertion(assertion, 0);
             _bigAssertionTracer.WriteLine($"{id}, {printedExpr}");

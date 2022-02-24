@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
@@ -66,19 +67,6 @@ internal sealed class Write : BitVector
                 : new Write(this, offset, value);
     }
 
-    private Write WriteAggregate(ICollectionFactory collectionFactory, IAssertions assertions, AggregateOffset aggregateOffset, IValue value)
-    {
-        var mask = Mask(this, aggregateOffset.BaseAddress, aggregateOffset.Size);
-
-        return IsNotOverlapping(assertions, mask)
-            ? new Write(Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, value), _writeOffset, _writeValue)
-            : IsAligned(assertions, mask)
-                ? _writeValue is AggregateWrite aw
-                    ? new Write(_writeBuffer, aggregateOffset.BaseAddress, aw.Write(collectionFactory, assertions, aggregateOffset, value))
-                    : new Write(_writeBuffer, aggregateOffset.BaseAddress, AggregateWrite.Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, value))
-                : new Write(this, aggregateOffset.BaseAddress, AggregateWrite.Create(collectionFactory, assertions, this, aggregateOffset, value));
-    }
-
     private bool IsNotOverlapping(IAssertions assertions, IValue mask)
     {
         var isOverlapping = And.Create(mask, _writeMask);
@@ -116,11 +104,17 @@ internal sealed class Write : BitVector
         // Create(collectionFactory, assertions, buffer, ao.BaseAddress, AggregateWrite.Create(buffer, ao, value))
         if (offset is AggregateOffset ao && ao.IsBounded(assertions, value.Size))
         {
-            return buffer is AggregateWrite aw
-                ? aw.Write(collectionFactory, assertions, ao, value)
-                : buffer is Write w1
-                    ? w1.WriteAggregate(collectionFactory, assertions, ao, value)
-                    : new Write(buffer, ao.BaseAddress, AggregateWrite.Create(collectionFactory, assertions, buffer, ao, value));
+            if (!ao.IsBounded(assertions, value.Size))
+            {
+                return Create(collectionFactory, assertions, buffer, ao.Aggregate(), value);
+            }
+            var aggregateBuffer = Read.Create(collectionFactory, assertions, buffer, ao.BaseAddress, (Bits) (uint) ao.AggregateSize);
+            return new Write(
+                buffer,
+                ao.BaseAddress,
+                aggregateBuffer is AggregateWrite aw
+                    ? aw.Write(collectionFactory, assertions, ao, value)
+                    : AggregateWrite.Create(collectionFactory, assertions, aggregateBuffer, ao, value));
         }
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))

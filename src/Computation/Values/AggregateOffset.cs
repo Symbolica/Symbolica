@@ -66,7 +66,7 @@ internal sealed class AggregateOffset : Integer
             return And.Create(
                 SignedGreaterOrEqual.Create(
                     aggregateOffset.Offset,
-                    ConstantUnsigned.Create(aggregateOffset.Offset.Size, 0)),
+                    ConstantUnsigned.Create(aggregateOffset.Offset.Size, BigInteger.Zero)),
                 SignedLessOrEqual.Create(
                     Values.Add.Create(aggregateOffset.Offset, ConstantUnsigned.Create(aggregateOffset.Offset.Size, fieldSize)),
                     ConstantUnsigned.Create(aggregateOffset.Offset.Size, aggregateOffset.AggregateSize)));
@@ -91,8 +91,8 @@ internal sealed class AggregateOffset : Integer
             (acc, o) => And.Create(acc, OffsetIsBounded(o)));
         using var proposition = assertions.GetProposition(isContained);
         _isBounded = !proposition.CanBeFalse;
-        if (!_isBounded.Value)
-            Debugger.Break();
+        // if (!_isBounded.Value)
+        //     Debugger.Break();
         return _isBounded.Value;
     }
 
@@ -134,12 +134,16 @@ internal sealed class AggregateOffset : Integer
         {
             throw new Exception($"{nameof(AggregateOffset)} must have at least one offset.");
         }
-        return new AggregateOffset(
-            baseAddress,
-            offsets.First().Item2,
-            offsets.First().Item1,
-            ImmutableList.CreateRange(offsets.Skip(1)),
-            isBounded);
+        return baseAddress switch
+        {
+            AggregateOffset b => Create(b.BaseAddress, b.AllOffsets.Concat(offsets), isBounded),
+            _ => new AggregateOffset(
+                    baseAddress,
+                    offsets.First().Item2,
+                    offsets.First().Item1,
+                    ImmutableList.CreateRange(offsets.Skip(1)),
+                    isBounded)
+        };
     }
 
     public static AggregateOffset Create(IValue baseAddress, IEnumerable<(BigInteger, IValue)> offsets)
