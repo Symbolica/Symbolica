@@ -32,6 +32,7 @@ public class FailingTests
         public TestData()
         {
             Add(SignCases());
+            Add(DivideCases());
             Add(BufferCases());
             Add(GeometricCases());
         }
@@ -49,6 +50,20 @@ public class FailingTests
                     new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
                     StateError.FailingAssertion,
                     new[] {"x"});
+        }
+
+        private static IEnumerable<(string, string, Options, StateError, string[])> DivideCases()
+        {
+            return
+                from useSymbolicGarbage in new[] {false, true}
+                from useSymbolicAddresses in new[] {false, true}
+                from useSymbolicContinuations in new[] {false, true}
+                select (
+                    "divide",
+                    "--O0",
+                    new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations),
+                    StateError.DivideByZero,
+                    new[] {"y"});
         }
 
         private static IEnumerable<(string, string, Options, StateError, string[])> BufferCases()
