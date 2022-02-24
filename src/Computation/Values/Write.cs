@@ -74,9 +74,9 @@ internal sealed class Write : BitVector
             ? new Write(Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, value), _writeOffset, _writeValue)
             : IsAligned(assertions, mask)
                 ? _writeValue is AggregateWrite aw
-                    ? new Write(_writeBuffer, aggregateOffset.BaseAddress, aw.Write(assertions, aggregateOffset, value))
-                    : new Write(_writeBuffer, aggregateOffset.BaseAddress, AggregateWrite.Create(_writeBuffer, aggregateOffset, value))
-                : new Write(this, aggregateOffset, AggregateWrite.Create(this, aggregateOffset, value));
+                    ? new Write(_writeBuffer, aggregateOffset.BaseAddress, aw.Write(collectionFactory, assertions, aggregateOffset, value))
+                    : new Write(_writeBuffer, aggregateOffset.BaseAddress, AggregateWrite.Create(collectionFactory, assertions, _writeBuffer, aggregateOffset, value))
+                : new Write(this, aggregateOffset.BaseAddress, AggregateWrite.Create(collectionFactory, assertions, this, aggregateOffset, value));
     }
 
     private bool IsNotOverlapping(IAssertions assertions, IValue mask)
@@ -117,10 +117,10 @@ internal sealed class Write : BitVector
         if (offset is AggregateOffset ao && ao.IsBounded(assertions, value.Size))
         {
             return buffer is AggregateWrite aw
-                ? aw.Write(assertions, ao, value)
+                ? aw.Write(collectionFactory, assertions, ao, value)
                 : buffer is Write w1
                     ? w1.WriteAggregate(collectionFactory, assertions, ao, value)
-                    : new Write(buffer, ao.BaseAddress, AggregateWrite.Create(buffer, ao, value));
+                    : new Write(buffer, ao.BaseAddress, AggregateWrite.Create(collectionFactory, assertions, buffer, ao, value));
         }
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))

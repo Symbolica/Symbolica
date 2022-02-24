@@ -37,6 +37,7 @@ internal sealed class Add : BitVector
         return left switch
         {
             IConstantValue l => l.AsUnsigned().Add(right),
+            AggregateOffset l => l.Add(right),
             Add l => Create(l._left, Create(l._right, right)),
             _ => new Add(left, right)
         };
