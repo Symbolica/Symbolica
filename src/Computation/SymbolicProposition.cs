@@ -1,4 +1,6 @@
-﻿using Symbolica.Computation.Values;
+﻿using System.Numerics;
+using Symbolica.Computation.Values;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -32,6 +34,7 @@ internal sealed class SymbolicProposition : IProposition
     {
         var constraints = space.GetConstraints();
 
-        return new SymbolicProposition(space, constraints, assertion, Not.Create(assertion));
+        var negation = Equal.Create(assertion, ConstantUnsigned.Create(assertion.Size, BigInteger.Zero));
+        return new SymbolicProposition(space, constraints, assertion, negation);
     }
 }
