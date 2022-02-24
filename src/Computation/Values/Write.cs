@@ -69,19 +69,6 @@ internal sealed record Write : BitVector
                 : new Write(this, offset, value);
     }
 
-    private Write WriteAggregate(ICollectionFactory collectionFactory, ISolver solver, AggregateOffset aggregateOffset, IValue value)
-    {
-        var mask = Mask(this, aggregateOffset.BaseAddress, aggregateOffset.Size);
-
-        return IsNotOverlapping(solver, mask)
-            ? new Write(Create(collectionFactory, solver, _writeBuffer, aggregateOffset, value), _writeOffset, _writeValue)
-            : IsAligned(solver, mask)
-                ? _writeValue is AggregateWrite aw
-                    ? new Write(_writeBuffer, aggregateOffset.BaseAddress, aw.Write(collectionFactory, solver, aggregateOffset, value))
-                    : new Write(_writeBuffer, aggregateOffset.BaseAddress, AggregateWrite.Create(collectionFactory, solver, _writeBuffer, aggregateOffset, value))
-                : new Write(this, aggregateOffset.BaseAddress, AggregateWrite.Create(collectionFactory, solver, this, aggregateOffset, value));
-    }
-
     private bool IsNotOverlapping(ISolver solver, IValue mask)
     {
         var isOverlapping = And.Create(mask, _writeMask);
@@ -115,11 +102,17 @@ internal sealed record Write : BitVector
         // Create(collectionFactory, assertions, buffer, ao.BaseAddress, AggregateWrite.Create(buffer, ao, value))
         if (offset is AggregateOffset ao && ao.IsBounded(solver, value.Size))
         {
-            return buffer is AggregateWrite aw
-                ? aw.Write(collectionFactory, solver, ao, value)
-                : buffer is Write w1
-                    ? w1.WriteAggregate(collectionFactory, solver, ao, value)
-                    : new Write(buffer, ao.BaseAddress, AggregateWrite.Create(collectionFactory, solver, buffer, ao, value));
+            if (!ao.IsBounded(solver, value.Size))
+            {
+                return Create(collectionFactory, solver, buffer, ao.Aggregate(), value);
+            }
+            var aggregateBuffer = Read.Create(collectionFactory, solver, buffer, ao.BaseAddress, (Bits) (uint) ao.AggregateSize);
+            return new Write(
+                buffer,
+                ao.BaseAddress,
+                aggregateBuffer is AggregateWrite aw
+                    ? aw.Write(collectionFactory, solver, ao, value)
+                    : AggregateWrite.Create(collectionFactory, solver, aggregateBuffer, ao, value));
         }
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
