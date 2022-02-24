@@ -58,6 +58,17 @@ internal sealed record Write : BitVector
                 : new Write(this, offset, value);
     }
 
+    private Write WriteAggregate(ICollectionFactory collectionFactory, ISolver solver, AggregateOffset aggregateOffset, IValue value)
+    {
+        var mask = Mask(this, aggregateOffset.BaseAddress, aggregateOffset.Size);
+
+        return IsNotOverlapping(solver, mask)
+            ? new Write(Create(collectionFactory, solver, _writeBuffer, aggregateOffset, value), _writeOffset, _writeValue)
+            : IsAligned(solver, mask)
+                ? new Write(_writeBuffer, aggregateOffset.BaseAddress, Create(collectionFactory, solver, _writeBuffer, aggregateOffset, value))
+                : new Write(this, aggregateOffset, value);
+    }
+
     private bool IsNotOverlapping(ISolver solver, IValue mask)
     {
         var isOverlapping = And.Create(mask, _writeMask);
@@ -85,6 +96,14 @@ internal sealed record Write : BitVector
     public static IValue Create(ICollectionFactory collectionFactory, ISolver solver,
         IValue buffer, IValue offset, IValue value)
     {
+        if (offset is AggregateOffset ao && ao.IsBounded(solver, value))
+        {
+            return buffer is AggregateWrite aw
+                ? aw.Write(solver, ao, value)
+                : buffer is Write w1
+                    ? w1.WriteAggregate(collectionFactory, solver, ao, value)
+                    : new Write(buffer, ao.BaseAddress, AggregateWrite.Create(buffer, ao, value));
+        }
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
             : buffer is Write w

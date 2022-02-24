@@ -74,7 +74,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(
                 id,
                 operands,
-                GetGepOffsets(instruction, operands).ToArray()),
+                GetGepOffsetsChecked(instruction, operands).ToArray()),
             LLVMOpcode.LLVMTrunc => new Truncate(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMZExt => new ZeroExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMSExt => new SignExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
@@ -178,6 +178,21 @@ internal sealed class InstructionFactory : IInstructionFactory
         var isSignExtended = attributes.Any(a => _unsafeContext.GetEnumAttributeKind(a) == kind);
 
         return new Attributes(isSignExtended);
+    }
+
+    private IEnumerable<(Bytes, IOperand)> GetGepOffsetsChecked(LLVMValueRef instruction, IOperand[] operands)
+    {
+        var offsets = GetGepOffsets(instruction, operands).ToList();
+
+        bool CheckSizesArentIncreasing()
+        {
+            if (offsets.Count < 2)
+                return true;
+
+            return offsets.Take(offsets.Count - 1).Zip(offsets.Skip(1)).All(x => x.First.Item1 >= x.Second.Item1);
+        }
+        System.Diagnostics.Debug.Assert(CheckSizesArentIncreasing());
+        return offsets;
     }
 
     private IEnumerable<(Bytes, IOperand)> GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
