@@ -36,13 +36,15 @@ internal sealed class MemorySet : IFunction
             _value = value;
         }
 
-        public void Invoke(IState state, BigInteger value)
+        public void Invoke(IState state, BigInteger bytes)
         {
-            foreach (var offset in Enumerable.Range(0, (int) value))
-            {
-                var address = _destination.Add(state.Space.CreateConstant(_destination.Size, offset));
-                state.Memory.Write(address, _value);
-            }
+            var size = ((Bytes) (uint) bytes).ToBits();
+            var buffer = state.Space.CreateConstant(size, BigInteger.Zero);
+
+            foreach (var offset in Enumerable.Range(0, (int) bytes))
+                buffer.Write(state.Space, state.Space.CreateConstant(size, offset), _value);
+
+            state.Memory.Write(_destination, buffer);
         }
     }
 }
