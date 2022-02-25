@@ -40,6 +40,7 @@ internal sealed record Subtract : BitVector
             (IConstantValue l, IConstantValue r) => l.AsUnsigned().Subtract(r.AsUnsigned()),
             _ when left.Equals(right) => ConstantUnsigned.CreateZero(left.Size),
             (AggregateOffset l, _) => l.Subtract(right),
+            (IConstantValue l, AggregateOffset r) => r.Negate().Add(l),
             _ => new Subtract(left, right)
         };
     }

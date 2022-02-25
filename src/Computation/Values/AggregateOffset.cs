@@ -112,9 +112,8 @@ internal sealed record AggregateOffset : Integer
     {
         return Create(
             Values.Multiply.Create(BaseAddress, value),
-            ImmutableList.CreateRange(
-                AllOffsets.Select(o => (value.AsUnsigned() * o.Item1, Values.Multiply.Create(o.Item2, value)))),
-                _isBounded);
+            AllOffsets.Select(o => (value.AsUnsigned() * o.Item1, Values.Multiply.Create(o.Item2, value))),
+            _isBounded);
     }
 
     internal IValue Subtract(IValue value)
@@ -122,6 +121,15 @@ internal sealed record AggregateOffset : Integer
         return Create(
             Values.Subtract.Create(BaseAddress, value),
             AllOffsets,
+            _isBounded);
+    }
+
+    internal AggregateOffset Negate()
+    {
+        static IValue NegateValue(IValue value) => Values.Multiply.Create(value, ConstantUnsigned.Create(value.Size, -1));
+        return Create(
+            NegateValue(BaseAddress),
+            AllOffsets.Select(o => (o.Item1, NegateValue(o.Item2))),
             _isBounded);
     }
 
@@ -134,18 +142,44 @@ internal sealed record AggregateOffset : Integer
 
     private static AggregateOffset Create(IValue baseAddress, IEnumerable<(BigInteger, IValue)> offsets, bool? isBounded)
     {
+        AggregateOffset Merge(AggregateOffset baseAddress)
+        {
+            return Create(baseAddress.BaseAddress, baseAddress.AllOffsets.Concat(offsets), isBounded);
+        }
+
+        // bool OffsetIsDegenerate((BigInteger, IValue) offset, (BigInteger, IValue) prevOffset)
+        // {
+        //     bool IsZero(IValue value) => value is IConstantValue c && c.AsUnsigned().IsZero;
+        //     return offset.Item1 == prevOffset.Item1 && IsZero(offset.Item2);
+        // }
+
         if (!offsets.Any())
         {
             throw new Exception($"{nameof(AggregateOffset)} must have at least one offset.");
         }
+
+        Debug.Assert(!(baseAddress is IConstantValue ba && ba.AsUnsigned() < BigInteger.Zero));
+
+        if (offsets.Any(o => o.Item2 is AggregateOffset))
+            Debugger.Break();
+
+        var firstOffset = offsets.First();
+        var restOffsets = offsets.Skip(1);
+
+        // var normalisedOffsets = restOffsets.Aggregate(
+        //     (Enumerable.Empty<(BigInteger, IValue)>(), firstOffset),
+        //     (acc, x) => OffsetIsDegenerate(x, acc.firstOffset)
+        //         ? (acc.Item1, x)
+        //         : (acc.Item1.Append(x), x));
+
         return baseAddress switch
         {
-            AggregateOffset b => Create(b.BaseAddress, b.AllOffsets.Concat(offsets), isBounded),
+            AggregateOffset b => Merge(b),
             _ => new AggregateOffset(
                     baseAddress,
-                    offsets.First().Item2,
-                    offsets.First().Item1,
-                    ImmutableList.CreateRange(offsets.Skip(1)),
+                    firstOffset.Item2,
+                    firstOffset.Item1,
+                    ImmutableList.CreateRange(restOffsets),
                     isBounded)
         };
     }

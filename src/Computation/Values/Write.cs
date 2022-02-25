@@ -106,13 +106,15 @@ internal sealed record Write : BitVector
             {
                 return Create(collectionFactory, solver, buffer, ao.Aggregate(), value);
             }
-            var aggregateBuffer = Read.Create(collectionFactory, solver, buffer, ao.BaseAddress, (Bits) (uint) ao.AggregateSize);
-            return new Write(
-                buffer,
-                ao.BaseAddress,
-                aggregateBuffer is AggregateWrite aw
-                    ? aw.Write(collectionFactory, solver, ao, value)
-                    : AggregateWrite.Create(collectionFactory, solver, aggregateBuffer, ao, value));
+            var aggregateBuffer = buffer is AggregateWrite
+                ? buffer
+                : Read.Create(collectionFactory, solver, buffer, ao.BaseAddress, (Bits) (uint) ao.AggregateSize);
+            var aggregateValue = aggregateBuffer is AggregateWrite aw
+                ? aw.Write(collectionFactory, solver, ao, value)
+                : AggregateWrite.Create(collectionFactory, solver, aggregateBuffer, ao, value);
+            return ao.BaseAddress is IConstantValue ba && ba.AsUnsigned().IsZero && aggregateValue.Size == buffer.Size
+                ? aggregateValue
+                : Create(collectionFactory, solver, buffer, ao.BaseAddress, aggregateValue);
         }
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
