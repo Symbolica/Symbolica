@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Z3;
 
 namespace Symbolica.Computation.Values;
@@ -31,6 +32,7 @@ internal sealed class Subtract : BitVector
             (IConstantValue l, IConstantValue r) => l.AsUnsigned().Subtract(r.AsUnsigned()),
             (_, IConstantValue r) when r.AsUnsigned().IsZero => left,
             (AggregateOffset l, _) => l.Subtract(right),
+            (IConstantValue l, AggregateOffset r) => r.Negate().Add(l),
             _ => new Subtract(left, right)
         };
     }

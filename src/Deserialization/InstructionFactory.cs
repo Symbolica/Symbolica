@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LLVMSharp.Interop;
 using Symbolica.Abstraction;
@@ -39,7 +40,7 @@ internal sealed class InstructionFactory : IInstructionFactory
         {
             LLVMOpcode.LLVMRet => new Return(id, operands),
             LLVMOpcode.LLVMBr => new Branch(id, operands),
-            LLVMOpcode.LLVMSwitch => new Switch(id, operands),
+            LLVMOpcode.LLVMSwitch => new Representation.Instructions.Switch(id, operands),
             LLVMOpcode.LLVMIndirectBr => new IndirectBranch(id, operands),
             LLVMOpcode.LLVMInvoke => new Invoke(
                 CreateCall(id, operands, instruction),
@@ -219,6 +220,7 @@ internal sealed class InstructionFactory : IInstructionFactory
                     LLVMTypeKind.LLVMVectorTypeKind => (Bytes) (indexedType.VectorSize * (uint) elementSize),
                     _ => throw new Exception($"Lol wut, tried to GEP into a {indexedType.Kind}.")
                 };
+
                 yield return (size, new Offset(elementSize, index));
                 indexedType = elementType;
             }

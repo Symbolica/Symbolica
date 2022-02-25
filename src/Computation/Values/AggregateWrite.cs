@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
@@ -89,7 +90,7 @@ internal sealed class AggregateWrite : BitVector
         }
 
         // Flatten
-        return Values.Read.Create(collectionFactory, assertions, Flatten(), fieldOffset, valueSize);
+        return Values.Read.Create(collectionFactory, assertions, Flatten(), aggregateOffset, valueSize);
     }
 
     // Assumes that aggregateOffset has already been checked to make sure all offset are in bounds
@@ -199,8 +200,11 @@ internal sealed class AggregateWrite : BitVector
         {
             return ShiftLeft.Create(
                 ZeroExtend.Create(Size, field.Flatten()),
-                ZeroExtend.Create(Size, _offset));
+                ZeroExtend.Create(Size, field._offset));
         }
+
+        if (_buffer is not IConstantValue)
+            Debugger.Break();
 
         var data = AggregateFields(CreateData);
 
@@ -210,6 +214,12 @@ internal sealed class AggregateWrite : BitVector
     public static AggregateWrite Create(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue buffer, AggregateOffset aggregateOffset, IValue value)
     {
+        if (buffer is not IConstantValue)
+            Debugger.Break();
+
+        if (buffer.Size == (Bits) 512 && aggregateOffset.Offset is IConstantValue o && o.AsUnsigned().IsZero)
+            Debugger.Break();
+
         if (buffer.Size != (Bits) (uint) aggregateOffset.AggregateSize)
             throw new InconsistentExpressionSizesException(buffer.Size, aggregateOffset.Size);
 
@@ -222,6 +232,12 @@ internal sealed class AggregateWrite : BitVector
     private static AggregateWrite CreateField(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue buffer, AggregateOffset aggregateOffset, IValue value)
     {
+        if (buffer is not IConstantValue)
+            Debugger.Break();
+
+        if (buffer.Size == (Bits) 512 && aggregateOffset.Offset is IConstantValue o && o.AsUnsigned().IsZero)
+            Debugger.Break();
+
         if (buffer.Size != (Bits) (uint) aggregateOffset.AggregateSize)
             throw new InconsistentExpressionSizesException(buffer.Size, aggregateOffset.Size);
 
@@ -232,15 +248,20 @@ internal sealed class AggregateWrite : BitVector
 
         return nextOffset is null
             ? CreateLeaf(collectionFactory, assertions, fieldBuffer, fieldOffset, value)
-            : new AggregateWrite(
-                fieldBuffer,
-                fieldOffset,
-                ImmutableList.Create(CreateField(collectionFactory, assertions, fieldBuffer, nextOffset, value)));
+                // : fieldSize == buffer.Size && fieldOffset is IConstantValue fo && fo.AsUnsigned().IsZero
+                //     ? CreateField(collectionFactory, assertions, fieldBuffer, nextOffset, value)
+                : new AggregateWrite(
+                    fieldBuffer,
+                    fieldOffset,
+                    ImmutableList.Create(CreateField(collectionFactory, assertions, fieldBuffer, nextOffset, value)));
     }
 
     private static AggregateWrite CreateLeaf(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue buffer, IValue offset, IValue value)
     {
+        if (buffer is not IConstantValue)
+            Debugger.Break();
+
         return new AggregateWrite(
             value.Size == buffer.Size
                 ? value
