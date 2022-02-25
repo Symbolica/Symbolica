@@ -76,7 +76,7 @@ internal sealed class AggregateWrite : BitVector
         //      Read below
         if (IsNotOverlappingAnyField(assertions, fieldSize, fieldOffset))
         {
-            return Values.Read.Create(collectionFactory, assertions, _buffer, fieldOffset, fieldSize);
+            return Values.Read.Create(collectionFactory, assertions, _buffer, aggregateOffset, valueSize);
         }
 
         // Check for alignment with symbolic offsets
