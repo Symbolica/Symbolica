@@ -81,7 +81,7 @@ internal sealed record AggregateWrite : BitVector
         //      Read below
         if (IsNotOverlappingAnyField(solver, fieldSize, fieldOffset))
         {
-            return Values.Read.Create(collectionFactory, solver, _buffer, fieldOffset, fieldSize);
+            return Values.Read.Create(collectionFactory, solver, _buffer, aggregateOffset, valueSize);
         }
 
         // Check for alignment with symbolic offsets
