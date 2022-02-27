@@ -50,6 +50,7 @@ public interface IExpression
     IExpression SignExtend(Bits size);
     IExpression Subtract(IExpression expression);
     IExpression Truncate(Bits size);
+    IExpression ToBits();
     IExpression UnsignedDivide(IExpression expression);
     IExpression UnsignedGreater(IExpression expression);
     IExpression UnsignedGreaterOrEqual(IExpression expression);

@@ -181,7 +181,7 @@ internal sealed class InstructionFactory : IInstructionFactory
         return new Attributes(isSignExtended);
     }
 
-    private IEnumerable<(Bytes, IOperand)> GetGepOffsetsChecked(LLVMValueRef instruction, IOperand[] operands)
+    private IEnumerable<Representation.Offset> GetGepOffsetsChecked(LLVMValueRef instruction, IOperand[] operands)
     {
         var offsets = GetGepOffsets(instruction, operands).ToList();
 
@@ -190,13 +190,16 @@ internal sealed class InstructionFactory : IInstructionFactory
             if (offsets.Count < 2)
                 return true;
 
-            return offsets.Take(offsets.Count - 1).Zip(offsets.Skip(1)).All(x => x.First.Item1 >= x.Second.Item1);
+            return offsets
+                .Take(offsets.Count - 1)
+                .Zip(offsets.Skip(1))
+                .All(x => x.First.AggregateSize >= x.Second.AggregateSize);
         }
-        System.Diagnostics.Debug.Assert(CheckSizesArentIncreasing());
+        Debug.Assert(CheckSizesArentIncreasing());
         return offsets;
     }
 
-    private IEnumerable<(Bytes, IOperand)> GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
+    private IEnumerable<Representation.Offset> GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
     {
         var constantIndices = instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt);
         var indices = operands.Skip(1);
@@ -205,8 +208,9 @@ internal sealed class InstructionFactory : IInstructionFactory
         foreach (var (constantIndex, index) in constantIndices.Zip(indices))
             if (indexedType.Kind == LLVMTypeKind.LLVMStructTypeKind)
             {
-                yield return
-                    (indexedType.GetStoreSize(_targetData), new ConstantOffset(indexedType.GetElementOffset(_targetData, constantIndex)));
+                yield return new Representation.Offset(
+                    indexedType.GetStoreSize(_targetData),
+                    new StructOffset(indexedType.GetElementOffset(_targetData, constantIndex)));
                 indexedType = indexedType.StructGetTypeAtIndex(constantIndex);
             }
             else
@@ -221,7 +225,7 @@ internal sealed class InstructionFactory : IInstructionFactory
                     _ => throw new Exception($"Lol wut, tried to GEP into a {indexedType.Kind}.")
                 };
 
-                yield return (size, new Offset(elementSize, index));
+                yield return new Representation.Offset(size, new ArrayOffset(elementSize, index));
                 indexedType = elementType;
             }
     }

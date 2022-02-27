@@ -39,7 +39,6 @@ internal sealed class Multiply : BitVector
         return left switch
         {
             IConstantValue l => l.AsUnsigned().Multiply(right),
-            AggregateOffset l => l.Multiply(right),
             Multiply l => Create(l._left, Create(l._right, right)),
             _ => new Multiply(left, right)
         };

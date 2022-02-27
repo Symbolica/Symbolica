@@ -21,6 +21,9 @@ internal sealed class AggregateWrite : BitVector
     private AggregateWrite(IValue buffer, IValue offset, ImmutableList<AggregateWrite> fields)
         : base(buffer.Size)
     {
+        if (buffer is not IConstantValue)
+            Debugger.Break();
+
         _buffer = buffer;
         _offset = offset;
         _fields = fields;
@@ -36,117 +39,117 @@ internal sealed class AggregateWrite : BitVector
     }
 
     internal IValue Read(ICollectionFactory collectionFactory, IAssertions assertions,
-        AggregateOffset aggregateOffset, Bits valueSize)
+        WriteOffsets offsets, Bits valueSize)
     {
-        if (Size != (Bits) (uint) aggregateOffset.AggregateSize)
-            throw new InconsistentExpressionSizesException(Size, aggregateOffset.Size);
-
-        var fieldOffset = aggregateOffset.Offset;
-        var fieldSize = (Bits) (uint) (aggregateOffset.GetNext()?.AggregateSize ?? (uint) valueSize);
-
-        IValue ReadFieldBuffer(IValue buffer)
+        if (offsets.Empty)
         {
-            return Values.Read.Create(
-                collectionFactory,
-                assertions,
-                buffer,
-                ConstantUnsigned.Create(buffer.Size, 0),
-                valueSize);
+            // We've hit the field that the value should be read from
+            if (Size != valueSize)
+                throw new InconsistentExpressionSizesException(Size, valueSize);
+
+            // In the trivial case (e.g. when this AggregateWrite is terminal)
+            // then flatten is just the same as returning the buffer.
+            return Flatten();
         }
 
-        IValue ReadSubAggregate(AggregateWrite match)
+        WriteOffset offset = offsets.Head();
+        if (Size != offset.AggregateSize)
+            throw new InconsistentExpressionSizesException(Size, offset.AggregateSize);
+
+        IValue ReadField(AggregateWrite field)
         {
-            var nextOffset = aggregateOffset.GetNext();
-            return nextOffset is not null
-                ? match.Read(collectionFactory, assertions, nextOffset, valueSize)
-                : ReadFieldBuffer(match.Flatten());
+            return field.Read(collectionFactory, assertions, offsets.Tail(), valueSize);
         }
 
-        // Check for alignment with constant offsets
-        //      Read sub aggregate
         var constantMatch = _fields
             .Where(f => f._offset is IConstantValue)
-            .FirstOrDefault(f => f.IsAligned(assertions, fieldSize, fieldOffset));
+            .FirstOrDefault(f => f.IsAligned(assertions, offset));
         if (constantMatch is not null)
         {
-            return ReadSubAggregate(constantMatch);
+            return ReadField(constantMatch);
         }
 
-        // Check for disjunction with everything
-        //      Read below
-        if (IsNotOverlappingAnyField(assertions, fieldSize, fieldOffset))
+        if (IsNotOverlappingAnyField(assertions, offset))
         {
-            return Values.Read.Create(collectionFactory, assertions, _buffer, aggregateOffset, valueSize);
+            // I think we can be smarter here because if we don't eagerly aggregate the offsets
+            // then in the case where a sub offset is symbolic we can use the leading constant
+            // ones to quickly narrow down the buffer size.
+            // It might also be quicker to solve many "small" symbolic offsets separately.
+            return Values.Read.Create(collectionFactory, assertions, _buffer, offsets.Aggregate(), valueSize);
         }
 
-        // Check for alignment with symbolic offsets
-        //      Do an overwrite
         var symbolicMatch = _fields
             .Where(f => f._offset is not IConstantValue)
-            .FirstOrDefault(f => f.IsAligned(assertions, fieldSize, fieldOffset));
+            .FirstOrDefault(f => f.IsAligned(assertions, offset));
         if (symbolicMatch is not null)
         {
-            return ReadSubAggregate(symbolicMatch);
+            return ReadField(symbolicMatch);
         }
 
-        // Flatten
-        return Values.Read.Create(collectionFactory, assertions, Flatten(), aggregateOffset, valueSize);
+        var flattened = Flatten();
+        return Values.Read.Create(
+            collectionFactory,
+            assertions,
+            Flatten(),
+            offsets.Aggregate(),
+            valueSize);
     }
 
-    // Assumes that aggregateOffset has already been checked to make sure all offset are in bounds
-    internal AggregateWrite Write(ICollectionFactory collectionFactory, IAssertions assertions, AggregateOffset aggregateOffset, IValue value)
+    internal AggregateWrite Write(ICollectionFactory collectionFactory, IAssertions assertions,
+        WriteOffsets offsets, IValue value)
     {
-        if (Size != (Bits) (uint) aggregateOffset.AggregateSize)
-            throw new InconsistentExpressionSizesException(Size, aggregateOffset.Size);
-
-        var fieldOffset = aggregateOffset.Offset;
-        var fieldSize = (Bits) (uint) (aggregateOffset.GetNext()?.AggregateSize ?? (uint) value.Size);
-
-        AggregateWrite Overwrite(AggregateWrite match)
+        if (offsets.Empty)
         {
-            var nextOffset = aggregateOffset.GetNext();
-            var newField = nextOffset is not null
-                ? match.Write(collectionFactory, assertions, nextOffset, value)
-                : CreateLeaf(collectionFactory, assertions, match, fieldOffset, value);
-            return new AggregateWrite(_buffer, _offset, _fields.Replace(match, newField));
+            // We've hit the field that the value should be written to
+            if (Size != value.Size)
+                throw new InconsistentExpressionSizesException(Size, value.Size);
+
+            return new AggregateWrite(value, _offset, ImmutableList.Create<AggregateWrite>());
         }
 
-        // Check for alignment with constant offsets
-        //      Do an overwrite
-        var constantMatch = _fields
-            .Where(f => f._offset is IConstantValue)
-            .FirstOrDefault(f => f.IsAligned(assertions, fieldSize, fieldOffset));
-        if (constantMatch is not null)
-        {
-            return Overwrite(constantMatch);
-        }
+        WriteOffset offset = offsets.Head();
+        if (Size != offset.AggregateSize)
+            throw new InconsistentExpressionSizesException(Size, offset.AggregateSize);
 
-        // Check for disjunction with everything
-        //      Do an insert
-        if (IsNotOverlappingAnyField(assertions, fieldSize, fieldOffset))
+        AggregateWrite WriteField(AggregateWrite field)
         {
             return new AggregateWrite(
                 _buffer,
                 _offset,
-                _fields.Add(CreateField(collectionFactory, assertions, _buffer, aggregateOffset, value)));
+                _fields.Replace(
+                    field,
+                    field.Write(collectionFactory, assertions, offsets.Tail(), value)));
         }
 
-        // Check for alignment with symbolic offsets
-        //      Do an overwrite
+        var constantMatch = _fields
+            .Where(f => f._offset is IConstantValue)
+            .FirstOrDefault(f => f.IsAligned(assertions, offset));
+        if (constantMatch is not null)
+        {
+            return WriteField(constantMatch);
+        }
+
+        if (IsNotOverlappingAnyField(assertions, offset))
+        {
+            return new AggregateWrite(
+                _buffer,
+                _offset,
+                _fields.Add(CreateField(collectionFactory, assertions, _buffer, offsets, value)));
+        }
+
         var symbolicMatch = _fields
             .Where(f => f._offset is not IConstantValue)
-            .FirstOrDefault(f => f.IsAligned(assertions, fieldSize, fieldOffset));
+            .FirstOrDefault(f => f.IsAligned(assertions, offset));
         if (symbolicMatch is not null)
         {
-            return Overwrite(symbolicMatch);
+            return WriteField(symbolicMatch);
         }
 
-        // Flatten
         var flattened = Flatten();
         return new AggregateWrite(
             flattened,
-            fieldOffset,
-            ImmutableList.Create(CreateField(collectionFactory, assertions, flattened, aggregateOffset, value)));
+            offset.Value,
+            ImmutableList.Create(CreateField(collectionFactory, assertions, flattened, offsets, value)));
     }
 
     private static IValue Mask(Bits bufferSize, IValue offset, Bits size)
@@ -156,21 +159,21 @@ internal sealed class AggregateWrite : BitVector
             ZeroExtend.Create(bufferSize, offset));
     }
 
-    private bool IsNotOverlappingAnyField(IAssertions assertions, Bits size, IValue offset)
+    private bool IsNotOverlappingAnyField(IAssertions assertions, WriteOffset offset)
     {
-        var isOverlapping = And.Create(AggregateMask(), Mask(Size, offset, size));
+        var isOverlapping = And.Create(AggregateMask(), Mask(Size, offset.Value, offset.FieldSize));
         using var proposition = assertions.GetProposition(isOverlapping);
 
         return !proposition.CanBeTrue;
     }
 
-    private bool IsAligned(IAssertions assertions, Bits size, IValue offset)
+    private bool IsAligned(IAssertions assertions, WriteOffset offset)
     {
-        if (Size != size)
+        if (Size != offset.FieldSize)
         {
             return false;
         }
-        var isAligned = Equal.Create(_offset, offset);
+        var isAligned = Equal.Create(_offset, offset.Value);
         using var proposition = assertions.GetProposition(isAligned);
 
         return !proposition.CanBeFalse;
@@ -203,70 +206,66 @@ internal sealed class AggregateWrite : BitVector
                 ZeroExtend.Create(Size, field._offset));
         }
 
-        if (_buffer is not IConstantValue)
-            Debugger.Break();
-
         var data = AggregateFields(CreateData);
 
         return Or.Create(And.Create(_buffer, Not.Create(AggregateMask())), data);
     }
 
-    public static AggregateWrite Create(ICollectionFactory collectionFactory, IAssertions assertions,
-        IValue buffer, AggregateOffset aggregateOffset, IValue value)
+    public static IValue Create(ICollectionFactory collectionFactory, IAssertions assertions,
+        IValue buffer, IValue offset, IValue value)
     {
-        if (buffer is not IConstantValue)
-            Debugger.Break();
+        return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
+            ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
+            : buffer is AggregateWrite w
+                ? w.Write(
+                    collectionFactory,
+                    assertions,
+                    WriteOffsets.Create(assertions, offset, buffer.Size, value.Size),
+                    value)
+                : Create(
+                    collectionFactory,
+                    assertions,
+                    CreateInitial(buffer, offset.Size),
+                    offset,
+                    value);
+    }
 
-        if (buffer.Size == (Bits) 512 && aggregateOffset.Offset is IConstantValue o && o.AsUnsigned().IsZero)
-            Debugger.Break();
-
-        if (buffer.Size != (Bits) (uint) aggregateOffset.AggregateSize)
-            throw new InconsistentExpressionSizesException(buffer.Size, aggregateOffset.Size);
-
-        return new AggregateWrite(
-            buffer,
-            ConstantUnsigned.Create(aggregateOffset.Size, BigInteger.Zero),
-            ImmutableList.Create(CreateField(collectionFactory, assertions, buffer, aggregateOffset, value)));
+    private static AggregateWrite CreateInitial(IValue buffer, Bits offsetSize)
+    {
+        return CreateLeaf(
+            new WriteOffset(
+                buffer.Size,
+                buffer.Size,
+                ConstantUnsigned.Create(offsetSize, BigInteger.Zero)),
+            buffer);
     }
 
     private static AggregateWrite CreateField(ICollectionFactory collectionFactory, IAssertions assertions,
-        IValue buffer, AggregateOffset aggregateOffset, IValue value)
+        IValue buffer, WriteOffsets offsets, IValue value)
     {
-        if (buffer is not IConstantValue)
-            Debugger.Break();
+        var offset = offsets.Head();
+        if (buffer.Size != offset.AggregateSize)
+            throw new InconsistentExpressionSizesException(buffer.Size, offset.AggregateSize);
 
-        if (buffer.Size == (Bits) 512 && aggregateOffset.Offset is IConstantValue o && o.AsUnsigned().IsZero)
-            Debugger.Break();
+        var fieldBuffer = Values.Read.Create(collectionFactory, assertions, buffer, offset.Value, offset.FieldSize);
 
-        if (buffer.Size != (Bits) (uint) aggregateOffset.AggregateSize)
-            throw new InconsistentExpressionSizesException(buffer.Size, aggregateOffset.Size);
-
-        var nextOffset = aggregateOffset.GetNext();
-        var fieldOffset = aggregateOffset.Offset;
-        var fieldSize = (Bits) (uint) (nextOffset?.AggregateSize ?? (uint) value.Size);
-        var fieldBuffer = Values.Read.Create(collectionFactory, assertions, buffer, fieldOffset, fieldSize);
-
-        return nextOffset is null
-            ? CreateLeaf(collectionFactory, assertions, fieldBuffer, fieldOffset, value)
-                // : fieldSize == buffer.Size && fieldOffset is IConstantValue fo && fo.AsUnsigned().IsZero
-                //     ? CreateField(collectionFactory, assertions, fieldBuffer, nextOffset, value)
-                : new AggregateWrite(
-                    fieldBuffer,
-                    fieldOffset,
-                    ImmutableList.Create(CreateField(collectionFactory, assertions, fieldBuffer, nextOffset, value)));
+        var tail = offsets.Tail();
+        return tail.Empty
+            ? CreateLeaf(offset, value)
+            : new AggregateWrite(
+                fieldBuffer,
+                offset.Value,
+                ImmutableList.Create(CreateField(collectionFactory, assertions, fieldBuffer, tail, value)));
     }
 
-    private static AggregateWrite CreateLeaf(ICollectionFactory collectionFactory, IAssertions assertions,
-        IValue buffer, IValue offset, IValue value)
+    private static AggregateWrite CreateLeaf(WriteOffset offset, IValue value)
     {
-        if (buffer is not IConstantValue)
-            Debugger.Break();
+        if (value.Size != offset.FieldSize)
+            throw new InconsistentExpressionSizesException(value.Size, offset.FieldSize);
 
         return new AggregateWrite(
-            value.Size == buffer.Size
-                ? value
-                : Values.Write.Create(collectionFactory, assertions, buffer, offset, value),
-            offset,
+            value,
+            offset.Value,
             ImmutableList.Create<AggregateWrite>());
     }
 }

@@ -1,24 +1,16 @@
-﻿using Symbolica.Abstraction;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation;
 
-public sealed class Offset : IOperand
+public struct Offset
 {
-    private readonly Bytes _elementSize;
-    private readonly IOperand _index;
-
-    public Offset(Bytes elementSize, IOperand index)
+    public Offset(Bytes aggregateSize, IOperand value)
     {
-        _elementSize = elementSize;
-        _index = index;
+        AggregateSize = aggregateSize;
+        Value = value;
     }
 
-    public IExpression Evaluate(IState state)
-    {
-        var index = _index.Evaluate(state);
-        var elementSize = state.Space.CreateConstant(state.Space.PointerSize, (uint) _elementSize);
-
-        return index.SignExtend(state.Space.PointerSize).Multiply(elementSize);
-    }
+    public Bytes AggregateSize { get; }
+    public IOperand Value { get; }
 }

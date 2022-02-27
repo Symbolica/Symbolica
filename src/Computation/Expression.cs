@@ -253,6 +253,11 @@ internal sealed class Expression<TContext> : IExpression
         return Create(v => Values.Truncate.Create(size, v));
     }
 
+    public IExpression ToBits()
+    {
+        return Create(v => v.ToBits());
+    }
+
     public IExpression UnsignedDivide(IExpression expression)
     {
         return Create(expression, Values.UnsignedDivide.Create);
@@ -290,7 +295,7 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Write(ISpace space, IExpression offset, IExpression value)
     {
-        return Create(offset, value, (b, o, v) => Values.Write.Create(_collectionFactory, GetAssertions(space), b, o, v));
+        return Create(offset, value, (b, o, v) => AggregateWrite.Create(_collectionFactory, GetAssertions(space), b, o, v));
     }
 
     public IExpression Xor(IExpression expression)
@@ -337,14 +342,14 @@ internal sealed class Expression<TContext> : IExpression
         return ((IPersistentSpace) space).Assertions;
     }
 
-    public static IExpression CreateAggregateOffset(ICollectionFactory collectionFactory,
-        IExpression baseAddress, (Bytes, IExpression)[] offsets)
+    public static IExpression CreateAddress(ICollectionFactory collectionFactory,
+        IExpression baseAddress, Offset[] offsets)
     {
         return new Expression<TContext>(collectionFactory,
-            AggregateOffset.Create(
+            Address<Bytes>.Create(
                 ((Expression<TContext>) baseAddress)._value,
                 offsets.Select(
-                    o => ((BigInteger) (uint) o.Item1, ((Expression<TContext>) o.Item2)._value)).ToArray()));
+                    o => new Offset<Bytes>(o.AggregateSize, ((Expression<TContext>) o.Value)._value)).ToArray()));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
