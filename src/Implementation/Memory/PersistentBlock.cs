@@ -45,7 +45,7 @@ internal sealed class PersistentBlock : IPersistentBlock
                 : Result<IPersistentBlock>.Failure(
                     proposition.CreateFalseSpace())
             : Result<IPersistentBlock>.Success(
-                Write(space, GetOffset(space, address), value));
+                Write(space, GetOffset(address), value));
     }
 
     public Result<IExpression> TryRead(ISpace space, IExpression address, Bits size)
@@ -65,7 +65,7 @@ internal sealed class PersistentBlock : IPersistentBlock
                 : Result<IExpression>.Failure(
                     proposition.CreateFalseSpace())
             : Result<IExpression>.Success(
-                Read(space, GetOffset(space, address), size));
+                Read(space, GetOffset(address), size));
     }
 
     private bool IsZeroOffset(ISpace space, IExpression address)
@@ -87,10 +87,9 @@ internal sealed class PersistentBlock : IPersistentBlock
         return address.Add(space.CreateConstant(address.Size, (uint) size));
     }
 
-    private IExpression GetOffset(ISpace space, IExpression address)
+    private IExpression GetOffset(IExpression address)
     {
-        var offset = space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
-            .Multiply(address.Subtract(Address));
+        var offset = address.Subtract(Address).ToBits();
 
         return offset.Truncate(_data.Size);
     }
@@ -100,7 +99,7 @@ internal sealed class PersistentBlock : IPersistentBlock
         // TODO: Can an Aggregate ever straddle blocks?
         return isFullyInside
             .Select(
-                GetOffset(space, address),
+                GetOffset(address),
                 space.CreateConstant(_data.Size, (uint) _data.Size));
     }
 

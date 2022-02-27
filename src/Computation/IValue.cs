@@ -14,4 +14,5 @@ internal interface IValue : IEquatable<IValue>
     BitVecExpr AsBitVector(ISolver solver);
     BoolExpr AsBool(ISolver solver);
     FPExpr AsFloat(ISolver solver);
+    IValue ToBits();
 }

@@ -48,9 +48,9 @@ internal sealed class PersistentSpace : IPersistentSpace
         return solver.GetExample();
     }
 
-    public IExpression CreateAggregateOffset(IExpression baseAddress, (Bytes, IExpression)[] offsets)
+    public IExpression CreateAddress(IExpression baseAddress, Offset[] offsets)
     {
-        return Expression.CreateAggregateOffset(_collectionFactory, baseAddress, offsets);
+        return Expression.CreateAddress(_collectionFactory, baseAddress, offsets);
     }
 
     public IExpression CreateConstant(Bits size, BigInteger value)

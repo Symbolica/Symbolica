@@ -25,4 +25,6 @@ internal abstract record Integer : IValue
         using var sort = Size.GetSort(solver);
         return solver.Context.MkFPToFP(bitVector, sort);
     }
+
+    public virtual IValue ToBits() => this;
 }

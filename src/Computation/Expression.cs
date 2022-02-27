@@ -256,6 +256,11 @@ internal sealed class Expression : IExpression
         return Create(v => Values.Truncate.Create(size, v));
     }
 
+    public IExpression ToBits()
+    {
+        return Create(v => v.ToBits());
+    }
+
     public IExpression UnsignedDivide(IExpression expression)
     {
         return Create(expression, Values.UnsignedDivide.Create);
@@ -295,7 +300,7 @@ internal sealed class Expression : IExpression
     {
         using var solver = ((IPersistentSpace) space).CreateSolver();
         return Create(offset, value, (b, o, v) =>
-                Values.Write.Create(_collectionFactory, solver, b, o, v));
+                AggregateWrite.Create(_collectionFactory, solver, b, o, v));
     }
 
     public IExpression Xor(IExpression expression)
@@ -330,14 +335,14 @@ internal sealed class Expression : IExpression
             func(_value, ((Expression) y)._value, ((Expression) z)._value));
     }
 
-    public static IExpression CreateAggregateOffset(ICollectionFactory collectionFactory,
-        IExpression baseAddress, (Bytes, IExpression)[] offsets)
+    public static IExpression CreateAddress(ICollectionFactory collectionFactory,
+        IExpression baseAddress, Offset[] offsets)
     {
         return new Expression(collectionFactory,
-            AggregateOffset.Create(
+            Address<Bytes>.Create(
                 ((Expression) baseAddress)._value,
                 offsets.Select(
-                    o => ((BigInteger) (uint) o.Item1, ((Expression) o.Item2)._value)).ToArray()));
+                    o => new Offset<Bytes>(o.AggregateSize, ((Expression) o.Value)._value)).ToArray()));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
