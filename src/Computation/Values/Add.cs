@@ -51,6 +51,12 @@ internal sealed class Add : BitVector
         {
             (IConstantValue l, _) => ShortCircuit(right, l.AsUnsigned()),
             (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
+            (Address<Bits> l, Address<Bits> r) => Create(r.Aggregate(), l.Aggregate()),
+            (Address<Bytes> l, Address<Bytes> r) => Create(r.Aggregate(), l.Aggregate()),
+            (Address<Bits> l, _) => Create(l.Aggregate(), right),
+            (Address<Bytes> l, _) => Create(l.Aggregate(), right),
+            (_, Address<Bits> r) => Create(left, r.Aggregate()),
+            (_, Address<Bytes> r) => Create(left, r.Aggregate()),
             _ => new Add(left, right)
         };
     }
