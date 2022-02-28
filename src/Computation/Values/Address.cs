@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
@@ -90,7 +91,29 @@ internal sealed record Address<TSize> : Integer
         return baseAddress switch
         {
             Address<TSize> b => Merge(b),
-            _ => new Address<TSize>(baseAddress, offsets)
+            _ => new Address<TSize>(
+                baseAddress,
+                offsets.Select(
+                    o => o.Value is Address<TSize> a
+                        ? new Offset<TSize>(o.AggregateSize, a.Aggregate())
+                        : o))
         };
+    }
+}
+
+internal static class AddressExtensions
+{
+    internal static IValue Multiply(this Address<Bits> address, IConstantValue value)
+    {
+        return Address<Bits>.Create(
+            Values.Multiply.Create(address.BaseAddress, value),
+            address.Offsets.Select(o => o.Multiply((uint) (BigInteger) value.AsUnsigned())));
+    }
+
+    internal static IValue Multiply(this Address<Bytes> address, IConstantValue value)
+    {
+        return Address<Bytes>.Create(
+            Values.Multiply.Create(address.BaseAddress, value),
+            address.Offsets.Select(o => o.Multiply((uint) (BigInteger) value.AsUnsigned())));
     }
 }

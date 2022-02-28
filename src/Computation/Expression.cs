@@ -34,7 +34,13 @@ internal sealed class Expression : IExpression
     {
         using var solver = ((IPersistentSpace) space).CreateSolver();
 
-        return solver.GetExampleValue(_value);
+        return solver.GetExampleValue(
+            _value switch
+            {
+                Address<Bits> a => a.Aggregate(),
+                Address<Bytes> a => a.Aggregate(),
+                _ => _value
+            });
     }
 
     public IProposition GetProposition(ISpace space)
