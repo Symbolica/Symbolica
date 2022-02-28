@@ -2,7 +2,7 @@
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Not : Integer
+internal sealed class Not : BitVector
 {
     private readonly IValue _value;
 
@@ -15,13 +15,6 @@ internal sealed class Not : Integer
     public override BitVecExpr AsBitVector(IContext context)
     {
         return context.CreateExpr(c => c.MkBVNot(_value.AsBitVector(context)));
-    }
-
-    public override BoolExpr AsBool(IContext context)
-    {
-        return _value is Bool
-            ? context.CreateExpr(c => c.MkNot(_value.AsBool(context)))
-            : AsBitVector(context).AsBool(context);
     }
 
     public static IValue Create(IValue value)

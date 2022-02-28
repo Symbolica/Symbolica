@@ -3,7 +3,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Xor : Integer
+internal sealed class Xor : BitVector
 {
     private readonly IValue _left;
     private readonly IValue _right;
@@ -18,13 +18,6 @@ internal sealed class Xor : Integer
     public override BitVecExpr AsBitVector(IContext context)
     {
         return context.CreateExpr(c => c.MkBVXOR(_left.AsBitVector(context), _right.AsBitVector(context)));
-    }
-
-    public override BoolExpr AsBool(IContext context)
-    {
-        return _left is Bool || _right is Bool
-            ? context.CreateExpr(c => c.MkXor(_left.AsBool(context), _right.AsBool(context)))
-            : AsBitVector(context).AsBool(context);
     }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)

@@ -107,11 +107,6 @@ internal sealed class ConstantUnsigned : BitVector, IConstantValue
         return Create(Size, ~_value);
     }
 
-    public ConstantBool NotEqual(ConstantUnsigned value)
-    {
-        return new ConstantBool(_value != value._value);
-    }
-
     public ConstantUnsigned Or(ConstantUnsigned value)
     {
         return Create(Size, _value | value._value);

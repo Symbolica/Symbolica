@@ -48,6 +48,11 @@ internal sealed class ConstantBool : Bool, IConstantValue
         return AsSigned().AsDouble();
     }
 
+    public ConstantBool Not()
+    {
+        return new ConstantBool(!_value);
+    }
+
     public static implicit operator bool(ConstantBool value)
     {
         return value._value;
