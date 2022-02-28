@@ -85,9 +85,6 @@ internal sealed record Address<TSize> : Integer
         if (!offsets.Any())
             throw new Exception($"{nameof(Address<TSize>)} must have at least one offset.");
 
-        if (offsets.Any(o => o.Value is Address<Bits> || o.Value is Address<Bytes>))
-            Debugger.Break();
-
         return baseAddress switch
         {
             Address<TSize> b => Merge(b),
