@@ -21,7 +21,7 @@ internal sealed class AggregateWrite : BitVector
     private AggregateWrite(IValue buffer, IValue offset, ImmutableList<AggregateWrite> fields)
         : base(buffer.Size)
     {
-        if (buffer is not IConstantValue)
+        if (!(buffer is IConstantValue || buffer is Address<Bytes>))
             Debugger.Break();
 
         _buffer = buffer;

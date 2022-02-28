@@ -30,9 +30,13 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression GetValue(ISpace space)
     {
-        return _value is IConstantValue
-            ? this
-            : Create(((IPersistentSpace) space).Assertions.GetValue);
+        return _value switch
+        {
+            IConstantValue => this,
+            Address<Bits> a => Create(_ => a.Aggregate()).GetValue(space),
+            Address<Bytes> a => Create(_ => a.Aggregate()).GetValue(space),
+            _ => Create(((IPersistentSpace) space).Assertions.GetValue)
+        };
     }
 
     public IProposition GetProposition(ISpace space)

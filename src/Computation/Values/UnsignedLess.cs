@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -25,8 +26,14 @@ internal sealed class UnsignedLess : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return left is IConstantValue l && right is IConstantValue r
-            ? l.AsUnsigned().Less(r.AsUnsigned())
-            : new UnsignedLess(left, right);
+        return (left, right) switch
+        {
+            (IConstantValue l, IConstantValue r) => l.AsUnsigned().Less(r.AsUnsigned()),
+            (Address<Bytes> l, _) => Create(l.Aggregate(), right),
+            (Address<Bits> l, _) => Create(l.Aggregate(), right),
+            (_, Address<Bytes> r) => Create(left, r.Aggregate()),
+            (_, Address<Bits> r) => Create(left, r.Aggregate()),
+            _ => new UnsignedLess(left, right)
+        };
     }
 }

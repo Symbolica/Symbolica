@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -40,6 +41,8 @@ internal sealed class Multiply : BitVector
         {
             IConstantValue l => l.AsUnsigned().Multiply(right),
             Multiply l => Create(l._left, Create(l._right, right)),
+            Address<Bits> l => l.Multiply(right),
+            Address<Bytes> l => l.Multiply(right),
             _ => new Multiply(left, right)
         };
     }
@@ -50,6 +53,8 @@ internal sealed class Multiply : BitVector
         {
             (IConstantValue l, _) => ShortCircuit(right, l.AsUnsigned()),
             (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
+            (Address<Bits> l, Address<Bits> r) => Create(r.Aggregate(), l.Aggregate()),
+            (Address<Bytes> l, Address<Bytes> r) => Create(r.Aggregate(), l.Aggregate()),
             _ => new Multiply(left, right)
         };
     }
