@@ -26,8 +26,11 @@ internal sealed class Not : Integer
 
     public static IValue Create(IValue value)
     {
-        return value is IConstantValue v
-            ? v.AsUnsigned().Not()
-            : new Not(value);
+        return value switch
+        {
+            IConstantValue v => v.AsUnsigned().Not(),
+            Not v => v._value,
+            _ => new Not(value)
+        };
     }
 }
