@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace Symbolica.Expression;
 
@@ -6,6 +7,7 @@ public interface IExpression
 {
     Bits Size { get; }
 
+    IEnumerable<(IExpression, Bytes)> GetAddresses(Bytes length);
     BigInteger GetSingleValue(ISpace space);
     BigInteger GetExampleValue(ISpace space);
     IProposition GetProposition(ISpace space);

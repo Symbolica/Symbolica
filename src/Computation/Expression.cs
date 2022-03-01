@@ -30,6 +30,26 @@ internal sealed class Expression : IExpression
         return solver.GetSingleValue(_value);
     }
 
+    public IEnumerable<(IExpression, Bits)> GetAddresses(Bits length)
+    {
+        return _value switch
+        {
+            Address<Bits> a => a.GetAddresses(length).Select(x => (Create(_ => x.Item1), x.Item2)),
+            Address<Bytes> => throw new Exception($"Cannot get addresses for an {nameof(Address<Bytes>)}."),
+            _ => new[] { (Create(v => v), length) }
+        };
+    }
+
+    public IEnumerable<(IExpression, Bytes)> GetAddresses(Bytes length)
+    {
+        return _value switch
+        {
+            Address<Bytes> a => a.GetAddresses(length).Select(x => (Create(_ => x.Item1), x.Item2)),
+            Address<Bits> => throw new Exception($"Cannot get addresses for an {nameof(Address<Bits>)}."),
+            _ => new[] { (Create(v => v), length) }
+        };
+    }
+
     public BigInteger GetExampleValue(ISpace space)
     {
         using var solver = ((IPersistentSpace) space).CreateSolver();

@@ -18,6 +18,11 @@ internal readonly record struct Offset<TSize>(
             FieldSize,
             Multiply.Create(Value, ConstantUnsigned.Create(Value.Size, -1)));
     }
+
+    internal Offset<TSize> Add(IValue value)
+    {
+        return new(AggregateSize, AggregateType, FieldSize, Values.Add.Create(Value, value));
+    }
 }
 
 internal static class OffsetExtensions

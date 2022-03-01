@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Linq;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -45,10 +47,18 @@ internal sealed class MemoryCopy : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
-            var length = (Bytes) (uint) value;
+            var bytes = (Bytes) (uint) value;
+            var sources = _source.GetAddresses(bytes);
+            var destinations = _destination.GetAddresses(bytes);
+            if (sources.Count() != destinations.Count())
+                throw new Exception("Can't do a memory set when the source and destination have different field sizes.");
 
-            if (length != Bytes.Zero)
-                state.Memory.Write(_destination, state.Memory.Read(_source, length.ToBits()));
+            foreach (var (source, destination) in sources.Zip(destinations))
+            {
+                if (source.Item2 != destination.Item2)
+                    throw new Exception($"The source size '{source.Item2}' does not match the destination size '{destination.Item2}'.");
+                state.Memory.Write(destination.Item1, state.Memory.Read(source.Item1, source.Item2.ToBits()));
+            }
         }
     }
 }

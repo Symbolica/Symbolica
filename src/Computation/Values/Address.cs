@@ -104,6 +104,40 @@ internal sealed record Address<TSize> : Integer
 
 internal static class AddressExtensions
 {
+    internal static IEnumerable<(Address<Bits>, Bits)> GetAddresses(this Address<Bits> address, Bits length)
+    {
+        return address.GetAddresses(length, x => (uint) x);
+    }
+
+    internal static IEnumerable<(Address<Bytes>, Bytes)> GetAddresses(this Address<Bytes> address, Bytes length)
+    {
+        return address.GetAddresses(length, x => (uint) x);
+    }
+
+    private static IEnumerable<(Address<TSize>, TSize)> GetAddresses<TSize>(
+        this Address<TSize> address,
+        TSize length,
+        Func<TSize, uint> ToUint)
+    {
+        var field = address.Offsets.Last();
+        if (ToUint(length) > ToUint(field.AggregateSize))
+            throw new Exception("Can't generate addresses, the length would be out of bounds.");
+
+        if (ToUint(length) % ToUint(field.FieldSize) != 0)
+            throw new Exception("Can only deal with lengths that are whole field multiples right now.");
+
+        var numFields = ToUint(length) / ToUint(field.FieldSize);
+        IValue CreateFieldMultiple(int i)
+        {
+            return ConstantUnsigned.Create(field.Value.Size, (uint) i * ToUint(field.FieldSize));
+        }
+
+        return Enumerable.Range(0, (int) numFields)
+            .Select(i => (
+                address.ReplaceLastOffset(field.Add(CreateFieldMultiple(i))),
+                field.FieldSize));
+    }
+
     internal static IValue Multiply(this Address<Bits> address, IConstantValue value)
     {
         return Address<Bits>.Create(
