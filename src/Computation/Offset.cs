@@ -1,3 +1,4 @@
+using System;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -16,6 +17,11 @@ internal readonly record struct Offset<TSize>(
             AggregateType,
             FieldSize,
             Values.Multiply.Create(Value, ConstantUnsigned.Create(Value.Size, -1)));
+    }
+
+    internal Offset<TSize> Add(IValue value)
+    {
+        return new(AggregateSize, AggregateType, FieldSize, Values.Add.Create(Value, value));
     }
 }
 
