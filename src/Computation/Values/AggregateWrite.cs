@@ -44,22 +44,12 @@ internal sealed class AggregateWrite : BitVector
         if (offsets.Empty)
         {
             // We've hit the field that the value should be read from
-            if (valueSize > Size)
+            if (valueSize != Size)
                 throw new InconsistentExpressionSizesException(Size, valueSize);
-
-            if (valueSize < Size)
-                Debugger.Break();
 
             // In the trivial case (e.g. when this AggregateWrite is terminal)
             // then flatten is just the same as returning the buffer.
-            var value = Flatten();
-            return valueSize < value.Size
-                ? Read(
-                    collectionFactory,
-                    assertions,
-                    WriteOffsets.Create(assertions, ConstantUnsigned.Create(offsets.Size, BigInteger.Zero), Size, valueSize),
-                    valueSize)
-                : value;
+            return Flatten();
         }
 
         WriteOffset offset = offsets.Head();
@@ -267,14 +257,12 @@ internal sealed class AggregateWrite : BitVector
 
     private static AggregateWrite CreateLeaf(WriteOffset offset, IValue value)
     {
-        if (value.Size > offset.FieldSize)
+        if (value.Size != offset.FieldSize)
             throw new InconsistentExpressionSizesException(value.Size, offset.FieldSize);
 
         // TODO: Review this ZeroExtend
         return new AggregateWrite(
-            value.Size < offset.FieldSize
-                ? ZeroExtend.Create(offset.FieldSize, value)
-                : value,
+            value,
             offset.Value,
             ImmutableList.Create<AggregateWrite>());
     }

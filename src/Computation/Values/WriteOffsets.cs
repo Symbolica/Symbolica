@@ -87,12 +87,12 @@ internal sealed class WriteOffsets : Integer
                 new Offset<Bits>(
                     bufferSize,
                     "Base buffer",
-                    address.Offsets.Select(o => o.AggregateSize).FirstOrDefault(valueSize),
+                    address.Offsets.Select(o => o.AggregateSize).First(),
                     address.BaseAddress);
 
             Debug.Assert(address.Offsets.Skip(1).Zip(address.Offsets.SkipLast(1)).All(x => x.First.AggregateSize == x.Second.FieldSize));
 
-            var widenedArrayPointers2 = address.Offsets.Aggregate(
+            var widenedArrayPointers = address.Offsets.Aggregate(
                 new List<Offset<Bits>> { baseOffset },
                 (acc, offset) =>
                 {
@@ -110,8 +110,11 @@ internal sealed class WriteOffsets : Integer
                     return acc;
                 }).ToList();
 
-            var writeOffsets = widenedArrayPointers2
-                .Select(o => new WriteOffset(o.AggregateSize, o.AggregateType, o.FieldSize, o.Value));
+            var finalOffset = widenedArrayPointers.Last();
+
+            var writeOffsets = widenedArrayPointers
+                .Select(o => new WriteOffset(o.AggregateSize, o.AggregateType, o.FieldSize, o.Value))
+                .Append(new WriteOffset(finalOffset.FieldSize, "Value", valueSize, ConstantUnsigned.Zero(finalOffset.Value.Size)));
 
             var isContained = writeOffsets.Aggregate(
                 new ConstantBool(true) as IValue,
