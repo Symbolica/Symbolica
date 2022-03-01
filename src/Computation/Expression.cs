@@ -348,7 +348,11 @@ internal sealed class Expression : IExpression
             Address<Bytes>.Create(
                 ((Expression) baseAddress)._value,
                 offsets.Select(
-                    o => new Offset<Bytes>(o.AggregateSize, ((Expression) o.Value)._value)).ToArray()));
+                    o => new Offset<Bytes>(
+                        o.AggregateSize,
+                        o.AggregateType,
+                        o.FieldSize,
+                        ((Expression) o.Value)._value)).ToArray()));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,

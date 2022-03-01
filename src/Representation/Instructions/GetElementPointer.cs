@@ -21,7 +21,11 @@ public sealed class GetElementPointer : IInstruction
     {
         Expression.Offset EvaluateOffset(Offset offset)
         {
-            return new Expression.Offset(offset.AggregateSize, offset.Value.Evaluate(state));
+            return new Expression.Offset(
+                offset.AggregateSize,
+                offset.AggregateType,
+                offset.FieldSize,
+                offset.Value.Evaluate(state));
         }
 
         var baseAddress = _operands[0].Evaluate(state);

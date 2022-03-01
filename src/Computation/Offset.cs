@@ -3,20 +3,19 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal struct Offset<TSize>
+internal readonly record struct Offset<TSize>(
+    TSize AggregateSize,
+    string AggregateType,
+    TSize FieldSize,
+    IValue Value)
 {
-    public Offset(TSize aggregateSize, IValue value)
-    {
-        AggregateSize = aggregateSize;
-        Value = value;
-    }
-
-    public TSize AggregateSize { get; }
-    public IValue Value { get; }
-
     public Offset<TSize> Negate()
     {
-        return new(AggregateSize, Values.Multiply.Create(Value, ConstantUnsigned.Create(Value.Size, -1)));
+        return new(
+            AggregateSize,
+            AggregateType,
+            FieldSize,
+            Values.Multiply.Create(Value, ConstantUnsigned.Create(Value.Size, -1)));
     }
 }
 
@@ -26,6 +25,8 @@ internal static class OffsetExtensions
     {
         return new Offset<Bits>(
             (Bits) ((uint) offset.AggregateSize * value),
+            offset.AggregateType,
+            (Bits) ((uint) offset.FieldSize * value),
             Values.Multiply.Create(offset.Value, ConstantUnsigned.Create(offset.Value.Size, value)));
     }
 
@@ -33,6 +34,8 @@ internal static class OffsetExtensions
     {
         return new Offset<Bytes>(
             (Bytes) ((uint) offset.AggregateSize * value),
+            offset.AggregateType,
+            (Bytes) ((uint) offset.FieldSize * value),
             Values.Multiply.Create(offset.Value, ConstantUnsigned.Create(offset.Value.Size, value)));
     }
 
@@ -40,6 +43,8 @@ internal static class OffsetExtensions
     {
         return new Offset<Bits>(
             offset.AggregateSize.ToBits(),
+            offset.AggregateType,
+            offset.FieldSize.ToBits(),
             Values.Multiply.Create(offset.Value, ConstantUnsigned.Create(offset.Value.Size, (uint) Bytes.One.ToBits())));
     }
 }

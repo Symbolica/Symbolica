@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
@@ -8,7 +9,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal record struct WriteOffset(Bits AggregateSize, Bits FieldSize, IValue Value)
+internal record struct WriteOffset(Bits AggregateSize, string AggregateType, Bits FieldSize, IValue Value)
 {
     public bool IsDegenerate()
     {
@@ -76,21 +77,53 @@ internal sealed record WriteOffsets : Integer
 
     public static WriteOffsets Create(ISolver solver, IValue offset, Bits bufferSize, Bits valueSize)
     {
+        if (bufferSize == (Bits) 156160
+            && valueSize == (Bits) 32
+            && offset is Address<Bits> addr
+            && addr.BaseAddress is IConstantValue ba
+            && (BigInteger) ba.AsUnsigned() == 0
+            && addr.Offsets.Count() == 9
+            && addr.Offsets.ElementAt(3).Value is IConstantValue c3
+            && (BigInteger) c3.AsUnsigned() == 1600)
+            Debugger.Break();
         IEnumerable<WriteOffset> CreateFromAddress(Address<Bits> address)
         {
-            var fieldSizes = address.Offsets.Select(o => o.AggregateSize).Append(valueSize);
-            var offsets = new[] { new Offset<Bits>(bufferSize, address.BaseAddress) }.Concat(address.Offsets);
+            var baseOffset =
+                new Offset<Bits>(
+                    bufferSize,
+                    "Base buffer",
+                    address.Offsets.Select(o => o.AggregateSize).FirstOrDefault(valueSize),
+                    address.BaseAddress);
 
-            var writeOffsets = offsets
-                .Zip(fieldSizes)
-                .Select(o => new WriteOffset(o.First.AggregateSize, o.Second, o.First.Value));
+            Debug.Assert(address.Offsets.Skip(1).Zip(address.Offsets.SkipLast(1)).All(x => x.First.AggregateSize == x.Second.FieldSize));
+
+            var widenedArrayPointers2 = address.Offsets.Aggregate(
+                new List<Offset<Bits>> { baseOffset },
+                (acc, offset) =>
+                {
+                    var prevOffset = acc[^1];
+                    if (offset.AggregateType == "Pointer" && prevOffset.AggregateType == "Array")
+                    {
+                        acc[^1] = new Offset<Bits>(
+                            prevOffset.AggregateSize,
+                            prevOffset.AggregateType,
+                            prevOffset.FieldSize,
+                            Add.Create(prevOffset.Value, offset.Value));
+                        return acc;
+                    }
+                    acc.Add(offset);
+                    return acc;
+                }).ToList();
+
+            var writeOffsets = widenedArrayPointers2
+                .Select(o => new WriteOffset(o.AggregateSize, o.AggregateType, o.FieldSize, o.Value));
 
             var isContained = writeOffsets.Aggregate(
                 new ConstantBool(true) as IValue,
                 (acc, o) => And.Create(acc, o.IsBounded()));
 
             return solver.IsSatisfiable(Not.Create(isContained))
-                ? new[] { new WriteOffset(bufferSize, valueSize, address.Aggregate()) }
+                ? new[] { new WriteOffset(bufferSize, "Aggregated - Not bounded", valueSize, address.Aggregate()) }
                 : writeOffsets;
         }
 
@@ -103,8 +136,10 @@ internal sealed record WriteOffsets : Integer
         {
             Address<Bits> a => CreateFromAddress(a),
             Address<Bytes> => throw new Exception($"Cannot create Offsets from an {nameof(Address<Bytes>)}."),
-            _ => new[] { new WriteOffset(bufferSize, valueSize, offset) }
+            _ => new[] { new WriteOffset(bufferSize, "Artificial Aggregate", valueSize, offset) }
         };
+
+        Debug.Assert(offsets.Skip(1).Zip(offsets.SkipLast(1)).All(x => x.First.AggregateSize == x.Second.FieldSize));
 
         var normalisedOffsets = offsets
             .Where(x => !x.IsDegenerate());

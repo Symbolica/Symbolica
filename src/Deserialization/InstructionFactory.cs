@@ -204,28 +204,36 @@ internal sealed class InstructionFactory : IInstructionFactory
         var constantIndices = instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt);
         var indices = operands.Skip(1);
         var indexedType = instruction.GetOperand(0U).TypeOf;
+        var initialElementSize = indexedType.ElementType.GetStoreSize(_targetData);
 
         foreach (var (constantIndex, index) in constantIndices.Zip(indices))
             if (indexedType.Kind == LLVMTypeKind.LLVMStructTypeKind)
             {
+                var fieldType = indexedType.StructGetTypeAtIndex(constantIndex);
                 yield return new Representation.Offset(
                     indexedType.GetStoreSize(_targetData),
+                    "Struct",
+                    fieldType.GetStoreSize(_targetData),
                     new StructOffset(indexedType.GetElementOffset(_targetData, constantIndex)));
-                indexedType = indexedType.StructGetTypeAtIndex(constantIndex);
+                indexedType = fieldType;
             }
             else
             {
                 var elementType = indexedType.ElementType;
                 var elementSize = elementType.GetStoreSize(_targetData);
-                var size = indexedType.Kind switch
+                var (size, aggregateType) = indexedType.Kind switch
                 {
-                    LLVMTypeKind.LLVMArrayTypeKind => (Bytes) (indexedType.ArrayLength * (uint) elementSize),
-                    LLVMTypeKind.LLVMPointerTypeKind => elementSize,
-                    LLVMTypeKind.LLVMVectorTypeKind => (Bytes) (indexedType.VectorSize * (uint) elementSize),
+                    LLVMTypeKind.LLVMArrayTypeKind => ((Bytes) (indexedType.ArrayLength * (uint) elementSize), "Array"),
+                    LLVMTypeKind.LLVMPointerTypeKind => (elementSize, "Pointer"),
+                    LLVMTypeKind.LLVMVectorTypeKind => ((Bytes) (indexedType.VectorSize * (uint) elementSize), "Vector"),
                     _ => throw new Exception($"Lol wut, tried to GEP into a {indexedType.Kind}.")
                 };
 
-                yield return new Representation.Offset(size, new ArrayOffset(elementSize, index));
+                yield return new Representation.Offset(
+                    size,
+                    aggregateType,
+                    elementSize,
+                    new ArrayOffset(elementSize, index));
                 indexedType = elementType;
             }
     }
