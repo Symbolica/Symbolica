@@ -44,12 +44,22 @@ internal sealed class AggregateWrite : BitVector
         if (offsets.Empty)
         {
             // We've hit the field that the value should be read from
-            if (Size != valueSize)
+            if (valueSize > Size)
                 throw new InconsistentExpressionSizesException(Size, valueSize);
+
+            if (valueSize < Size)
+                Debugger.Break();
 
             // In the trivial case (e.g. when this AggregateWrite is terminal)
             // then flatten is just the same as returning the buffer.
-            return Flatten();
+            var value = Flatten();
+            return valueSize < value.Size
+                ? Read(
+                    collectionFactory,
+                    assertions,
+                    WriteOffsets.Create(assertions, ConstantUnsigned.Create(offsets.Size, BigInteger.Zero), Size, valueSize),
+                    valueSize)
+                : value;
         }
 
         WriteOffset offset = offsets.Head();
@@ -71,11 +81,7 @@ internal sealed class AggregateWrite : BitVector
 
         if (IsNotOverlappingAnyField(assertions, offset))
         {
-            // I think we can be smarter here because if we don't eagerly aggregate the offsets
-            // then in the case where a sub offset is symbolic we can use the leading constant
-            // ones to quickly narrow down the buffer size.
-            // It might also be quicker to solve many "small" symbolic offsets separately.
-            return Values.Read.Create(collectionFactory, assertions, _buffer, offsets.Aggregate(), valueSize);
+            return Values.Read.Create(collectionFactory, assertions, _buffer, offsets, valueSize);
         }
 
         var symbolicMatch = _fields
@@ -235,6 +241,7 @@ internal sealed class AggregateWrite : BitVector
         return CreateLeaf(
             new WriteOffset(
                 buffer.Size,
+                "Base Write",
                 buffer.Size,
                 ConstantUnsigned.Create(offsetSize, BigInteger.Zero)),
             buffer);
@@ -260,11 +267,14 @@ internal sealed class AggregateWrite : BitVector
 
     private static AggregateWrite CreateLeaf(WriteOffset offset, IValue value)
     {
-        if (value.Size != offset.FieldSize)
+        if (value.Size > offset.FieldSize)
             throw new InconsistentExpressionSizesException(value.Size, offset.FieldSize);
 
+        // TODO: Review this ZeroExtend
         return new AggregateWrite(
-            value,
+            value.Size < offset.FieldSize
+                ? ZeroExtend.Create(offset.FieldSize, value)
+                : value,
             offset.Value,
             ImmutableList.Create<AggregateWrite>());
     }

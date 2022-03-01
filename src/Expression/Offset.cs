@@ -1,13 +1,7 @@
 namespace Symbolica.Expression;
 
-public struct Offset
-{
-    public Offset(Bytes elementSize, IExpression value)
-    {
-        AggregateSize = elementSize;
-        Value = value;
-    }
-
-    public Bytes AggregateSize { get; }
-    public IExpression Value { get; }
-}
+public readonly record struct Offset(
+    Bytes AggregateSize,
+    string AggregateType,
+    Bytes FieldSize,
+    IExpression Value);

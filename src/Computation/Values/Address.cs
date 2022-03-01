@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
@@ -87,7 +86,7 @@ internal sealed class Address<TSize> : Integer
                 baseAddress,
                 offsets.Select(
                     o => o.Value is Address<TSize> a
-                        ? new Offset<TSize>(o.AggregateSize, a.Aggregate())
+                        ? new Offset<TSize>(o.AggregateSize, o.AggregateType, o.FieldSize, a.Aggregate())
                         : o))
         };
     }
