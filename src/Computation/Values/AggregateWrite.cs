@@ -82,6 +82,12 @@ internal sealed class AggregateWrite : BitVector
             return ReadField(symbolicMatch);
         }
 
+        // Just because we have missed it doesn't mean we need to flatten.
+        // E.g. consider MemorySet where it might have just set some sub section and so created an artificial
+        // field that spans multiple actual fields.
+        // So we should either find a way to make MemorySet target the specific struct fields
+        // or we should be more sophisticated here and check if this will fit inside an existing field (with correct alignment)
+        // and then write it into there instead
         var flattened = Flatten();
         return Values.Read.Create(
             collectionFactory,
@@ -144,7 +150,7 @@ internal sealed class AggregateWrite : BitVector
         var flattened = Flatten();
         return new AggregateWrite(
             flattened,
-            offset.Value,
+            _offset,
             ImmutableList.Create(CreateField(collectionFactory, assertions, flattened, offsets, value)));
     }
 
@@ -210,6 +216,9 @@ internal sealed class AggregateWrite : BitVector
     public static IValue Create(ICollectionFactory collectionFactory, IAssertions assertions,
         IValue buffer, IValue offset, IValue value)
     {
+        if (offset is Address<Bits> x && x.Aggregate() is IConstantValue y && y.AsUnsigned() == (BigInteger) 1920)
+            Debugger.Break();
+
         return buffer is IConstantValue b && offset is IConstantValue o && value is IConstantValue v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
             : buffer is AggregateWrite w

@@ -32,9 +32,9 @@ internal static class Read
 
             var offset = offsets.Head();
             var subBuffer = buffer is IConstantValue b && offset.Value is IConstantValue o
-                ? b.AsBitVector(collectionFactory).Read(o.AsUnsigned(), size)
+                ? b.AsBitVector(collectionFactory).Read(o.AsUnsigned(), offset.FieldSize)
                 : Truncate.Create(
-                    size,
+                    offset.FieldSize,
                     LogicalShiftRight.Create(
                         buffer,
                         ZeroExtend.Create(buffer.Size, offset.Value)));
