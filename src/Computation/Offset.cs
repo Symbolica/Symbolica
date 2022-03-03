@@ -1,4 +1,4 @@
-using System;
+using Symbolica.Computation.Values;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -16,7 +16,7 @@ internal readonly record struct Offset<TSize>(
             AggregateSize,
             AggregateType,
             FieldSize,
-            Values.Multiply.Create(Value, ConstantUnsigned.Create(Value.Size, -1)));
+            Multiply.Create(Value, ConstantUnsigned.Create(Value.Size, -1)));
     }
 
     internal Offset<TSize> Add(IValue value)
@@ -27,6 +27,24 @@ internal readonly record struct Offset<TSize>(
 
 internal static class OffsetExtensions
 {
+    internal static Offset<Bits> BitCast(this Offset<Bits> offset, Bits targetSize)
+    {
+        return new Offset<Bits>(
+            offset.AggregateSize,
+            offset.AggregateType,
+            targetSize,
+            offset.Value);
+    }
+
+    internal static Offset<Bytes> BitCast(this Offset<Bytes> offset, Bits targetSize)
+    {
+        return new Offset<Bytes>(
+            offset.AggregateSize,
+            offset.AggregateType,
+            targetSize.ToBytes(),
+            offset.Value);
+    }
+
     public static Offset<Bits> Multiply(this Offset<Bits> offset, uint value)
     {
         return new Offset<Bits>(

@@ -13,6 +13,7 @@ public interface IExpression
     IProposition GetProposition(ISpace space);
     IExpression Add(IExpression expression);
     IExpression And(IExpression expression);
+    IExpression BitCast(Bits size);
     IExpression ArithmeticShiftRight(IExpression expression);
     IExpression Equal(IExpression expression);
     IExpression FloatAdd(IExpression expression);

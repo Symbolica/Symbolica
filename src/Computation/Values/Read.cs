@@ -13,11 +13,11 @@ internal static class Read
             collectionFactory,
             solver,
             buffer,
-            WriteOffsets.Create(solver, offset, buffer.Size, size),
+            WriteOffsets.Create(offset, buffer.Size, size),
             size);
     }
 
-    private static IValue Create(ICollectionFactory collectionFactory, ISolver solver,
+    internal static IValue Create(ICollectionFactory collectionFactory, ISolver solver,
         IValue buffer, WriteOffsets offsets, Bits size)
     {
         IValue ReadNonAggregateWrite()

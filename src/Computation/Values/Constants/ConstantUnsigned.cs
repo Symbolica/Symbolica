@@ -181,11 +181,6 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
             : Normalize(size, value));
     }
 
-    public static ConstantUnsigned Zero(Bits size)
-    {
-        return Create(size, BigInteger.Zero);
-    }
-
     private static BigInteger Normalize(Bits size, BigInteger value)
     {
         return value & ((BigInteger.One << (int) (uint) size) - BigInteger.One);

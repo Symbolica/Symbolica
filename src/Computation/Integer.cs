@@ -26,5 +26,7 @@ internal abstract record Integer : IValue
         return solver.Context.MkFPToFP(bitVector, sort);
     }
 
+    public virtual IValue BitCast(Bits targetSize) => this;
+
     public virtual IValue ToBits() => this;
 }

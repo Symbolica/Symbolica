@@ -45,6 +45,8 @@ internal abstract record Float : IValue
         return solver.Context.MkBV(nan.ToString(), (uint) Size);
     }
 
+    public IValue BitCast(Bits targetSize) => this;
+
     public IValue ToBits() => this;
 
     public static IValue Unary(IValue value,

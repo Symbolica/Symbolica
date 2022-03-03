@@ -85,6 +85,11 @@ internal sealed class Expression : IExpression
         return Create(expression, Values.ArithmeticShiftRight.Create);
     }
 
+    public IExpression BitCast(Bits targetSize)
+    {
+        return Create(v => v.BitCast(targetSize));
+    }
+
     public IExpression Equal(IExpression expression)
     {
         return Create(expression, Values.Equal.Create);
