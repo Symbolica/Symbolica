@@ -2,85 +2,93 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
-using Microsoft.Z3;
+using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal record struct WriteOffset(Bits AggregateSize, string AggregateType, Bits FieldSize, IValue Value)
+internal record struct WriteOffset
 {
-    public bool IsDegenerate()
+    public WriteOffset(Bits aggregateSize, string aggregateType, Bits fieldSize, IValue value)
     {
-        return FieldSize == AggregateSize && Value is IConstantValue c && c.AsUnsigned().IsZero;
+        if (aggregateSize < fieldSize)
+            throw new Exception("Can't create a WriteOffset with an aggregateSize smaller than the fieldSize.");
+
+        AggregateSize = aggregateSize;
+        AggregateType = aggregateType;
+        FieldSize = fieldSize;
+        Value = value;
     }
+
+    public Bits AggregateSize { get; }
+
+    public string AggregateType { get; }
+
+    public Bits FieldSize { get; }
+
+    public IValue Value { get; }
 
     public IValue IsBounded()
     {
         return And.Create(
             SignedGreaterOrEqual.Create(
                 Value,
-                ConstantUnsigned.Create(Value.Size, BigInteger.Zero)),
+                ConstantUnsigned.Zero(Value.Size)),
             SignedLessOrEqual.Create(
                 Add.Create(Value, ConstantUnsigned.Create(Value.Size, (uint) FieldSize)),
                 ConstantUnsigned.Create(Value.Size, (uint) AggregateSize)));
     }
+
+    internal bool IsBoundedBy(IAssertions assertions, IValue offset, Bits size)
+    {
+        var isBounded = And.Create(
+            SignedGreaterOrEqual.Create(Value, offset),
+            SignedLessOrEqual.Create(
+                Add.Create(Value, ConstantUnsigned.Create(Value.Size, (uint) FieldSize)),
+                Add.Create(offset, ConstantUnsigned.Create(offset.Size, (uint) size))));
+        using var proposition = assertions.GetProposition(isBounded);
+        return !proposition.CanBeFalse;
+    }
+
+    internal bool IsZero(IAssertions assertions)
+    {
+        var isZero = Equal.Create(Value, ConstantUnsigned.Zero(Value.Size));
+        using var proposition = assertions.GetProposition(isZero);
+        return !proposition.CanBeFalse;
+    }
+
+    internal WriteOffset Subtract(Bits aggregateSize, IValue offset)
+    {
+        return new WriteOffset(aggregateSize, AggregateType, FieldSize, Values.Subtract.Create(Value, offset));
+    }
 }
 
-internal sealed class WriteOffsets : Integer
+internal sealed class WriteOffsets
 {
     private readonly IEnumerable<WriteOffset> _offsets;
 
-    private WriteOffsets(Bits size, IEnumerable<WriteOffset> offsets)
-        : base(size)
+    private WriteOffsets(IEnumerable<WriteOffset> offsets)
     {
         _offsets = offsets;
     }
 
     public bool Empty => !_offsets.Any();
 
-
-    public override IEnumerable<IValue> Children => _offsets.Select(x => x.Value);
-
-    public override string? PrintedValue => null;
-
-    public override BitVecExpr AsBitVector(IContext context)
-    {
-        return Aggregate().AsBitVector(context);
-    }
-
-    public override BoolExpr AsBool(IContext context)
-    {
-        return Aggregate().AsBool(context);
-    }
-
-    internal IValue Aggregate()
-    {
-        return _offsets
-            .Aggregate(
-                ConstantUnsigned.Create(Size, BigInteger.Zero) as IValue,
-                (l, r) => Add.Create(l, r.Value));
-    }
-
     public WriteOffset Head() => _offsets.First();
 
     public WriteOffsets Tail()
     {
-        return new WriteOffsets(Size, _offsets.Skip(1));
+        return new WriteOffsets(_offsets.Skip(1));
     }
 
-    public static WriteOffsets Create(IAssertions assertions, IValue offset, Bits bufferSize, Bits valueSize)
+    public WriteOffsets Rebase(Bits aggregateSize, IValue offset)
     {
-        if (bufferSize == (Bits) 156160
-            && valueSize == (Bits) 32
-            && offset is Address<Bits> addr
-            && addr.BaseAddress is IConstantValue ba
-            && (BigInteger) ba.AsUnsigned() == 0
-            && addr.Offsets.Count() == 9
-            && addr.Offsets.ElementAt(3).Value is IConstantValue c3
-            && (BigInteger) c3.AsUnsigned() == 1600)
-            Debugger.Break();
+        return new WriteOffsets(new[] { Head().Subtract(aggregateSize, offset) }.Concat(Tail()._offsets));
+    }
+
+    public static WriteOffsets Create(IValue offset, Bits bufferSize, Bits valueSize)
+    {
         IEnumerable<WriteOffset> CreateFromAddress(Address<Bits> address)
         {
             var baseOffset =
@@ -92,43 +100,28 @@ internal sealed class WriteOffsets : Integer
 
             Debug.Assert(address.Offsets.Skip(1).Zip(address.Offsets.SkipLast(1)).All(x => x.First.AggregateSize == x.Second.FieldSize));
 
-            var widenedArrayPointers = address.Offsets.Aggregate(
+            return address.Offsets.Aggregate(
                 new List<Offset<Bits>> { baseOffset },
                 (acc, offset) =>
                 {
                     var prevOffset = acc[^1];
-                    if (offset.AggregateType == "Pointer" && prevOffset.AggregateType == "Array")
+                    if (offset.AggregateType == "Pointer")
                     {
+                        // if (prevOffset.FieldSize != offset.FieldSize)
+                        //     throw new InconsistentExpressionSizesException(prevOffset.FieldSize, offset.FieldSize);
+                        // if (prevOffset.AggregateSize != offset.AggregateSize)
+                        //     throw new InconsistentExpressionSizesException(prevOffset.AggregateSize, offset.AggregateSize);
+
                         acc[^1] = new Offset<Bits>(
                             prevOffset.AggregateSize,
                             prevOffset.AggregateType,
-                            prevOffset.FieldSize,
+                            offset.FieldSize,
                             Add.Create(prevOffset.Value, offset.Value));
                         return acc;
                     }
                     acc.Add(offset);
                     return acc;
-                }).ToList();
-
-            var finalOffset = widenedArrayPointers.Last();
-
-            var writeOffsets = widenedArrayPointers
-                .Select(o => new WriteOffset(o.AggregateSize, o.AggregateType, o.FieldSize, o.Value))
-                .Append(new WriteOffset(finalOffset.FieldSize, "Value", valueSize, ConstantUnsigned.Zero(finalOffset.Value.Size)));
-
-            var isContained = writeOffsets.Aggregate(
-                new ConstantBool(true) as IValue,
-                (acc, o) => And.Create(acc, o.IsBounded()));
-            using var proposition = assertions.GetProposition(isContained);
-
-            return proposition.CanBeFalse
-                ? new[] { new WriteOffset(bufferSize, "Aggregated - Not bounded", valueSize, address.Aggregate()) }
-                : writeOffsets;
-        }
-
-        if (offset is WriteOffsets wo)
-        {
-            return wo;
+                }).Select(o => new WriteOffset(o.AggregateSize, o.AggregateType, o.FieldSize, o.Value));
         }
 
         var offsets = offset switch
@@ -140,9 +133,6 @@ internal sealed class WriteOffsets : Integer
 
         Debug.Assert(offsets.Skip(1).Zip(offsets.SkipLast(1)).All(x => x.First.AggregateSize == x.Second.FieldSize));
 
-        var normalisedOffsets = offsets
-            .Where(x => !x.IsDegenerate());
-
-        return new WriteOffsets(offset.Size, normalisedOffsets);
+        return new WriteOffsets(offsets);
     }
 }

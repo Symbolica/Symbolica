@@ -13,5 +13,6 @@ internal interface IValue
     BitVecExpr AsBitVector(IContext context);
     BoolExpr AsBool(IContext context);
     FPExpr AsFloat(IContext context);
+    IValue BitCast(Bits targetSize);
     IValue ToBits();
 }

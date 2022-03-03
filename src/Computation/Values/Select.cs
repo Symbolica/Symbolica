@@ -44,6 +44,8 @@ internal sealed class Select : IValue
             _falseValue.AsFloat(context)));
     }
 
+    public IValue BitCast(Bits targetSize) => this;
+
     public IValue ToBits() => this;
 
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)

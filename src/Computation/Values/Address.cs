@@ -35,6 +35,16 @@ internal sealed class Address<TSize> : Integer
         return Aggregate().AsBool(context);
     }
 
+    public override IValue BitCast(Bits targetSize)
+    {
+        return this switch
+        {
+            Address<Bits> a => a.ReplaceLastOffset(a.Offsets.Last().BitCast(targetSize)),
+            Address<Bytes> a => a.ReplaceLastOffset(a.Offsets.Last().BitCast(targetSize)),
+            _ => throw new Exception($"{typeof(TSize)} is not a supported size for bit casting.")
+        };
+    }
+
     public override IValue ToBits()
     {
         return Offsets switch
@@ -115,9 +125,6 @@ internal static class AddressExtensions
         Func<TSize, uint> ToUint)
     {
         var field = address.Offsets.Last();
-        if (field.AggregateType != "Array")
-            throw new Exception("Can only deal with arrays right now.");
-
         if (ToUint(length) > ToUint(field.AggregateSize))
             throw new Exception("Can't generate addresses, the length would be out of bounds.");
 
@@ -125,9 +132,14 @@ internal static class AddressExtensions
             throw new Exception("Can only deal with lengths that are whole field multiples right now.");
 
         var numFields = ToUint(length) / ToUint(field.FieldSize);
+        IValue CreateFieldMultiple(int i)
+        {
+            return ConstantUnsigned.Create(field.Value.Size, (uint) i * ToUint(field.FieldSize));
+        }
+
         return Enumerable.Range(0, (int) numFields)
             .Select(i => (
-                address.ReplaceLastOffset(field.Add(ConstantUnsigned.Create(field.Value.Size, i))),
+                address.ReplaceLastOffset(field.Add(CreateFieldMultiple(i))),
                 field.FieldSize));
     }
 

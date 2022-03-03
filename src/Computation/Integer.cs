@@ -23,5 +23,7 @@ internal abstract class Integer : IValue
         return context.CreateExpr(c => c.MkFPToFP(AsBitVector(context), Size.GetSort(context)));
     }
 
+    public virtual IValue BitCast(Bits targetSize) => this;
+
     public virtual IValue ToBits() => this;
 }

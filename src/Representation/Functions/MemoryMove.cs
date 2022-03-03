@@ -39,9 +39,9 @@ internal sealed class MemoryMove : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
-            var length = (Bytes) (uint) value;
-            var sources = _source.GetAddresses(length);
-            var destinations = _destination.GetAddresses(length);
+            var bytes = (Bytes) (uint) value;
+            var sources = _source.GetAddresses(bytes);
+            var destinations = _destination.GetAddresses(bytes);
             if (sources.Count() != destinations.Count())
                 throw new Exception("Can't do a memory move when the source and destination have different field sizes.");
 
