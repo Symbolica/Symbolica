@@ -52,6 +52,8 @@ internal sealed record Select : IValue
         return Equals(other as Select);
     }
 
+    public IValue BitCast(Bits targetSize) => this;
+
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
     {
         return (predicate, trueValue, falseValue) switch

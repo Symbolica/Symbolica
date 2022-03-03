@@ -40,6 +40,16 @@ internal sealed record Address<TSize> : Integer
         return Equals(other as Address<TSize>);
     }
 
+    public override IValue BitCast(Bits targetSize)
+    {
+        return this switch
+        {
+            Address<Bits> a => a.ReplaceLastOffset(a.Offsets.Last().BitCast(targetSize)),
+            Address<Bytes> a => a.ReplaceLastOffset(a.Offsets.Last().BitCast(targetSize)),
+            _ => throw new Exception($"{typeof(TSize)} is not a supported size for bit casting.")
+        };
+    }
+
     internal IValue Aggregate()
     {
         return Offsets
@@ -62,6 +72,11 @@ internal sealed record Address<TSize> : Integer
         return Create(
             NegateValue(BaseAddress),
             Offsets.Select(o => o.Negate()));
+    }
+
+    internal Address<TSize> ReplaceLastOffset(Offset<TSize> offset)
+    {
+        return Create(BaseAddress, Offsets.SkipLast(1).Append(offset));
     }
 
     public static Address<TSize> Create(IValue baseAddress, IEnumerable<Offset<TSize>> offsets)
