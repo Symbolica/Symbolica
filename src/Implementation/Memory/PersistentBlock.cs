@@ -89,9 +89,7 @@ internal sealed class PersistentBlock : IPersistentBlock
 
     private IExpression GetOffset(IExpression address)
     {
-        var offset = address.Subtract(Address).ToBits();
-
-        return offset.Truncate(_data.Size);
+        return address.Subtract(Address).ToBits();
     }
 
     private IExpression GetOffset(ISpace space, IExpression address, IExpression isFullyInside)
