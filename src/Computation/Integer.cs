@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -25,5 +26,5 @@ internal abstract class Integer : IValue
 
     public virtual IValue BitCast(Bits targetSize) => this;
 
-    public virtual IValue ToBits() => this;
+    public virtual IValue ToBits() => Values.Multiply.Create(this, ConstantUnsigned.Create(Size, (uint) Bytes.One.ToBits()));
 }

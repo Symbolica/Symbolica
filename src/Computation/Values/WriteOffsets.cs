@@ -95,7 +95,10 @@ internal sealed class WriteOffsets
                 new Offset<Bits>(
                     bufferSize,
                     "Base buffer",
-                    address.Offsets.Select(o => o.AggregateSize).First(),
+                    address.Offsets
+                        .Where(o => o.AggregateType != "Pointer")
+                        .Select(o => o.AggregateSize)
+                        .FirstOrDefault(valueSize),
                     address.BaseAddress);
 
             Debug.Assert(address.Offsets.Skip(1).Zip(address.Offsets.SkipLast(1)).All(x => x.First.AggregateSize == x.Second.FieldSize));
@@ -107,15 +110,14 @@ internal sealed class WriteOffsets
                     var prevOffset = acc[^1];
                     if (offset.AggregateType == "Pointer")
                     {
+                        // Disabled until loads of addresses perform a bitcast
                         // if (prevOffset.FieldSize != offset.FieldSize)
                         //     throw new InconsistentExpressionSizesException(prevOffset.FieldSize, offset.FieldSize);
-                        // if (prevOffset.AggregateSize != offset.AggregateSize)
-                        //     throw new InconsistentExpressionSizesException(prevOffset.AggregateSize, offset.AggregateSize);
 
                         acc[^1] = new Offset<Bits>(
                             prevOffset.AggregateSize,
                             prevOffset.AggregateType,
-                            offset.FieldSize,
+                            prevOffset.FieldSize,
                             Add.Create(prevOffset.Value, offset.Value));
                         return acc;
                     }
