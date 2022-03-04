@@ -87,7 +87,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMFPExt => new FloatExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMPtrToInt => new PointerToInteger(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMIntToPtr => new IntegerToPointer(id, operands, instruction.TypeOf.GetSize(_targetData)),
-            LLVMOpcode.LLVMBitCast => new BitCast(id, operands, instruction.TypeOf.GetSize(_targetData)),
+            LLVMOpcode.LLVMBitCast => new BitCast(id, operands, GetBitCastSize(instruction)),
             LLVMOpcode.LLVMAddrSpaceCast => new Unsupported(id, "addrspacecast"),
             LLVMOpcode.LLVMICmp => instruction.ICmpPredicate switch
             {
@@ -159,6 +159,23 @@ internal sealed class InstructionFactory : IInstructionFactory
         };
     }
 
+    private Bits GetBitCastSize(LLVMValueRef instruction)
+    {
+        var type = instruction.TypeOf;
+        return (type.Kind switch
+        {
+            // This is a bit hacky really
+            // It "works" for now because the only types we alter in a bitcast are Addresses
+            // which are pointers and so all we care about is the size of the thing being pointed to
+            // as that will be the FieldSize.
+            // In general we probably need to plumb through the entire type information for this cast
+            // and decide at a later point which information we actually need from that based on the type
+            // being bitcast.
+            LLVMTypeKind.LLVMPointerTypeKind => type.ElementType,
+            _ => type
+        }).GetStoreSize(_targetData).ToBits();
+    }
+
     private Call CreateCall(InstructionId id, IOperand[] operands, LLVMValueRef instruction)
     {
         return new Call(
@@ -204,7 +221,6 @@ internal sealed class InstructionFactory : IInstructionFactory
         var constantIndices = instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt);
         var indices = operands.Skip(1);
         var indexedType = instruction.GetOperand(0U).TypeOf;
-        var initialElementSize = indexedType.ElementType.GetStoreSize(_targetData);
 
         foreach (var (constantIndex, index) in constantIndices.Zip(indices))
             if (indexedType.Kind == LLVMTypeKind.LLVMStructTypeKind)

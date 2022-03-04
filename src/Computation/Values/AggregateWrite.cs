@@ -21,8 +21,8 @@ internal sealed record AggregateWrite : BitVector
     private AggregateWrite(IValue buffer, IValue offset, ImmutableList<AggregateWrite> fields)
         : base(buffer.Size)
     {
-        if (!(buffer is IConstantValue || buffer is Address<Bytes>))
-            Debugger.Break();
+        // if (!(buffer is IConstantValue || buffer is Address<Bytes> || buffer is AggregateWrite || buffer is Symbol))
+        //     Debugger.Break();
 
         _buffer = buffer;
         _offset = offset;
