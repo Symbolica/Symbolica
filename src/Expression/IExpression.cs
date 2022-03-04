@@ -39,6 +39,7 @@ public interface IExpression
     IExpression LogicalShiftRight(IExpression expression);
     IExpression Multiply(IExpression expression);
     IExpression NotEqual(IExpression expression);
+    IExpression OffsetBy(Bytes offset);
     IExpression Or(IExpression expression);
     IExpression PointerToInteger(Bits size);
     IExpression Read(ISpace space, IExpression offset, Bits size);

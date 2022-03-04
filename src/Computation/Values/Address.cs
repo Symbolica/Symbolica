@@ -148,6 +148,12 @@ internal static class AddressExtensions
                 field.FieldSize));
     }
 
+    internal static Address<Bytes> IncrementFinalOffset(this Address<Bytes> address, Bytes offset)
+    {
+        var finalOffset = address.Offsets.Last();
+        return address.ReplaceLastOffset(finalOffset.Add(ConstantUnsigned.Create(finalOffset.Value.Size, (uint) offset)));
+    }
+
     internal static IValue Multiply(this Address<Bits> address, IConstantValue value)
     {
         return Address<Bits>.Create(
