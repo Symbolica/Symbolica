@@ -185,6 +185,20 @@ internal sealed class Expression : IExpression
         return Create(expression, Values.NotEqual.Create);
     }
 
+    public IExpression PointerToInteger(Bits size)
+    {
+        static IValue ConvertValue(IValue value)
+        {
+            return value switch
+            {
+                Address<Bytes> a => a.Aggregate(),
+                Address<Bits> a => a.Aggregate(),
+                _ => value
+            };
+        }
+        return Create(v => Resize.Create(size, ConvertValue(v)));
+    }
+
     public IExpression Or(IExpression expression)
     {
         return Create(expression, (l, r) => l is Bool || r is Bool
