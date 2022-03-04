@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
+using Symbolica.Computation.Values;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -46,7 +47,9 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression And(IExpression expression)
     {
-        return Create(expression, Values.And.Create);
+        return Create(expression, (l, r) => l is Bool || r is Bool
+            ? LogicalAnd.Create(l, r)
+            : Values.And.Create(l, r));
     }
 
     public IExpression ArithmeticShiftRight(IExpression expression)
@@ -176,7 +179,9 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Or(IExpression expression)
     {
-        return Create(expression, Values.Or.Create);
+        return Create(expression, (l, r) => l is Bool || r is Bool
+            ? LogicalOr.Create(l, r)
+            : Values.Or.Create(l, r));
     }
 
     public IExpression Read(IExpression offset, Bits size)
@@ -294,7 +299,9 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Xor(IExpression expression)
     {
-        return Create(expression, Values.Xor.Create);
+        return Create(expression, (l, r) => l is Bool || r is Bool
+            ? LogicalXor.Create(l, r)
+            : Values.Xor.Create(l, r));
     }
 
     public IExpression ZeroExtend(Bits size)

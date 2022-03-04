@@ -27,6 +27,7 @@ public class PassingTests
         public TestData()
         {
             Add(SignCases());
+            Add(DivideCases());
         }
 
         private static IEnumerable<(string, string, Options)> SignCases()
@@ -39,6 +40,18 @@ public class PassingTests
                 select (
                     "sign",
                     optimization,
+                    new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations));
+        }
+
+        private static IEnumerable<(string, string, Options)> DivideCases()
+        {
+            return
+                from useSymbolicGarbage in new[] {false, true}
+                from useSymbolicAddresses in new[] {false, true}
+                from useSymbolicContinuations in new[] {false, true}
+                select (
+                    "divide",
+                    "--O0",
                     new Options(useSymbolicGarbage, useSymbolicAddresses, useSymbolicContinuations));
         }
 

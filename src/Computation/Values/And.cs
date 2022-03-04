@@ -3,7 +3,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class And : Integer
+internal sealed class And : BitVector
 {
     private readonly IValue _left;
     private readonly IValue _right;
@@ -18,13 +18,6 @@ internal sealed class And : Integer
     public override BitVecExpr AsBitVector(IContext context)
     {
         return context.CreateExpr(c => c.MkBVAND(_left.AsBitVector(context), _right.AsBitVector(context)));
-    }
-
-    public override BoolExpr AsBool(IContext context)
-    {
-        return _left is Bool || _right is Bool
-            ? context.CreateExpr(c => c.MkAnd(_left.AsBool(context), _right.AsBool(context)))
-            : AsBitVector(context).AsBool(context);
     }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)

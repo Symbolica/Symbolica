@@ -14,9 +14,4 @@ internal static class BitVecExprExtensions
             ? ((BitVecNum) expr).BigInteger
             : throw new IrreducibleSymbolicExpressionException();
     }
-
-    public static BoolExpr AsBool(this BitVecExpr self, IContext context)
-    {
-        return context.CreateExpr(c => c.MkNot(c.MkEq(self, c.MkBV(0U, self.SortSize))));
-    }
 }
