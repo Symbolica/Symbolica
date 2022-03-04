@@ -5,6 +5,7 @@ using System.Numerics;
 using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -222,6 +223,20 @@ internal sealed class Expression : IExpression
             };
         }
         return Create(v => Resize.Create(size, ConvertValue(v)));
+    }
+
+    public IExpression OffsetBy(Bytes offset)
+    {
+        IValue OffsetValue(IValue value)
+        {
+            return value switch
+            {
+                Address<Bytes> a => a.IncrementFinalOffset(offset),
+                Address<Bits> a => throw new Exception("Cant increment an address in bits by a byte "),
+                _ => Values.Add.Create(value, ConstantUnsigned.Create(value.Size, (uint) offset))
+            };
+        }
+        return Create(OffsetValue);
     }
 
     public IExpression Or(IExpression expression)
