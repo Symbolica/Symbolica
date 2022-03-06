@@ -304,9 +304,7 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression ZeroExtend(Bits size)
     {
-        return size > Size
-            ? Create(v => Values.ZeroExtend.Create(size, v))
-            : this;
+        return Create(v => Values.ZeroExtend.Create(size, v));
     }
 
     private IExpression Create(Func<IValue, IValue> func)
