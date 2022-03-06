@@ -250,9 +250,7 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression Truncate(Bits size)
     {
-        return size < Size
-            ? Create(v => Values.Truncate.Create(size, v))
-            : this;
+        return Create(v => Values.Truncate.Create(size, v));
     }
 
     public IExpression UnsignedDivide(IExpression expression)
