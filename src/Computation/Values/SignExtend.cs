@@ -20,8 +20,10 @@ internal sealed class SignExtend : BitVector
 
     public static IValue Create(Bits size, IValue value)
     {
-        return value is IConstantValue v
-            ? v.AsSigned().Extend(size)
-            : new SignExtend(size, value);
+        return size > value.Size
+            ? value is IConstantValue v
+                ? v.AsSigned().Extend(size)
+                : new SignExtend(size, value)
+            : value;
     }
 }

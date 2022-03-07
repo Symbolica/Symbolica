@@ -238,9 +238,7 @@ internal sealed class Expression<TContext> : IExpression
 
     public IExpression SignExtend(Bits size)
     {
-        return size > Size
-            ? Create(v => Values.SignExtend.Create(size, v))
-            : this;
+        return Create(v => Values.SignExtend.Create(size, v));
     }
 
     public IExpression Subtract(IExpression expression)
