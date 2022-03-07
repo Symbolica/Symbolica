@@ -21,8 +21,12 @@ internal sealed class Add : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return left is IConstantValue l && right is IConstantValue r
-            ? l.AsUnsigned().Add(r.AsUnsigned())
-            : new Add(left, right);
+        return (left, right) switch
+        {
+            (IConstantValue l, IConstantValue r) => l.AsUnsigned().Add(r.AsUnsigned()),
+            (IConstantValue l, _) when l.AsUnsigned().IsZero => right,
+            (_, IConstantValue r) when r.AsUnsigned().IsZero => left,
+            _ => new Add(left, right)
+        };
     }
 }
