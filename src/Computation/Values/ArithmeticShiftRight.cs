@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Numerics;
+using Microsoft.Z3;
 
 namespace Symbolica.Computation.Values;
 
@@ -21,8 +22,11 @@ internal sealed class ArithmeticShiftRight : BitVector
 
     public static IValue Create(IValue left, IValue right)
     {
-        return left is IConstantValue l && right is IConstantValue r
-            ? l.AsSigned().ShiftRight(r.AsUnsigned())
-            : new ArithmeticShiftRight(left, right);
+        return (left, right) switch
+        {
+            (IConstantValue l, IConstantValue r) => l.AsSigned().ShiftRight(r.AsUnsigned()),
+            (_, IConstantValue r) when r.AsUnsigned() == BigInteger.Zero => left,
+            _ => new ArithmeticShiftRight(left, right)
+        };
     }
 }
