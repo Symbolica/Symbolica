@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 
 namespace Symbolica.Computation.Values;
 
@@ -25,7 +24,8 @@ internal sealed class ShiftLeft : BitVector
         return (left, right) switch
         {
             (IConstantValue l, IConstantValue r) => l.AsUnsigned().ShiftLeft(r.AsUnsigned()),
-            (_, IConstantValue r) when r.AsUnsigned() == BigInteger.Zero => left,
+            (_, IConstantValue r) when r.AsUnsigned().IsZero => left,
+            (IConstantValue l, _) when l.AsUnsigned().IsZero => l,
             _ => new ShiftLeft(left, right)
         };
     }
