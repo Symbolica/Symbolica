@@ -1,4 +1,5 @@
-﻿using Symbolica.Collection;
+﻿using System.Diagnostics;
+using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Expression;
 
@@ -38,6 +39,9 @@ internal static class Read
                     LogicalShiftRight.Create(
                         buffer,
                         ZeroExtend.Create(buffer.Size, offset.Value)));
+
+            if (subBuffer is Truncate)
+                Debugger.Break();
             return Create(collectionFactory, assertions, subBuffer, offsets.Tail(), size);
         }
 
