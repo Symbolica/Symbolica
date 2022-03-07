@@ -20,8 +20,10 @@ internal sealed class ZeroExtend : BitVector
 
     public static IValue Create(Bits size, IValue value)
     {
-        return value is IConstantValue v
-            ? v.AsUnsigned().Extend(size)
-            : new ZeroExtend(size, value);
+        return size > value.Size
+            ? value is IConstantValue v
+                ? v.AsUnsigned().Extend(size)
+                : new ZeroExtend(size, value)
+            : value;
     }
 }
