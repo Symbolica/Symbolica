@@ -29,17 +29,6 @@ internal record struct WriteOffset
 
     public IValue Value { get; }
 
-    public IValue IsBounded()
-    {
-        return And.Create(
-            SignedGreaterOrEqual.Create(
-                Value,
-                ConstantUnsigned.Zero(Value.Size)),
-            SignedLessOrEqual.Create(
-                Add.Create(Value, ConstantUnsigned.Create(Value.Size, (uint) FieldSize)),
-                ConstantUnsigned.Create(Value.Size, (uint) AggregateSize)));
-    }
-
     internal bool IsBoundedBy(IAssertions assertions, IValue offset, Bits size)
     {
         var isBounded = And.Create(

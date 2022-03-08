@@ -12,8 +12,6 @@ namespace Symbolica.Computation;
 internal sealed class Constraints : IConstraints
 {
     private static readonly TextWriterTraceListener _solverTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/solves.txt"));
-    private static readonly TextWriterTraceListener _assertionTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/assertions.txt"));
-    private static readonly TextWriterTraceListener _simplifiedAssertionTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/simplified-assertions.txt"));
     private static readonly TextWriterTraceListener _bigAssertionTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/big-assertions.txt"));
 
     private readonly IContext _context;
@@ -41,15 +39,7 @@ internal sealed class Constraints : IConstraints
 
         var id = Guid.NewGuid();
 
-        //  var boolExpr = assertion.AsBool(context);
-
-        // _assertionTracer.WriteLine($"{id}, {boolExpr.SExpr()}");
-        // _assertionTracer.Flush();
-
-        // _simplifiedAssertionTracer.WriteLine($"{id}, {boolExpr.Simplify().SExpr()}");
-        // _simplifiedAssertionTracer.Flush();
-
-        if (AssertionCount(assertion) > 100)
+        if (AssertionCount(assertion) > 50)
         {
             var printedExpr = PrintAssertion(assertion, 0);
             _bigAssertionTracer.WriteLine($"{id}, {printedExpr}");
