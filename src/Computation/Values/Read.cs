@@ -37,7 +37,8 @@ internal static class Read
                     offset.FieldSize,
                     LogicalShiftRight.Create(
                         buffer,
-                        ZeroExtend.Create(buffer.Size, offset.Value)));
+                        Truncate.Create(buffer.Size, ZeroExtend.Create(buffer.Size, offset.Value))));
+
             return Create(collectionFactory, solver, subBuffer, offsets.Tail(), size);
         }
 

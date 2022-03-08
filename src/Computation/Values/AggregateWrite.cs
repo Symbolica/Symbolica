@@ -72,7 +72,7 @@ internal sealed record AggregateWrite : BitVector, IComparable<AggregateWrite>
         if (Size != offset.AggregateSize)
             throw new InconsistentExpressionSizesException(Size, offset.AggregateSize);
 
-        if (offset.FieldSize == Size && offset.IsZero(solver))
+        if (offset.FieldSize == Size && offset.Value is IConstantValue o && o.AsUnsigned().IsZero)
             return Read(collectionFactory, solver, offsets.Tail(), valueSize);
 
         IValue ReadField(AggregateWrite field)
@@ -150,7 +150,7 @@ internal sealed record AggregateWrite : BitVector, IComparable<AggregateWrite>
         if (offset.AggregateSize != Size)
             throw new InconsistentExpressionSizesException(offset.AggregateSize, Size);
 
-        if (offset.FieldSize == Size && offset.IsZero(solver))
+        if (offset.FieldSize == Size && offset.Value is IConstantValue o && o.AsUnsigned().IsZero)
             return Write(collectionFactory, solver, offsets.Tail(), value);
 
         AggregateWrite WriteField(AggregateWrite field)
@@ -222,8 +222,11 @@ internal sealed record AggregateWrite : BitVector, IComparable<AggregateWrite>
     {
         return ShiftLeft.Create(
             ConstantUnsigned.Create(size, BigInteger.Zero).Not().Extend(bufferSize),
-            ZeroExtend.Create(bufferSize, offset));
+            Resize(offset, bufferSize));
     }
+
+    private static IValue Resize(IValue value, Bits size) =>
+        Truncate.Create(size, ZeroExtend.Create(size, value));
 
     private bool IsNotOverlappingAnyField(ISolver solver, WriteOffset offset)
     {
@@ -253,9 +256,7 @@ internal sealed record AggregateWrite : BitVector, IComparable<AggregateWrite>
         // a single instance of it but with a minimised size still.
         IValue CreateData(AggregateWrite field)
         {
-            return ShiftLeft.Create(
-                ZeroExtend.Create(Size, field.Flatten()),
-                ZeroExtend.Create(Size, field._offset));
+            return ShiftLeft.Create(Resize(field.Flatten(), Size), Resize(field._offset, Size));
         }
 
         var data = AggregateFields(CreateData);
