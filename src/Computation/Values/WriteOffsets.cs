@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -28,17 +27,6 @@ internal record struct WriteOffset
     public Bits FieldSize { get; }
 
     public IValue Value { get; }
-
-    public IValue IsBounded()
-    {
-        return And.Create(
-            SignedGreaterOrEqual.Create(
-                Value,
-                ConstantUnsigned.CreateZero(Value.Size)),
-            SignedLessOrEqual.Create(
-                Add.Create(Value, ConstantUnsigned.Create(Value.Size, (uint) FieldSize)),
-                ConstantUnsigned.Create(Value.Size, (uint) AggregateSize)));
-    }
 
     internal bool IsBoundedBy(ISolver solver, IValue offset, Bits size)
     {

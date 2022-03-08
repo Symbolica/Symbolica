@@ -12,20 +12,22 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed record AggregateWrite : BitVector
+internal sealed record AggregateWrite : BitVector, IComparable<AggregateWrite>
 {
     private readonly IValue _buffer;
     private readonly IValue _offset;
+    private readonly BigInteger _rank;
     private readonly ImmutableList<AggregateWrite> _fields;
 
-    private AggregateWrite(IValue buffer, IValue offset, ImmutableList<AggregateWrite> fields)
+    private AggregateWrite(IValue buffer, IValue offset, BigInteger rank, ImmutableList<AggregateWrite> fields)
         : base(buffer.Size)
     {
-        // if (!(buffer is IConstantValue || buffer is Address<Bytes> || buffer is AggregateWrite || buffer is Symbol))
-        //     Debugger.Break();
+        if (rank < 0)
+            Debugger.Break();
 
         _buffer = buffer;
         _offset = offset;
+        _rank = rank;
         _fields = fields;
     }
 
@@ -43,6 +45,8 @@ internal sealed record AggregateWrite : BitVector
         return Equals(other as AggregateWrite);
     }
 
+    public int CompareTo(AggregateWrite? other) => _rank.CompareTo(other?._rank);
+
     internal IValue Read(ICollectionFactory collectionFactory, ISolver solver,
         WriteOffsets offsets, Bits valueSize)
     {
@@ -52,19 +56,16 @@ internal sealed record AggregateWrite : BitVector
             if (valueSize > Size)
                 throw new InconsistentExpressionSizesException(Size, valueSize);
 
-            if (valueSize < Size)
+            return valueSize < Size
                 // Create an offset whose field size is the same as the value size and write back to this same layer
                 // so that it will either create a new field at offset zero of that size, or find an existing field
                 // which is at least that big and write into that
-                return Read(
+                ? Read(
                     collectionFactory,
                     solver,
                     WriteOffsets.Create(ConstantUnsigned.CreateZero(Size), Size, valueSize),
-                    valueSize);
-
-            // In the trivial case (e.g. when this AggregateWrite is terminal)
-            // then flatten is just the same as returning the buffer.
-            return _buffer;
+                    valueSize)
+                : _buffer;
         }
 
         WriteOffset offset = offsets.Head();
@@ -83,29 +84,43 @@ internal sealed record AggregateWrite : BitVector
                 valueSize);
         }
 
-        // Can we find a field that contains this offset?
-        var constantMatch = _fields
-            .Where(f => f._offset is IConstantValue)
-            .FirstOrDefault(f => offset.IsBoundedBy(solver, f._offset, f.Size));
-        if (constantMatch is not null)
-            return ReadField(constantMatch);
+        IValue OverlappingRead()
+        {
+            // This could be smarter, just because something overlaps at this layer, it doesn't mean it won't at a lower
+            // level, e.g. reading a field from a struct within an array with a symbolic index
+            return Values.Read.Create(collectionFactory, solver, Flatten(), offsets, valueSize);
+        }
 
-        // If the offset isn't within an existing field then let's at least make sure it's within the bounds of this level
-        if (!offset.IsBoundedBy(solver, ConstantUnsigned.CreateZero(_offset.Size), Size))
-            throw new Exception("Oh no, looks like we're going to have to try and read from a higher level where this does fit.");
+        var result = _fields.BinarySearch(CreateLeaf(solver, offset, ConstantUnsigned.CreateZero(offset.FieldSize)));
+        if (result < 0)
+        {
+            var index = ~result;
+            // No exact match, index points to the next element that is bigger than this one,
+            // we're going to be naive and assume everything is fully contained (evidence so far suggests it is)
+            // in which case we only need to check the one below here because the one with a greater index clearly
+            // cant fully contain this offset
+            var lower = index > 0 ? _fields[index - 1] : null;
+            if (lower is not null && offset.IsBoundedBy(solver, lower._offset, lower.Size))
+                return ReadField(lower);
 
-        if (IsNotOverlappingAnyField(solver, offset))
-            return Values.Read.Create(collectionFactory, solver, _buffer, offsets, valueSize);
+            if (!offset.IsBoundedBy(solver, ConstantUnsigned.CreateZero(_offset.Size), Size))
+                throw new Exception("Oh no, looks like we're going to have to try and read from a higher level where this does fit.");
 
-        var symbolicMatch = _fields
-            .Where(f => f._offset is not IConstantValue)
-            .FirstOrDefault(f => offset.IsBoundedBy(solver, f._offset, f.Size));
-        if (symbolicMatch is not null)
-            return ReadField(symbolicMatch);
+            return IsNotOverlappingAnyField(solver, offset)
+                ? Values.Read.Create(collectionFactory, solver, _buffer, offsets, valueSize)
+                : OverlappingRead();
+        }
+        else
+        {
+            var match = _fields[result];
+            if (offset.IsBoundedBy(solver, match._offset, match.Size))
+                return ReadField(match);
 
-        // This could be smarter, just because something overlaps at this layer, it doesn't mean it won't at a lower
-        // level, e.g. reading a field from a struct within an array with a symbolic index
-        return Values.Read.Create(collectionFactory, solver, Flatten(), offsets, valueSize);
+            if (!offset.IsBoundedBy(solver, ConstantUnsigned.CreateZero(_offset.Size), Size))
+                throw new Exception("Oh no, looks like we're going to have to try and read from a higher level where this does fit.");
+
+            return OverlappingRead();
+        }
     }
 
     internal AggregateWrite Write(ICollectionFactory collectionFactory, ISolver solver,
@@ -128,7 +143,7 @@ internal sealed record AggregateWrite : BitVector
                     WriteOffsets.Create(ConstantUnsigned.CreateZero(Size), Size, value.Size),
                     value);
 
-            return new AggregateWrite(value, _offset, ImmutableList.Create<AggregateWrite>());
+            return new AggregateWrite(value, _offset, _rank, ImmutableList.Create<AggregateWrite>());
         }
 
         WriteOffset offset = offsets.Head();
@@ -140,11 +155,10 @@ internal sealed record AggregateWrite : BitVector
 
         AggregateWrite WriteField(AggregateWrite field)
         {
-            // TODO: Remove the matches offset from this offset and go again, to cater for when it's not an exact alignment
-            // e.g. rogue pointers
             return new AggregateWrite(
                 _buffer,
                 _offset,
+                _rank,
                 _fields.Replace(
                     field,
                     field.Write(
@@ -154,44 +168,54 @@ internal sealed record AggregateWrite : BitVector
                         value)));
         }
 
-        // Can we find a field that contains this offset?
-        var constantMatch = _fields
-            .Where(f => f._offset is IConstantValue)
-            .FirstOrDefault(f => offset.IsBoundedBy(solver, f._offset, f.Size));
-        if (constantMatch is not null)
+        AggregateWrite OverlappingWrite()
         {
-            return WriteField(constantMatch);
-        }
-
-        // If the offset isn't within an existing field then let's at least make sure it's within the bounds of this level
-        if (!offset.IsBoundedBy(solver, ConstantUnsigned.CreateZero(_offset.Size), Size))
-            throw new Exception("Oh no, looks like we're going to have to try and write to a higher level where this does fit.");
-
-        if (IsNotOverlappingAnyField(solver, offset))
-        {
+            // It is within this level but it overlaps with other fields
+            // Create a new layer at this level with the existing level as its value.
+            // Then when we want to read if we find the offset is disjoint then we can just read the layer below
+            // if it within a field then it can read from there knowing that its backing value will be the subsection of the underlying Write
+            // and if its overlapping then it will have to finally flatten
             return new AggregateWrite(
-                _buffer,
+                this,
                 _offset,
-                _fields.Add(CreateField(collectionFactory, solver, _buffer, offsets, value)));
+                _rank,
+                ImmutableList.Create(CreateField(collectionFactory, solver, this, offsets, value)));
         }
 
-        var symbolicMatch = _fields
-            .Where(f => f._offset is not IConstantValue)
-            .FirstOrDefault(f => offset.IsBoundedBy(solver, f._offset, f.Size));
-        if (symbolicMatch is not null)
+        var result = _fields.BinarySearch(CreateLeaf(solver, offset, ConstantUnsigned.CreateZero(offset.FieldSize)));
+        if (result < 0)
         {
-            return WriteField(symbolicMatch);
-        }
+            var index = ~result;
+            // No exact match, index points to the next element that is bigger than this one,
+            // we're going to be naive and assume everything is fully contained (evidence so far suggests it is)
+            // in which case we only need to check the one below here because the one with a greater index clearly
+            // cant fully contain this offset
+            var lower = index > 0 ? _fields[index - 1] : null;
+            if (lower is not null && offset.IsBoundedBy(solver, lower._offset, lower.Size))
+                return WriteField(lower);
 
-        // It is within this level but it overlaps with other fields
-        // Create a new layer at this level with the existing level as its value.
-        // Then when we want to read if we find the offset is disjoint then we can just read the layer below
-        // if it within a field then it can read from there knowing that its backing value will be the subsection of the underlying Write
-        // and if its overlapping then it will have to finally flatten
-        return new AggregateWrite(
-            this,
-            _offset,
-            ImmutableList.Create(CreateField(collectionFactory, solver, this, offsets, value)));
+            if (!offset.IsBoundedBy(solver, ConstantUnsigned.CreateZero(_offset.Size), Size))
+                throw new Exception("Oh no, looks like we're going to have to try and read from a higher level where this does fit.");
+
+            return IsNotOverlappingAnyField(solver, offset)
+                ? new AggregateWrite(
+                    _buffer,
+                    _offset,
+                    _rank,
+                    _fields.Insert(index, CreateField(collectionFactory, solver, _buffer, offsets, value)))
+                : OverlappingWrite();
+        }
+        else
+        {
+            var match = _fields[result];
+            if (offset.IsBoundedBy(solver, match._offset, match.Size))
+                return WriteField(match);
+
+            if (!offset.IsBoundedBy(solver, ConstantUnsigned.CreateZero(_offset.Size), Size))
+                throw new Exception("Oh no, looks like we're going to have to try and read from a higher level where this does fit.");
+
+            return OverlappingWrite();
+        }
     }
 
     private static IValue Mask(Bits bufferSize, IValue offset, Bits size)
@@ -253,14 +277,15 @@ internal sealed record AggregateWrite : BitVector
                 : Create(
                     collectionFactory,
                     solver,
-                    CreateInitial(buffer, offset.Size),
+                    CreateInitial(solver, buffer, offset.Size),
                     offset,
                     value);
     }
 
-    private static AggregateWrite CreateInitial(IValue buffer, Bits offsetSize)
+    private static AggregateWrite CreateInitial(ISolver solver, IValue buffer, Bits offsetSize)
     {
         return CreateLeaf(
+            solver,
             new WriteOffset(
                 buffer.Size,
                 "Base Write",
@@ -278,14 +303,15 @@ internal sealed record AggregateWrite : BitVector
 
         var tail = offsets.Tail();
         return tail.Empty
-            ? CreateLeaf(offset, value)
+            ? CreateLeaf(solver, offset, value)
             : CreateLeaf(
+                solver,
                 offset,
                 Values.Read.Create(collectionFactory, solver, buffer, offset.Value, offset.FieldSize))
                 .Write(collectionFactory, solver, tail, value);
     }
 
-    private static AggregateWrite CreateLeaf(WriteOffset offset, IValue value)
+    private static AggregateWrite CreateLeaf(ISolver solver, WriteOffset offset, IValue value)
     {
         if (value.Size != offset.FieldSize)
             throw new InconsistentExpressionSizesException(value.Size, offset.FieldSize);
@@ -293,6 +319,7 @@ internal sealed record AggregateWrite : BitVector
         return new AggregateWrite(
             value,
             offset.Value,
+            solver.GetExampleValue(offset.Value),
             ImmutableList.Create<AggregateWrite>());
     }
 }
