@@ -98,7 +98,7 @@ internal sealed class PersistentBlock : IPersistentBlock
         return isFullyInside
             .Select(
                 GetOffset(address),
-                space.CreateConstant(_data.Size, (uint) _data.Size));
+                space.CreateConstant(address.Size, (uint) _data.Size));
     }
 
     private IPersistentBlock Write(ISpace space, IExpression offset, IExpression value)

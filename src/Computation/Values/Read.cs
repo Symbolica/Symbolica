@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Symbolica.Collection;
+﻿using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Expression;
 
@@ -38,10 +37,8 @@ internal static class Read
                     offset.FieldSize,
                     LogicalShiftRight.Create(
                         buffer,
-                        ZeroExtend.Create(buffer.Size, offset.Value)));
+                        Truncate.Create(buffer.Size, ZeroExtend.Create(buffer.Size, offset.Value))));
 
-            if (subBuffer is Truncate)
-                Debugger.Break();
             return Create(collectionFactory, assertions, subBuffer, offsets.Tail(), size);
         }
 
