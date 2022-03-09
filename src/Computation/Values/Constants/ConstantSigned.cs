@@ -15,6 +15,8 @@ internal sealed class ConstantSigned : BitVector, IConstantValue
         _value = value;
     }
 
+    public bool IsOne => _value.IsOne;
+
     public override BitVecExpr AsBitVector(IContext context)
     {
         return AsUnsigned().AsBitVector(context);
