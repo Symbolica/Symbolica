@@ -34,17 +34,18 @@ internal sealed class Xor : BitVector
         return left switch
         {
             IConstantValue l => l.AsUnsigned().Xor(right),
-            Xor l => new Xor(l._left, Create(l._right, right)),
+            Xor l => Create(l._left, Create(l._right, right)),
             _ => new Xor(left, right)
         };
     }
 
     public static IValue Create(IValue left, IValue right)
     {
-        return right is IConstantValue r
-            ? ShortCircuit(left, r.AsUnsigned())
-            : left is IConstantValue l
-                ? ShortCircuit(right, l.AsUnsigned())
-                : new Xor(left, right);
+        return (left, right) switch
+        {
+            (IConstantValue l, _) => ShortCircuit(right, l.AsUnsigned()),
+            (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
+            _ => new Xor(left, right)
+        };
     }
 }
