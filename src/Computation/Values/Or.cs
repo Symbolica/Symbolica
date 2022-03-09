@@ -34,17 +34,18 @@ internal sealed class Or : BitVector
         return left switch
         {
             IConstantValue l => l.AsUnsigned().Or(right),
-            Or l => new Or(l._left, Create(l._right, right)),
+            Or l => Create(l._left, Create(l._right, right)),
             _ => new Or(left, right)
         };
     }
 
     public static IValue Create(IValue left, IValue right)
     {
-        return right is IConstantValue r
-            ? ShortCircuit(left, r.AsUnsigned())
-            : left is IConstantValue l
-                ? ShortCircuit(right, l.AsUnsigned())
-                : new Or(left, right);
+        return (left, right) switch
+        {
+            (IConstantValue l, _) => ShortCircuit(right, l.AsUnsigned()),
+            (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
+            _ => new Or(left, right)
+        };
     }
 }
