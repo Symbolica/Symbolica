@@ -33,17 +33,28 @@ internal static class Read
             var offset = offsets.Head();
             var subBuffer = buffer is IConstantValue b && offset.Value is IConstantValue o
                 ? b.AsBitVector(collectionFactory).Read(o.AsUnsigned(), offset.FieldSize)
-                : Truncate.Create(
-                    offset.FieldSize,
-                    LogicalShiftRight.Create(
-                        buffer,
-                        Truncate.Create(buffer.Size, ZeroExtend.Create(buffer.Size, offset.Value))));
+                : SymbolicRead(assertions, buffer, offset.Value, offset.FieldSize);
 
+            // if (subBuffer is Truncate && buffer is not IConstantValue)
+            //     Debugger.Break();
             return Create(collectionFactory, assertions, subBuffer, offsets.Tail(), size);
         }
 
         return buffer is AggregateWrite w
             ? w.Read(collectionFactory, assertions, offsets, size)
             : ReadNonAggregateWrite();
+    }
+
+    private static IValue SymbolicRead(IAssertions assertions, IValue buffer, IValue offset, Bits size)
+    {
+        var value = Truncate.Create(
+            size,
+            LogicalShiftRight.Create(
+                buffer,
+                Truncate.Create(buffer.Size, ZeroExtend.Create(buffer.Size, offset))));
+
+        var constant = assertions.GetConstant(value);
+        using var proposition = assertions.GetProposition(Equal.Create(constant, value));
+        return proposition.CanBeFalse ? value : constant;
     }
 }
