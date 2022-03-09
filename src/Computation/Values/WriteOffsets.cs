@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
