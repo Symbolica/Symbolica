@@ -17,7 +17,7 @@ public class PassingTests
         var bytes = await Serializer.Serialize(directory, optimization);
         var executor = new Executor(options);
 
-        var (_, exception) = await executor.Run<PooledContextHandle>(bytes);
+        var (_, exception) = await executor.Run(bytes);
 
         exception.Should().BeNull();
     }

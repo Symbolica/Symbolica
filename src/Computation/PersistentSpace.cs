@@ -8,8 +8,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class PersistentSpace<TContext> : IPersistentSpace
-    where TContext : IContext, new()
+internal sealed class PersistentSpace : IPersistentSpace
 {
     private readonly IPersistentStack<IValue> _assertions;
     private readonly ICollectionFactory _collectionFactory;
@@ -29,13 +28,13 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IPersistentSpace Assert(IValue assertion)
     {
-        return new PersistentSpace<TContext>(PointerSize, _useSymbolicGarbage, _collectionFactory,
+        return new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory,
             _assertions.Push(assertion));
     }
 
     public IConstraints GetConstraints()
     {
-        return Constraints.Create<TContext>(_assertions);
+        return Constraints.Create(_assertions);
     }
 
     public IExample GetExample()
@@ -45,13 +44,13 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IExpression CreateConstant(Bits size, BigInteger value)
     {
-        return new Expression<TContext>(_collectionFactory,
+        return new Expression(_collectionFactory,
             ConstantUnsigned.Create(size, value));
     }
 
     public IExpression CreateConstantFloat(Bits size, string value)
     {
-        return new Expression<TContext>(_collectionFactory,
+        return new Expression(_collectionFactory,
             size.ParseFloat(value));
     }
 
@@ -69,13 +68,13 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions)
     {
-        return Expression<TContext>.CreateSymbolic(_collectionFactory,
+        return Expression.CreateSymbolic(_collectionFactory,
             size, name ?? Guid.NewGuid().ToString(), assertions);
     }
 
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
     {
-        return new PersistentSpace<TContext>(pointerSize, useSymbolicGarbage, collectionFactory,
+        return new PersistentSpace(pointerSize, useSymbolicGarbage, collectionFactory,
             collectionFactory.CreatePersistentStack<IValue>());
     }
 }

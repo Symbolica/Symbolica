@@ -6,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class EqualTests
 {
-    private static readonly Context<ContextHandle> Context = new();
+    private static readonly IContext Context = ContextFactory.Create();
 
     [Theory]
     [ClassData(typeof(BinaryTestData))]

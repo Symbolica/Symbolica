@@ -7,7 +7,7 @@ namespace Symbolica.Computation.Values;
 
 public class SignedToFloatTests
 {
-    private static readonly Context<ContextHandle> Context = new();
+    private static readonly IContext Context = ContextFactory.Create();
 
     [Theory]
     [ClassData(typeof(ToFloatTestData))]

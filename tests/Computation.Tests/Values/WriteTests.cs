@@ -7,7 +7,7 @@ namespace Symbolica.Computation.Values;
 public class WriteTests
 {
     private static readonly CollectionFactory CollectionFactory = new();
-    private static readonly Context<ContextHandle> Context = new();
+    private static readonly IContext Context = ContextFactory.Create();
 
     [Theory]
     [ClassData(typeof(WriteTestData))]

@@ -6,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class NotTests
 {
-    private static readonly Context<ContextHandle> Context = new();
+    private static readonly IContext Context = ContextFactory.Create();
 
     [Theory]
     [ClassData(typeof(UnaryTestData))]

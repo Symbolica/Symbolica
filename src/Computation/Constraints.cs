@@ -44,10 +44,9 @@ internal sealed class Constraints : IConstraints
             new KeyValuePair<string, string>(p.Key.Name.ToString(), p.Value.ToString()));
     }
 
-    public static IConstraints Create<TContext>(IEnumerable<IValue> assertions)
-        where TContext : IContext, new()
+    public static IConstraints Create(IEnumerable<IValue> assertions)
     {
-        var context = new TContext();
+        var context = ContextFactory.Create();
         context.Assert(assertions.Select(a => a.AsBool(context)));
 
         return new Constraints(context);
