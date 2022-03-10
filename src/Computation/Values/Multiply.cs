@@ -19,13 +19,29 @@ internal sealed class Multiply : BitVector
         return context.CreateExpr(c => c.MkBVMul(_left.AsBitVector(context), _right.AsBitVector(context)));
     }
 
+    private static IValue ShortCircuit(IValue left, IConstantValue right)
+    {
+        return right.AsUnsigned().IsOne
+            ? left
+            : Create(left, right);
+    }
+
+    private static IValue Create(IValue left, IConstantValue right)
+    {
+        return left switch
+        {
+            IConstantValue l => l.AsUnsigned().Multiply(right.AsUnsigned()),
+            Multiply l => Create(l._left, Create(l._right, right)),
+            _ => new Multiply(left, right)
+        };
+    }
+
     public static IValue Create(IValue left, IValue right)
     {
         return (left, right) switch
         {
-            (IConstantValue l, IConstantValue r) => l.AsUnsigned().Multiply(r.AsUnsigned()),
-            (IConstantValue l, _) when l.AsUnsigned().IsOne => right,
-            (_, IConstantValue r) when r.AsUnsigned().IsOne => left,
+            (IConstantValue l, _) => ShortCircuit(right, l),
+            (_, IConstantValue r) => ShortCircuit(left, r),
             _ => new Multiply(left, right)
         };
     }
