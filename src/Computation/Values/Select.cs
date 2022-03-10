@@ -47,10 +47,11 @@ internal sealed class Select : IValue
 
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
     {
-        return predicate is IConstantValue p
-            ? p.AsBool()
-                ? trueValue
-                : falseValue
-            : new Select(predicate, trueValue, falseValue);
+        return (predicate, trueValue, falseValue) switch
+        {
+            (IConstantValue p, _, _) => p.AsBool() ? trueValue : falseValue,
+            (_, IConstantValue t, IConstantValue f) when t.AsUnsigned() == f.AsUnsigned() => t,
+            _ => new Select(predicate, trueValue, falseValue)
+        };
     }
 }
