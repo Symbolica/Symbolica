@@ -21,8 +21,6 @@ internal sealed class ConstantSigned : BitVector, IConstantValue
 
     public override string? PrintedValue => _value < BigInteger.Pow(2, 32) ? _value.ToString() : _value.ToString("E");
 
-    public bool IsOne => _value == 1;
-
     public override BitVecExpr AsBitVector(IContext context)
     {
         return AsUnsigned().AsBitVector(context);

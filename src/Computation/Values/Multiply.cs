@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
@@ -55,6 +56,8 @@ internal sealed class Multiply : BitVector
             (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
             (Address<Bits> l, Address<Bits> r) => Create(r.Aggregate(), l.Aggregate()),
             (Address<Bytes> l, Address<Bytes> r) => Create(r.Aggregate(), l.Aggregate()),
+            (Address<Bits>, Address<Bytes>) => throw new Exception("Cannot multiply addresses of differrent size types"),
+            (Address<Bytes>, Address<Bits>) => throw new Exception("Cannot multiply addresses of differrent size types"),
             (Address<Bits> l, _) => Create(l.Aggregate(), right),
             (Address<Bytes> l, _) => Create(l.Aggregate(), right),
             (_, Address<Bits> r) => Create(left, r.Aggregate()),

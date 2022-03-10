@@ -18,11 +18,12 @@ internal sealed class ConstantUnsigned : BitVector, IConstantValue
     }
 
     public bool IsZero => _value.IsZero;
+
+    public bool IsOne => _value.IsOne;
+
     public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
 
     public override string? PrintedValue => _value < BigInteger.Pow(2, 32) ? _value.ToString() : _value.ToString("E");
-
-    public bool IsOne => _value.IsOne;
 
     public override BitVecExpr AsBitVector(IContext context)
     {
