@@ -50,7 +50,7 @@ internal sealed class Select : IValue
         return (predicate, trueValue, falseValue) switch
         {
             (IConstantValue p, _, _) => p.AsBool() ? trueValue : falseValue,
-            (_, IConstantValue t, IConstantValue f) when (BigInteger) t.AsUnsigned() == (BigInteger) f.AsUnsigned() => t,
+            (_, IConstantValue t, IConstantValue f) when t.AsUnsigned().Equal(f.AsUnsigned()) => t,
             _ => new Select(predicate, trueValue, falseValue)
         };
     }
