@@ -24,8 +24,8 @@ internal sealed class Multiply : BitVector
         return (left, right) switch
         {
             (IConstantValue l, IConstantValue r) => l.AsUnsigned().Multiply(r.AsUnsigned()),
-            (IConstantValue l, _) when l.AsSigned().IsOne => right,
-            (_, IConstantValue r) when r.AsSigned().IsOne => left,
+            (IConstantValue l, _) when l.AsUnsigned().IsOne => right,
+            (_, IConstantValue r) when r.AsUnsigned().IsOne => left,
             _ => new Multiply(left, right)
         };
     }
