@@ -23,6 +23,11 @@ internal readonly record struct Offset<TSize>(
     {
         return new(AggregateSize, AggregateType, FieldSize, Values.Add.Create(Value, value));
     }
+
+    internal Offset<TSize> TryMakeConstant(IAssertions assertions)
+    {
+        return new(AggregateSize, AggregateType, FieldSize, Value.TryMakeConstant(assertions));
+    }
 }
 
 internal static class OffsetExtensions

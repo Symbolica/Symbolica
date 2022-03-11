@@ -317,7 +317,7 @@ internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
         return new AggregateWrite(
             value,
             offset.Value,
-            assertions.GetConstant(offset.Value).AsUnsigned(),
+            assertions.GetValue(offset.Value).AsUnsigned(),
             ImmutableList.Create<AggregateWrite>());
     }
 }

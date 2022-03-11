@@ -1,4 +1,5 @@
-﻿using Symbolica.Collection;
+﻿using System.Diagnostics;
+using Symbolica.Collection;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Expression;
 
@@ -53,8 +54,6 @@ internal static class Read
                 buffer,
                 Truncate.Create(buffer.Size, ZeroExtend.Create(buffer.Size, offset))));
 
-        var constant = assertions.GetConstant(value);
-        using var proposition = assertions.GetProposition(Equal.Create(constant, value));
-        return proposition.CanBeFalse ? value : constant;
+        return value.TryMakeConstant(assertions);
     }
 }

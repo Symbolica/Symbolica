@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Z3;
+using Symbolica.Computation.Values;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -26,5 +27,15 @@ internal abstract class Integer : IValue
 
     public virtual IValue BitCast(Bits targetSize) => this;
 
-    public virtual IValue ToBits() => Values.Multiply.Create(this, ConstantUnsigned.Create(Size, (uint) Bytes.One.ToBits()));
+    public virtual IValue ToBits() => Multiply.Create(this, ConstantUnsigned.Create(Size, (uint) Bytes.One.ToBits()));
+
+    public virtual IValue TryMakeConstant(IAssertions assertions)
+    {
+        var constant = assertions.GetValue(this);
+        using var proposition = assertions.GetProposition(Equal.Create(constant, this));
+        if (proposition.CanBeFalse)
+            return this;
+
+        return constant;
+    }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Z3;
-using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -30,8 +29,6 @@ internal abstract class Float : IValue
     public abstract FPExpr AsFloat(IContext context);
 
     public IValue BitCast(Bits targetSize) => this;
-
-    public IValue ToBits() => Values.Multiply.Create(this, ConstantUnsigned.Create(Size, (uint) Bytes.One.ToBits()));
 
     public static IValue Unary(IValue value,
         Func<float, IValue> constantSingle,

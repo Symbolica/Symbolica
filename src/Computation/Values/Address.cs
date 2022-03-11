@@ -55,6 +55,13 @@ internal sealed class Address<TSize> : Integer
         };
     }
 
+    public override IValue TryMakeConstant(IAssertions assertions)
+    {
+        return Create(
+            BaseAddress.TryMakeConstant(assertions),
+            Offsets.Select(o => o.TryMakeConstant(assertions)));
+    }
+
     internal IValue Aggregate()
     {
         return Offsets
