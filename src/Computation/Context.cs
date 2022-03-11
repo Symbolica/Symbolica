@@ -10,13 +10,13 @@ internal sealed class Context<TContextHandle> : IContext
 {
     private readonly TContextHandle _contextHandle;
     private readonly ISet<string> _names;
-    private readonly Lazy<Solver> _solver;
+    private readonly Solver _solver;
 
     public Context()
     {
-        _contextHandle = new TContextHandle();
         _names = new HashSet<string>();
-        _solver = new Lazy<Solver>(CreateSolver);
+        _contextHandle = new TContextHandle();
+        _solver = CreateSolver();
     }
 
     public void Dispose()
@@ -26,7 +26,7 @@ internal sealed class Context<TContextHandle> : IContext
 
     public void Assert(IEnumerable<BoolExpr> assertions)
     {
-        _solver.Value.Add(assertions);
+        _solver.Add(assertions);
     }
 
     public void Assert(string name, IEnumerable<BoolExpr> assertions)
@@ -40,17 +40,17 @@ internal sealed class Context<TContextHandle> : IContext
 
     public Status Check(BoolExpr assertion)
     {
-        return _solver.Value.Check(assertion);
+        return _solver.Check(assertion);
     }
 
     public BitVecNum Evaluate(BitVecExpr variable)
     {
-        return (BitVecNum) CreateModel(_solver.Value).Eval(variable, true);
+        return (BitVecNum) CreateModel().Eval(variable, true);
     }
 
     public IEnumerable<KeyValuePair<FuncDecl, Expr>> Evaluate()
     {
-        return CreateModel(_solver.Value).Consts;
+        return CreateModel().Consts;
     }
 
     public TSort CreateSort<TSort>(Func<Context, TSort> func)
@@ -75,12 +75,12 @@ internal sealed class Context<TContextHandle> : IContext
         return func(_contextHandle.Context);
     }
 
-    private static Model CreateModel(Solver solver)
+    private Model CreateModel()
     {
-        var status = solver.Check();
+        var status = _solver.Check();
 
         return status == Status.SATISFIABLE
-            ? solver.Model
+            ? _solver.Model
             : throw new InvalidModelException(status);
     }
 }
