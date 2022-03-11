@@ -6,7 +6,9 @@ namespace Symbolica.Computation;
 
 internal interface IConstraints : IDisposable
 {
+    void Assert(IEnumerable<IValue> assertions);
     bool IsSatisfiable(IValue assertion);
-    BigInteger Evaluate(IValue value);
-    IEnumerable<KeyValuePair<string, string>> Evaluate();
+    BigInteger GetConstant(IValue value);
+    BigInteger GetValue(IValue value);
+    IEnumerable<KeyValuePair<string, string>> GetValues();
 }

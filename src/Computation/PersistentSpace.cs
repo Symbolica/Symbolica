@@ -35,7 +35,10 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IConstraints GetConstraints()
     {
-        return Constraints.Create<TContext>(_assertions);
+        var constraints = Constraints.Create<TContext>();
+        constraints.Assert(_assertions);
+
+        return constraints;
     }
 
     public IExample GetExample()

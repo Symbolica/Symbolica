@@ -32,7 +32,7 @@ internal sealed class Expression<TContext> : IExpression
     {
         return _value is IConstantValue
             ? this
-            : Create(((IPersistentSpace) space).Assertions.GetConstant);
+            : Create(((IPersistentSpace) space).Assertions.GetValue);
     }
 
     public IProposition GetProposition(ISpace space)
@@ -327,9 +327,9 @@ internal sealed class Expression<TContext> : IExpression
 
     private BigInteger AsConstant()
     {
-        using var context = new TContext();
+        using var constraints = Constraints.Create<TContext>();
 
-        return _value.AsConstant(context);
+        return constraints.GetConstant(_value);
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,

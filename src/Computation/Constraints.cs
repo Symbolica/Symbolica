@@ -20,6 +20,11 @@ internal sealed class Constraints : IConstraints
         _context.Dispose();
     }
 
+    public void Assert(IEnumerable<IValue> assertions)
+    {
+        _context.Assert(assertions.Select(a => a.AsBool(_context)));
+    }
+
     public bool IsSatisfiable(IValue assertion)
     {
         var status = _context.Check(assertion.AsBool(_context));
@@ -33,23 +38,29 @@ internal sealed class Constraints : IConstraints
         };
     }
 
-    public BigInteger Evaluate(IValue value)
+    public BigInteger GetConstant(IValue value)
+    {
+        var constant = value.AsConstant(_context);
+
+        return constant == GetValue(value)
+            ? constant
+            : throw new IrreducibleSymbolicExpressionException();
+    }
+
+    public BigInteger GetValue(IValue value)
     {
         return _context.Evaluate(value.AsBitVector(_context)).BigInteger;
     }
 
-    public IEnumerable<KeyValuePair<string, string>> Evaluate()
+    public IEnumerable<KeyValuePair<string, string>> GetValues()
     {
         return _context.Evaluate().Select(p =>
             new KeyValuePair<string, string>(p.Key.Name.ToString(), p.Value.ToString()));
     }
 
-    public static IConstraints Create<TContext>(IEnumerable<IValue> assertions)
+    public static IConstraints Create<TContext>()
         where TContext : IContext, new()
     {
-        var context = new TContext();
-        context.Assert(assertions.Select(a => a.AsBool(context)));
-
-        return new Constraints(context);
+        return new Constraints(new TContext());
     }
 }
