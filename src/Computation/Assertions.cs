@@ -12,11 +12,11 @@ internal sealed class Assertions : IAssertions
         _space = space;
     }
 
-    public IConstantValue GetConstant(IValue value)
+    public IConstantValue GetValue(IValue value)
     {
         using var constraints = _space.GetConstraints();
 
-        return ConstantUnsigned.Create(value.Size, constraints.Evaluate(value));
+        return ConstantUnsigned.Create(value.Size, constraints.GetValue(value));
     }
 
     public IProposition GetProposition(IValue value)

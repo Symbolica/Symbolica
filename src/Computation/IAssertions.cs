@@ -4,6 +4,6 @@ namespace Symbolica.Computation;
 
 internal interface IAssertions
 {
-    IConstantValue GetConstant(IValue value);
+    IConstantValue GetValue(IValue value);
     IProposition GetProposition(IValue value);
 }
