@@ -10,18 +10,6 @@ public class ShiftLeftTests
 
     [Theory]
     [ClassData(typeof(BinaryTestData))]
-    private void ShouldCreateEquivalentConstants(
-        IValue left0, IValue right0,
-        IValue left1, IValue right1)
-    {
-        var result0 = ShiftLeft.Create(left0, right0).AsConstant(Context);
-        var result1 = ShiftLeft.Create(left1, right1).AsConstant(Context);
-
-        result0.Should().Be(result1);
-    }
-
-    [Theory]
-    [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentBitVectors(
         IValue left0, IValue right0,
         IValue left1, IValue right1)

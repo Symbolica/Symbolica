@@ -11,22 +11,6 @@ public class FloatPowerTests
     [Theory]
     [ClassData(typeof(SinglePowerTestData))]
     [ClassData(typeof(DoublePowerTestData))]
-    private void ShouldCreateEquivalentConstants(
-        IValue left0, IValue right0,
-        IValue left1, IValue right1)
-    {
-        var real0 = FloatPower.Create(left0, right0);
-        var real1 = FloatPower.Create(left1, right1);
-
-        var result0 = FloatToSigned.Create(real0.Size, real0).AsConstant(Context);
-        var result1 = FloatToSigned.Create(real1.Size, real1).AsConstant(Context);
-
-        result0.Should().Be(result1);
-    }
-
-    [Theory]
-    [ClassData(typeof(SinglePowerTestData))]
-    [ClassData(typeof(DoublePowerTestData))]
     private void ShouldCreateEquivalentBitVectors(
         IValue left0, IValue right0,
         IValue left1, IValue right1)

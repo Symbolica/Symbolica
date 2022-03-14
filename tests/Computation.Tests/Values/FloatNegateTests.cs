@@ -11,19 +11,6 @@ public class FloatNegateTests
     [Theory]
     [ClassData(typeof(SingleUnaryTestData))]
     [ClassData(typeof(DoubleUnaryTestData))]
-    private void ShouldCreateEquivalentConstants(
-        IValue value0,
-        IValue value1)
-    {
-        var result0 = FloatNegate.Create(value0).AsConstant(Context);
-        var result1 = FloatNegate.Create(value1).AsConstant(Context);
-
-        result0.Should().Be(result1);
-    }
-
-    [Theory]
-    [ClassData(typeof(SingleUnaryTestData))]
-    [ClassData(typeof(DoubleUnaryTestData))]
     private void ShouldCreateEquivalentBitVectors(
         IValue value0,
         IValue value1)
