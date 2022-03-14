@@ -12,19 +12,6 @@ public class FloatConvertTests
     [Theory]
     [ClassData(typeof(SingleConvertTestData))]
     [ClassData(typeof(DoubleConvertTestData))]
-    private void ShouldCreateEquivalentConstants(Bits size,
-        IValue value0,
-        IValue value1)
-    {
-        var result0 = FloatConvert.Create(size, value0).AsConstant(Context);
-        var result1 = FloatConvert.Create(size, value1).AsConstant(Context);
-
-        result0.Should().Be(result1);
-    }
-
-    [Theory]
-    [ClassData(typeof(SingleConvertTestData))]
-    [ClassData(typeof(DoubleConvertTestData))]
     private void ShouldCreateEquivalentBitVectors(Bits size,
         IValue value0,
         IValue value1)

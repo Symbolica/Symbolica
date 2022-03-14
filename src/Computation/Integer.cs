@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -12,11 +11,6 @@ internal abstract class Integer : IValue
     }
 
     public Bits Size { get; }
-
-    public BigInteger AsConstant(IContext context)
-    {
-        return AsBitVector(context).AsConstant();
-    }
 
     public abstract BitVecExpr AsBitVector(IContext context);
     public abstract BoolExpr AsBool(IContext context);

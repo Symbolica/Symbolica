@@ -12,19 +12,6 @@ public class FloatToSignedTests
     [Theory]
     [ClassData(typeof(SingleToSignedTestData))]
     [ClassData(typeof(DoubleToSignedTestData))]
-    private void ShouldCreateEquivalentConstants(Bits size,
-        IValue value0,
-        IValue value1)
-    {
-        var result0 = FloatToSigned.Create(size, value0).AsConstant(Context);
-        var result1 = FloatToSigned.Create(size, value1).AsConstant(Context);
-
-        result0.Should().Be(result1);
-    }
-
-    [Theory]
-    [ClassData(typeof(SingleToSignedTestData))]
-    [ClassData(typeof(DoubleToSignedTestData))]
     private void ShouldCreateEquivalentBitVectors(Bits size,
         IValue value0,
         IValue value1)

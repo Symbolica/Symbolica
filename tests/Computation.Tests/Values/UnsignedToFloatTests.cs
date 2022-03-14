@@ -11,18 +11,6 @@ public class UnsignedToFloatTests
 
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
-    private void ShouldCreateEquivalentConstants(Bits size,
-        IValue value0,
-        IValue value1)
-    {
-        var result0 = UnsignedToFloat.Create(size, value0).AsConstant(Context);
-        var result1 = UnsignedToFloat.Create(size, value1).AsConstant(Context);
-
-        result0.Should().Be(result1);
-    }
-
-    [Theory]
-    [ClassData(typeof(ToFloatTestData))]
     private void ShouldCreateEquivalentBitVectors(Bits size,
         IValue value0,
         IValue value1)

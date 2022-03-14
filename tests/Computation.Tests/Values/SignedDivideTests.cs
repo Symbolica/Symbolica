@@ -10,18 +10,6 @@ public class SignedDivideTests
 
     [Theory]
     [ClassData(typeof(DivideTestData))]
-    private void ShouldCreateEquivalentConstants(
-        IValue left0, IValue right0,
-        IValue left1, IValue right1)
-    {
-        var result0 = SignedDivide.Create(left0, right0).AsConstant(Context);
-        var result1 = SignedDivide.Create(left1, right1).AsConstant(Context);
-
-        result0.Should().Be(result1);
-    }
-
-    [Theory]
-    [ClassData(typeof(DivideTestData))]
     private void ShouldCreateEquivalentBitVectors(
         IValue left0, IValue right0,
         IValue left1, IValue right1)

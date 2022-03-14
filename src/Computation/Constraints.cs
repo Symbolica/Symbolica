@@ -40,11 +40,9 @@ internal sealed class Constraints : IConstraints
 
     public BigInteger GetConstant(IValue value)
     {
-        var constant = value.AsConstant(_context);
-
-        return constant == GetValue(value)
-            ? constant
-            : throw new IrreducibleSymbolicExpressionException();
+        return value is Float && value.AsFloat(_context).Simplify().IsFPNaN
+            ? value.Size.GetNan(_context)
+            : AsConstant(value);
     }
 
     public BigInteger GetValue(IValue value)
@@ -56,6 +54,19 @@ internal sealed class Constraints : IConstraints
     {
         return _context.Evaluate().Select(p =>
             new KeyValuePair<string, string>(p.Key.Name.ToString(), p.Value.ToString()));
+    }
+
+    private BigInteger AsConstant(IValue value)
+    {
+        var expr = value.AsBitVector(_context).Simplify();
+
+        var constant = expr.IsNumeral
+            ? ((BitVecNum) expr).BigInteger
+            : throw new IrreducibleSymbolicExpressionException();
+
+        return constant == GetValue(value)
+            ? constant
+            : throw new IrreducibleSymbolicExpressionException();
     }
 
     public static IConstraints Create<TContext>()

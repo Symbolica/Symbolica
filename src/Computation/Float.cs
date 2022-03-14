@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -13,13 +12,6 @@ internal abstract class Float : IValue
     }
 
     public Bits Size { get; }
-
-    public BigInteger AsConstant(IContext context)
-    {
-        return AsFloat(context).Simplify().IsFPNaN
-            ? Size.GetNan(context)
-            : AsBitVector(context).AsConstant();
-    }
 
     public BitVecExpr AsBitVector(IContext context)
     {

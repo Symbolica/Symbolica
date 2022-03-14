@@ -12,19 +12,6 @@ public class FloatToUnsignedTests
     [Theory]
     [ClassData(typeof(SingleToUnsignedTestData))]
     [ClassData(typeof(DoubleToUnsignedTestData))]
-    private void ShouldCreateEquivalentConstants(Bits size,
-        IValue value0,
-        IValue value1)
-    {
-        var result0 = FloatToUnsigned.Create(size, value0).AsConstant(Context);
-        var result1 = FloatToUnsigned.Create(size, value1).AsConstant(Context);
-
-        result0.Should().Be(result1);
-    }
-
-    [Theory]
-    [ClassData(typeof(SingleToUnsignedTestData))]
-    [ClassData(typeof(DoubleToUnsignedTestData))]
     private void ShouldCreateEquivalentBitVectors(Bits size,
         IValue value0,
         IValue value1)
