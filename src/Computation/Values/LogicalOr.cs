@@ -21,7 +21,9 @@ internal sealed class LogicalOr : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkOr(_left.AsBool(context), _right.AsBool(context)));
+        using var t1 = _left.AsBool(context);
+        using var t2 = _right.AsBool(context);
+        return context.CreateExpr(c => c.MkOr(t1, t2));
     }
 
     private static IValue ShortCircuit(IValue left, ConstantBool right)

@@ -290,7 +290,7 @@ internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
         var isOverlapping = And.Create(_fields.Mask, Mask(Size, offset.Value, offset.FieldSize));
         using var proposition = assertions.GetProposition(isOverlapping);
 
-        return !proposition.CanBeTrue;
+        return !proposition.CanBeTrue();
     }
 
     private IValue Flatten()

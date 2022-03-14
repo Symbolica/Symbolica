@@ -12,6 +12,9 @@ internal abstract class BitVector : Integer
 
     public sealed override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkNot(c.MkEq(AsBitVector(context), c.MkBV(0U, (uint) Size))));
+        using var x = AsBitVector(context);
+        using var y = context.MkBV(0U, (uint) Size);
+        using var a = context.CreateExpr(c => c.MkEq(x, y));
+        return context.CreateExpr(c => c.MkNot(a));
     }
 }

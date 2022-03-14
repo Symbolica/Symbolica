@@ -22,7 +22,9 @@ internal sealed class Xor : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkBVXOR(_left.AsBitVector(context), _right.AsBitVector(context)));
+        using var t1 = _left.AsBitVector(context);
+        using var t2 = _right.AsBitVector(context);
+        return context.CreateExpr(c => c.MkBVXOR(t1, t2));
     }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)

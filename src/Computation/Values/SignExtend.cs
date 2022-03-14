@@ -20,7 +20,8 @@ internal sealed class SignExtend : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkSignExt((uint) (Size - _value.Size), _value.AsBitVector(context)));
+        using var t = _value.AsBitVector(context);
+        return context.CreateExpr(c => c.MkSignExt((uint) (Size - _value.Size), t));
     }
 
     public static IValue Create(Bits size, IValue value)

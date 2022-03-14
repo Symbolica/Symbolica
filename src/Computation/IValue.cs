@@ -21,7 +21,7 @@ internal interface IValue
     {
         var constant = assertions.GetValue(this);
         using var proposition = assertions.GetProposition(Equal.Create(constant, this));
-        if (proposition.CanBeFalse)
+        if (proposition.CanBeFalse())
             return this;
 
         return constant;

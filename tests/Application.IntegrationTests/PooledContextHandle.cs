@@ -17,6 +17,8 @@ internal sealed class PooledContextHandle : IContextHandle
 
     public Context Context { get; }
 
+    public long RefCount => throw new System.NotImplementedException();
+
     public void Dispose()
     {
         Contexts.Add(Context);

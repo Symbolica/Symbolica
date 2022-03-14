@@ -25,23 +25,26 @@ internal sealed class Select : IValue
 
     public BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => (BitVecExpr) c.MkITE(_predicate.AsBool(context),
-            _trueValue.AsBitVector(context),
-            _falseValue.AsBitVector(context)));
+        using var t1 = _predicate.AsBool(context);
+        using var t2 = _trueValue.AsBitVector(context);
+        using var t3 = _falseValue.AsBitVector(context);
+        return context.CreateExpr(c => (BitVecExpr) c.MkITE(t1, t2, t3));
     }
 
     public BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => (BoolExpr) c.MkITE(_predicate.AsBool(context),
-            _trueValue.AsBool(context),
-            _falseValue.AsBool(context)));
+        using var t1 = _predicate.AsBool(context);
+        using var t2 = _trueValue.AsBool(context);
+        using var t3 = _falseValue.AsBool(context);
+        return context.CreateExpr(c => (BoolExpr) c.MkITE(t1, t2, t3));
     }
 
     public FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => (FPExpr) c.MkITE(_predicate.AsBool(context),
-            _trueValue.AsFloat(context),
-            _falseValue.AsFloat(context)));
+        using var t1 = _predicate.AsBool(context);
+        using var t2 = _trueValue.AsFloat(context);
+        using var t3 = _falseValue.AsFloat(context);
+        return context.CreateExpr(c => (FPExpr) c.MkITE(t1, t2, t3));
     }
 
     public IValue BitCast(Bits targetSize) => this;

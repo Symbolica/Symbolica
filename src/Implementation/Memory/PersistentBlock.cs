@@ -37,13 +37,13 @@ internal sealed class PersistentBlock : IPersistentBlock
         var isFullyInside = IsFullyInside(space, address, value.Size.ToBytes());
         using var proposition = isFullyInside.GetProposition(space);
 
-        return proposition.CanBeFalse
-            ? proposition.CanBeTrue
+        return proposition.CanBeFalse()
+            ? proposition.CanBeTrue()
                 ? Result<IPersistentBlock>.Both(
-                    proposition.FalseSpace,
+                    proposition.FalseSpace(),
                     Write(space, GetOffset(space, address, isFullyInside), value))
                 : Result<IPersistentBlock>.Failure(
-                    proposition.FalseSpace)
+                    proposition.FalseSpace())
             : Result<IPersistentBlock>.Success(
                 Write(space, GetOffset(address), value));
     }
@@ -57,13 +57,13 @@ internal sealed class PersistentBlock : IPersistentBlock
         var isFullyInside = IsFullyInside(space, address, size.ToBytes());
         using var proposition = isFullyInside.GetProposition(space);
 
-        return proposition.CanBeFalse
-            ? proposition.CanBeTrue
+        return proposition.CanBeFalse()
+            ? proposition.CanBeTrue()
                 ? Result<IExpression>.Both(
-                    proposition.FalseSpace,
+                    proposition.FalseSpace(),
                     Read(space, GetOffset(space, address, isFullyInside), size))
                 : Result<IExpression>.Failure(
-                    proposition.FalseSpace)
+                    proposition.FalseSpace())
             : Result<IExpression>.Success(
                 Read(space, GetOffset(address), size));
     }
@@ -73,7 +73,7 @@ internal sealed class PersistentBlock : IPersistentBlock
         var isEqual = Address.Equal(address);
         using var proposition = isEqual.GetProposition(space);
 
-        return !proposition.CanBeFalse;
+        return !proposition.CanBeFalse();
     }
 
     private IExpression IsFullyInside(ISpace space, IExpression address, Bytes size)

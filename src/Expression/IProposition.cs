@@ -4,8 +4,9 @@ namespace Symbolica.Expression;
 
 public interface IProposition : IDisposable
 {
-    ISpace FalseSpace { get; }
-    ISpace TrueSpace { get; }
-    bool CanBeFalse { get; }
-    bool CanBeTrue { get; }
+    long RefCount { get; }
+    bool CanBeFalse();
+    bool CanBeTrue();
+    ISpace FalseSpace();
+    ISpace TrueSpace();
 }

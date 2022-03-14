@@ -6,8 +6,9 @@ namespace Symbolica.Computation;
 
 internal interface IContext : IDisposable
 {
-    void Assert(IEnumerable<BoolExpr> assertions);
-    void Assert(string name, IEnumerable<BoolExpr> assertions);
+    long RefCount { get; }
+    void Assert(ICollection<BoolExpr> assertions);
+    void Assert(string name, ICollection<BoolExpr> assertions);
     Status Check(BoolExpr assertion);
     BitVecNum Evaluate(BitVecExpr variable);
     IEnumerable<KeyValuePair<FuncDecl, Expr>> Evaluate();
@@ -17,4 +18,10 @@ internal interface IContext : IDisposable
 
     TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
         where TExpr : Expr;
+
+    BitVecNum MkBV(string v, uint size);
+
+    BitVecNum MkBV(uint v, uint size);
+
+    BitVecExpr MkBVConst(string name, uint size);
 }

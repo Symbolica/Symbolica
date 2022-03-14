@@ -21,7 +21,9 @@ internal sealed class UnsignedGreaterOrEqual : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkBVUGE(_left.AsBitVector(context), _right.AsBitVector(context)));
+        using var t1 = _left.AsBitVector(context);
+        using var t2 = _right.AsBitVector(context);
+        return context.CreateExpr(c => c.MkBVUGE(t1, t2));
     }
 
     public static IValue Create(IValue left, IValue right)

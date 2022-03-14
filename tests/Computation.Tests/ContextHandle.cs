@@ -11,6 +11,8 @@ internal sealed class ContextHandle : IContextHandle
 
     public Context Context { get; }
 
+    public long RefCount => throw new System.NotImplementedException();
+
     public void Dispose()
     {
         Context.Dispose();

@@ -36,8 +36,8 @@ public sealed class Return : IInstruction
         var result = _operands[0].Evaluate(state);
         using var proposition = result.GetProposition(state.Space);
 
-        if (proposition.CanBeTrue)
-            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace);
+        if (proposition.CanBeTrue())
+            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace());
 
         state.Complete();
     }

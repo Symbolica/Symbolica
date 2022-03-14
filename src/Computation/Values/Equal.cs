@@ -21,9 +21,20 @@ internal sealed class Equal : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return _left is Bool || _right is Bool
-            ? context.CreateExpr(c => c.MkEq(_left.AsBool(context), _right.AsBool(context)))
-            : context.CreateExpr(c => c.MkEq(_left.AsBitVector(context), _right.AsBitVector(context)));
+        (Expr, Expr) MakeExprs()
+        {
+            if (_left is Bool || _right is Bool)
+            {
+                return (_left.AsBool(context), _right.AsBool(context));
+            }
+
+            return (_left.AsBitVector(context), _right.AsBitVector(context));
+        }
+
+        var (t1, t2) = MakeExprs();
+        using (t1)
+        using (t2)
+            return context.CreateExpr(c => c.MkEq(t1, t2));
     }
 
     public static IValue Create(IValue left, IValue right)

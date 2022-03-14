@@ -7,6 +7,7 @@ namespace Symbolica.Computation;
 internal interface IConstraints : IDisposable
 {
     void Assert(IEnumerable<IValue> assertions);
+    long RefCount { get; }
     bool IsSatisfiable(IValue assertion);
     BigInteger GetConstant(IValue value);
     BigInteger GetValue(IValue value);

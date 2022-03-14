@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Z3;
-using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
@@ -22,7 +21,9 @@ internal sealed class LogicalShiftRight : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkBVLSHR(_left.AsBitVector(context), _right.AsBitVector(context)));
+        using var t1 = _left.AsBitVector(context);
+        using var t2 = _right.AsBitVector(context);
+        return context.CreateExpr(c => c.MkBVLSHR(t1, t2));
     }
 
     public static IValue Create(IValue left, IValue right)

@@ -19,7 +19,8 @@ internal sealed class Not : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkBVNot(_value.AsBitVector(context)));
+        using var t = _value.AsBitVector(context);
+        return context.CreateExpr(c => c.MkBVNot(t));
     }
 
     public static IValue Create(IValue value)

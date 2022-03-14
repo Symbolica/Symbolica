@@ -21,7 +21,9 @@ internal sealed class FloatCeiling : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPRoundToIntegral(c.MkFPRTP(), _value.AsFloat(context)));
+        using var rm = context.CreateExpr(c => c.MkFPRTP());
+        using var t = _value.AsFloat(context);
+        return context.CreateExpr(c => c.MkFPRoundToIntegral(rm, t));
     }
 
     public static IValue Create(IValue value)

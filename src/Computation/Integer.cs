@@ -22,7 +22,9 @@ internal abstract class Integer : IValue
 
     public FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPToFP(AsBitVector(context), Size.GetSort(context)));
+        using var sort = Size.GetSort(context);
+        using var bitVector = AsBitVector(context);
+        return context.CreateExpr(c => c.MkFPToFP(bitVector, sort));
     }
 
     public virtual IValue BitCast(Bits targetSize) => this;
@@ -33,7 +35,7 @@ internal abstract class Integer : IValue
     {
         var constant = assertions.GetValue(this);
         using var proposition = assertions.GetProposition(Equal.Create(constant, this));
-        if (proposition.CanBeFalse)
+        if (proposition.CanBeFalse())
             return this;
 
         return constant;

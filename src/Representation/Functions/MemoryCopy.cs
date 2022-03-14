@@ -26,8 +26,8 @@ internal sealed class MemoryCopy : IFunction
                 .And(source.UnsignedLess(destination.Add(length))));
         using var proposition = isInvalid.GetProposition(state.Space);
 
-        if (proposition.CanBeTrue)
-            throw new StateException(StateError.OverlappingMemoryCopy, proposition.TrueSpace);
+        if (proposition.CanBeTrue())
+            throw new StateException(StateError.OverlappingMemoryCopy, proposition.TrueSpace());
 
         state.ForkAll(length, new CopyMemory(destination, source));
     }

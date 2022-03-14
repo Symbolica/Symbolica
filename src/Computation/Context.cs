@@ -19,17 +19,28 @@ internal sealed class Context<TContextHandle> : IContext
         _solver = CreateSolver();
     }
 
+    public long RefCount => _contextHandle.RefCount;
+
     public void Dispose()
     {
+        _solver.Dispose();
         _contextHandle.Dispose();
     }
 
-    public void Assert(IEnumerable<BoolExpr> assertions)
+    public void Assert(ICollection<BoolExpr> assertions)
     {
-        _solver.Add(assertions);
+        try
+        {
+            _solver.Add(assertions);
+        }
+        finally
+        {
+            foreach (var assertion in assertions)
+                assertion.Dispose();
+        }
     }
 
-    public void Assert(string name, IEnumerable<BoolExpr> assertions)
+    public void Assert(string name, ICollection<BoolExpr> assertions)
     {
         if (_names.Contains(name))
             return;
@@ -45,12 +56,14 @@ internal sealed class Context<TContextHandle> : IContext
 
     public BitVecNum Evaluate(BitVecExpr variable)
     {
-        return (BitVecNum) CreateModel().Eval(variable, true);
+        using var model = CreateModel();
+        return (BitVecNum) model.Eval(variable, true);
     }
 
     public IEnumerable<KeyValuePair<FuncDecl, Expr>> Evaluate()
     {
-        return CreateModel().Consts;
+        using var model = CreateModel();
+        return model.Consts;
     }
 
     public TSort CreateSort<TSort>(Func<Context, TSort> func)
@@ -65,9 +78,29 @@ internal sealed class Context<TContextHandle> : IContext
         return Create(func);
     }
 
+    public BitVecNum MkBV(uint v, uint size)
+    {
+        using var sort = CreateSort(c => c.MkBitVecSort(size));
+        return (BitVecNum) Create(c => c.MkNumeral(v, sort));
+    }
+
+    public BitVecNum MkBV(string v, uint size)
+    {
+        using var sort = CreateSort(c => c.MkBitVecSort(size));
+        return (BitVecNum) Create(c => c.MkNumeral(v, sort));
+    }
+
+    public BitVecExpr MkBVConst(string name, uint size)
+    {
+        using var symbol = Create(c => c.MkSymbol(name));
+        using var sort = CreateSort(c => c.MkBitVecSort(size));
+        return (BitVecExpr) Create(c => c.MkConst(symbol, sort));
+    }
+
     private Solver CreateSolver()
     {
-        return Create(c => c.MkSolver(c.MkTactic("smt")));
+        using var tactic = Create(c => c.MkTactic("smt"));
+        return Create(c => c.MkSolver(tactic));
     }
 
     private TResult Create<TResult>(Func<Context, TResult> func)

@@ -37,14 +37,14 @@ internal record struct WriteOffset
                 Add.Create(Value, ConstantUnsigned.Create(Value.Size, (uint) FieldSize)),
                 Add.Create(offset, ConstantUnsigned.Create(offset.Size, (uint) size))));
         using var proposition = assertions.GetProposition(isBounded);
-        return !proposition.CanBeFalse;
+        return !proposition.CanBeFalse();
     }
 
     internal bool IsZero(IAssertions assertions)
     {
         var isZero = Equal.Create(Value, ConstantUnsigned.Zero(Value.Size));
         using var proposition = assertions.GetProposition(isZero);
-        return !proposition.CanBeFalse;
+        return !proposition.CanBeFalse();
     }
 
     internal WriteOffset Subtract(Bits aggregateSize, IValue offset)

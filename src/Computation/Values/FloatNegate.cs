@@ -20,7 +20,8 @@ internal sealed class FloatNegate : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPNeg(_value.AsFloat(context)));
+        using var t = _value.AsFloat(context);
+        return context.CreateExpr(c => c.MkFPNeg(t));
     }
 
     public static IValue Create(IValue value)

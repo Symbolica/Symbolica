@@ -23,9 +23,9 @@ internal sealed class Symbol : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        context.Assert(_name, _assertions.Select(a => a.AsBool(context)));
+        context.Assert(_name, _assertions.Select(a => a.AsBool(context)).ToList());
 
-        return context.CreateExpr(c => c.MkBVConst(_name, (uint) Size));
+        return context.MkBVConst(_name, (uint) Size);
     }
 
     public static IValue Create(Bits size, string name, IEnumerable<Func<IValue, IValue>> assertions)

@@ -20,6 +20,8 @@ internal sealed class RealToSigned : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkInt2BV((uint) Size, c.MkReal2Int(_value.AsReal(context))));
+        using var t = _value.AsReal(context);
+        using var t1 = context.CreateExpr(c => c.MkReal2Int(t));
+        return context.CreateExpr(c => c.MkInt2BV((uint) Size, t1));
     }
 }

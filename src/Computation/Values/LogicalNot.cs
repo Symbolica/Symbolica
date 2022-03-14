@@ -18,7 +18,8 @@ internal sealed class LogicalNot : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkNot(_value.AsBool(context)));
+        using var t = _value.AsBool(context);
+        return context.CreateExpr(c => c.MkNot(t));
     }
 
     public static IValue Create(IValue value)

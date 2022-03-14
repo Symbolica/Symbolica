@@ -20,8 +20,10 @@ internal sealed class UnsignedToFloat : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c =>
-            c.MkFPToFP(c.MkFPRNE(), _value.AsBitVector(context), Size.GetSort(context), false));
+        using var rm = context.CreateExpr(c => c.MkFPRNE());
+        using var t = _value.AsBitVector(context);
+        using var sort = Size.GetSort(context);
+        return context.CreateExpr(c => c.MkFPToFP(rm, t, sort, false));
     }
 
     public static IValue Create(Bits size, IValue value)

@@ -21,7 +21,10 @@ internal sealed class FloatConvert : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPToFP(c.MkFPRNE(), _value.AsFloat(context), Size.GetSort(context)));
+        using var rm = context.CreateExpr(c => c.MkFPRNE());
+        using var t = _value.AsFloat(context);
+        using var sort = Size.GetSort(context);
+        return context.CreateExpr(c => c.MkFPToFP(rm, t, sort));
     }
 
     public static IValue Create(Bits size, IValue value)

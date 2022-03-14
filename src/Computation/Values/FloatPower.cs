@@ -29,11 +29,11 @@ internal sealed class FloatPower : Float, IRealValue
 
     public RealExpr AsReal(IContext context)
     {
-        var left = _left is IRealValue l
+        using var left = _left is IRealValue l
             ? l.AsReal(context)
             : context.CreateExpr(c => c.MkFPToReal(_left.AsFloat(context)));
 
-        var right = _right is IRealValue r
+        using var right = _right is IRealValue r
             ? r.AsReal(context)
             : context.CreateExpr(c => c.MkFPToReal(_right.AsFloat(context)));
 

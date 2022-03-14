@@ -4,16 +4,22 @@ namespace Symbolica.Computation;
 
 internal sealed class ConstantProposition : IProposition
 {
+    private readonly ISpace _space;
+    private readonly bool _isTrue;
+
     private ConstantProposition(ISpace space, bool isTrue)
     {
-        TrueSpace = space;
-        CanBeTrue = isTrue;
+        _space = space;
+        _isTrue = isTrue;
     }
 
-    public ISpace FalseSpace => TrueSpace;
-    public ISpace TrueSpace { get; }
-    public bool CanBeFalse => !CanBeTrue;
-    public bool CanBeTrue { get; }
+    public long RefCount => 0;
+    public bool CanBeFalse() => !CanBeTrue();
+    public bool CanBeTrue() => _isTrue;
+
+    public ISpace FalseSpace() => _space;
+    public ISpace TrueSpace() => _space;
+
 
     public void Dispose()
     {

@@ -11,8 +11,8 @@ namespace Symbolica.Computation;
 
 internal sealed class Constraints : IConstraints
 {
-    private static readonly TextWriterTraceListener _solverTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/solves.txt"));
-    private static readonly TextWriterTraceListener _bigAssertionTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/big-assertions.txt"));
+    // private static readonly TextWriterTraceListener _solverTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/solves.txt"));
+    // private static readonly TextWriterTraceListener _bigAssertionTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/big-assertions.txt"));
 
     private readonly IContext _context;
 
@@ -28,8 +28,9 @@ internal sealed class Constraints : IConstraints
 
     public void Assert(IEnumerable<IValue> assertions)
     {
-        _context.Assert(assertions.Select(a => a.AsBool(_context)));
+        _context.Assert(assertions.Select(a => a.AsBool(_context)).ToList());
     }
+    public long RefCount => _context.RefCount;
 
     public bool IsSatisfiable(IValue assertion)
     {
@@ -39,21 +40,22 @@ internal sealed class Constraints : IConstraints
 
         var id = Guid.NewGuid();
 
-        if (AssertionCount(assertion) > 50)
-        {
-            var printedExpr = PrintAssertion(assertion, 0);
-            _bigAssertionTracer.WriteLine($"{id}, {printedExpr}");
-            _bigAssertionTracer.Flush();
-        }
+        // if (AssertionCount(assertion) > 50)
+        // {
+        //     var printedExpr = PrintAssertion(assertion, 0);
+        //     _bigAssertionTracer.WriteLine($"{id}, {printedExpr}");
+        //     _bigAssertionTracer.Flush();
+        // }
 
-        _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Starting satisfiability check.");
-        _solverTracer.Flush();
+        // _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Starting satisfiability check.");
+        // _solverTracer.Flush();
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        var status = _context.Check(assertion.AsBool(_context));
+        using var expr = assertion.AsBool(_context);
+        var status = _context.Check(expr);
         stopwatch.Stop();
-        _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Finished satisfiability check in {stopwatch.Elapsed}.");
-        _solverTracer.Flush();
+        // _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Finished satisfiability check in {stopwatch.Elapsed}.");
+        // _solverTracer.Flush();
 
         return status switch
         {
@@ -66,35 +68,49 @@ internal sealed class Constraints : IConstraints
 
     public BigInteger GetConstant(IValue value)
     {
-        return value is Float && value.AsFloat(_context).Simplify().IsFPNaN
+        bool IsFPNaN()
+        {
+            if (value is not Float)
+                return false;
+
+            using var flt = value.AsFloat(_context);
+            using var simplified = flt.Simplify();
+            return simplified.IsFPNaN;
+        }
+        return IsFPNaN()
             ? value.Size.GetNan(_context)
             : AsConstant(value);
     }
 
     public BigInteger GetValue(IValue value)
     {
-        var expr = value.AsBitVector(_context);
+        using var expr = value.AsBitVector(_context);
         var id = Guid.NewGuid();
-        _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Starting evaluation.");
-        _solverTracer.Flush();
+        // _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Starting evaluation.");
+        // _solverTracer.Flush();
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        var result = _context.Evaluate(expr).BigInteger;
+        using var result = _context.Evaluate(expr);
         stopwatch.Stop();
-        _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Finished evaluation in {stopwatch.Elapsed}.");
-        _solverTracer.Flush();
-        return result;
+        // _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Finished evaluation in {stopwatch.Elapsed}.");
+        // _solverTracer.Flush();
+        return result.BigInteger;
     }
 
     public IEnumerable<KeyValuePair<string, string>> GetValues()
     {
         return _context.Evaluate().Select(p =>
-            new KeyValuePair<string, string>(p.Key.Name.ToString(), p.Value.ToString()));
+        {
+            using var func = p.Key;
+            using var expr = p.Value;
+            return new KeyValuePair<string, string>(func.Name.ToString(), expr.ToString());
+        });
     }
 
     private BigInteger AsConstant(IValue value)
     {
-        var expr = value.AsBitVector(_context).Simplify();
+        using var bitVector = value.AsBitVector(_context);
+        using var expr = bitVector.Simplify();
 
         var constant = expr.IsNumeral
             ? ((BitVecNum) expr).BigInteger

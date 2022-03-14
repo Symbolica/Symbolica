@@ -22,7 +22,7 @@ internal sealed class NormalFloat : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        var sort = Size.GetSort(context);
+        using var sort = Size.GetSort(context);
         var (sign, significand, exponent) = ParseDecimal(_value);
 
         return significand.IsZero

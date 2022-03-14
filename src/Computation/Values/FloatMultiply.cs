@@ -22,7 +22,10 @@ internal sealed class FloatMultiply : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPMul(c.MkFPRNE(), _left.AsFloat(context), _right.AsFloat(context)));
+        using var rm = context.CreateExpr(c => c.MkFPRNE());
+        using var t1 = _left.AsFloat(context);
+        using var t2 = _right.AsFloat(context);
+        return context.CreateExpr(c => c.MkFPMul(rm, t1, t2));
     }
 
     public static IValue Create(IValue left, IValue right)
