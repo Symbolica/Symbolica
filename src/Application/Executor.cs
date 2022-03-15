@@ -28,7 +28,7 @@ internal sealed class Executor
         var spaceFactory = new SpaceFactory<TContextHandle>(collectionFactory);
         var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
-        using var statePool = new StatePool();
+        using var statePool = new StatePool(_options.MaxParallelism);
         statePool.Add(executableFactory.CreateInitial(module, _options));
 
         return await statePool.Wait();
