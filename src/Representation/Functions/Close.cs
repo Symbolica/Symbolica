@@ -15,7 +15,7 @@ internal sealed class Close : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var descriptor = (int) arguments.Get(0).Constant;
+        var descriptor = (int) arguments.Get(0).GetSingleValue(state.Space);
 
         var result = state.System.Close(descriptor);
 

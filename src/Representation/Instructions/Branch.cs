@@ -24,7 +24,7 @@ public sealed class Branch : IInstruction
 
     private void BranchUnconditional(IState state)
     {
-        var successorId = (BasicBlockId) (ulong) _operands[0].Evaluate(state).Constant;
+        var successorId = (BasicBlockId) (ulong) _operands[0].Evaluate(state).GetSingleValue(state.Space);
 
         state.Stack.TransferBasicBlock(successorId);
     }
@@ -32,8 +32,8 @@ public sealed class Branch : IInstruction
     private void BranchConditional(IState state)
     {
         var condition = _operands[0].Evaluate(state);
-        var falseSuccessorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).Constant;
-        var trueSuccessorId = (BasicBlockId) (ulong) _operands[2].Evaluate(state).Constant;
+        var falseSuccessorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).GetSingleValue(state.Space);
+        var trueSuccessorId = (BasicBlockId) (ulong) _operands[2].Evaluate(state).GetSingleValue(state.Space);
 
         state.Fork(condition,
             new TransferBasicBlock(trueSuccessorId),

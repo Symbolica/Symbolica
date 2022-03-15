@@ -9,8 +9,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class Expression<TContext> : IExpression
-    where TContext : IContext, new()
+internal sealed class Expression : IExpression
 {
     private readonly ICollectionFactory _collectionFactory;
     private readonly IValue _value;
@@ -24,20 +23,25 @@ internal sealed class Expression<TContext> : IExpression
 
     public Bits Size => _value.Size;
 
-    public BigInteger Constant => _value is IConstantValue v
-        ? v.AsUnsigned()
-        : AsConstant();
-
-    public IExpression GetValue(ISpace space)
+    public BigInteger GetSingleValue(ISpace space)
     {
-        return _value is IConstantValue
-            ? this
-            : Create(((IPersistentSpace) space).Assertions.GetValue);
+        return _value is IConstantValue v
+            ? v.AsUnsigned()
+            : GetSingleValue((IPersistentSpace) space);
+    }
+
+    public BigInteger GetExampleValue(ISpace space)
+    {
+        return _value is IConstantValue v
+            ? v.AsUnsigned()
+            : GetExampleValue((IPersistentSpace) space);
     }
 
     public IProposition GetProposition(ISpace space)
     {
-        return ((IPersistentSpace) space).Assertions.GetProposition(_value);
+        return _value is IConstantValue v
+            ? ConstantProposition.Create(space, v)
+            : SymbolicProposition.Create((IPersistentSpace) space, _value);
     }
 
     public IExpression Add(IExpression expression)
@@ -307,36 +311,43 @@ internal sealed class Expression<TContext> : IExpression
 
     private IExpression Create(Func<IValue, IValue> func)
     {
-        return new Expression<TContext>(_collectionFactory,
+        return new Expression(_collectionFactory,
             func(_value));
     }
 
     private IExpression Create(IExpression y, Func<IValue, IValue, IValue> func)
     {
         return Size == y.Size
-            ? new Expression<TContext>(_collectionFactory,
-                func(_value, ((Expression<TContext>) y)._value))
+            ? new Expression(_collectionFactory,
+                func(_value, ((Expression) y)._value))
             : throw new InconsistentExpressionSizesException(Size, y.Size);
     }
 
     private IExpression Create(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
     {
-        return new Expression<TContext>(_collectionFactory,
-            func(_value, ((Expression<TContext>) y)._value, ((Expression<TContext>) z)._value));
+        return new Expression(_collectionFactory,
+            func(_value, ((Expression) y)._value, ((Expression) z)._value));
     }
 
-    private BigInteger AsConstant()
+    private BigInteger GetSingleValue(IPersistentSpace space)
     {
-        using var constraints = Constraints.Create<TContext>();
+        using var constraints = space.GetConstraints();
 
-        return constraints.GetConstant(_value);
+        return constraints.GetSingleValue(_value);
+    }
+
+    private BigInteger GetExampleValue(IPersistentSpace space)
+    {
+        using var constraints = space.GetConstraints();
+
+        return constraints.GetExampleValue(_value);
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
         Bits size, string name, IEnumerable<Func<IExpression, IExpression>> assertions)
     {
-        return new Expression<TContext>(collectionFactory,
+        return new Expression(collectionFactory,
             Symbol.Create(size, name, assertions.Select(a => new Func<IValue, IValue>(
-                v => ((Expression<TContext>) a(new Expression<TContext>(collectionFactory, v)))._value))));
+                v => ((Expression) a(new Expression(collectionFactory, v)))._value))));
     }
 }

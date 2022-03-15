@@ -25,7 +25,6 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
     }
 
     public Bits PointerSize { get; }
-    public IAssertions Assertions => new Assertions(this);
 
     public IPersistentSpace Assert(IValue assertion)
     {
@@ -48,13 +47,13 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IExpression CreateConstant(Bits size, BigInteger value)
     {
-        return new Expression<TContext>(_collectionFactory,
+        return new Expression(_collectionFactory,
             ConstantUnsigned.Create(size, value));
     }
 
     public IExpression CreateConstantFloat(Bits size, string value)
     {
-        return new Expression<TContext>(_collectionFactory,
+        return new Expression(_collectionFactory,
             size.ParseFloat(value));
     }
 
@@ -72,7 +71,7 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions)
     {
-        return Expression<TContext>.CreateSymbolic(_collectionFactory,
+        return Expression.CreateSymbolic(_collectionFactory,
             size, name ?? Guid.NewGuid().ToString(), assertions);
     }
 

@@ -38,19 +38,19 @@ internal sealed class Constraints : IConstraints
         };
     }
 
-    public BigInteger GetConstant(IValue value)
+    public BigInteger GetSingleValue(IValue value)
     {
         return value is Float && value.AsFloat(_context).Simplify().IsFPNaN
             ? value.Size.GetNan(_context)
             : AsConstant(value);
     }
 
-    public BigInteger GetValue(IValue value)
+    public BigInteger GetExampleValue(IValue value)
     {
         return _context.Evaluate(value.AsBitVector(_context)).BigInteger;
     }
 
-    public IEnumerable<KeyValuePair<string, string>> GetValues()
+    public IEnumerable<KeyValuePair<string, string>> GetExampleValues()
     {
         return _context.Evaluate().Select(p =>
             new KeyValuePair<string, string>(p.Key.Name.ToString(), p.Value.ToString()));
@@ -64,7 +64,7 @@ internal sealed class Constraints : IConstraints
             ? ((BitVecNum) expr).BigInteger
             : throw new IrreducibleSymbolicExpressionException();
 
-        return constant == GetValue(value)
+        return constant == GetExampleValue(value)
             ? constant
             : throw new IrreducibleSymbolicExpressionException();
     }

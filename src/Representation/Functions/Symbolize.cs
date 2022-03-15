@@ -17,7 +17,7 @@ internal sealed class Symbolize : IFunction
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
         var address = arguments.Get(0);
-        var size = (Bytes) (uint) arguments.Get(1).Constant;
+        var size = (Bytes) (uint) arguments.Get(1).GetSingleValue(state.Space);
         var name = state.ReadString(arguments.Get(2));
 
         state.Memory.Write(address, state.Space.CreateSymbolic(size.ToBits(), name));

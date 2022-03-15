@@ -5,9 +5,9 @@ namespace Symbolica.Expression;
 public interface IExpression
 {
     Bits Size { get; }
-    BigInteger Constant { get; }
 
-    IExpression GetValue(ISpace space);
+    BigInteger GetSingleValue(ISpace space);
+    BigInteger GetExampleValue(ISpace space);
     IProposition GetProposition(ISpace space);
     IExpression Add(IExpression expression);
     IExpression And(IExpression expression);

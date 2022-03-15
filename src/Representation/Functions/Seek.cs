@@ -15,9 +15,9 @@ internal sealed class Seek : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var descriptor = (int) arguments.Get(0).Constant;
-        var offset = (long) arguments.Get(1).Constant;
-        var whence = (uint) arguments.Get(2).Constant;
+        var descriptor = (int) arguments.Get(0).GetSingleValue(state.Space);
+        var offset = (long) arguments.Get(1).GetSingleValue(state.Space);
+        var whence = (uint) arguments.Get(2).GetSingleValue(state.Space);
 
         var result = state.System.Seek(descriptor, offset, whence);
 
