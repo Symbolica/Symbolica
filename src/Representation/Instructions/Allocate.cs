@@ -19,7 +19,7 @@ public sealed class Allocate : IInstruction
 
     public void Execute(IState state)
     {
-        var size = _elementSize * (uint) _operands[0].Evaluate(state).Constant;
+        var size = _elementSize * (uint) _operands[0].Evaluate(state).GetSingleValue(state.Space);
         var address = state.Stack.Allocate(size);
 
         state.Stack.SetVariable(Id, address);

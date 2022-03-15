@@ -17,7 +17,7 @@ internal static class StateExtensions
     {
         while (true)
         {
-            var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).Constant;
+            var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).GetSingleValue(state.Space);
             if (character == default)
                 yield break;
 
@@ -28,11 +28,11 @@ internal static class StateExtensions
 
     public static void ForkAll(this IState self, IExpression expression, IParameterizedStateAction action)
     {
-        var value = expression.GetValue(self.Space);
-        var isEqual = expression.Equal(value);
+        var value = expression.GetExampleValue(self.Space);
+        var isEqual = expression.Equal(self.Space.CreateConstant(expression.Size, value));
 
         self.Fork(isEqual,
-            new Action(action, value.Constant),
+            new Action(action, value),
             new Fork(action, expression));
     }
 

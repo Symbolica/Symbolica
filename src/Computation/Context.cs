@@ -31,11 +31,8 @@ internal sealed class Context<TContextHandle> : IContext
 
     public void Assert(string name, IEnumerable<BoolExpr> assertions)
     {
-        if (_names.Contains(name))
-            return;
-
-        _names.Add(name);
-        Assert(assertions);
+        if (_names.Add(name))
+            Assert(assertions);
     }
 
     public Status Check(BoolExpr assertion)

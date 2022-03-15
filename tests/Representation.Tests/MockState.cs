@@ -18,7 +18,7 @@ internal static class MockState
         var mockStack = new Mock<IStack>(MockBehavior.Strict);
         mockStack
             .Setup(s => s.SetVariable(instructionId, It.IsAny<IExpression>()))
-            .Callback<InstructionId, IExpression>((_, e) => callback((Nibble) e.Constant));
+            .Callback<InstructionId, IExpression>((_, e) => callback((Nibble) e.GetSingleValue(mockSpace.Object)));
 
         var mockState = new Mock<IState>(MockBehavior.Strict);
         mockState

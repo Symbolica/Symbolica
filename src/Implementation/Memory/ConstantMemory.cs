@@ -120,7 +120,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     private (int, Allocation) GetAllocation(ISpace space, IExpression address)
     {
-        var key = new Allocation((Bytes) (uint) address.GetValue(space).Constant, _blockFactory.CreateInvalid());
+        var key = new Allocation((Bytes) (uint) address.GetExampleValue(space), _blockFactory.CreateInvalid());
         var result = _allocations.BinarySearch(key);
 
         var index = result < 0

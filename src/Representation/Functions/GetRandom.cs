@@ -17,10 +17,10 @@ internal sealed class GetRandom : IFunction
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
         var address = arguments.Get(0);
-        var size = (Bytes) (uint) arguments.Get(1).Constant;
+        var length = arguments.Get(1).GetSingleValue(state.Space);
+        var size = (Bytes) (uint) length;
 
         state.Memory.Write(address, state.Space.CreateGarbage(size.ToBits()));
-
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, arguments.Get(1).Constant));
+        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, length));
     }
 }

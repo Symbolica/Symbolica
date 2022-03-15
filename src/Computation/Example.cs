@@ -28,6 +28,6 @@ internal sealed class Example : IExample
     {
         using var constraints = space.GetConstraints();
 
-        return new Example(constraints.GetValues().ToArray());
+        return new Example(constraints.GetExampleValues().ToArray());
     }
 }
