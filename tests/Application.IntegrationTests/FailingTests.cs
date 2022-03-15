@@ -24,7 +24,7 @@ public class FailingTests
 
         var stateException = exception.Should().BeOfType<StateException>();
         stateException.Which.Error.Should().Be(error);
-        stateException.Which.Space.GetExample().Select(p => p.Key).Should().BeEquivalentTo(symbols);
+        stateException.Which.Example.Select(p => p.Key).Should().BeEquivalentTo(symbols);
     }
 
     private sealed class TestData : TheoryData<string, string, Options, StateError, string[]>

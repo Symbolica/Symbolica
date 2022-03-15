@@ -22,7 +22,7 @@ public sealed class SignedDivide : IInstruction
         using var proposition = right.GetProposition(state.Space);
 
         if (proposition.CanBeFalse)
-            throw new StateException(StateError.DivideByZero, proposition.FalseSpace);
+            throw new StateException(StateError.DivideByZero, proposition.FalseSpace.GetExample());
 
         var result = left.SignedDivide(right);
 

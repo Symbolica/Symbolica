@@ -18,7 +18,7 @@ if (exception != null)
     Console.WriteLine(exception.Message);
 
     if (exception is StateException stateException)
-        Console.WriteLine(string.Join(", ", stateException.Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
+        Console.WriteLine(string.Join(", ", stateException.Example.Select(p => $"{p.Key}={p.Value}")));
 
     return 1;
 }

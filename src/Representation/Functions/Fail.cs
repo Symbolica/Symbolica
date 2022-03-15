@@ -15,6 +15,6 @@ internal sealed class Fail : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        throw new StateException(StateError.FailingAssertion, state.Space);
+        throw new StateException(StateError.FailingAssertion, state.Space.GetExample());
     }
 }

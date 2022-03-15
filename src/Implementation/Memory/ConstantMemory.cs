@@ -38,7 +38,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         var (index, allocation) = GetAllocation(space, address);
 
         if (!allocation.Block.CanFree(space, section, address))
-            throw new StateException(StateError.InvalidMemoryMove, space);
+            throw new StateException(StateError.InvalidMemoryMove, space.GetExample());
 
         var freedAllocation = new Allocation(allocation.Address, _blockFactory.CreateInvalid());
 
@@ -55,7 +55,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         var (index, allocation) = GetAllocation(space, address);
 
         if (!allocation.Block.CanFree(space, section, address))
-            throw new StateException(StateError.InvalidMemoryFree, space);
+            throw new StateException(StateError.InvalidMemoryFree, space.GetExample());
 
         var freedAllocation = new Allocation(allocation.Address, _blockFactory.CreateInvalid());
 
@@ -73,7 +73,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             var result = allocation.Block.TryWrite(space, address, value);
 
             if (!result.CanBeSuccess)
-                throw new StateException(StateError.InvalidMemoryWrite, space);
+                throw new StateException(StateError.InvalidMemoryWrite, space.GetExample());
 
             newAllocations.Add(KeyValuePair.Create(index, new Allocation(allocation.Address, result.Value)));
 
@@ -95,7 +95,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             var result = allocation.Block.TryRead(space, address, size);
 
             if (!result.CanBeSuccess)
-                throw new StateException(StateError.InvalidMemoryRead, space);
+                throw new StateException(StateError.InvalidMemoryRead, space.GetExample());
 
             expression = expression.Or(result.Value);
 

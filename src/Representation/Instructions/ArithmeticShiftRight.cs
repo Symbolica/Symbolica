@@ -23,7 +23,7 @@ public sealed class ArithmeticShiftRight : IInstruction
         using var proposition = isUndefined.GetProposition(state.Space);
 
         if (proposition.CanBeTrue)
-            throw new StateException(StateError.UndefinedShift, proposition.TrueSpace);
+            throw new StateException(StateError.UndefinedShift, proposition.TrueSpace.GetExample());
 
         var result = left.ArithmeticShiftRight(right);
 

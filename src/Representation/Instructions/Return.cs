@@ -37,7 +37,7 @@ public sealed class Return : IInstruction
         using var proposition = result.GetProposition(state.Space);
 
         if (proposition.CanBeTrue)
-            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace);
+            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace.GetExample());
 
         state.Complete();
     }

@@ -43,7 +43,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
                     _blocks.SetItem(index, newBlock)));
             }
 
-        throw new StateException(StateError.InvalidMemoryMove, space);
+        throw new StateException(StateError.InvalidMemoryMove, space.GetExample());
     }
 
     public IPersistentMemory Free(ISpace space, Section section, IExpression address)
@@ -53,7 +53,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
                 return new SymbolicMemory(_alignment, _blockFactory,
                     _blocks.SetItem(index, _blockFactory.CreateInvalid()));
 
-        throw new StateException(StateError.InvalidMemoryFree, space);
+        throw new StateException(StateError.InvalidMemoryFree, space.GetExample());
     }
 
     public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
@@ -76,7 +76,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
             space = result.FailureSpace;
         }
 
-        throw new StateException(StateError.InvalidMemoryWrite, space);
+        throw new StateException(StateError.InvalidMemoryWrite, space.GetExample());
     }
 
     public IExpression Read(ISpace space, IExpression address, Bits size)
@@ -98,7 +98,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
             space = result.FailureSpace;
         }
 
-        throw new StateException(StateError.InvalidMemoryRead, space);
+        throw new StateException(StateError.InvalidMemoryRead, space.GetExample());
     }
 
     private IExpression CreateAddress(ISpace space, Bytes size)

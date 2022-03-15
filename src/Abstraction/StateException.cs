@@ -6,13 +6,13 @@ namespace Symbolica.Abstraction;
 [Serializable]
 public class StateException : ErrorException
 {
-    public StateException(StateError error, ISpace space)
+    public StateException(StateError error, IExample example)
         : base(error.ToString())
     {
         Error = error;
-        Space = space;
+        Example = example;
     }
 
     public StateError Error { get; }
-    public ISpace Space { get; }
+    public IExample Example { get; }
 }

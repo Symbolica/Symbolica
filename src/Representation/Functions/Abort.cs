@@ -15,6 +15,6 @@ internal sealed class Abort : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        throw new StateException(StateError.Abort, state.Space);
+        throw new StateException(StateError.Abort, state.Space.GetExample());
     }
 }

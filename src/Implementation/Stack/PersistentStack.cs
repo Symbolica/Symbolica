@@ -78,7 +78,7 @@ internal sealed class PersistentStack : IPersistentStack
             }
 
             if (stack.IsInitialFrame)
-                throw new StateException(StateError.InvalidJump, space);
+                throw new StateException(StateError.InvalidJump, space.GetExample());
 
             stack = stack.Pop(memory);
         }
