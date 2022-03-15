@@ -12,7 +12,7 @@ public class PassingTests
 {
     [Theory]
     [ClassData(typeof(TestData))]
-    private async Task ShouldPass(string directory, string optimization, Options options)
+    private async Task ShouldPass(DirectoryInfo directory, string optimization, Options options)
     {
         var bytes = await Serializer.Serialize(directory, optimization);
         var executor = new Executor(options);
@@ -22,7 +22,7 @@ public class PassingTests
         exception.Should().BeNull();
     }
 
-    private sealed class TestData : TheoryData<string, string, Options>
+    private sealed class TestData : TheoryData<DirectoryInfo, string, Options>
     {
         public TestData()
         {
@@ -33,10 +33,10 @@ public class PassingTests
         private static IEnumerable<(string, string, Options)> SignCases()
         {
             return
-                from optimization in new[] {"--O0", "--O1", "--O2", "--Os", "--Oz"}
-                from useSymbolicGarbage in new[] {false, true}
-                from useSymbolicAddresses in new[] {false, true}
-                from useSymbolicContinuations in new[] {false, true}
+                from optimization in new[] { "--O0", "--O1", "--O2", "--Os", "--Oz" }
+                from useSymbolicGarbage in new[] { false, true }
+                from useSymbolicAddresses in new[] { false, true }
+                from useSymbolicContinuations in new[] { false, true }
                 select (
                     "sign",
                     optimization,
@@ -46,9 +46,9 @@ public class PassingTests
         private static IEnumerable<(string, string, Options)> DivideCases()
         {
             return
-                from useSymbolicGarbage in new[] {false, true}
-                from useSymbolicAddresses in new[] {false, true}
-                from useSymbolicContinuations in new[] {false, true}
+                from useSymbolicGarbage in new[] { false, true }
+                from useSymbolicAddresses in new[] { false, true }
+                from useSymbolicContinuations in new[] { false, true }
                 select (
                     "divide",
                     "--O0",
@@ -58,7 +58,10 @@ public class PassingTests
         private void Add(IEnumerable<(string, string, Options)> cases)
         {
             foreach (var (directory, optimization, options) in cases)
-                Add(Path.Combine("..", "..", "..", "..", "pass", directory), optimization, options);
+                Add(
+                    new DirectoryInfo(Path.Combine("..", "..", "..", "..", "pass", directory)),
+                    optimization,
+                    options);
         }
     }
 }
