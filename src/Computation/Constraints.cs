@@ -69,9 +69,8 @@ internal sealed class Constraints : IConstraints
             : throw new IrreducibleSymbolicExpressionException();
     }
 
-    public static IConstraints Create<TContext>()
-        where TContext : IContext, new()
+    public static IConstraints Create()
     {
-        return new Constraints(new TContext());
+        return new Constraints(ContextProxy.Create());
     }
 }

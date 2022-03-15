@@ -6,7 +6,7 @@ namespace Symbolica.Computation.Values;
 
 public class FloatPowerTests
 {
-    private static readonly Context<ContextHandle> Context = new();
+    private static readonly IContext Context = ContextProxy.Create();
 
     [Theory]
     [ClassData(typeof(SinglePowerTestData))]

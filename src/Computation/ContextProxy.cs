@@ -5,23 +5,22 @@ using Symbolica.Computation.Exceptions;
 
 namespace Symbolica.Computation;
 
-internal sealed class Context<TContextHandle> : IContext
-    where TContextHandle : IContextHandle, new()
+internal sealed class ContextProxy : IContext
 {
-    private readonly TContextHandle _contextHandle;
+    private readonly Context _context;
     private readonly ISet<string> _names;
     private readonly Solver _solver;
 
-    public Context()
+    private ContextProxy(Context context, Solver solver)
     {
+        _context = context;
+        _solver = solver;
         _names = new HashSet<string>();
-        _contextHandle = new TContextHandle();
-        _solver = CreateSolver();
     }
 
     public void Dispose()
     {
-        _contextHandle.Dispose();
+        _context.Dispose();
     }
 
     public void Assert(IEnumerable<BoolExpr> assertions)
@@ -53,23 +52,13 @@ internal sealed class Context<TContextHandle> : IContext
     public TSort CreateSort<TSort>(Func<Context, TSort> func)
         where TSort : Sort
     {
-        return Create(func);
+        return func(_context);
     }
 
     public TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
         where TExpr : Expr
     {
-        return Create(func);
-    }
-
-    private Solver CreateSolver()
-    {
-        return Create(c => c.MkSolver(c.MkTactic("smt")));
-    }
-
-    private TResult Create<TResult>(Func<Context, TResult> func)
-    {
-        return func(_contextHandle.Context);
+        return func(_context);
     }
 
     private Model CreateModel()
@@ -79,5 +68,12 @@ internal sealed class Context<TContextHandle> : IContext
         return status == Status.SATISFIABLE
             ? _solver.Model
             : throw new InvalidModelException(status);
+    }
+
+    public static IContext Create()
+    {
+        var context = new Context();
+
+        return new ContextProxy(context, context.MkSolver(context.MkTactic("smt")));
     }
 }

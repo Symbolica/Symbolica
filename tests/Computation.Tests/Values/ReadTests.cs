@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Symbolica.Collection;
 using Symbolica.Computation.Values.TestData;
 using Symbolica.Expression;
 using Xunit;
@@ -7,8 +8,8 @@ namespace Symbolica.Computation.Values;
 
 public class ReadTests
 {
-    private static readonly CollectionFactory CollectionFactory = new();
-    private static readonly Context<ContextHandle> Context = new();
+    private static readonly ICollectionFactory CollectionFactory = new CollectionFactory();
+    private static readonly IContext Context = ContextProxy.Create();
 
     [Theory]
     [ClassData(typeof(ReadTestData))]
