@@ -12,12 +12,12 @@ internal sealed class StatePool : IDisposable
     private Exception? _exception;
     private ulong _executedInstructions;
 
-    public StatePool(int maxParallelism)
+    public StatePool()
     {
         _countdownEvent = new CountdownEvent(1);
         _exception = null;
         _executedInstructions = 0UL;
-        _throttler = new SemaphoreSlim(maxParallelism);
+        _throttler = new SemaphoreSlim(Environment.ProcessorCount * 8);
     }
 
     public void Dispose()
@@ -31,7 +31,6 @@ internal sealed class StatePool : IDisposable
         Task.Run(async () =>
         {
             await _throttler.WaitAsync();
-            var exeId = Guid.NewGuid();
             try
             {
                 foreach (var child in executable.Run())

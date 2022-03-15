@@ -6,16 +6,10 @@ using Symbolica.Computation;
 using Symbolica.Implementation;
 
 var bytes = await Serializer.Serialize(args[0], args.LastOrDefault(a => a.StartsWith("--O")) ?? "--O0");
-
 var executor = new Executor(new Options(
-    int.TryParse(
-        args.LastOrDefault(a => a.StartsWith("--max-parallelism="))?.Replace("--max-parallelism=", string.Empty),
-        out var maxParallelism)
-    ? maxParallelism
-    : null,
+    args.Contains("--use-symbolic-garbage"),
     args.Contains("--use-symbolic-addresses"),
-    args.Contains("--use-symbolic-continuations"),
-    args.Contains("--use-symbolic-garbage")));
+    args.Contains("--use-symbolic-continuations")));
 
 var (executedInstructions, exception) = await executor.Run<ContextHandle>(bytes);
 Console.WriteLine($"Executed {executedInstructions} instructions.");
