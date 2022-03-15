@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class SymbolicSingle : Float
+internal sealed record SymbolicSingle : Float
 {
     private readonly float _value;
 

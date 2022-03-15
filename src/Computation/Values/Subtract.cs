@@ -2,7 +2,7 @@
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Subtract : BitVector
+internal sealed record Subtract : BitVector
 {
     private readonly IValue _left;
     private readonly IValue _right;

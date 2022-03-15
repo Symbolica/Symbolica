@@ -6,7 +6,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class Symbol : BitVector
+internal sealed record Symbol : BitVector
 {
     private readonly IValue[] _assertions;
     private readonly string _name;

@@ -3,7 +3,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Multiply : BitVector
+internal sealed record Multiply : BitVector
 {
     private readonly IValue _left;
     private readonly IValue _right;

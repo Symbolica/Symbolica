@@ -4,7 +4,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class FloatConvert : Float
+internal sealed record FloatConvert : Float
 {
     private readonly IValue _value;
 

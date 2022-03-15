@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Truncate : BitVector
+internal sealed record Truncate : BitVector
 {
     private readonly IValue _value;
 

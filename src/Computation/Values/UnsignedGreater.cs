@@ -2,7 +2,7 @@
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class UnsignedGreater : Bool
+internal sealed record UnsignedGreater : Bool
 {
     private readonly IValue _left;
     private readonly IValue _right;

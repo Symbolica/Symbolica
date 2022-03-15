@@ -2,7 +2,7 @@
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class LogicalNot : Bool
+internal sealed record LogicalNot : Bool
 {
     private readonly Logical _value;
 
@@ -27,7 +27,7 @@ internal sealed class LogicalNot : Bool
         };
     }
 
-    private sealed class Logical : Bool
+    private sealed record Logical : Bool
     {
         private readonly IValue _value;
 

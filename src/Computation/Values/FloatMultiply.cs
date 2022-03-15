@@ -3,7 +3,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class FloatMultiply : Float
+internal sealed record FloatMultiply : Float
 {
     private readonly IValue _left;
     private readonly IValue _right;

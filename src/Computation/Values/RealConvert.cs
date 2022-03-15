@@ -4,7 +4,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class RealConvert : Float, IRealValue
+internal sealed record RealConvert : Float, IRealValue
 {
     private readonly IRealValue _value;
 

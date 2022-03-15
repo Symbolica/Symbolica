@@ -7,7 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values.Constants;
 
-internal sealed class ConstantSingle : Float, IConstantValue
+internal sealed record ConstantSingle : Float, IConstantValue
 {
     private readonly float _value;
 

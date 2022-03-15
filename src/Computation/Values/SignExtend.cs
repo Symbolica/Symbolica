@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class SignExtend : BitVector
+internal sealed record SignExtend : BitVector
 {
     private readonly IValue _value;
 

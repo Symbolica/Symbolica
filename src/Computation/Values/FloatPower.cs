@@ -5,7 +5,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class FloatPower : Float, IRealValue
+internal sealed record FloatPower : Float, IRealValue
 {
     private readonly IValue _left;
     private readonly IValue _right;

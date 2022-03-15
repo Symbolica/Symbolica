@@ -3,7 +3,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class LogicalOr : Bool
+internal sealed record LogicalOr : Bool
 {
     private readonly IValue _left;
     private readonly IValue _right;

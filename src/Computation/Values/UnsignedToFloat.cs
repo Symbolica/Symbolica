@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class UnsignedToFloat : Float
+internal sealed record UnsignedToFloat : Float
 {
     private readonly IValue _value;
 

@@ -5,7 +5,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class FloatToUnsigned : BitVector
+internal sealed record FloatToUnsigned : BitVector
 {
     private readonly IValue _value;
 

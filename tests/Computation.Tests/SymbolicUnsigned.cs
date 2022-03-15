@@ -4,7 +4,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation;
 
-internal sealed class SymbolicUnsigned : BitVector
+internal sealed record SymbolicUnsigned : BitVector
 {
     private readonly BigInteger _value;
 

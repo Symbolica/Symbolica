@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal abstract class Integer : IValue
+internal abstract record Integer : IValue
 {
     protected Integer(Bits size)
     {

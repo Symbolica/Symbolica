@@ -3,7 +3,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class FloatNegate : Float
+internal sealed record FloatNegate : Float
 {
     private readonly IValue _value;
 
