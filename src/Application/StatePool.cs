@@ -8,6 +8,7 @@ namespace Symbolica;
 internal sealed class StatePool : IDisposable
 {
     private readonly CountdownEvent _countdownEvent;
+    private readonly SemaphoreSlim _throttler;
     private Exception? _exception;
     private ulong _executedInstructions;
 
@@ -16,6 +17,7 @@ internal sealed class StatePool : IDisposable
         _countdownEvent = new CountdownEvent(1);
         _exception = null;
         _executedInstructions = 0UL;
+        _throttler = new SemaphoreSlim(Environment.ProcessorCount * 8);
     }
 
     public void Dispose()
@@ -26,9 +28,9 @@ internal sealed class StatePool : IDisposable
     public void Add(IExecutable executable)
     {
         _countdownEvent.AddCount();
-
-        Task.Run(() =>
+        Task.Run(async () =>
         {
+            await _throttler.WaitAsync();
             try
             {
                 foreach (var child in executable.Run())
@@ -42,6 +44,7 @@ internal sealed class StatePool : IDisposable
             finally
             {
                 Interlocked.Add(ref _executedInstructions, executable.ExecutedInstructions);
+                _throttler.Release();
                 _countdownEvent.Signal();
             }
         });
