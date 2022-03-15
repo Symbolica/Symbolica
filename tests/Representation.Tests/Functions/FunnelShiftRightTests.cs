@@ -15,10 +15,11 @@ public class FunnelShiftRightTests
 
         var function = new FunnelShiftRight((FunctionId) 456UL, MockParameters.Create());
 
-        function.Call(
-            MockState.Create((InstructionId) 123UL, v => { actual = v; }),
-            MockCaller.Create((InstructionId) 123UL),
-            MockArguments.Create(high, low, shift));
+        var state = MockState.Create((InstructionId) 123UL, v => { actual = v; });
+        var caller = MockCaller.Create((InstructionId) 123UL);
+        var arguments = MockArguments.Create(state.Space, high, low, shift);
+
+        function.Call(state, caller, arguments);
 
         var expected = ConcatenateThenShiftRightThenExtractLow(
             high,

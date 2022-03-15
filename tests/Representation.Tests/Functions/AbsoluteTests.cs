@@ -14,10 +14,11 @@ public class AbsoluteTests
 
         var function = new Absolute((FunctionId) 456UL, MockParameters.Create());
 
-        function.Call(
-            MockState.Create((InstructionId) 123UL, v => { actual = v; }),
-            MockCaller.Create((InstructionId) 123UL),
-            MockArguments.Create(value));
+        var state = MockState.Create((InstructionId) 123UL, v => { actual = v; });
+        var caller = MockCaller.Create((InstructionId) 123UL);
+        var arguments = MockArguments.Create(state.Space, value);
+
+        function.Call(state, caller, arguments);
 
         var expected = value.B3
             ? -value
