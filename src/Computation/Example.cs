@@ -26,8 +26,6 @@ internal sealed class Example : IExample
 
     public static IExample Create(IPersistentSpace space)
     {
-        using var constraints = space.GetConstraints();
-
-        return new Example(constraints.GetExampleValues().ToArray());
+        return new Example(space.Constraints.GetExampleValues().ToArray());
     }
 }

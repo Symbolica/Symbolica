@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Symbolica.Implementation;
 
-public interface IExecutable
+public interface IExecutable : IDisposable
 {
     ulong ExecutedInstructions { get; }
 

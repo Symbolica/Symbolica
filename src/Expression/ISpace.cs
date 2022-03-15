@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Symbolica.Expression;
 
-public interface ISpace
+public interface ISpace : IDisposable
 {
     Bits PointerSize { get; }
 

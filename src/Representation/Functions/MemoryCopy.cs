@@ -24,10 +24,14 @@ internal sealed class MemoryCopy : IFunction
         var isInvalid = destination.NotEqual(source)
             .And(destination.UnsignedLess(source.Add(length))
                 .And(source.UnsignedLess(destination.Add(length))));
-        using var proposition = isInvalid.GetProposition(state.Space);
+        var proposition = isInvalid.GetProposition(state.Space);
 
         if (proposition.CanBeTrue)
-            throw new StateException(StateError.OverlappingMemoryCopy, proposition.TrueSpace.GetExample());
+        {
+            using var space = proposition.TrueSpace;
+
+            throw new StateException(StateError.OverlappingMemoryCopy, space.GetExample());
+        }
 
         state.ForkAll(length, new CopyMemory(destination, source));
     }

@@ -15,10 +15,6 @@ internal sealed class ConstantProposition : IProposition
     public bool CanBeFalse => !CanBeTrue;
     public bool CanBeTrue { get; }
 
-    public void Dispose()
-    {
-    }
-
     public static IProposition Create(ISpace space, IConstantValue value)
     {
         return new ConstantProposition(space, value.AsBool());

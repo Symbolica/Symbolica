@@ -27,14 +27,14 @@ internal sealed class Expression : IExpression
     {
         return _value is IConstantValue v
             ? v.AsUnsigned()
-            : GetSingleValue((IPersistentSpace) space);
+            : ((IPersistentSpace) space).Constraints.GetSingleValue(_value);
     }
 
     public BigInteger GetExampleValue(ISpace space)
     {
         return _value is IConstantValue v
             ? v.AsUnsigned()
-            : GetExampleValue((IPersistentSpace) space);
+            : ((IPersistentSpace) space).Constraints.GetExampleValue(_value);
     }
 
     public IProposition GetProposition(ISpace space)
@@ -327,20 +327,6 @@ internal sealed class Expression : IExpression
     {
         return new Expression(_collectionFactory,
             func(_value, ((Expression) y)._value, ((Expression) z)._value));
-    }
-
-    private BigInteger GetSingleValue(IPersistentSpace space)
-    {
-        using var constraints = space.GetConstraints();
-
-        return constraints.GetSingleValue(_value);
-    }
-
-    private BigInteger GetExampleValue(IPersistentSpace space)
-    {
-        using var constraints = space.GetConstraints();
-
-        return constraints.GetExampleValue(_value);
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,

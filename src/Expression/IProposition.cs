@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace Symbolica.Expression;
 
-namespace Symbolica.Expression;
-
-public interface IProposition : IDisposable
+public interface IProposition
 {
     ISpace FalseSpace { get; }
     ISpace TrueSpace { get; }

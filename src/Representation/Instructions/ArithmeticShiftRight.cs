@@ -20,10 +20,14 @@ public sealed class ArithmeticShiftRight : IInstruction
         var right = _operands[1].Evaluate(state);
 
         var isUndefined = right.UnsignedGreaterOrEqual(state.Space.CreateConstant(right.Size, (uint) left.Size));
-        using var proposition = isUndefined.GetProposition(state.Space);
+        var proposition = isUndefined.GetProposition(state.Space);
 
         if (proposition.CanBeTrue)
-            throw new StateException(StateError.UndefinedShift, proposition.TrueSpace.GetExample());
+        {
+            using var space = proposition.TrueSpace;
+
+            throw new StateException(StateError.UndefinedShift, space.GetExample());
+        }
 
         var result = left.ArithmeticShiftRight(right);
 

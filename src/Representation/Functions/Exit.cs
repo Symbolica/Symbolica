@@ -16,10 +16,14 @@ internal sealed class Exit : IFunction
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
         var code = arguments.Get(0);
-        using var proposition = code.GetProposition(state.Space);
+        var proposition = code.GetProposition(state.Space);
 
         if (proposition.CanBeTrue)
-            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace.GetExample());
+        {
+            using var space = proposition.TrueSpace;
+
+            throw new StateException(StateError.NonZeroExitCode, space.GetExample());
+        }
 
         state.Complete();
     }

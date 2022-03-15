@@ -25,15 +25,13 @@ public sealed class ExecutableFactory
 
     public IExecutable CreateInitial(IModule module, Options options)
     {
-        var space = _spaceFactory.CreateInitial(module.PointerSize, options.UseSymbolicGarbage);
+        return State.CreateInitial(_spaceFactory, module, options,
+            CreateGlobals(module), CreateMemory(module, options), CreateStack(module, options), CreateSystem(module));
+    }
 
-        var globals = PersistentGlobals.Create(module, _collectionFactory);
-        var memory = new MemoryProxy(space, CreateMemory(module, options));
-        var stack = new StackProxy(space, memory, CreateStack(module, options));
-        var system = new SystemProxy(space, memory, CreateSystem(module));
-
-        return new State(new NoOp(), module, space,
-            globals, memory, stack, system);
+    private IPersistentGlobals CreateGlobals(IModule module)
+    {
+        return PersistentGlobals.Create(module, _collectionFactory);
     }
 
     private IPersistentMemory CreateMemory(IModule module, Options options)
@@ -70,12 +68,5 @@ public sealed class ExecutableFactory
         var descriptionFactory = new DescriptionFactory(_fileSystem);
 
         return PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
-    }
-
-    private sealed class NoOp : IStateAction
-    {
-        public void Invoke(IState state)
-        {
-        }
     }
 }

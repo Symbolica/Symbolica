@@ -15,28 +15,32 @@ internal sealed class PersistentSpace : IPersistentSpace
     private readonly bool _useSymbolicGarbage;
 
     private PersistentSpace(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory,
-        IPersistentStack<IValue> assertions)
+        IConstraints constraints, IPersistentStack<IValue> assertions)
     {
         PointerSize = pointerSize;
         _useSymbolicGarbage = useSymbolicGarbage;
         _collectionFactory = collectionFactory;
+        Constraints = constraints;
         _assertions = assertions;
     }
 
     public Bits PointerSize { get; }
+    public IConstraints Constraints { get; }
+
+    public void Dispose()
+    {
+        Constraints.Dispose();
+    }
 
     public IPersistentSpace Assert(IValue assertion)
     {
+        var assertions = _assertions.Push(assertion);
+
+        var constraints = Computation.Constraints.Create();
+        constraints.Assert(assertions);
+
         return new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory,
-            _assertions.Push(assertion));
-    }
-
-    public IConstraints GetConstraints()
-    {
-        var constraints = Constraints.Create();
-        constraints.Assert(_assertions);
-
-        return constraints;
+            constraints, assertions);
     }
 
     public IExample GetExample()
@@ -77,6 +81,6 @@ internal sealed class PersistentSpace : IPersistentSpace
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
     {
         return new PersistentSpace(pointerSize, useSymbolicGarbage, collectionFactory,
-            collectionFactory.CreatePersistentStack<IValue>());
+            Computation.Constraints.Create(), collectionFactory.CreatePersistentStack<IValue>());
     }
 }

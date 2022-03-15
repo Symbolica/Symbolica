@@ -34,10 +34,14 @@ public sealed class Return : IInstruction
     private void ReturnFromInitialFrame(IState state)
     {
         var result = _operands[0].Evaluate(state);
-        using var proposition = result.GetProposition(state.Space);
+        var proposition = result.GetProposition(state.Space);
 
         if (proposition.CanBeTrue)
-            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace.GetExample());
+        {
+            using var space = proposition.TrueSpace;
+
+            throw new StateException(StateError.NonZeroExitCode, space.GetExample());
+        }
 
         state.Complete();
     }

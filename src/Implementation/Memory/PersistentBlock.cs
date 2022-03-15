@@ -35,7 +35,7 @@ internal sealed class PersistentBlock : IPersistentBlock
                 new PersistentBlock(_section, Address, value));
 
         var isFullyInside = IsFullyInside(space, address, value.Size.ToBytes());
-        using var proposition = isFullyInside.GetProposition(space);
+        var proposition = isFullyInside.GetProposition(space);
 
         return proposition.CanBeFalse
             ? proposition.CanBeTrue
@@ -55,7 +55,7 @@ internal sealed class PersistentBlock : IPersistentBlock
                 _data);
 
         var isFullyInside = IsFullyInside(space, address, size.ToBytes());
-        using var proposition = isFullyInside.GetProposition(space);
+        var proposition = isFullyInside.GetProposition(space);
 
         return proposition.CanBeFalse
             ? proposition.CanBeTrue
@@ -71,7 +71,7 @@ internal sealed class PersistentBlock : IPersistentBlock
     private bool IsZeroOffset(ISpace space, IExpression address)
     {
         var isEqual = Address.Equal(address);
-        using var proposition = isEqual.GetProposition(space);
+        var proposition = isEqual.GetProposition(space);
 
         return !proposition.CanBeFalse;
     }

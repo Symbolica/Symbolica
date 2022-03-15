@@ -19,10 +19,14 @@ public sealed class UnsignedRemainder : IInstruction
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
 
-        using var proposition = right.GetProposition(state.Space);
+        var proposition = right.GetProposition(state.Space);
 
         if (proposition.CanBeFalse)
-            throw new StateException(StateError.DivideByZero, proposition.FalseSpace.GetExample());
+        {
+            using var space = proposition.FalseSpace;
+
+            throw new StateException(StateError.DivideByZero, space.GetExample());
+        }
 
         var result = left.UnsignedRemainder(right);
 

@@ -53,7 +53,7 @@ internal sealed class PersistentJumps : IPersistentJumps
         private bool IsMatch(ISpace space, IExpression continuation)
         {
             var isEqual = _continuation.Equal(continuation);
-            using var proposition = isEqual.GetProposition(space);
+            var proposition = isEqual.GetProposition(space);
 
             return !proposition.CanBeFalse;
         }
