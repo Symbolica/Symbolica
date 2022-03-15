@@ -30,7 +30,6 @@ internal sealed class Constraints : IConstraints
     {
         _context.Assert(assertions.Select(a => a.AsBool(_context)).ToList());
     }
-    public long RefCount => _context.RefCount;
 
     public bool IsSatisfiable(IValue assertion)
     {
@@ -52,6 +51,8 @@ internal sealed class Constraints : IConstraints
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         using var expr = assertion.AsBool(_context);
+        stopwatch.Stop();
+        stopwatch.Restart();
         var status = _context.Check(expr);
         stopwatch.Stop();
         // _solverTracer.WriteLine($"{DateTimeOffset.Now}, Thread {Environment.CurrentManagedThreadId}, {id}, Finished satisfiability check in {stopwatch.Elapsed}.");

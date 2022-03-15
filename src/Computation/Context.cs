@@ -19,8 +19,6 @@ internal sealed class Context<TContextHandle> : IContext
         _solver = CreateSolver();
     }
 
-    public long RefCount => _contextHandle.RefCount;
-
     public void Dispose()
     {
         _solver.Dispose();

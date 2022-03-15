@@ -13,7 +13,6 @@ internal sealed class ConstantProposition : IProposition
         _isTrue = isTrue;
     }
 
-    public long RefCount => 0;
     public bool CanBeFalse() => !CanBeTrue();
     public bool CanBeTrue() => _isTrue;
 

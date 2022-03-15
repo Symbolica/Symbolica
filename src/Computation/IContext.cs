@@ -6,7 +6,6 @@ namespace Symbolica.Computation;
 
 internal interface IContext : IDisposable
 {
-    long RefCount { get; }
     void Assert(ICollection<BoolExpr> assertions);
     void Assert(string name, ICollection<BoolExpr> assertions);
     Status Check(BoolExpr assertion);
