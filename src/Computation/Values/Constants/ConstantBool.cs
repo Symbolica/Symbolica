@@ -4,7 +4,7 @@ using Symbolica.Collection;
 
 namespace Symbolica.Computation.Values.Constants;
 
-internal sealed class ConstantBool : Bool, IConstantValue
+internal sealed record ConstantBool : Bool, IConstantValue
 {
     private readonly bool _value;
 

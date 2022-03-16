@@ -2,7 +2,7 @@
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Not : BitVector
+internal sealed record Not : BitVector
 {
     private readonly IValue _value;
 

@@ -6,7 +6,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Write : BitVector
+internal sealed record Write : BitVector
 {
     private readonly IValue _writeBuffer;
     private readonly IValue _writeMask;

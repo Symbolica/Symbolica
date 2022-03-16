@@ -3,7 +3,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class FloatDivide : Float
+internal sealed record FloatDivide : Float
 {
     private readonly IValue _left;
     private readonly IValue _right;

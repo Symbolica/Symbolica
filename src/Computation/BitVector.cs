@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal abstract class BitVector : Integer
+internal abstract record BitVector : Integer
 {
     protected BitVector(Bits size)
         : base(size)

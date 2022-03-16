@@ -2,7 +2,7 @@
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class ArithmeticShiftRight : BitVector
+internal sealed record ArithmeticShiftRight : BitVector
 {
     private readonly IValue _left;
     private readonly IValue _right;

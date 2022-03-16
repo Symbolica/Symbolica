@@ -3,7 +3,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Add : BitVector
+internal sealed record Add : BitVector
 {
     private readonly IValue _left;
     private readonly IValue _right;

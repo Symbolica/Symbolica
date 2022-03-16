@@ -4,7 +4,7 @@ using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class FloatCeiling : Float
+internal sealed record FloatCeiling : Float
 {
     private readonly IValue _value;
 

@@ -2,7 +2,7 @@
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class UnsignedDivide : BitVector
+internal sealed record UnsignedDivide : BitVector
 {
     private readonly IValue _left;
     private readonly IValue _right;

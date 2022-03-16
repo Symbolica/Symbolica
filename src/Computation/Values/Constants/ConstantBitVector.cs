@@ -7,7 +7,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values.Constants;
 
-internal sealed class ConstantBitVector : BitVector, IConstantValue
+internal sealed record ConstantBitVector : BitVector, IConstantValue
 {
     private readonly IPersistentList<byte> _value;
 

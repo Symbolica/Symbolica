@@ -4,7 +4,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal abstract class Float : IValue
+internal abstract record Float : IValue
 {
     protected Float(Bits size)
     {

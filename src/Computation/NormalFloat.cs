@@ -4,7 +4,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class NormalFloat : Float
+internal sealed record NormalFloat : Float
 {
     private readonly string _value;
 
@@ -73,7 +73,7 @@ internal sealed class NormalFloat : Float
 
     private static (BigInteger, int) ParseNonNegativeDecimal(string value)
     {
-        var index = value.IndexOfAny(new[] {'e', 'E'});
+        var index = value.IndexOfAny(new[] { 'e', 'E' });
 
         return index == -1
             ? ParseStandardNonNegativeDecimal(value, 0)

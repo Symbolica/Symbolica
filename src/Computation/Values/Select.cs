@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class Select : IValue
+internal sealed record Select : IValue
 {
     private readonly IValue _falseValue;
     private readonly IValue _predicate;

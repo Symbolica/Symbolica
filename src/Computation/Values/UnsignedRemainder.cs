@@ -2,7 +2,7 @@
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class UnsignedRemainder : BitVector
+internal sealed record UnsignedRemainder : BitVector
 {
     private readonly IValue _left;
     private readonly IValue _right;

@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
-internal sealed class RealToSigned : BitVector
+internal sealed record RealToSigned : BitVector
 {
     private readonly IRealValue _value;
 

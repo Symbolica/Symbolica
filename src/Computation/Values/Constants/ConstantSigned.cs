@@ -5,7 +5,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values.Constants;
 
-internal sealed class ConstantSigned : BitVector, IConstantValue
+internal sealed record ConstantSigned : BitVector, IConstantValue
 {
     private readonly BigInteger _value;
 
