@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Symbolica;
 using Symbolica.Abstraction;
-using Symbolica.Computation;
 using Symbolica.Implementation;
 
 static async Task<int> Handler(IConsole console, DirectoryInfo dir, string optLevel, Options options)
@@ -13,7 +12,7 @@ static async Task<int> Handler(IConsole console, DirectoryInfo dir, string optLe
     var bytes = await Serializer.Serialize(dir, optLevel);
     var executor = new Executor(options);
 
-    var (executedInstructions, exception) = await executor.Run<ContextHandle>(bytes);
+    var (executedInstructions, exception) = await executor.Run(bytes);
     console.WriteLine($"Executed {executedInstructions} instructions.");
 
     if (exception != null)

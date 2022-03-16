@@ -8,7 +8,7 @@ namespace Symbolica.Computation;
 
 public class NormalFloatTests
 {
-    private static readonly Context<ContextHandle> Context = new();
+    private static readonly IContext Context = PooledContext.Create();
 
     [Theory]
     [InlineData("0")]

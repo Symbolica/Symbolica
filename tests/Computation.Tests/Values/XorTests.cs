@@ -8,7 +8,7 @@ namespace Symbolica.Computation.Values;
 
 public class XorTests
 {
-    private static readonly Context<ContextHandle> Context = new();
+    private static readonly IContext Context = PooledContext.Create();
 
     [Theory]
     [ClassData(typeof(BinaryTestData))]

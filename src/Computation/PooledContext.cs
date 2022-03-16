@@ -1,27 +1,28 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
 
 namespace Symbolica.Computation;
 
-internal sealed class Context<TContextHandle> : IContext
-    where TContextHandle : IContextHandle, new()
+internal sealed class PooledContext : IContext
 {
-    private readonly TContextHandle _contextHandle;
+    private static readonly ConcurrentBag<Context> Contexts = new();
+    private readonly Context _context;
     private readonly ISet<string> _names;
     private readonly Solver _solver;
 
-    public Context()
+    private PooledContext(Context context, Solver solver)
     {
+        _context = context;
+        _solver = solver;
         _names = new HashSet<string>();
-        _contextHandle = new TContextHandle();
-        _solver = CreateSolver();
     }
 
     public void Dispose()
     {
-        _contextHandle.Dispose();
+        Contexts.Add(_context);
     }
 
     public void Assert(IEnumerable<BoolExpr> assertions)
@@ -53,23 +54,13 @@ internal sealed class Context<TContextHandle> : IContext
     public TSort CreateSort<TSort>(Func<Context, TSort> func)
         where TSort : Sort
     {
-        return Create(func);
+        return func(_context);
     }
 
     public TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
         where TExpr : Expr
     {
-        return Create(func);
-    }
-
-    private Solver CreateSolver()
-    {
-        return Create(c => c.MkSolver(c.MkTactic("smt")));
-    }
-
-    private TResult Create<TResult>(Func<Context, TResult> func)
-    {
-        return func(_contextHandle.Context);
+        return func(_context);
     }
 
     private Model CreateModel()
@@ -79,5 +70,17 @@ internal sealed class Context<TContextHandle> : IContext
         return status == Status.SATISFIABLE
             ? _solver.Model
             : throw new InvalidModelException(status);
+    }
+
+    private static IContext Create(Context context)
+    {
+        return new PooledContext(context, context.MkSolver(context.MkTactic("smt")));
+    }
+
+    public static IContext Create()
+    {
+        return Create(Contexts.TryTake(out var context)
+            ? context
+            : new Context());
     }
 }
