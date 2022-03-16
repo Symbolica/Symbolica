@@ -6,16 +6,16 @@ namespace Symbolica.Computation.Values;
 
 public class NotTests
 {
-    private static readonly Context<ContextHandle> Context = new();
-
     [Theory]
     [ClassData(typeof(UnaryTestData))]
     private void ShouldCreateEquivalentBitVectors(
         IValue value0,
         IValue value1)
     {
-        var result0 = Not.Create(value0).AsBitVector(Context).Simplify();
-        var result1 = Not.Create(value1).AsBitVector(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = Not.Create(value0).AsBitVector(context).Simplify();
+        var result1 = Not.Create(value1).AsBitVector(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -26,8 +26,10 @@ public class NotTests
         IValue value0,
         IValue value1)
     {
-        var result0 = Not.Create(value0).AsBool(Context).Simplify();
-        var result1 = Not.Create(value1).AsBool(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = Not.Create(value0).AsBool(context).Simplify();
+        var result1 = Not.Create(value1).AsBool(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }

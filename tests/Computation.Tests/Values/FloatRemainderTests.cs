@@ -6,8 +6,6 @@ namespace Symbolica.Computation.Values;
 
 public class FloatRemainderTests
 {
-    private static readonly Context<ContextHandle> Context = new();
-
     [Theory]
     [ClassData(typeof(SingleBinaryTestData))]
     [ClassData(typeof(DoubleBinaryTestData))]
@@ -15,8 +13,10 @@ public class FloatRemainderTests
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        var result0 = FloatRemainder.Create(left0, right0).AsBitVector(Context).Simplify();
-        var result1 = FloatRemainder.Create(left1, right1).AsBitVector(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = FloatRemainder.Create(left0, right0).AsBitVector(context).Simplify();
+        var result1 = FloatRemainder.Create(left1, right1).AsBitVector(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -28,8 +28,10 @@ public class FloatRemainderTests
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        var result0 = FloatRemainder.Create(left0, right0).AsBool(Context).Simplify();
-        var result1 = FloatRemainder.Create(left1, right1).AsBool(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = FloatRemainder.Create(left0, right0).AsBool(context).Simplify();
+        var result1 = FloatRemainder.Create(left1, right1).AsBool(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -41,8 +43,10 @@ public class FloatRemainderTests
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        var result0 = FloatRemainder.Create(left0, right0).AsFloat(Context).Simplify();
-        var result1 = FloatRemainder.Create(left1, right1).AsFloat(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = FloatRemainder.Create(left0, right0).AsFloat(context).Simplify();
+        var result1 = FloatRemainder.Create(left1, right1).AsFloat(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }

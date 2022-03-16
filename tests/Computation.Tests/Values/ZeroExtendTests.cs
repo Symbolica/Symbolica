@@ -7,16 +7,16 @@ namespace Symbolica.Computation.Values;
 
 public class ZeroExtendTests
 {
-    private static readonly Context<ContextHandle> Context = new();
-
     [Theory]
     [ClassData(typeof(ExtendTestData))]
     private void ShouldCreateEquivalentBitVectors(Bits size,
         IValue value0,
         IValue value1)
     {
-        var result0 = ZeroExtend.Create(size, value0).AsBitVector(Context).Simplify();
-        var result1 = ZeroExtend.Create(size, value1).AsBitVector(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = ZeroExtend.Create(size, value0).AsBitVector(context).Simplify();
+        var result1 = ZeroExtend.Create(size, value1).AsBitVector(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -27,8 +27,10 @@ public class ZeroExtendTests
         IValue value0,
         IValue value1)
     {
-        var result0 = ZeroExtend.Create(size, value0).AsBool(Context).Simplify();
-        var result1 = ZeroExtend.Create(size, value1).AsBool(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = ZeroExtend.Create(size, value0).AsBool(context).Simplify();
+        var result1 = ZeroExtend.Create(size, value1).AsBool(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }

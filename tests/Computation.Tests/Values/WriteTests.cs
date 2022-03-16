@@ -6,17 +6,17 @@ namespace Symbolica.Computation.Values;
 
 public class WriteTests
 {
-    private static readonly CollectionFactory CollectionFactory = new();
-    private static readonly Context<ContextHandle> Context = new();
-
     [Theory]
     [ClassData(typeof(WriteTestData))]
     private void ShouldCreateEquivalentBitVectors(
         IValue buffer0, IValue offset0, IValue value0,
         IValue buffer1, IValue offset1, IValue value1)
     {
-        var result0 = Write.Create(CollectionFactory, buffer0, offset0, value0).AsBitVector(Context).Simplify();
-        var result1 = Write.Create(CollectionFactory, buffer1, offset1, value1).AsBitVector(Context).Simplify();
+        var collectionFactory = new CollectionFactory();
+        using var context = PooledContext.Create();
+
+        var result0 = Write.Create(collectionFactory, buffer0, offset0, value0).AsBitVector(context).Simplify();
+        var result1 = Write.Create(collectionFactory, buffer1, offset1, value1).AsBitVector(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -27,8 +27,11 @@ public class WriteTests
         IValue buffer0, IValue offset0, IValue value0,
         IValue buffer1, IValue offset1, IValue value1)
     {
-        var result0 = Write.Create(CollectionFactory, buffer0, offset0, value0).AsBool(Context).Simplify();
-        var result1 = Write.Create(CollectionFactory, buffer1, offset1, value1).AsBool(Context).Simplify();
+        var collectionFactory = new CollectionFactory();
+        using var context = PooledContext.Create();
+
+        var result0 = Write.Create(collectionFactory, buffer0, offset0, value0).AsBool(context).Simplify();
+        var result1 = Write.Create(collectionFactory, buffer1, offset1, value1).AsBool(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
