@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Symbolica.Collection;
 using Symbolica.Computation.Values.TestData;
 using Symbolica.Expression;
 using Xunit;
@@ -8,17 +7,17 @@ namespace Symbolica.Computation.Values;
 
 public class ReadTests
 {
-    private static readonly ICollectionFactory CollectionFactory = new CollectionFactory();
-    private static readonly IContext Context = PooledContext.Create();
-
     [Theory]
     [ClassData(typeof(ReadTestData))]
     private void ShouldCreateEquivalentBitVectors(Bits size,
         IValue buffer0, IValue offset0,
         IValue buffer1, IValue offset1)
     {
-        var result0 = Read.Create(CollectionFactory, buffer0, offset0, size).AsBitVector(Context).Simplify();
-        var result1 = Read.Create(CollectionFactory, buffer1, offset1, size).AsBitVector(Context).Simplify();
+        var collectionFactory = new CollectionFactory();
+        using var context = PooledContext.Create();
+
+        var result0 = Read.Create(collectionFactory, buffer0, offset0, size).AsBitVector(context).Simplify();
+        var result1 = Read.Create(collectionFactory, buffer1, offset1, size).AsBitVector(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -29,8 +28,11 @@ public class ReadTests
         IValue buffer0, IValue offset0,
         IValue buffer1, IValue offset1)
     {
-        var result0 = Read.Create(CollectionFactory, buffer0, offset0, size).AsBool(Context).Simplify();
-        var result1 = Read.Create(CollectionFactory, buffer1, offset1, size).AsBool(Context).Simplify();
+        var collectionFactory = new CollectionFactory();
+        using var context = PooledContext.Create();
+
+        var result0 = Read.Create(collectionFactory, buffer0, offset0, size).AsBool(context).Simplify();
+        var result1 = Read.Create(collectionFactory, buffer1, offset1, size).AsBool(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }

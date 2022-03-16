@@ -8,16 +8,16 @@ namespace Symbolica.Computation.Values;
 
 public class OrTests
 {
-    private static readonly IContext Context = PooledContext.Create();
-
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentBitVectors(
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        var result0 = Or.Create(left0, right0).AsBitVector(Context).Simplify();
-        var result1 = Or.Create(left1, right1).AsBitVector(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = Or.Create(left0, right0).AsBitVector(context).Simplify();
+        var result1 = Or.Create(left1, right1).AsBitVector(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -28,8 +28,10 @@ public class OrTests
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        var result0 = Or.Create(left0, right0).AsBool(Context).Simplify();
-        var result1 = Or.Create(left1, right1).AsBool(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = Or.Create(left0, right0).AsBool(context).Simplify();
+        var result1 = Or.Create(left1, right1).AsBool(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -38,10 +40,12 @@ public class OrTests
     [ClassData(typeof(IdentityTestData))]
     private void ShouldShortCircuitToLeftWhenRightIsZero(IValue value)
     {
+        using var context = PooledContext.Create();
+
         var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        var actual = Or.Create(value, zero).AsBitVector(Context).Simplify();
-        var expected = value.AsBitVector(Context).Simplify();
+        var actual = Or.Create(value, zero).AsBitVector(context).Simplify();
+        var expected = value.AsBitVector(context).Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -50,10 +54,12 @@ public class OrTests
     [ClassData(typeof(IdentityTestData))]
     private void ShouldShortCircuitToRightWhenLeftIsZero(IValue value)
     {
+        using var context = PooledContext.Create();
+
         var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        var actual = Or.Create(zero, value).AsBitVector(Context).Simplify();
-        var expected = value.AsBitVector(Context).Simplify();
+        var actual = Or.Create(zero, value).AsBitVector(context).Simplify();
+        var expected = value.AsBitVector(context).Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -62,10 +68,12 @@ public class OrTests
     [ClassData(typeof(IdentityTestData))]
     private void ShouldShortCircuitToOnesWhenRightIsOnes(IValue value)
     {
+        using var context = PooledContext.Create();
+
         var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
 
-        var actual = Or.Create(value, ones).AsBitVector(Context).Simplify();
-        var expected = ones.AsBitVector(Context).Simplify();
+        var actual = Or.Create(value, ones).AsBitVector(context).Simplify();
+        var expected = ones.AsBitVector(context).Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -74,10 +82,12 @@ public class OrTests
     [ClassData(typeof(IdentityTestData))]
     private void ShouldShortCircuitToOnesWhenLeftIsOnes(IValue value)
     {
+        using var context = PooledContext.Create();
+
         var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
 
-        var actual = Or.Create(ones, value).AsBitVector(Context).Simplify();
-        var expected = ones.AsBitVector(Context).Simplify();
+        var actual = Or.Create(ones, value).AsBitVector(context).Simplify();
+        var expected = ones.AsBitVector(context).Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }

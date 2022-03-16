@@ -8,8 +8,6 @@ namespace Symbolica.Computation;
 
 public class NormalFloatTests
 {
-    private static readonly IContext Context = PooledContext.Create();
-
     [Theory]
     [InlineData("0")]
     [InlineData("0.0")]
@@ -36,11 +34,13 @@ public class NormalFloatTests
     [InlineData("3.402823466E+38")]
     private void ShouldCreateEquivalentRepresentationForSinglePrecision(string value)
     {
+        using var context = PooledContext.Create();
+
         var normalFloat = new NormalFloat((Bits) 32U, value);
 
-        var expr = normalFloat.AsFloat(Context);
+        var expr = normalFloat.AsFloat(context);
 
-        var actual = BitConverter.GetBytes(Context.CreateExpr(c => (BitVecNum) c.MkFPToIEEEBV(expr).Simplify()).UInt);
+        var actual = BitConverter.GetBytes(context.CreateExpr(c => (BitVecNum) c.MkFPToIEEEBV(expr).Simplify()).UInt);
         var expected = BitConverter.GetBytes(float.Parse(value));
 
         actual.Should().BeEquivalentTo(expected);
@@ -72,11 +72,13 @@ public class NormalFloatTests
     [InlineData("1.7976931348623158E+308")]
     private void ShouldCreateEquivalentRepresentationForDoublePrecision(string value)
     {
+        using var context = PooledContext.Create();
+
         var normalFloat = new NormalFloat((Bits) 64U, value);
 
-        var expr = normalFloat.AsFloat(Context);
+        var expr = normalFloat.AsFloat(context);
 
-        var actual = BitConverter.GetBytes(Context.CreateExpr(c => (BitVecNum) c.MkFPToIEEEBV(expr).Simplify()).UInt64);
+        var actual = BitConverter.GetBytes(context.CreateExpr(c => (BitVecNum) c.MkFPToIEEEBV(expr).Simplify()).UInt64);
         var expected = BitConverter.GetBytes(double.Parse(value));
 
         actual.Should().BeEquivalentTo(expected);
