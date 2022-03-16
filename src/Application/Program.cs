@@ -25,37 +25,34 @@ static async Task<int> Handler(IConsole console, DirectoryInfo dir, string optLe
 
         return 1;
     }
-    else
-    {
-        console.WriteLine("No errors were found.");
-    }
+
+    console.WriteLine("No errors were found.");
 
     return 0;
-};
+}
 
 var rootCommand = new RootCommand("Build and analyse a program from source with Symbolica.")
 {
     new Argument<DirectoryInfo>(
-        "dir",
-        description: "The directory containing the .symbolica.sh file to be run.")
+            "dir",
+            "The directory containing the .symbolica.sh file to be run.")
         .ExistingOnly(),
     new Argument<string>(
-        "optLevel",
-        getDefaultValue: () => "--O0",
-        description: "The level at which to optimize to code. Corresponds to an LLVM opt level.")
+            "optLevel",
+            () => "--O0",
+            "The level at which to optimize the code. Corresponds to an LLVM opt level.")
         .FromAmong("--O0", "--O1", "--O2", "--O3", "--Os", "--Oz"),
     new Option<bool>(
         "--use-symbolic-addresses",
-        description: "Controls whether the base address for allocations are treated symbolically. Enabling this helps to ensure that any pointer arithmetic in your code isn't 'getting lucky' and accidentally landing at some other valid memory. You can disable this if you aren't concerned about detecting invalid memory accesses. In which case we will emulate it with a simple incrementing constant allocator."),
+        "Controls whether the base addresses for allocations are treated symbolically. Enabling this helps to ensure that any pointer arithmetic in your code isn't 'getting lucky' and accidentally landing at some other valid memory. You can disable this if you aren't concerned about detecting invalid memory accesses. In which case we will emulate it with a simple incrementing constant allocator."),
     new Option<bool>(
         "--use-symbolic-continuations",
-        description: "Controls whether the environment for non-local jumps is treated symbolically. Enabling this helps to ensure that your code does not depend on any implementation details of how environments are saved and restored for non-local jumps. You can disable this if you aren't concerned about verifying that. In which case we will emulate it with a simple incrementing constant lookup."),
+        "Controls whether the environment for non-local jumps is treated symbolically. Enabling this helps to ensure that your code does not depend on any implementation details of how environments are saved and restored for non-local jumps. You can disable this if you aren't concerned about verifying that. In which case we will emulate it with a simple incrementing constant lookup."),
     new Option<bool>(
         "--use-symbolic-garbage",
-        description: "Controls whether the contents of uninitialized memory allocations are treated symbolically. Enabling this helps to ensure that your code isn't incorrectly assuming that uninitialized memory has some reliable constant value. You can disable this if you aren't concerned about using unitialized memory. In which case it will default to a value of zero.")
+        "Controls whether the contents of uninitialized memory allocations are treated symbolically. Enabling this helps to ensure that your code isn't incorrectly assuming that uninitialized memory has some reliable constant value. You can disable this if you aren't concerned about using unitialized memory. In which case it will default to a value of zero.")
 };
 
 rootCommand.Handler = CommandHandler.Create(Handler);
 
 return await rootCommand.InvokeAsync(args);
-

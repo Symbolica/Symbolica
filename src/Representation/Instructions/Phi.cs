@@ -45,7 +45,7 @@ public sealed class Phi : IInstruction
             id,
             operands,
             predecessors
-                .Select((p, i) => new {p, i})
+                .Select((p, i) => new { p, i })
                 .ToLookup(p => p.p, p => p.i)
                 .ToDictionary(g => g.Key, g => g.First()));
     }

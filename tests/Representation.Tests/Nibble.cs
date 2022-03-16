@@ -46,10 +46,10 @@ internal readonly struct Nibble : IEquatable<Nibble>
     public static IEnumerable<Nibble> GenerateAll()
     {
         return
-            from b3 in new[] {false, true}
-            from b2 in new[] {false, true}
-            from b1 in new[] {false, true}
-            from b0 in new[] {false, true}
+            from b3 in new[] { false, true }
+            from b2 in new[] { false, true }
+            from b1 in new[] { false, true }
+            from b0 in new[] { false, true }
             select new Nibble(b3, b2, b1, b0);
     }
 

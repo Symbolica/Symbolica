@@ -17,18 +17,18 @@ internal static class Serializer
         File.Delete(Path.Combine(directory.FullName, "symbolica.bc"));
         File.Delete(Path.Combine(directory.FullName, ".symbolica.bc"));
 
-        await CallExternalProcess(directory, buildImage == null
+        await CallExternalProcess(directory.FullName, buildImage == null
             ? "./symbolica.sh"
             : $"docker run -v $(pwd):/code {buildImage}");
 
-        await CallExternalProcess(directory, translateImage == null
+        await CallExternalProcess(directory.FullName, translateImage == null
             ? $"~/.symbolica/translate \"{DeclarationFactory.Pattern}\" {optimization}"
             : $"docker run -v $(pwd):/code {translateImage} \"{DeclarationFactory.Pattern}\" {optimization}");
 
         return await File.ReadAllBytesAsync(Path.Combine(directory.FullName, ".symbolica.bc"));
     }
 
-    private static async Task CallExternalProcess(DirectoryInfo directory, string command)
+    private static async Task CallExternalProcess(string directory, string command)
     {
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
@@ -36,9 +36,9 @@ internal static class Serializer
         {
             StartInfo =
             {
-                WorkingDirectory = directory.FullName,
-                FileName = isWindows? "wsl" : "bash",
-                Arguments = isWindows? command : $"-c \"{command.Replace("\"", "\\\"")}\"",
+                WorkingDirectory = directory,
+                FileName = isWindows ? "wsl" : "bash",
+                Arguments = isWindows ? command : $"-c \"{command.Replace("\"", "\\\"")}\"",
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
