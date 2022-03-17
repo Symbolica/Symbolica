@@ -13,10 +13,12 @@ namespace Symbolica;
 internal sealed class Executor
 {
     private readonly Options _options;
+    private readonly int _maxParallelism;
 
-    public Executor(Options options)
+    public Executor(Options options, int maxParallelism)
     {
         _options = options;
+        _maxParallelism = maxParallelism;
     }
 
     public async Task<(ulong, Exception?)> Run(byte[] bytes)
@@ -27,7 +29,7 @@ internal sealed class Executor
         var spaceFactory = new SpaceFactory(collectionFactory);
         var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
 
-        using var statePool = new StatePool();
+        using var statePool = new StatePool(_maxParallelism);
         statePool.Add(executableFactory.CreateInitial(module, _options));
 
         return await statePool.Wait();

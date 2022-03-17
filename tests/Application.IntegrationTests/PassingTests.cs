@@ -15,7 +15,7 @@ public class PassingTests
     private async Task ShouldPass(DirectoryInfo directory, string optimization, Options options)
     {
         var bytes = await Serializer.Serialize(directory, optimization);
-        var executor = new Executor(options);
+        var executor = new Executor(options, Program.DefaultMaxParallelism);
 
         var (_, exception) = await executor.Run(bytes);
 
