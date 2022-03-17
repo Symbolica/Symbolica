@@ -12,12 +12,12 @@ internal sealed class StatePool : IDisposable
     private Exception? _exception;
     private ulong _executedInstructions;
 
-    public StatePool()
+    public StatePool(int maxParallelism)
     {
         _countdownEvent = new CountdownEvent(1);
         _exception = null;
         _executedInstructions = 0UL;
-        _throttler = new SemaphoreSlim(Environment.ProcessorCount * 8);
+        _throttler = new SemaphoreSlim(maxParallelism);
     }
 
     public void Dispose()

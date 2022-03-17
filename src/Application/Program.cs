@@ -41,6 +41,10 @@ var rootCommand = new RootCommand("Build and analyse a program from source with 
             () => "--O0",
             "The level at which to optimize the code. Corresponds to an LLVM opt level.")
         .FromAmong("--O0", "--O1", "--O2", "--O3", "--Os", "--Oz"),
+    new Option<int?>(
+        "--max-parallelism",
+        "Controls the maximum number of states / branches that can be explored concurrently. Setting this too high can harm peformance due to context switching and excessive memory usage. Defaults to 8 * logical processor count."
+    ),
     new Option<bool>(
         "--use-symbolic-addresses",
         "Controls whether the base addresses for allocations are treated symbolically. Enabling this helps to ensure that any pointer arithmetic in your code isn't 'getting lucky' and accidentally landing at some other valid memory. You can disable this if you aren't concerned about detecting invalid memory accesses. In which case we will emulate it with a simple incrementing constant allocator."),
