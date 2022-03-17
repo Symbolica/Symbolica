@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
 
@@ -58,10 +59,10 @@ internal sealed class Context<TContextHandle> : IContext
         return (BitVecNum) model.Eval(variable, true);
     }
 
-    public IEnumerable<KeyValuePair<FuncDecl, Expr>> Evaluate()
+    public ICollection<KeyValuePair<FuncDecl, Expr>> Evaluate()
     {
         using var model = CreateModel();
-        return model.Consts;
+        return model.Consts.ToList();
     }
 
     public TSort CreateSort<TSort>(Func<Context, TSort> func)

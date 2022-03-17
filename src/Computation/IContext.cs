@@ -10,7 +10,7 @@ internal interface IContext : IDisposable
     void Assert(string name, ICollection<BoolExpr> assertions);
     Status Check(BoolExpr assertion);
     BitVecNum Evaluate(BitVecExpr variable);
-    IEnumerable<KeyValuePair<FuncDecl, Expr>> Evaluate();
+    ICollection<KeyValuePair<FuncDecl, Expr>> Evaluate();
 
     TSort CreateSort<TSort>(Func<Context, TSort> func)
         where TSort : Sort;
