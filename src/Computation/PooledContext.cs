@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
 
@@ -36,19 +38,41 @@ internal sealed class PooledContext : IContext
             Assert(assertions);
     }
 
-    public Status Check(BoolExpr assertion)
+    public bool IsSatisfiable(BoolExpr assertion)
     {
-        return _solver.Check(assertion);
+        var status = _solver.Check(assertion);
+
+        return status switch
+        {
+            Status.UNSATISFIABLE => false,
+            Status.SATISFIABLE => true,
+            Status.UNKNOWN => throw new UnexpectedSatisfiabilityException(status),
+            _ => throw new UnexpectedSatisfiabilityException(status)
+        };
     }
 
-    public BitVecNum Evaluate(BitVecExpr variable)
+    public BigInteger GetSingleValue(BitVecExpr variable)
     {
-        return (BitVecNum) CreateModel().Eval(variable, true);
+        var simplified = variable.Simplify();
+
+        var value = simplified.IsNumeral
+            ? ((BitVecNum) simplified).BigInteger
+            : throw new IrreducibleSymbolicExpressionException();
+
+        return value == GetExampleValue(variable)
+            ? value
+            : throw new IrreducibleSymbolicExpressionException();
     }
 
-    public IEnumerable<KeyValuePair<FuncDecl, Expr>> Evaluate()
+    public BigInteger GetExampleValue(BitVecExpr variable)
     {
-        return CreateModel().Consts;
+        return ((BitVecNum) CreateModel().Eval(variable, true)).BigInteger;
+    }
+
+    public IEnumerable<KeyValuePair<string, string>> GetExampleValues()
+    {
+        return CreateModel().Consts
+            .Select(p => new KeyValuePair<string, string>(p.Key.Name.ToString(), p.Value.ToString()));
     }
 
     public TSort CreateSort<TSort>(Func<Context, TSort> func)

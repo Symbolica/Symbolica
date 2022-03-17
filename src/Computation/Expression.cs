@@ -331,16 +331,18 @@ internal sealed class Expression : IExpression
 
     private BigInteger GetSingleValue(IPersistentSpace space)
     {
-        using var constraints = space.GetConstraints();
+        using var context = space.CreateContext();
 
-        return constraints.GetSingleValue(_value);
+        return _value is Float && _value.AsFloat(context).Simplify().IsFPNaN
+            ? _value.Size.GetNan(context)
+            : context.GetSingleValue(_value.AsBitVector(context));
     }
 
     private BigInteger GetExampleValue(IPersistentSpace space)
     {
-        using var constraints = space.GetConstraints();
+        using var context = space.CreateContext();
 
-        return constraints.GetExampleValue(_value);
+        return context.GetExampleValue(_value.AsBitVector(context));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
