@@ -22,8 +22,8 @@ public sealed class ShiftLeft : IInstruction
         var isUndefined = right.UnsignedGreaterOrEqual(state.Space.CreateConstant(right.Size, (uint) left.Size));
         using var proposition = isUndefined.GetProposition(state.Space);
 
-        if (proposition.CanBeTrue)
-            throw new StateException(StateError.UndefinedShift, proposition.TrueSpace);
+        if (proposition.CanBeTrue())
+            throw new StateException(StateError.UndefinedShift, proposition.TrueSpace());
 
         var result = left.ShiftLeft(right);
 

@@ -24,15 +24,23 @@ internal sealed record FloatPower : Float, IRealValue
 
     public RealExpr AsReal(IContext context)
     {
-        var left = _left is IRealValue l
-            ? l.AsReal(context)
-            : context.CreateExpr(c => c.MkFPToReal(_left.AsFloat(context)));
+        ArithExpr ToArithExpr(IValue value) =>
+            value switch
+            {
+                IRealValue r => r.AsReal(context),
+                _ => context.CreateExpr(c =>
+                {
+                    using var flt = value.AsFloat(context);
+                    return c.MkFPToReal(flt);
+                })
+            };
 
-        var right = _right is IRealValue r
-            ? r.AsReal(context)
-            : context.CreateExpr(c => c.MkFPToReal(_right.AsFloat(context)));
-
-        return context.CreateExpr(c => (RealExpr) c.MkPower(left, right));
+        return context.CreateExpr(c =>
+        {
+            using var left = ToArithExpr(_left);
+            using var right = ToArithExpr(_right);
+            return (RealExpr) c.MkPower(left, right);
+        });
     }
 
     public static IValue Create(IValue left, IValue right)

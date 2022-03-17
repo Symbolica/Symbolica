@@ -15,7 +15,11 @@ internal sealed record ZeroExtend : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkZeroExt((uint) (Size - _value.Size), _value.AsBitVector(context)));
+        return context.CreateExpr(c =>
+        {
+            using var value = _value.AsBitVector(context);
+            return c.MkZeroExt((uint) (Size - _value.Size), value);
+        });
     }
 
     public static IValue Create(Bits size, IValue value)

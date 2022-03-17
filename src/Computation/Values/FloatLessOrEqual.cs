@@ -16,7 +16,12 @@ internal sealed record FloatLessOrEqual : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPLEq(_left.AsFloat(context), _right.AsFloat(context)));
+        return context.CreateExpr(c =>
+        {
+            using var left = _left.AsFloat(context);
+            using var right = _right.AsFloat(context);
+            return c.MkFPLEq(left, right);
+        });
     }
 
     public static IValue Create(IValue left, IValue right)

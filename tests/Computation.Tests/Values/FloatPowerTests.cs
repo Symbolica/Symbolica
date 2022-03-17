@@ -18,8 +18,11 @@ public class FloatPowerTests
         var real0 = FloatPower.Create(left0, right0);
         var real1 = FloatPower.Create(left1, right1);
 
-        var result0 = FloatToSigned.Create(real0.Size, real0).AsBitVector(context).Simplify();
-        var result1 = FloatToSigned.Create(real1.Size, real1).AsBitVector(context).Simplify();
+        using var bv0 = FloatToSigned.Create(real0.Size, real0).AsBitVector(context);
+        using var result0 = bv0.Simplify();
+
+        using var bv1 = FloatToSigned.Create(real1.Size, real1).AsBitVector(context);
+        using var result1 = bv1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -36,8 +39,11 @@ public class FloatPowerTests
         var real0 = FloatPower.Create(left0, right0);
         var real1 = FloatPower.Create(left1, right1);
 
-        var result0 = FloatToSigned.Create(real0.Size, real0).AsBool(context).Simplify();
-        var result1 = FloatToSigned.Create(real1.Size, real1).AsBool(context).Simplify();
+        using var b0 = FloatToSigned.Create(real0.Size, real0).AsBool(context);
+        using var result0 = b0.Simplify();
+
+        using var b1 = FloatToSigned.Create(real1.Size, real1).AsBool(context);
+        using var result1 = b1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -54,8 +60,11 @@ public class FloatPowerTests
         var real0 = FloatPower.Create(left0, right0);
         var real1 = FloatPower.Create(left1, right1);
 
-        var result0 = FloatToSigned.Create(real0.Size, real0).AsFloat(context).Simplify();
-        var result1 = FloatToSigned.Create(real1.Size, real1).AsFloat(context).Simplify();
+        using var f0 = FloatToSigned.Create(real0.Size, real0).AsFloat(context);
+        using var result0 = f0.Simplify();
+
+        using var f1 = FloatToSigned.Create(real1.Size, real1).AsFloat(context);
+        using var result1 = f1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }

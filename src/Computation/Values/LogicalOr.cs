@@ -16,7 +16,12 @@ internal sealed record LogicalOr : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkOr(_left.AsBool(context), _right.AsBool(context)));
+        return context.CreateExpr(c =>
+        {
+            using var left = _left.AsBool(context);
+            using var right = _right.AsBool(context);
+            return c.MkOr(left, right);
+        });
     }
 
     private static IValue ShortCircuit(IValue left, ConstantBool right)

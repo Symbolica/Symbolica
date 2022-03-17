@@ -14,7 +14,11 @@ internal sealed record Not : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkBVNot(_value.AsBitVector(context)));
+        return context.CreateExpr(c =>
+        {
+            using var value = _value.AsBitVector(context);
+            return c.MkBVNot(value);
+        });
     }
 
     public static IValue Create(IValue value)

@@ -17,7 +17,12 @@ internal sealed record Multiply : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkBVMul(_left.AsBitVector(context), _right.AsBitVector(context)));
+        return context.CreateExpr(c =>
+        {
+            using var left = _left.AsBitVector(context);
+            using var right = _right.AsBitVector(context);
+            return c.MkBVMul(left, right);
+        });
     }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)

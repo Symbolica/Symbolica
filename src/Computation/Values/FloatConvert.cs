@@ -16,7 +16,13 @@ internal sealed record FloatConvert : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPToFP(c.MkFPRNE(), _value.AsFloat(context), Size.GetSort(context)));
+        return context.CreateExpr(c =>
+        {
+            using var rounding = c.MkFPRNE();
+            using var value = _value.AsFloat(context);
+            using var sort = Size.GetSort(context);
+            return c.MkFPToFP(rounding, value, sort);
+        });
     }
 
     public static IValue Create(Bits size, IValue value)

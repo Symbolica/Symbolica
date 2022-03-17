@@ -18,10 +18,25 @@ internal sealed class SymbolicProposition : IProposition
         _negation = negation;
     }
 
-    public ISpace FalseSpace => _space.Assert(_negation);
-    public ISpace TrueSpace => _space.Assert(_assertion);
-    public bool CanBeFalse => _context.IsSatisfiable(_negation);
-    public bool CanBeTrue => _context.IsSatisfiable(_assertion);
+    public ISpace FalseSpace()
+    {
+        return _space.Assert(_negation);
+    }
+
+    public ISpace TrueSpace()
+    {
+        return _space.Assert(_assertion);
+    }
+
+    public bool CanBeFalse()
+    {
+        return _context.IsSatisfiable(_negation);
+    }
+
+    public bool CanBeTrue()
+    {
+        return _context.IsSatisfiable(_assertion);
+    }
 
     public void Dispose()
     {

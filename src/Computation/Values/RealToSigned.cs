@@ -15,6 +15,11 @@ internal sealed record RealToSigned : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkInt2BV((uint) Size, c.MkReal2Int(_value.AsReal(context))));
+        return context.CreateExpr(c =>
+        {
+            using var value = _value.AsReal(context);
+            using var intValue = c.MkReal2Int(value);
+            return c.MkInt2BV((uint) Size, intValue);
+        });
     }
 }

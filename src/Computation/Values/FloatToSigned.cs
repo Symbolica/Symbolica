@@ -17,7 +17,12 @@ internal sealed record FloatToSigned : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPToBV(c.MkFPRTZ(), _value.AsFloat(context), (uint) Size, true));
+        return context.CreateExpr(c =>
+        {
+            using var rounding = c.MkFPRTZ();
+            using var value = _value.AsFloat(context);
+            return c.MkFPToBV(rounding, value, (uint) Size, true);
+        });
     }
 
     public static IValue Create(Bits size, IValue value)

@@ -16,8 +16,11 @@ public class ReadTests
         var collectionFactory = new CollectionFactory();
         using var context = PooledContext.Create();
 
-        var result0 = Read.Create(collectionFactory, buffer0, offset0, size).AsBitVector(context).Simplify();
-        var result1 = Read.Create(collectionFactory, buffer1, offset1, size).AsBitVector(context).Simplify();
+        using var bv0 = Read.Create(collectionFactory, buffer0, offset0, size).AsBitVector(context);
+        using var result0 = bv0.Simplify();
+
+        using var bv1 = Read.Create(collectionFactory, buffer1, offset1, size).AsBitVector(context);
+        using var result1 = bv1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -31,8 +34,11 @@ public class ReadTests
         var collectionFactory = new CollectionFactory();
         using var context = PooledContext.Create();
 
-        var result0 = Read.Create(collectionFactory, buffer0, offset0, size).AsBool(context).Simplify();
-        var result1 = Read.Create(collectionFactory, buffer1, offset1, size).AsBool(context).Simplify();
+        using var b0 = Read.Create(collectionFactory, buffer0, offset0, size).AsBool(context);
+        using var result0 = b0.Simplify();
+
+        using var b1 = Read.Create(collectionFactory, buffer1, offset1, size).AsBool(context);
+        using var result1 = b1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }

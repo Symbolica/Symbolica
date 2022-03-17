@@ -13,7 +13,11 @@ internal sealed record LogicalNot : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkNot(_value.AsBool(context)));
+        return context.CreateExpr(c =>
+        {
+            using var value = _value.AsBool(context);
+            return c.MkNot(value);
+        });
     }
 
     public static IValue Create(IValue value)

@@ -17,7 +17,13 @@ internal sealed record FloatMultiply : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPMul(c.MkFPRNE(), _left.AsFloat(context), _right.AsFloat(context)));
+        return context.CreateExpr(c =>
+        {
+            using var rounding = c.MkFPRNE();
+            using var left = _left.AsFloat(context);
+            using var right = _right.AsFloat(context);
+            return c.MkFPMul(rounding, left, right);
+        });
     }
 
     public static IValue Create(IValue left, IValue right)

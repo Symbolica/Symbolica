@@ -14,8 +14,11 @@ public class UnsignedGreaterTests
     {
         using var context = PooledContext.Create();
 
-        var result0 = UnsignedGreater.Create(left0, right0).AsBitVector(context).Simplify();
-        var result1 = UnsignedGreater.Create(left1, right1).AsBitVector(context).Simplify();
+        using var bv0 = UnsignedGreater.Create(left0, right0).AsBitVector(context);
+        using var result0 = bv0.Simplify();
+
+        using var bv1 = UnsignedGreater.Create(left1, right1).AsBitVector(context);
+        using var result1 = bv1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -28,8 +31,11 @@ public class UnsignedGreaterTests
     {
         using var context = PooledContext.Create();
 
-        var result0 = UnsignedGreater.Create(left0, right0).AsBool(context).Simplify();
-        var result1 = UnsignedGreater.Create(left1, right1).AsBool(context).Simplify();
+        using var b0 = UnsignedGreater.Create(left0, right0).AsBool(context);
+        using var result0 = b0.Simplify();
+
+        using var b1 = UnsignedGreater.Create(left1, right1).AsBool(context);
+        using var result1 = b1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }

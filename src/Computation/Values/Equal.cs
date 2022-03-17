@@ -15,9 +15,16 @@ internal sealed record Equal : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return _left is Bool || _right is Bool
-            ? context.CreateExpr(c => c.MkEq(_left.AsBool(context), _right.AsBool(context)))
-            : context.CreateExpr(c => c.MkEq(_left.AsBitVector(context), _right.AsBitVector(context)));
+        var (left, right) = _left is Bool || _right is Bool
+                ? (_left.AsBool(context) as Expr, _right.AsBool(context) as Expr)
+                : (_left.AsBitVector(context), _right.AsBitVector(context));
+
+        return context.CreateExpr(c =>
+        {
+            using (left)
+            using (right)
+                return c.MkEq(left, right);
+        });
     }
 
     public static IValue Create(IValue left, IValue right)

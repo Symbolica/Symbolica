@@ -20,23 +20,35 @@ internal sealed record Select : IValue
 
     public BitVecExpr AsBitVector(IContext context)
     {
-        return context.CreateExpr(c => (BitVecExpr) c.MkITE(_predicate.AsBool(context),
-            _trueValue.AsBitVector(context),
-            _falseValue.AsBitVector(context)));
+        return context.CreateExpr(c =>
+        {
+            using var predicate = _predicate.AsBool(context);
+            using var trueValue = _trueValue.AsBitVector(context);
+            using var falseValue = _falseValue.AsBitVector(context);
+            return (BitVecExpr) c.MkITE(predicate, trueValue, falseValue);
+        });
     }
 
     public BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => (BoolExpr) c.MkITE(_predicate.AsBool(context),
-            _trueValue.AsBool(context),
-            _falseValue.AsBool(context)));
+        return context.CreateExpr(c =>
+        {
+            using var predicate = _predicate.AsBool(context);
+            using var trueValue = _trueValue.AsBool(context);
+            using var falseValue = _falseValue.AsBool(context);
+            return (BoolExpr) c.MkITE(predicate, trueValue, falseValue);
+        });
     }
 
     public FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => (FPExpr) c.MkITE(_predicate.AsBool(context),
-            _trueValue.AsFloat(context),
-            _falseValue.AsFloat(context)));
+        return context.CreateExpr(c =>
+        {
+            using var predicate = _predicate.AsBool(context);
+            using var trueValue = _trueValue.AsFloat(context);
+            using var falseValue = _falseValue.AsFloat(context);
+            return (FPExpr) c.MkITE(predicate, trueValue, falseValue);
+        });
     }
 
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)

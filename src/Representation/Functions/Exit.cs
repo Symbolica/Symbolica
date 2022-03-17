@@ -18,8 +18,8 @@ internal sealed class Exit : IFunction
         var code = arguments.Get(0);
         using var proposition = code.GetProposition(state.Space);
 
-        if (proposition.CanBeTrue)
-            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace);
+        if (proposition.CanBeTrue())
+            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace());
 
         state.Complete();
     }
