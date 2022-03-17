@@ -8,8 +8,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class PersistentSpace<TContext> : IPersistentSpace
-    where TContext : IContext, new()
+internal sealed class PersistentSpace : IPersistentSpace
 {
     private readonly IPersistentStack<IValue> _assertions;
     private readonly ICollectionFactory _collectionFactory;
@@ -28,13 +27,13 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public IPersistentSpace Assert(IValue assertion)
     {
-        return new PersistentSpace<TContext>(PointerSize, _useSymbolicGarbage, _collectionFactory,
+        return new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory,
             _assertions.Push(assertion));
     }
 
     public IConstraints GetConstraints()
     {
-        var constraints = Constraints.Create<TContext>();
+        var constraints = Constraints.Create();
         constraints.Assert(_assertions);
 
         return constraints;
@@ -77,7 +76,7 @@ internal sealed class PersistentSpace<TContext> : IPersistentSpace
 
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
     {
-        return new PersistentSpace<TContext>(pointerSize, useSymbolicGarbage, collectionFactory,
+        return new PersistentSpace(pointerSize, useSymbolicGarbage, collectionFactory,
             collectionFactory.CreatePersistentStack<IValue>());
     }
 }

@@ -6,16 +6,16 @@ namespace Symbolica.Computation.Values;
 
 public class SignedGreaterTests
 {
-    private static readonly Context<ContextHandle> Context = new();
-
     [Theory]
     [ClassData(typeof(BinaryTestData))]
     private void ShouldCreateEquivalentBitVectors(
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        var result0 = SignedGreater.Create(left0, right0).AsBitVector(Context).Simplify();
-        var result1 = SignedGreater.Create(left1, right1).AsBitVector(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = SignedGreater.Create(left0, right0).AsBitVector(context).Simplify();
+        var result1 = SignedGreater.Create(left1, right1).AsBitVector(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -26,8 +26,10 @@ public class SignedGreaterTests
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        var result0 = SignedGreater.Create(left0, right0).AsBool(Context).Simplify();
-        var result1 = SignedGreater.Create(left1, right1).AsBool(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = SignedGreater.Create(left0, right0).AsBool(context).Simplify();
+        var result1 = SignedGreater.Create(left1, right1).AsBool(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }

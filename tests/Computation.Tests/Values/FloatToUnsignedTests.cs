@@ -7,8 +7,6 @@ namespace Symbolica.Computation.Values;
 
 public class FloatToUnsignedTests
 {
-    private static readonly Context<ContextHandle> Context = new();
-
     [Theory]
     [ClassData(typeof(SingleToUnsignedTestData))]
     [ClassData(typeof(DoubleToUnsignedTestData))]
@@ -16,8 +14,10 @@ public class FloatToUnsignedTests
         IValue value0,
         IValue value1)
     {
-        var result0 = FloatToUnsigned.Create(size, value0).AsBitVector(Context).Simplify();
-        var result1 = FloatToUnsigned.Create(size, value1).AsBitVector(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = FloatToUnsigned.Create(size, value0).AsBitVector(context).Simplify();
+        var result1 = FloatToUnsigned.Create(size, value1).AsBitVector(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -29,8 +29,10 @@ public class FloatToUnsignedTests
         IValue value0,
         IValue value1)
     {
-        var result0 = FloatToUnsigned.Create(size, value0).AsBool(Context).Simplify();
-        var result1 = FloatToUnsigned.Create(size, value1).AsBool(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = FloatToUnsigned.Create(size, value0).AsBool(context).Simplify();
+        var result1 = FloatToUnsigned.Create(size, value1).AsBool(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -42,8 +44,10 @@ public class FloatToUnsignedTests
         IValue value0,
         IValue value1)
     {
-        var result0 = FloatToUnsigned.Create(size, value0).AsFloat(Context).Simplify();
-        var result1 = FloatToUnsigned.Create(size, value1).AsFloat(Context).Simplify();
+        using var context = PooledContext.Create();
+
+        var result0 = FloatToUnsigned.Create(size, value0).AsFloat(context).Simplify();
+        var result1 = FloatToUnsigned.Create(size, value1).AsFloat(context).Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
