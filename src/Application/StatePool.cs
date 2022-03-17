@@ -13,6 +13,7 @@ namespace Symbolica;
 internal sealed class StatePool : IDisposable
 {
     private static readonly TextWriterTraceListener _errorTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/errors.txt"));
+    private static readonly TextWriterTraceListener _examplesTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/examples.txt"));
     private static readonly TextWriterTraceListener _stateTracer = new(File.CreateText("/Users/Choc/code/symbolica/symbolica/.traces/states.txt"));
 
     private readonly CountdownEvent _countdownEvent;
@@ -42,8 +43,21 @@ internal sealed class StatePool : IDisposable
             stopwatch.Start();
             try
             {
-                foreach (var child in executable.Run())
+                var children = executable.Run();
+                foreach (var child in children)
                     Add(child, depth + 1);
+                if (!children.Any())
+                {
+                    _examplesTracer.WriteLine(
+                        string.Join(
+                            ", ",
+                            executable.Space.GetExample()
+                            .OrderBy(p => p.Key)
+                            .Select(p => $"{p.Key}={p.Value}")));
+                    _examplesTracer.Flush();
+                }
+                _stateTracer.WriteLine($"{exeId}, {depth}, {children.Count()}, {executable.ExecutedInstructions}, {stopwatch.Elapsed}");
+                _stateTracer.Flush();
             }
             catch (Exception ex)
             {
@@ -63,8 +77,6 @@ internal sealed class StatePool : IDisposable
             finally
             {
                 Interlocked.Add(ref _executedInstructions, executable.ExecutedInstructions);
-                _stateTracer.WriteLine($"{exeId}, {depth}, {executable.ExecutedInstructions}, {stopwatch.Elapsed}");
-                _stateTracer.Flush();
                 _throttler.Release();
                 _countdownEvent.Signal();
             }
