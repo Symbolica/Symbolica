@@ -31,12 +31,12 @@ internal sealed class PersistentSpace : IPersistentSpace
             _assertions.Push(assertion));
     }
 
-    public IConstraints GetConstraints()
+    public IContext CreateContext()
     {
-        var constraints = Constraints.Create();
-        constraints.Assert(_assertions);
+        var context = PooledContext.Create();
+        context.Assert(_assertions.Select(a => a.AsBool(context)));
 
-        return constraints;
+        return context;
     }
 
     public IExample GetExample()
