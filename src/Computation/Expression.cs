@@ -335,14 +335,14 @@ internal sealed class Expression : IExpression
 
         return _value is Float && _value.AsFloat(context).Simplify().IsFPNaN
             ? _value.Size.GetNan(context)
-            : context.GetSingleValue(_value.AsBitVector(context));
+            : context.GetSingleValue(_value);
     }
 
     private BigInteger GetExampleValue(IPersistentSpace space)
     {
         using var context = space.CreateContext();
 
-        return context.GetExampleValue(_value.AsBitVector(context));
+        return context.GetExampleValue(_value);
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,

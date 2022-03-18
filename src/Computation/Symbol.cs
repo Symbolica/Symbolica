@@ -20,7 +20,7 @@ internal sealed record Symbol : BitVector
 
     public override BitVecExpr AsBitVector(IContext context)
     {
-        context.Assert(_name, _assertions.Select(a => a.AsBool(context)));
+        context.Assert(_name, _assertions);
 
         return context.CreateExpr(c => c.MkBVConst(_name, (uint) Size));
     }

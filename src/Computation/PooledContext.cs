@@ -27,20 +27,20 @@ internal sealed class PooledContext : IContext
         Contexts.Add(_context);
     }
 
-    public void Assert(IEnumerable<BoolExpr> assertions)
+    public void Assert(IEnumerable<IValue> assertions)
     {
-        _solver.Add(assertions);
+        _solver.Add(assertions.Select(a => a.AsBool(this)));
     }
 
-    public void Assert(string name, IEnumerable<BoolExpr> assertions)
+    public void Assert(string name, IEnumerable<IValue> assertions)
     {
         if (_names.Add(name))
             Assert(assertions);
     }
 
-    public bool IsSatisfiable(BoolExpr assertion)
+    public bool IsSatisfiable(IValue assertion)
     {
-        var status = _solver.Check(assertion);
+        var status = _solver.Check(assertion.AsBool(this));
 
         return status switch
         {
@@ -51,9 +51,9 @@ internal sealed class PooledContext : IContext
         };
     }
 
-    public BigInteger GetSingleValue(BitVecExpr variable)
+    public BigInteger GetSingleValue(IValue variable)
     {
-        var simplified = variable.Simplify();
+        var simplified = variable.AsBitVector(this).Simplify();
 
         var value = simplified.IsNumeral
             ? ((BitVecNum) simplified).BigInteger
@@ -64,9 +64,11 @@ internal sealed class PooledContext : IContext
             : throw new IrreducibleSymbolicExpressionException();
     }
 
-    public BigInteger GetExampleValue(BitVecExpr variable)
+    public BigInteger GetExampleValue(IValue variable)
     {
-        return ((BitVecNum) CreateModel().Eval(variable, true)).BigInteger;
+        var expr = variable.AsBitVector(this);
+
+        return ((BitVecNum) CreateModel().Eval(expr, true)).BigInteger;
     }
 
     public IEnumerable<KeyValuePair<string, string>> GetExampleValues()

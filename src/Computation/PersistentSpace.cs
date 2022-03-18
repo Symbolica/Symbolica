@@ -34,7 +34,7 @@ internal sealed class PersistentSpace : IPersistentSpace
     public IContext CreateContext()
     {
         var context = PooledContext.Create();
-        context.Assert(_assertions.Select(a => a.AsBool(context)));
+        context.Assert(_assertions);
 
         return context;
     }
