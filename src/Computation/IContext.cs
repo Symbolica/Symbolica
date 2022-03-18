@@ -7,11 +7,11 @@ namespace Symbolica.Computation;
 
 internal interface IContext : IDisposable
 {
-    void Assert(IEnumerable<BoolExpr> assertions);
-    void Assert(string name, IEnumerable<BoolExpr> assertions);
-    bool IsSatisfiable(BoolExpr assertion);
-    BigInteger GetSingleValue(BitVecExpr variable);
-    BigInteger GetExampleValue(BitVecExpr variable);
+    void Assert(IEnumerable<IValue> assertions);
+    void Assert(string name, IEnumerable<IValue> assertions);
+    bool IsSatisfiable(IValue assertion);
+    BigInteger GetSingleValue(IValue variable);
+    BigInteger GetExampleValue(IValue variable);
     IEnumerable<KeyValuePair<string, string>> GetExampleValues();
 
     TSort CreateSort<TSort>(Func<Context, TSort> func)
