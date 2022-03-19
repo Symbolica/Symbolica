@@ -4,6 +4,8 @@ using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
+using Symbolica.Computation.Values;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -58,23 +60,18 @@ internal sealed class PooledSolver : ISolver
         };
     }
 
-    public BigInteger GetSingleValue(IValue variable)
+    public BigInteger GetSingleValue(IValue value)
     {
-        using var bitVector = variable.AsBitVector(this);
-        using var simplified = bitVector.Simplify();
+        var constant = GetExampleValue(value);
 
-        var value = simplified.IsNumeral
-            ? ((BitVecNum) simplified).BigInteger
-            : throw new IrreducibleSymbolicExpressionException();
-
-        return value == GetExampleValue(variable)
-            ? value
+        return IsSatisfiable(NotEqual.Create(value, ConstantUnsigned.Create(value.Size, constant)))
+            ? constant
             : throw new IrreducibleSymbolicExpressionException();
     }
 
-    public BigInteger GetExampleValue(IValue variable)
+    public BigInteger GetExampleValue(IValue value)
     {
-        using var bitVector = variable.AsBitVector(this);
+        using var bitVector = value.AsBitVector(this);
         using var model = CreateModel();
         using var expr = model.Eval(bitVector, true);
         return ((BitVecNum) expr).BigInteger;
