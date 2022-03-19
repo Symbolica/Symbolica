@@ -24,12 +24,17 @@ internal sealed class PooledContext : IContext
 
     public void Dispose()
     {
+        _solver.Dispose();
         Contexts.Add(_context);
     }
 
     public void Assert(IEnumerable<IValue> assertions)
     {
-        _solver.Add(assertions.Select(a => a.AsBool(this)));
+        foreach (var assertion in assertions)
+        {
+            using var expr = assertion.AsBool(this);
+            _solver.Add(expr);
+        }
     }
 
     public void Assert(string name, IEnumerable<IValue> assertions)
@@ -40,7 +45,8 @@ internal sealed class PooledContext : IContext
 
     public bool IsSatisfiable(IValue assertion)
     {
-        var status = _solver.Check(assertion.AsBool(this));
+        using var expr = assertion.AsBool(this);
+        var status = _solver.Check(expr);
 
         return status switch
         {
@@ -53,7 +59,8 @@ internal sealed class PooledContext : IContext
 
     public BigInteger GetSingleValue(IValue variable)
     {
-        var simplified = variable.AsBitVector(this).Simplify();
+        using var bitVector = variable.AsBitVector(this);
+        using var simplified = bitVector.Simplify();
 
         var value = simplified.IsNumeral
             ? ((BitVecNum) simplified).BigInteger
@@ -66,15 +73,21 @@ internal sealed class PooledContext : IContext
 
     public BigInteger GetExampleValue(IValue variable)
     {
-        var expr = variable.AsBitVector(this);
-
-        return ((BitVecNum) CreateModel().Eval(expr, true)).BigInteger;
+        using var bitVector = variable.AsBitVector(this);
+        using var model = CreateModel();
+        using var expr = model.Eval(bitVector, true);
+        return ((BitVecNum) expr).BigInteger;
     }
 
     public IEnumerable<KeyValuePair<string, string>> GetExampleValues()
     {
-        return CreateModel().Consts
-            .Select(p => new KeyValuePair<string, string>(p.Key.Name.ToString(), p.Value.ToString()));
+        using var model = CreateModel();
+        return model.Consts.ToList().Select(p =>
+        {
+            using var func = p.Key;
+            using var expr = p.Value;
+            return new KeyValuePair<string, string>(func.Name.ToString(), expr.ToString());
+        });
     }
 
     public TSort CreateSort<TSort>(Func<Context, TSort> func)
@@ -100,7 +113,8 @@ internal sealed class PooledContext : IContext
 
     private static IContext Create(Context context)
     {
-        return new PooledContext(context, context.MkSolver(context.MkTactic("smt")));
+        using var tactic = context.MkTactic("smt");
+        return new PooledContext(context, context.MkSolver(tactic));
     }
 
     public static IContext Create()

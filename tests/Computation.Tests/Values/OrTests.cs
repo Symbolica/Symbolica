@@ -16,8 +16,11 @@ public class OrTests
     {
         using var context = PooledContext.Create();
 
-        var result0 = Or.Create(left0, right0).AsBitVector(context).Simplify();
-        var result1 = Or.Create(left1, right1).AsBitVector(context).Simplify();
+        using var bv0 = Or.Create(left0, right0).AsBitVector(context);
+        using var result0 = bv0.Simplify();
+
+        using var bv1 = Or.Create(left1, right1).AsBitVector(context);
+        using var result1 = bv1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -30,8 +33,11 @@ public class OrTests
     {
         using var context = PooledContext.Create();
 
-        var result0 = Or.Create(left0, right0).AsBool(context).Simplify();
-        var result1 = Or.Create(left1, right1).AsBool(context).Simplify();
+        using var b0 = Or.Create(left0, right0).AsBool(context);
+        using var result0 = b0.Simplify();
+
+        using var b1 = Or.Create(left1, right1).AsBool(context);
+        using var result1 = b1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -44,8 +50,11 @@ public class OrTests
 
         var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        var actual = Or.Create(value, zero).AsBitVector(context).Simplify();
-        var expected = value.AsBitVector(context).Simplify();
+        using var or = Or.Create(value, zero).AsBitVector(context);
+        using var actual = or.Simplify();
+
+        using var bv = value.AsBitVector(context);
+        using var expected = bv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -58,8 +67,11 @@ public class OrTests
 
         var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        var actual = Or.Create(zero, value).AsBitVector(context).Simplify();
-        var expected = value.AsBitVector(context).Simplify();
+        using var or = Or.Create(zero, value).AsBitVector(context);
+        using var actual = or.Simplify();
+
+        using var bv = value.AsBitVector(context);
+        using var expected = bv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -72,8 +84,11 @@ public class OrTests
 
         var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
 
-        var actual = Or.Create(value, ones).AsBitVector(context).Simplify();
-        var expected = ones.AsBitVector(context).Simplify();
+        using var or = Or.Create(value, ones).AsBitVector(context);
+        using var actual = or.Simplify();
+
+        using var onesBv = ones.AsBitVector(context);
+        using var expected = onesBv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -86,8 +101,11 @@ public class OrTests
 
         var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
 
-        var actual = Or.Create(ones, value).AsBitVector(context).Simplify();
-        var expected = ones.AsBitVector(context).Simplify();
+        using var or = Or.Create(ones, value).AsBitVector(context);
+        using var actual = or.Simplify();
+
+        using var onesBv = ones.AsBitVector(context);
+        using var expected = onesBv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }

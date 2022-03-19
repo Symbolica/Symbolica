@@ -16,9 +16,18 @@ internal sealed record FloatUnordered : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkOr(
-            c.MkFPIsNaN(_left.AsFloat(context)),
-            c.MkFPIsNaN(_right.AsFloat(context))));
+        return context.CreateExpr(c =>
+        {
+            BoolExpr MkFPIsNaN(IValue value)
+            {
+                using var flt = value.AsFloat(context);
+                return c.MkFPIsNaN(flt);
+            }
+
+            using var left = MkFPIsNaN(_left);
+            using var right = MkFPIsNaN(_right);
+            return c.MkOr(left, right);
+        });
     }
 
     public static IValue Create(IValue left, IValue right)

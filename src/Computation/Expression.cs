@@ -333,9 +333,18 @@ internal sealed class Expression : IExpression
     {
         using var context = space.CreateContext();
 
-        return _value is Float && _value.AsFloat(context).Simplify().IsFPNaN
-            ? _value.Size.GetNan(context)
-            : context.GetSingleValue(_value);
+        bool IsFPNaN(Float value)
+        {
+            using var flt = value.AsFloat(context);
+            using var simplified = flt.Simplify();
+            return simplified.IsFPNaN;
+        }
+
+        return _value switch
+        {
+            Float f when IsFPNaN(f) => _value.Size.GetNan(context),
+            _ => context.GetSingleValue(_value)
+        };
     }
 
     private BigInteger GetExampleValue(IPersistentSpace space)

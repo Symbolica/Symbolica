@@ -38,9 +38,14 @@ public class NormalFloatTests
 
         var normalFloat = new NormalFloat((Bits) 32U, value);
 
-        var expr = normalFloat.AsFloat(context);
+        using var simplified = context.CreateExpr(c =>
+        {
+            using var expr = normalFloat.AsFloat(context);
+            using var bitVector = c.MkFPToIEEEBV(expr);
+            return (BitVecNum) bitVector.Simplify();
+        });
 
-        var actual = BitConverter.GetBytes(context.CreateExpr(c => (BitVecNum) c.MkFPToIEEEBV(expr).Simplify()).UInt);
+        var actual = BitConverter.GetBytes(simplified.UInt);
         var expected = BitConverter.GetBytes(float.Parse(value));
 
         actual.Should().BeEquivalentTo(expected);
@@ -76,9 +81,14 @@ public class NormalFloatTests
 
         var normalFloat = new NormalFloat((Bits) 64U, value);
 
-        var expr = normalFloat.AsFloat(context);
+        using var simplified = context.CreateExpr(c =>
+        {
+            using var expr = normalFloat.AsFloat(context);
+            using var bitVector = c.MkFPToIEEEBV(expr);
+            return (BitVecNum) bitVector.Simplify();
+        });
 
-        var actual = BitConverter.GetBytes(context.CreateExpr(c => (BitVecNum) c.MkFPToIEEEBV(expr).Simplify()).UInt64);
+        var actual = BitConverter.GetBytes(simplified.UInt64);
         var expected = BitConverter.GetBytes(double.Parse(value));
 
         actual.Should().BeEquivalentTo(expected);

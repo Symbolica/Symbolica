@@ -75,12 +75,12 @@ internal sealed class State : IState, IExecutable
     {
         using var proposition = condition.GetProposition(Space);
 
-        if (proposition.CanBeFalse)
+        if (proposition.CanBeFalse())
         {
-            if (proposition.CanBeTrue)
+            if (proposition.CanBeTrue())
             {
-                _forks.Add(Clone(proposition.FalseSpace, falseAction));
-                _forks.Add(Clone(proposition.TrueSpace, trueAction));
+                _forks.Add(Clone(proposition.FalseSpace(), falseAction));
+                _forks.Add(Clone(proposition.TrueSpace(), trueAction));
                 Complete();
             }
             else

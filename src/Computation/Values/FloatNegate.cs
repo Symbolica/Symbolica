@@ -15,7 +15,11 @@ internal sealed record FloatNegate : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPNeg(_value.AsFloat(context)));
+        return context.CreateExpr(c =>
+        {
+            using var value = _value.AsFloat(context);
+            return c.MkFPNeg(value);
+        });
     }
 
     public static IValue Create(IValue value)

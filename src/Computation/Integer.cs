@@ -17,6 +17,11 @@ internal abstract record Integer : IValue
 
     public FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPToFP(AsBitVector(context), Size.GetSort(context)));
+        return context.CreateExpr(c =>
+        {
+            using var bitVector = AsBitVector(context);
+            using var sort = Size.GetSort(context);
+            return c.MkFPToFP(bitVector, sort);
+        });
     }
 }

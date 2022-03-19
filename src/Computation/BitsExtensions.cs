@@ -23,7 +23,7 @@ internal static class BitsExtensions
 
     public static BigInteger GetNan(this Bits self, IContext context)
     {
-        var sort = self.GetSort(context);
+        using var sort = self.GetSort(context);
         var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);
 
         return ConstantUnsigned.Create(self, nan);

@@ -16,7 +16,12 @@ internal sealed record FloatCeiling : Float
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFPRoundToIntegral(c.MkFPRTP(), _value.AsFloat(context)));
+        return context.CreateExpr(c =>
+        {
+            using var rounding = c.MkFPRTP();
+            using var value = _value.AsFloat(context);
+            return c.MkFPRoundToIntegral(rounding, value);
+        });
     }
 
     public static IValue Create(IValue value)

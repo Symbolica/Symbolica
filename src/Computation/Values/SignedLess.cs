@@ -15,7 +15,12 @@ internal sealed record SignedLess : Bool
 
     public override BoolExpr AsBool(IContext context)
     {
-        return context.CreateExpr(c => c.MkBVSLT(_left.AsBitVector(context), _right.AsBitVector(context)));
+        return context.CreateExpr(c =>
+        {
+            using var left = _left.AsBitVector(context);
+            using var right = _right.AsBitVector(context);
+            return c.MkBVSLT(left, right);
+        });
     }
 
     public static IValue Create(IValue left, IValue right)

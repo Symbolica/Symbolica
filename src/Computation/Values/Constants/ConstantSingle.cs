@@ -19,7 +19,11 @@ internal sealed record ConstantSingle : Float, IConstantValue
 
     public override FPExpr AsFloat(IContext context)
     {
-        return context.CreateExpr(c => c.MkFP(_value, Size.GetSort(context)));
+        return context.CreateExpr(c =>
+        {
+            using var sort = Size.GetSort(context);
+            return c.MkFP(_value, sort);
+        });
     }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)

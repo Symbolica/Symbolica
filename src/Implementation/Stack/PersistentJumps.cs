@@ -55,7 +55,7 @@ internal sealed class PersistentJumps : IPersistentJumps
             var isEqual = _continuation.Equal(continuation);
             using var proposition = isEqual.GetProposition(space);
 
-            return !proposition.CanBeFalse;
+            return !proposition.CanBeFalse();
         }
     }
 }

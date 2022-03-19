@@ -16,8 +16,11 @@ public class AndTests
     {
         using var context = PooledContext.Create();
 
-        var result0 = And.Create(left0, right0).AsBitVector(context).Simplify();
-        var result1 = And.Create(left1, right1).AsBitVector(context).Simplify();
+        using var bv0 = And.Create(left0, right0).AsBitVector(context);
+        using var result0 = bv0.Simplify();
+
+        using var bv1 = And.Create(left1, right1).AsBitVector(context);
+        using var result1 = bv1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -30,8 +33,11 @@ public class AndTests
     {
         using var context = PooledContext.Create();
 
-        var result0 = And.Create(left0, right0).AsBool(context).Simplify();
-        var result1 = And.Create(left1, right1).AsBool(context).Simplify();
+        using var b0 = And.Create(left0, right0).AsBool(context);
+        using var result0 = b0.Simplify();
+
+        using var b1 = And.Create(left1, right1).AsBool(context);
+        using var result1 = b1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
     }
@@ -44,8 +50,11 @@ public class AndTests
 
         var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        var actual = And.Create(value, zero).AsBitVector(context).Simplify();
-        var expected = zero.AsBitVector(context).Simplify();
+        using var and = And.Create(value, zero).AsBitVector(context);
+        using var actual = and.Simplify();
+
+        using var zeroBv = zero.AsBitVector(context);
+        using var expected = zeroBv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -58,8 +67,11 @@ public class AndTests
 
         var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        var actual = And.Create(zero, value).AsBitVector(context).Simplify();
-        var expected = zero.AsBitVector(context).Simplify();
+        using var and = And.Create(zero, value).AsBitVector(context);
+        using var actual = and.Simplify();
+
+        using var zeroBv = zero.AsBitVector(context);
+        using var expected = zeroBv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -72,8 +84,11 @@ public class AndTests
 
         var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
 
-        var actual = And.Create(value, ones).AsBitVector(context).Simplify();
-        var expected = value.AsBitVector(context).Simplify();
+        using var and = And.Create(value, ones).AsBitVector(context);
+        using var actual = and.Simplify();
+
+        using var bv = value.AsBitVector(context);
+        using var expected = bv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -86,8 +101,11 @@ public class AndTests
 
         var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
 
-        var actual = And.Create(ones, value).AsBitVector(context).Simplify();
-        var expected = value.AsBitVector(context).Simplify();
+        using var and = And.Create(ones, value).AsBitVector(context);
+        using var actual = and.Simplify();
+
+        using var bv = value.AsBitVector(context);
+        using var expected = bv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
     }
