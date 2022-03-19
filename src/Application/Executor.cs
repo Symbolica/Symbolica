@@ -12,8 +12,8 @@ namespace Symbolica;
 
 internal sealed class Executor
 {
-    private readonly Options _options;
     private readonly int _maxParallelism;
+    private readonly Options _options;
 
     public Executor(Options options, int maxParallelism)
     {

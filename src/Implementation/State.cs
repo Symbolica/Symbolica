@@ -79,8 +79,8 @@ internal sealed class State : IState, IExecutable
         {
             if (proposition.CanBeTrue())
             {
-                _forks.Add(Clone(proposition.FalseSpace(), falseAction));
-                _forks.Add(Clone(proposition.TrueSpace(), trueAction));
+                _forks.Add(Clone(proposition.CreateFalseSpace(), falseAction));
+                _forks.Add(Clone(proposition.CreateTrueSpace(), trueAction));
                 Complete();
             }
             else

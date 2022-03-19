@@ -19,7 +19,7 @@ internal sealed class Exit : IFunction
         using var proposition = code.GetProposition(state.Space);
 
         if (proposition.CanBeTrue())
-            throw new StateException(StateError.NonZeroExitCode, proposition.TrueSpace());
+            throw new StateException(StateError.NonZeroExitCode, proposition.CreateTrueSpace());
 
         state.Complete();
     }
