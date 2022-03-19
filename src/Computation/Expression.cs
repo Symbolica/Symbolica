@@ -331,27 +331,27 @@ internal sealed class Expression : IExpression
 
     private BigInteger GetSingleValue(IPersistentSpace space)
     {
-        using var context = space.CreateContext();
+        using var solver = space.CreateSolver();
 
         bool IsFPNaN(Float value)
         {
-            using var flt = value.AsFloat(context);
+            using var flt = value.AsFloat(solver);
             using var simplified = flt.Simplify();
             return simplified.IsFPNaN;
         }
 
         return _value switch
         {
-            Float f when IsFPNaN(f) => _value.Size.GetNan(context),
-            _ => context.GetSingleValue(_value)
+            Float f when IsFPNaN(f) => _value.Size.GetNan(solver),
+            _ => solver.GetSingleValue(_value)
         };
     }
 
     private BigInteger GetExampleValue(IPersistentSpace space)
     {
-        using var context = space.CreateContext();
+        using var solver = space.CreateSolver();
 
-        return context.GetExampleValue(_value);
+        return solver.GetExampleValue(_value);
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,

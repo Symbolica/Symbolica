@@ -14,14 +14,11 @@ internal sealed record FloatCeiling : Float
         _value = value;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var rounding = c.MkFPRTP();
-            using var value = _value.AsFloat(context);
-            return c.MkFPRoundToIntegral(rounding, value);
-        });
+        using var rounding = solver.Context.MkFPRTP();
+        using var value = _value.AsFloat(solver);
+        return solver.Context.MkFPRoundToIntegral(rounding, value);
     }
 
     public static IValue Create(IValue value)

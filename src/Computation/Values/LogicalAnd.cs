@@ -14,14 +14,11 @@ internal sealed record LogicalAnd : Bool
         _right = right;
     }
 
-    public override BoolExpr AsBool(IContext context)
+    public override BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var left = _left.AsBool(context);
-            using var right = _right.AsBool(context);
-            return c.MkAnd(left, right);
-        });
+        using var left = _left.AsBool(solver);
+        using var right = _right.AsBool(solver);
+        return solver.Context.MkAnd(left, right);
     }
 
     private static IValue ShortCircuit(IValue left, ConstantBool right)

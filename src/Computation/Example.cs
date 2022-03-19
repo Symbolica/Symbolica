@@ -9,7 +9,7 @@ internal sealed class Example : IExample
 {
     private readonly KeyValuePair<string, string>[] _pairs;
 
-    private Example(KeyValuePair<string, string>[] pairs)
+    public Example(KeyValuePair<string, string>[] pairs)
     {
         _pairs = pairs;
     }
@@ -22,12 +22,5 @@ internal sealed class Example : IExample
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
-    }
-
-    public static IExample Create(IPersistentSpace space)
-    {
-        using var context = space.CreateContext();
-
-        return new Example(context.GetExampleValues().ToArray());
     }
 }

@@ -17,30 +17,28 @@ internal sealed record FloatPower : Float, IRealValue
         _right = right;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
         throw new UnsupportedSymbolicArithmeticException();
     }
 
-    public RealExpr AsReal(IContext context)
+    public RealExpr AsReal(ISolver solver)
     {
-        ArithExpr ToArithExpr(IValue value) =>
-            value switch
-            {
-                IRealValue r => r.AsReal(context),
-                _ => context.CreateExpr(c =>
-                {
-                    using var flt = value.AsFloat(context);
-                    return c.MkFPToReal(flt);
-                })
-            };
+        using var left = _left is IRealValue l
+            ? l.AsReal(solver)
+            : AsReal(solver, _left);
 
-        return context.CreateExpr(c =>
-        {
-            using var left = ToArithExpr(_left);
-            using var right = ToArithExpr(_right);
-            return (RealExpr) c.MkPower(left, right);
-        });
+        using var right = _right is IRealValue r
+            ? r.AsReal(solver)
+            : AsReal(solver, _right);
+
+        return (RealExpr) solver.Context.MkPower(left, right);
+    }
+
+    private static RealExpr AsReal(ISolver solver, IValue value)
+    {
+        using var flt = value.AsFloat(solver);
+        return solver.Context.MkFPToReal(flt);
     }
 
     public static IValue Create(IValue left, IValue right)

@@ -14,12 +14,12 @@ public class OrTests
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
-        using var bv0 = Or.Create(left0, right0).AsBitVector(context);
+        using var bv0 = Or.Create(left0, right0).AsBitVector(solver);
         using var result0 = bv0.Simplify();
 
-        using var bv1 = Or.Create(left1, right1).AsBitVector(context);
+        using var bv1 = Or.Create(left1, right1).AsBitVector(solver);
         using var result1 = bv1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
@@ -31,12 +31,12 @@ public class OrTests
         IValue left0, IValue right0,
         IValue left1, IValue right1)
     {
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
-        using var b0 = Or.Create(left0, right0).AsBool(context);
+        using var b0 = Or.Create(left0, right0).AsBool(solver);
         using var result0 = b0.Simplify();
 
-        using var b1 = Or.Create(left1, right1).AsBool(context);
+        using var b1 = Or.Create(left1, right1).AsBool(solver);
         using var result1 = b1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
@@ -46,14 +46,14 @@ public class OrTests
     [ClassData(typeof(IdentityTestData))]
     private void ShouldShortCircuitToLeftWhenRightIsZero(IValue value)
     {
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
         var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        using var or = Or.Create(value, zero).AsBitVector(context);
+        using var or = Or.Create(value, zero).AsBitVector(solver);
         using var actual = or.Simplify();
 
-        using var bv = value.AsBitVector(context);
+        using var bv = value.AsBitVector(solver);
         using var expected = bv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
@@ -63,14 +63,14 @@ public class OrTests
     [ClassData(typeof(IdentityTestData))]
     private void ShouldShortCircuitToRightWhenLeftIsZero(IValue value)
     {
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
         var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
 
-        using var or = Or.Create(zero, value).AsBitVector(context);
+        using var or = Or.Create(zero, value).AsBitVector(solver);
         using var actual = or.Simplify();
 
-        using var bv = value.AsBitVector(context);
+        using var bv = value.AsBitVector(solver);
         using var expected = bv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
@@ -80,14 +80,14 @@ public class OrTests
     [ClassData(typeof(IdentityTestData))]
     private void ShouldShortCircuitToOnesWhenRightIsOnes(IValue value)
     {
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
         var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
 
-        using var or = Or.Create(value, ones).AsBitVector(context);
+        using var or = Or.Create(value, ones).AsBitVector(solver);
         using var actual = or.Simplify();
 
-        using var onesBv = ones.AsBitVector(context);
+        using var onesBv = ones.AsBitVector(solver);
         using var expected = onesBv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);
@@ -97,14 +97,14 @@ public class OrTests
     [ClassData(typeof(IdentityTestData))]
     private void ShouldShortCircuitToOnesWhenLeftIsOnes(IValue value)
     {
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
         var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
 
-        using var or = Or.Create(ones, value).AsBitVector(context);
+        using var or = Or.Create(ones, value).AsBitVector(solver);
         using var actual = or.Simplify();
 
-        using var onesBv = ones.AsBitVector(context);
+        using var onesBv = ones.AsBitVector(solver);
         using var expected = onesBv.Simplify();
 
         actual.Should().BeEquivalentTo(expected);

@@ -10,14 +10,11 @@ internal abstract record BitVector : Integer
     {
     }
 
-    public sealed override BoolExpr AsBool(IContext context)
+    public sealed override BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var bitVector = AsBitVector(context);
-            using var zero = c.MkBV(0U, (uint) Size);
-            using var isZero = c.MkEq(bitVector, zero);
-            return c.MkNot(isZero);
-        });
+        using var bitVector = AsBitVector(solver);
+        using var zero = solver.Context.MkBV(0U, (uint) Size);
+        using var isZero = solver.Context.MkEq(bitVector, zero);
+        return solver.Context.MkNot(isZero);
     }
 }

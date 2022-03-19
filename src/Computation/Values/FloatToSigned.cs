@@ -15,14 +15,11 @@ internal sealed record FloatToSigned : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var rounding = c.MkFPRTZ();
-            using var value = _value.AsFloat(context);
-            return c.MkFPToBV(rounding, value, (uint) Size, true);
-        });
+        using var rounding = solver.Context.MkFPRTZ();
+        using var value = _value.AsFloat(solver);
+        return solver.Context.MkFPToBV(rounding, value, (uint) Size, true);
     }
 
     public static IValue Create(Bits size, IValue value)

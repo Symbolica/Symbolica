@@ -14,14 +14,11 @@ internal sealed record Subtract : BitVector
         _right = right;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var left = _left.AsBitVector(context);
-            using var right = _right.AsBitVector(context);
-            return c.MkBVSub(left, right);
-        });
+        using var left = _left.AsBitVector(solver);
+        using var right = _right.AsBitVector(solver);
+        return solver.Context.MkBVSub(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)

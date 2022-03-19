@@ -16,14 +16,11 @@ internal sealed record FloatRemainder : Float
         _right = right;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var left = _left.AsFloat(context);
-            using var right = _right.AsFloat(context);
-            return c.MkFPRem(left, right);
-        });
+        using var left = _left.AsFloat(solver);
+        using var right = _right.AsFloat(solver);
+        return solver.Context.MkFPRem(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)

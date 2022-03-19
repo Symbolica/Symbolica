@@ -34,16 +34,13 @@ public class NormalFloatTests
     [InlineData("3.402823466E+38")]
     private void ShouldCreateEquivalentRepresentationForSinglePrecision(string value)
     {
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
         var normalFloat = new NormalFloat((Bits) 32U, value);
 
-        using var simplified = context.CreateExpr(c =>
-        {
-            using var expr = normalFloat.AsFloat(context);
-            using var bitVector = c.MkFPToIEEEBV(expr);
-            return (BitVecNum) bitVector.Simplify();
-        });
+        using var expr = normalFloat.AsFloat(solver);
+        using var bitVector = solver.Context.MkFPToIEEEBV(expr);
+        using var simplified = (BitVecNum) bitVector.Simplify();
 
         var actual = BitConverter.GetBytes(simplified.UInt);
         var expected = BitConverter.GetBytes(float.Parse(value));
@@ -77,16 +74,13 @@ public class NormalFloatTests
     [InlineData("1.7976931348623158E+308")]
     private void ShouldCreateEquivalentRepresentationForDoublePrecision(string value)
     {
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
         var normalFloat = new NormalFloat((Bits) 64U, value);
 
-        using var simplified = context.CreateExpr(c =>
-        {
-            using var expr = normalFloat.AsFloat(context);
-            using var bitVector = c.MkFPToIEEEBV(expr);
-            return (BitVecNum) bitVector.Simplify();
-        });
+        using var expr = normalFloat.AsFloat(solver);
+        using var bitVector = solver.Context.MkFPToIEEEBV(expr);
+        using var simplified = (BitVecNum) bitVector.Simplify();
 
         var actual = BitConverter.GetBytes(simplified.UInt64);
         var expected = BitConverter.GetBytes(double.Parse(value));

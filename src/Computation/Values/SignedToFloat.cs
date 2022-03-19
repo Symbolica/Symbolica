@@ -13,15 +13,12 @@ internal sealed record SignedToFloat : Float
         _value = value;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var rounding = c.MkFPRNE();
-            using var value = _value.AsBitVector(context);
-            using var sort = Size.GetSort(context);
-            return c.MkFPToFP(rounding, value, sort, true);
-        });
+        using var rounding = solver.Context.MkFPRNE();
+        using var value = _value.AsBitVector(solver);
+        using var sort = Size.GetSort(solver);
+        return solver.Context.MkFPToFP(rounding, value, sort, true);
     }
 
     public static IValue Create(Bits size, IValue value)

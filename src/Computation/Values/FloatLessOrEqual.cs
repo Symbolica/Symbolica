@@ -14,14 +14,11 @@ internal sealed record FloatLessOrEqual : Bool
         _right = right;
     }
 
-    public override BoolExpr AsBool(IContext context)
+    public override BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var left = _left.AsFloat(context);
-            using var right = _right.AsFloat(context);
-            return c.MkFPLEq(left, right);
-        });
+        using var left = _left.AsFloat(solver);
+        using var right = _right.AsFloat(solver);
+        return solver.Context.MkFPLEq(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)

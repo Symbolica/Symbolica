@@ -13,14 +13,11 @@ internal sealed record UnsignedGreaterOrEqual : Bool
         _right = right;
     }
 
-    public override BoolExpr AsBool(IContext context)
+    public override BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var left = _left.AsBitVector(context);
-            using var right = _right.AsBitVector(context);
-            return c.MkBVUGE(left, right);
-        });
+        using var left = _left.AsBitVector(solver);
+        using var right = _right.AsBitVector(solver);
+        return solver.Context.MkBVUGE(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)

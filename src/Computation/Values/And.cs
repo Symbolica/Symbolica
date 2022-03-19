@@ -15,14 +15,11 @@ internal sealed record And : BitVector
         _right = right;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var left = _left.AsBitVector(context);
-            using var right = _right.AsBitVector(context);
-            return c.MkBVAND(left, right);
-        });
+        using var left = _left.AsBitVector(solver);
+        using var right = _right.AsBitVector(solver);
+        return solver.Context.MkBVAND(left, right);
     }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
