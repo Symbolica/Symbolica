@@ -65,8 +65,8 @@ internal sealed class PooledSolver : ISolver
         var constant = GetExampleValue(value);
 
         return IsSatisfiable(NotEqual.Create(value, ConstantUnsigned.Create(value.Size, constant)))
-            ? constant
-            : throw new IrreducibleSymbolicExpressionException();
+            ? throw new IrreducibleSymbolicExpressionException()
+            : constant;
     }
 
     public BigInteger GetExampleValue(IValue value)
