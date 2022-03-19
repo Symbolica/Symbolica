@@ -31,17 +31,19 @@ internal sealed class PersistentSpace : IPersistentSpace
             _assertions.Push(assertion));
     }
 
-    public IContext CreateContext()
+    public ISolver CreateSolver()
     {
-        var context = PooledContext.Create();
-        context.Assert(_assertions);
+        var solver = PooledSolver.Create();
+        solver.Assert(_assertions);
 
-        return context;
+        return solver;
     }
 
     public IExample GetExample()
     {
-        return Example.Create(this);
+        using var solver = CreateSolver();
+
+        return solver.GetExample();
     }
 
     public IExpression CreateConstant(Bits size, BigInteger value)

@@ -13,26 +13,20 @@ internal abstract record Float : IValue
 
     public Bits Size { get; }
 
-    public BitVecExpr AsBitVector(IContext context)
+    public BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var flt = AsFloat(context);
-            return c.MkFPToIEEEBV(flt);
-        });
+        using var flt = AsFloat(solver);
+        return solver.Context.MkFPToIEEEBV(flt);
     }
 
-    public BoolExpr AsBool(IContext context)
+    public BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var flt = AsFloat(context);
-            using var isZero = c.MkFPIsZero(flt);
-            return c.MkNot(isZero);
-        });
+        using var flt = AsFloat(solver);
+        using var isZero = solver.Context.MkFPIsZero(flt);
+        return solver.Context.MkNot(isZero);
     }
 
-    public abstract FPExpr AsFloat(IContext context);
+    public abstract FPExpr AsFloat(ISolver solver);
 
     public static IValue Unary(IValue value,
         Func<float, IValue> constantSingle,

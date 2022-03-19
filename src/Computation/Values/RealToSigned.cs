@@ -13,13 +13,10 @@ internal sealed record RealToSigned : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var value = _value.AsReal(context);
-            using var intValue = c.MkReal2Int(value);
-            return c.MkInt2BV((uint) Size, intValue);
-        });
+        using var value = _value.AsReal(solver);
+        using var intValue = solver.Context.MkReal2Int(value);
+        return solver.Context.MkInt2BV((uint) Size, intValue);
     }
 }

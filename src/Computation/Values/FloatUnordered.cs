@@ -14,20 +14,15 @@ internal sealed record FloatUnordered : Bool
         _right = right;
     }
 
-    public override BoolExpr AsBool(IContext context)
+    public override BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            BoolExpr MkFPIsNaN(IValue value)
-            {
-                using var flt = value.AsFloat(context);
-                return c.MkFPIsNaN(flt);
-            }
+        using var left = _left.AsFloat(solver);
+        using var leftIsNaN = solver.Context.MkFPIsNaN(left);
 
-            using var left = MkFPIsNaN(_left);
-            using var right = MkFPIsNaN(_right);
-            return c.MkOr(left, right);
-        });
+        using var right = _right.AsFloat(solver);
+        using var rightIsNaN = solver.Context.MkFPIsNaN(right);
+
+        return solver.Context.MkOr(leftIsNaN, rightIsNaN);
     }
 
     public static IValue Create(IValue left, IValue right)

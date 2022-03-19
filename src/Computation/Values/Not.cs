@@ -12,13 +12,10 @@ internal sealed record Not : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var value = _value.AsBitVector(context);
-            return c.MkBVNot(value);
-        });
+        using var value = _value.AsBitVector(solver);
+        return solver.Context.MkBVNot(value);
     }
 
     public static IValue Create(IValue value)

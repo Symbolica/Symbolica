@@ -13,12 +13,12 @@ public class WriteTests
         IValue buffer1, IValue offset1, IValue value1)
     {
         var collectionFactory = new CollectionFactory();
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
-        using var bv0 = Write.Create(collectionFactory, buffer0, offset0, value0).AsBitVector(context);
+        using var bv0 = Write.Create(collectionFactory, buffer0, offset0, value0).AsBitVector(solver);
         using var result0 = bv0.Simplify();
 
-        using var bv1 = Write.Create(collectionFactory, buffer1, offset1, value1).AsBitVector(context);
+        using var bv1 = Write.Create(collectionFactory, buffer1, offset1, value1).AsBitVector(solver);
         using var result1 = bv1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);
@@ -31,12 +31,12 @@ public class WriteTests
         IValue buffer1, IValue offset1, IValue value1)
     {
         var collectionFactory = new CollectionFactory();
-        using var context = PooledContext.Create();
+        using var solver = PooledSolver.Create();
 
-        using var b0 = Write.Create(collectionFactory, buffer0, offset0, value0).AsBool(context);
+        using var b0 = Write.Create(collectionFactory, buffer0, offset0, value0).AsBool(solver);
         using var result0 = b0.Simplify();
 
-        using var b1 = Write.Create(collectionFactory, buffer1, offset1, value1).AsBool(context);
+        using var b1 = Write.Create(collectionFactory, buffer1, offset1, value1).AsBool(solver);
         using var result1 = b1.Simplify();
 
         result0.Should().BeEquivalentTo(result1);

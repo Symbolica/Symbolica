@@ -6,14 +6,14 @@ namespace Symbolica.Computation;
 internal sealed class SymbolicProposition : IProposition
 {
     private readonly IValue _assertion;
-    private readonly IContext _context;
     private readonly IValue _negation;
+    private readonly ISolver _solver;
     private readonly IPersistentSpace _space;
 
-    private SymbolicProposition(IPersistentSpace space, IContext context, IValue assertion, IValue negation)
+    private SymbolicProposition(IPersistentSpace space, ISolver solver, IValue assertion, IValue negation)
     {
         _space = space;
-        _context = context;
+        _solver = solver;
         _assertion = assertion;
         _negation = negation;
     }
@@ -30,23 +30,23 @@ internal sealed class SymbolicProposition : IProposition
 
     public bool CanBeFalse()
     {
-        return _context.IsSatisfiable(_negation);
+        return _solver.IsSatisfiable(_negation);
     }
 
     public bool CanBeTrue()
     {
-        return _context.IsSatisfiable(_assertion);
+        return _solver.IsSatisfiable(_assertion);
     }
 
     public void Dispose()
     {
-        _context.Dispose();
+        _solver.Dispose();
     }
 
     public static IProposition Create(IPersistentSpace space, IValue assertion)
     {
-        var context = space.CreateContext();
+        var solver = space.CreateSolver();
 
-        return new SymbolicProposition(space, context, assertion, LogicalNot.Create(assertion));
+        return new SymbolicProposition(space, solver, assertion, LogicalNot.Create(assertion));
     }
 }

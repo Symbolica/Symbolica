@@ -1,31 +1,32 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class PooledContext : IContext
+internal sealed class PooledSolver : ISolver
 {
     private static readonly ConcurrentBag<Context> Contexts = new();
-    private readonly Context _context;
     private readonly ISet<string> _names;
     private readonly Solver _solver;
 
-    private PooledContext(Context context, Solver solver)
+    private PooledSolver(Context context, Solver solver)
     {
-        _context = context;
+        Context = context;
         _solver = solver;
         _names = new HashSet<string>();
     }
 
+    public Context Context { get; }
+
     public void Dispose()
     {
         _solver.Dispose();
-        Contexts.Add(_context);
+        Contexts.Add(Context);
     }
 
     public void Assert(IEnumerable<IValue> assertions)
@@ -79,27 +80,12 @@ internal sealed class PooledContext : IContext
         return ((BitVecNum) expr).BigInteger;
     }
 
-    public IEnumerable<KeyValuePair<string, string>> GetExampleValues()
+    public IExample GetExample()
     {
         using var model = CreateModel();
-        return model.Consts.ToList().Select(p =>
-        {
-            using var func = p.Key;
-            using var expr = p.Value;
-            return new KeyValuePair<string, string>(func.Name.ToString(), expr.ToString());
-        });
-    }
-
-    public TSort CreateSort<TSort>(Func<Context, TSort> func)
-        where TSort : Sort
-    {
-        return func(_context);
-    }
-
-    public TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
-        where TExpr : Expr
-    {
-        return func(_context);
+        return new Example(model.Consts
+            .Select(CreateExample)
+            .ToArray());
     }
 
     private Model CreateModel()
@@ -111,13 +97,20 @@ internal sealed class PooledContext : IContext
             : throw new InvalidModelException(status);
     }
 
-    private static IContext Create(Context context)
+    private static KeyValuePair<string, string> CreateExample(KeyValuePair<FuncDecl, Expr> pair)
     {
-        using var tactic = context.MkTactic("smt");
-        return new PooledContext(context, context.MkSolver(tactic));
+        using var func = pair.Key;
+        using var expr = pair.Value;
+        return new KeyValuePair<string, string>(func.Name.ToString(), expr.ToString());
     }
 
-    public static IContext Create()
+    private static ISolver Create(Context context)
+    {
+        using var tactic = context.MkTactic("smt");
+        return new PooledSolver(context, context.MkSolver(tactic));
+    }
+
+    public static ISolver Create()
     {
         return Create(Contexts.TryTake(out var context)
             ? context

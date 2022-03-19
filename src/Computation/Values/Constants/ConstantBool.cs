@@ -13,9 +13,9 @@ internal sealed record ConstantBool : Bool, IConstantValue
         _value = value;
     }
 
-    public override BoolExpr AsBool(IContext context)
+    public override BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c => c.MkBool(_value));
+        return solver.Context.MkBool(_value);
     }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)

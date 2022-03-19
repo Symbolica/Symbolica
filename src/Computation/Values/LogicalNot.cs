@@ -11,13 +11,10 @@ internal sealed record LogicalNot : Bool
         _value = value;
     }
 
-    public override BoolExpr AsBool(IContext context)
+    public override BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var value = _value.AsBool(context);
-            return c.MkNot(value);
-        });
+        using var value = _value.AsBool(solver);
+        return solver.Context.MkNot(value);
     }
 
     public static IValue Create(IValue value)
@@ -40,9 +37,9 @@ internal sealed record LogicalNot : Bool
             _value = value;
         }
 
-        public override BoolExpr AsBool(IContext context)
+        public override BoolExpr AsBool(ISolver solver)
         {
-            return _value.AsBool(context);
+            return _value.AsBool(solver);
         }
     }
 }

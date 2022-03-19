@@ -13,12 +13,9 @@ internal sealed record SymbolicSingle : Float
         _value = value;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var sort = Size.GetSort(context);
-            return c.MkFP(_value, sort);
-        });
+        using var sort = Size.GetSort(solver);
+        return solver.Context.MkFP(_value, sort);
     }
 }

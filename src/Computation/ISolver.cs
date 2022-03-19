@@ -2,21 +2,18 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal interface IContext : IDisposable
+internal interface ISolver : IDisposable
 {
+    Context Context { get; }
+
     void Assert(IEnumerable<IValue> assertions);
     void Assert(string name, IEnumerable<IValue> assertions);
     bool IsSatisfiable(IValue assertion);
     BigInteger GetSingleValue(IValue variable);
     BigInteger GetExampleValue(IValue variable);
-    IEnumerable<KeyValuePair<string, string>> GetExampleValues();
-
-    TSort CreateSort<TSort>(Func<Context, TSort> func)
-        where TSort : Sort;
-
-    TExpr CreateExpr<TExpr>(Func<Context, TExpr> func)
-        where TExpr : Expr;
+    IExample GetExample();
 }

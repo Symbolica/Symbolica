@@ -14,8 +14,8 @@ internal sealed record SymbolicUnsigned : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c => c.MkBV(_value.ToString(), (uint) Size));
+        return solver.Context.MkBV(_value.ToString(), (uint) Size);
     }
 }

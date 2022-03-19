@@ -13,13 +13,10 @@ internal sealed record Truncate : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var value = _value.AsBitVector(context);
-            return c.MkExtract((uint) (Size - Bits.One), 0U, value);
-        });
+        using var value = _value.AsBitVector(solver);
+        return solver.Context.MkExtract((uint) (Size - Bits.One), 0U, value);
     }
 
     public static IValue Create(Bits size, IValue value)

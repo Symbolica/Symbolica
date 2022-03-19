@@ -13,13 +13,10 @@ internal sealed record FloatNegate : Float
         _value = value;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var value = _value.AsFloat(context);
-            return c.MkFPNeg(value);
-        });
+        using var value = _value.AsFloat(solver);
+        return solver.Context.MkFPNeg(value);
     }
 
     public static IValue Create(IValue value)

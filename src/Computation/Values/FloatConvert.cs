@@ -14,15 +14,12 @@ internal sealed record FloatConvert : Float
         _value = value;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var rounding = c.MkFPRNE();
-            using var value = _value.AsFloat(context);
-            using var sort = Size.GetSort(context);
-            return c.MkFPToFP(rounding, value, sort);
-        });
+        using var rounding = solver.Context.MkFPRNE();
+        using var value = _value.AsFloat(solver);
+        using var sort = Size.GetSort(solver);
+        return solver.Context.MkFPToFP(rounding, value, sort);
     }
 
     public static IValue Create(Bits size, IValue value)

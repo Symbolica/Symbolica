@@ -7,7 +7,7 @@ internal interface IValue
 {
     Bits Size { get; }
 
-    BitVecExpr AsBitVector(IContext context);
-    BoolExpr AsBool(IContext context);
-    FPExpr AsFloat(IContext context);
+    BitVecExpr AsBitVector(ISolver solver);
+    BoolExpr AsBool(ISolver solver);
+    FPExpr AsFloat(ISolver solver);
 }

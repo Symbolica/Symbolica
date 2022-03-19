@@ -13,13 +13,10 @@ internal sealed record SignExtend : BitVector
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var value = _value.AsBitVector(context);
-            return c.MkSignExt((uint) (Size - _value.Size), value);
-        });
+        using var value = _value.AsBitVector(solver);
+        return solver.Context.MkSignExt((uint) (Size - _value.Size), value);
     }
 
     public static IValue Create(Bits size, IValue value)

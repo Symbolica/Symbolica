@@ -18,11 +18,11 @@ internal sealed record Symbol : BitVector
         _assertions = assertions;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        context.Assert(_name, _assertions);
+        solver.Assert(_name, _assertions);
 
-        return context.CreateExpr(c => c.MkBVConst(_name, (uint) Size));
+        return solver.Context.MkBVConst(_name, (uint) Size);
     }
 
     public static IValue Create(Bits size, string name, IEnumerable<Func<IValue, IValue>> assertions)

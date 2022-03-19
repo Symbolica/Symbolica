@@ -22,9 +22,9 @@ internal sealed record Write : BitVector
         _writeMask = Mask(writeBuffer, writeOffset, writeValue.Size);
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return Flatten().AsBitVector(context);
+        return Flatten().AsBitVector(solver);
     }
 
     public IValue LayerRead(ICollectionFactory collectionFactory, IValue offset, Bits size)

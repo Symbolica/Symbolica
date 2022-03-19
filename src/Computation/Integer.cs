@@ -12,16 +12,13 @@ internal abstract record Integer : IValue
 
     public Bits Size { get; }
 
-    public abstract BitVecExpr AsBitVector(IContext context);
-    public abstract BoolExpr AsBool(IContext context);
+    public abstract BitVecExpr AsBitVector(ISolver solver);
+    public abstract BoolExpr AsBool(ISolver solver);
 
-    public FPExpr AsFloat(IContext context)
+    public FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var bitVector = AsBitVector(context);
-            using var sort = Size.GetSort(context);
-            return c.MkFPToFP(bitVector, sort);
-        });
+        using var bitVector = AsBitVector(solver);
+        using var sort = Size.GetSort(solver);
+        return solver.Context.MkFPToFP(bitVector, sort);
     }
 }

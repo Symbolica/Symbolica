@@ -18,37 +18,28 @@ internal sealed record Select : IValue
 
     public Bits Size => _trueValue.Size;
 
-    public BitVecExpr AsBitVector(IContext context)
+    public BitVecExpr AsBitVector(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var predicate = _predicate.AsBool(context);
-            using var trueValue = _trueValue.AsBitVector(context);
-            using var falseValue = _falseValue.AsBitVector(context);
-            return (BitVecExpr) c.MkITE(predicate, trueValue, falseValue);
-        });
+        using var predicate = _predicate.AsBool(solver);
+        using var trueValue = _trueValue.AsBitVector(solver);
+        using var falseValue = _falseValue.AsBitVector(solver);
+        return (BitVecExpr) solver.Context.MkITE(predicate, trueValue, falseValue);
     }
 
-    public BoolExpr AsBool(IContext context)
+    public BoolExpr AsBool(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var predicate = _predicate.AsBool(context);
-            using var trueValue = _trueValue.AsBool(context);
-            using var falseValue = _falseValue.AsBool(context);
-            return (BoolExpr) c.MkITE(predicate, trueValue, falseValue);
-        });
+        using var predicate = _predicate.AsBool(solver);
+        using var trueValue = _trueValue.AsBool(solver);
+        using var falseValue = _falseValue.AsBool(solver);
+        return (BoolExpr) solver.Context.MkITE(predicate, trueValue, falseValue);
     }
 
-    public FPExpr AsFloat(IContext context)
+    public FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var predicate = _predicate.AsBool(context);
-            using var trueValue = _trueValue.AsFloat(context);
-            using var falseValue = _falseValue.AsFloat(context);
-            return (FPExpr) c.MkITE(predicate, trueValue, falseValue);
-        });
+        using var predicate = _predicate.AsBool(solver);
+        using var trueValue = _trueValue.AsFloat(solver);
+        using var falseValue = _falseValue.AsFloat(solver);
+        return (FPExpr) solver.Context.MkITE(predicate, trueValue, falseValue);
     }
 
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)

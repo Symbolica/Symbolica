@@ -17,9 +17,9 @@ internal sealed record ConstantBitVector : BitVector, IConstantValue
         _value = value;
     }
 
-    public override BitVecExpr AsBitVector(IContext context)
+    public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return AsUnsigned().AsBitVector(context);
+        return AsUnsigned().AsBitVector(solver);
     }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)

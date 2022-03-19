@@ -14,13 +14,13 @@ internal sealed record RealConvert : Float, IRealValue
         _value = value;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
         throw new UnsupportedSymbolicArithmeticException();
     }
 
-    public RealExpr AsReal(IContext context)
+    public RealExpr AsReal(ISolver solver)
     {
-        return _value.AsReal(context);
+        return _value.AsReal(solver);
     }
 }

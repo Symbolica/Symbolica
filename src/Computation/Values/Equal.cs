@@ -13,18 +13,25 @@ internal sealed record Equal : Bool
         _right = right;
     }
 
-    public override BoolExpr AsBool(IContext context)
+    public override BoolExpr AsBool(ISolver solver)
     {
-        var (left, right) = _left is Bool || _right is Bool
-                ? (_left.AsBool(context) as Expr, _right.AsBool(context) as Expr)
-                : (_left.AsBitVector(context), _right.AsBitVector(context));
+        return _left is Bool || _right is Bool
+            ? Logical(solver)
+            : Bitwise(solver);
+    }
 
-        return context.CreateExpr(c =>
-        {
-            using (left)
-            using (right)
-                return c.MkEq(left, right);
-        });
+    private BoolExpr Logical(ISolver solver)
+    {
+        using var left = _left.AsBool(solver);
+        using var right = _right.AsBool(solver);
+        return solver.Context.MkEq(left, right);
+    }
+
+    private BoolExpr Bitwise(ISolver solver)
+    {
+        using var left = _left.AsBitVector(solver);
+        using var right = _right.AsBitVector(solver);
+        return solver.Context.MkEq(left, right);
     }
 
     public static IValue Create(IValue left, IValue right)

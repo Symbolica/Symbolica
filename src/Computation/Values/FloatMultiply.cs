@@ -15,15 +15,12 @@ internal sealed record FloatMultiply : Float
         _right = right;
     }
 
-    public override FPExpr AsFloat(IContext context)
+    public override FPExpr AsFloat(ISolver solver)
     {
-        return context.CreateExpr(c =>
-        {
-            using var rounding = c.MkFPRNE();
-            using var left = _left.AsFloat(context);
-            using var right = _right.AsFloat(context);
-            return c.MkFPMul(rounding, left, right);
-        });
+        using var rounding = solver.Context.MkFPRNE();
+        using var left = _left.AsFloat(solver);
+        using var right = _right.AsFloat(solver);
+        return solver.Context.MkFPMul(rounding, left, right);
     }
 
     public static IValue Create(IValue left, IValue right)
