@@ -333,18 +333,7 @@ internal sealed class Expression : IExpression
     {
         using var solver = space.CreateSolver();
 
-        bool IsFPNaN(Float value)
-        {
-            using var flt = value.AsFloat(solver);
-            using var simplified = flt.Simplify();
-            return simplified.IsFPNaN;
-        }
-
-        return _value switch
-        {
-            Float f when IsFPNaN(f) => _value.Size.GetNan(solver),
-            _ => solver.GetSingleValue(_value)
-        };
+        return solver.GetSingleValue(_value);
     }
 
     private BigInteger GetExampleValue(IPersistentSpace space)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -16,7 +17,11 @@ internal abstract record Float : IValue
     public BitVecExpr AsBitVector(ISolver solver)
     {
         using var flt = AsFloat(solver);
-        return solver.Context.MkFPToIEEEBV(flt);
+        using var simplified = flt.Simplify();
+
+        return simplified.IsFPNaN
+            ? CreateNan(solver)
+            : solver.Context.MkFPToIEEEBV(flt);
     }
 
     public BoolExpr AsBool(ISolver solver)
@@ -27,6 +32,14 @@ internal abstract record Float : IValue
     }
 
     public abstract FPExpr AsFloat(ISolver solver);
+
+    private BitVecExpr CreateNan(ISolver solver)
+    {
+        using var sort = Size.GetSort(solver);
+        var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);
+
+        return solver.Context.MkBV(nan.ToString(), (uint) Size);
+    }
 
     public static IValue Unary(IValue value,
         Func<float, IValue> constantSingle,

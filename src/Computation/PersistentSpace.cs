@@ -55,7 +55,12 @@ internal sealed class PersistentSpace : IPersistentSpace
     public IExpression CreateConstantFloat(Bits size, string value)
     {
         return new Expression(_collectionFactory,
-            size.ParseFloat(value));
+            (uint) size switch
+            {
+                32U => new ConstantSingle(float.Parse(value)),
+                64U => new ConstantDouble(double.Parse(value)),
+                _ => new NormalFloat(size, value)
+            });
     }
 
     public IExpression CreateGarbage(Bits size)
