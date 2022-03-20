@@ -21,6 +21,8 @@ internal sealed record FloatGreater : Bool
         return solver.Context.MkFPGt(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatGreater);
+
     public static IValue Create(IValue left, IValue right)
     {
         return Float.Binary(left, right,

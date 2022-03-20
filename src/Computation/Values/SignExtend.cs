@@ -19,6 +19,8 @@ internal sealed record SignExtend : BitVector
         return solver.Context.MkSignExt((uint) (Size - _value.Size), value);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as SignExtend);
+
     public static IValue Create(Bits size, IValue value)
     {
         return size > value.Size

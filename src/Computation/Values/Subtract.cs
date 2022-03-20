@@ -21,6 +21,8 @@ internal sealed record Subtract : BitVector
         return solver.Context.MkBVSub(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as Subtract);
+
     public static IValue Create(IValue left, IValue right)
     {
         return (left, right) switch

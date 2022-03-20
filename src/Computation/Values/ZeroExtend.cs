@@ -19,6 +19,8 @@ internal sealed record ZeroExtend : BitVector
         return solver.Context.MkZeroExt((uint) (Size - _value.Size), value);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as ZeroExtend);
+
     public static IValue Create(Bits size, IValue value)
     {
         return size > value.Size

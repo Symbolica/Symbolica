@@ -74,6 +74,8 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
         return new ConstantBool(_value == value._value);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as ConstantUnsigned);
+
     public ConstantUnsigned Extend(Bits size)
     {
         return new ConstantUnsigned(size, _value);

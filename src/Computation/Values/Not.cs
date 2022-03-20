@@ -18,6 +18,8 @@ internal sealed record Not : BitVector
         return solver.Context.MkBVNot(value);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as Not);
+
     public static IValue Create(IValue value)
     {
         return value switch

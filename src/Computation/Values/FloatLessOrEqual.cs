@@ -21,6 +21,8 @@ internal sealed record FloatLessOrEqual : Bool
         return solver.Context.MkFPLEq(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatLessOrEqual);
+
     public static IValue Create(IValue left, IValue right)
     {
         return Float.Binary(left, right,

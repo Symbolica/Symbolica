@@ -21,6 +21,8 @@ internal sealed record SignedToFloat : Float
         return solver.Context.MkFPToFP(rounding, value, sort, true);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as SignedToFloat);
+
     public static IValue Create(Bits size, IValue value)
     {
         return value is IConstantValue v

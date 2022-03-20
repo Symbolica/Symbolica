@@ -1,9 +1,10 @@
-﻿using Microsoft.Z3;
+﻿using System;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal interface IValue
+internal interface IValue : IEquatable<IValue>
 {
     Bits Size { get; }
 

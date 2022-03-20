@@ -17,6 +17,8 @@ internal sealed record LogicalNot : Bool
         return solver.Context.MkNot(value);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as LogicalNot);
+
     public static IValue Create(IValue value)
     {
         return value switch
@@ -41,5 +43,7 @@ internal sealed record LogicalNot : Bool
         {
             return _value.AsBool(solver);
         }
+
+        public override bool Equals(IValue? other) => Equals(other as Logical);
     }
 }

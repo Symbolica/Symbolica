@@ -32,6 +32,7 @@ internal abstract record Float : IValue
     }
 
     public abstract FPExpr AsFloat(ISolver solver);
+    public abstract bool Equals(IValue? other);
 
     private BitVecExpr CreateNan(ISolver solver)
     {

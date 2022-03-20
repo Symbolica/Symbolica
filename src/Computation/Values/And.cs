@@ -22,6 +22,8 @@ internal sealed record And : BitVector
         return solver.Context.MkBVAND(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as And);
+
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
     {
         return right.IsZero

@@ -21,6 +21,8 @@ internal sealed record FloatCeiling : Float
         return solver.Context.MkFPRoundToIntegral(rounding, value);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatCeiling);
+
     public static IValue Create(IValue value)
     {
         return Unary(value,

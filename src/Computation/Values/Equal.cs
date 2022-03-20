@@ -20,6 +20,8 @@ internal sealed record Equal : Bool
             : Bitwise(solver);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as Equal);
+
     private BoolExpr Logical(ISolver solver)
     {
         using var left = _left.AsBool(solver);

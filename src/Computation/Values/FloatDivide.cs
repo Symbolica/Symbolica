@@ -23,6 +23,8 @@ internal sealed record FloatDivide : Float
         return solver.Context.MkFPDiv(rounding, left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatDivide);
+
     public static IValue Create(IValue left, IValue right)
     {
         return Binary(left, right,
