@@ -21,6 +21,8 @@ internal sealed record LogicalShiftRight : BitVector
         return solver.Context.MkBVLSHR(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as LogicalShiftRight);
+
     public static IValue Create(IValue left, IValue right)
     {
         return (left, right) switch

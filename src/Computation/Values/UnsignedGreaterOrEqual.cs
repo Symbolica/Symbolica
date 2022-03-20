@@ -20,6 +20,8 @@ internal sealed record UnsignedGreaterOrEqual : Bool
         return solver.Context.MkBVUGE(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as UnsignedGreaterOrEqual);
+
     public static IValue Create(IValue left, IValue right)
     {
         return left is IConstantValue l && right is IConstantValue r

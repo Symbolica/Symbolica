@@ -27,6 +27,8 @@ internal sealed record Write : BitVector
         return Flatten().AsBitVector(solver);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as Write);
+
     public IValue LayerRead(ICollectionFactory collectionFactory, IValue offset, Bits size)
     {
         var mask = Mask(this, offset, size);

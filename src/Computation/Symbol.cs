@@ -25,6 +25,8 @@ internal sealed record Symbol : BitVector
         return solver.Context.MkBVConst(_name, (uint) Size);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as Symbol);
+
     public static IValue Create(Bits size, string name, IEnumerable<Func<IValue, IValue>> assertions)
     {
         var unconstrained = new Symbol(size, name, Array.Empty<IValue>());

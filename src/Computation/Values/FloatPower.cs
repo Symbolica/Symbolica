@@ -35,6 +35,8 @@ internal sealed record FloatPower : Float, IRealValue
         return (RealExpr) solver.Context.MkPower(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatPower);
+
     private static RealExpr AsReal(ISolver solver, IValue value)
     {
         using var flt = value.AsFloat(solver);

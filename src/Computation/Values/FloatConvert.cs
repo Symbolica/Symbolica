@@ -22,6 +22,8 @@ internal sealed record FloatConvert : Float
         return solver.Context.MkFPToFP(rounding, value, sort);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatConvert);
+
     public static IValue Create(Bits size, IValue value)
     {
         return Unary(value,

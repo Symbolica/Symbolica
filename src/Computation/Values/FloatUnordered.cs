@@ -25,6 +25,8 @@ internal sealed record FloatUnordered : Bool
         return solver.Context.MkOr(leftIsNaN, rightIsNaN);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatUnordered);
+
     public static IValue Create(IValue left, IValue right)
     {
         return Float.Binary(left, right,

@@ -20,6 +20,8 @@ internal sealed record SignedLess : Bool
         return solver.Context.MkBVSLT(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as SignedLess);
+
     public static IValue Create(IValue left, IValue right)
     {
         return left is IConstantValue l && right is IConstantValue r

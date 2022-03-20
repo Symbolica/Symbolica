@@ -22,6 +22,8 @@ internal sealed record Multiply : BitVector
         return solver.Context.MkBVMul(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as Multiply);
+
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
     {
         return right.IsZero

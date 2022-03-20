@@ -19,6 +19,8 @@ internal sealed record FloatNegate : Float
         return solver.Context.MkFPNeg(value);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatNegate);
+
     public static IValue Create(IValue value)
     {
         return Unary(value,

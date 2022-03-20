@@ -21,6 +21,8 @@ internal sealed record UnsignedRemainder : BitVector
         return solver.Context.MkBVURem(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as UnsignedRemainder);
+
     public static IValue Create(IValue left, IValue right)
     {
         return left is IConstantValue l && right is IConstantValue r

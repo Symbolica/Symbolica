@@ -18,4 +18,6 @@ internal sealed record SymbolicDouble : Float
         using var sort = Size.GetSort(solver);
         return solver.Context.MkFP(_value, sort);
     }
+
+    public override bool Equals(IValue? other) => Equals(other as SymbolicDouble);
 }

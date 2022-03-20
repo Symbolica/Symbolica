@@ -23,6 +23,8 @@ internal sealed record FloatRemainder : Float
         return solver.Context.MkFPRem(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as FloatRemainder);
+
     public static IValue Create(IValue left, IValue right)
     {
         return Binary(left, right,

@@ -55,6 +55,8 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
         return Create(Size, _value / value._value);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as ConstantSigned);
+
     public ConstantSigned Extend(Bits size)
     {
         return new ConstantSigned(size, _value);

@@ -22,6 +22,8 @@ internal sealed record Xor : BitVector
         return solver.Context.MkBVXOR(left, right);
     }
 
+    public override bool Equals(IValue? other) => Equals(other as Xor);
+
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
     {
         return right.IsZero

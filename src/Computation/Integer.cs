@@ -14,6 +14,7 @@ internal abstract record Integer : IValue
 
     public abstract BitVecExpr AsBitVector(ISolver solver);
     public abstract BoolExpr AsBool(ISolver solver);
+    public abstract bool Equals(IValue? other);
 
     public FPExpr AsFloat(ISolver solver)
     {
