@@ -25,23 +25,21 @@ internal sealed class Expression : IExpression
 
     public BigInteger GetSingleValue(ISpace space)
     {
-        return _value is IConstantValue v
-            ? v.AsUnsigned()
-            : GetSingleValue((IPersistentSpace) space);
+        using var solver = ((IPersistentSpace) space).CreateSolver();
+
+        return solver.GetSingleValue(_value);
     }
 
     public BigInteger GetExampleValue(ISpace space)
     {
-        return _value is IConstantValue v
-            ? v.AsUnsigned()
-            : GetExampleValue((IPersistentSpace) space);
+        using var solver = ((IPersistentSpace) space).CreateSolver();
+
+        return solver.GetExampleValue(_value);
     }
 
     public IProposition GetProposition(ISpace space)
     {
-        return _value is IConstantValue v
-            ? ConstantProposition.Create(space, v)
-            : SymbolicProposition.Create((IPersistentSpace) space, _value);
+        return Proposition.Create((IPersistentSpace) space, _value);
     }
 
     public IExpression Add(IExpression expression)
@@ -327,20 +325,6 @@ internal sealed class Expression : IExpression
     {
         return new Expression(_collectionFactory,
             func(_value, ((Expression) y)._value, ((Expression) z)._value));
-    }
-
-    private BigInteger GetSingleValue(IPersistentSpace space)
-    {
-        using var solver = space.CreateSolver();
-
-        return solver.GetSingleValue(_value);
-    }
-
-    private BigInteger GetExampleValue(IPersistentSpace space)
-    {
-        using var solver = space.CreateSolver();
-
-        return solver.GetExampleValue(_value);
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
