@@ -22,7 +22,7 @@ public sealed class UnsignedDivide : IInstruction
         using var proposition = right.GetProposition(state.Space);
 
         if (proposition.CanBeFalse())
-            throw new StateException(StateError.DivideByZero, proposition.FalseSpace());
+            throw new StateException(StateError.DivideByZero, proposition.CreateFalseSpace());
 
         var result = left.UnsignedDivide(right);
 

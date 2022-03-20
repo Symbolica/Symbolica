@@ -40,10 +40,10 @@ internal sealed class PersistentBlock : IPersistentBlock
         return proposition.CanBeFalse()
             ? proposition.CanBeTrue()
                 ? Result<IPersistentBlock>.Both(
-                    proposition.FalseSpace(),
+                    proposition.CreateFalseSpace(),
                     Write(GetOffset(space, address, isFullyInside), value))
                 : Result<IPersistentBlock>.Failure(
-                    proposition.FalseSpace())
+                    proposition.CreateFalseSpace())
             : Result<IPersistentBlock>.Success(
                 Write(GetOffset(space, address), value));
     }
@@ -60,10 +60,10 @@ internal sealed class PersistentBlock : IPersistentBlock
         return proposition.CanBeFalse()
             ? proposition.CanBeTrue()
                 ? Result<IExpression>.Both(
-                    proposition.FalseSpace(),
+                    proposition.CreateFalseSpace(),
                     Read(GetOffset(space, address, isFullyInside), size))
                 : Result<IExpression>.Failure(
-                    proposition.FalseSpace())
+                    proposition.CreateFalseSpace())
             : Result<IExpression>.Success(
                 Read(GetOffset(space, address), size));
     }
