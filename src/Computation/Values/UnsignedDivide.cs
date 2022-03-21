@@ -21,7 +21,10 @@ internal sealed record UnsignedDivide : BitVector
         return solver.Context.MkBVUDiv(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as UnsignedDivide);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as UnsignedDivide);
+    }
 
     public static IValue Create(IValue left, IValue right)
     {

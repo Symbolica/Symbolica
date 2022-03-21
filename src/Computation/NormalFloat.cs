@@ -24,7 +24,10 @@ internal sealed record NormalFloat : Float
             : Create(solver, sort, sign, significand, exponent);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as NormalFloat);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as NormalFloat);
+    }
 
     private static FPExpr Create(ISolver solver, FPSort sort, bool sign, BigInteger significand, int exponent)
     {

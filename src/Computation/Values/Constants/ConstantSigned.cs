@@ -50,12 +50,15 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
         return ConstantDouble.Create(this);
     }
 
+    public override bool Equals(IValue? other)
+    {
+        return AsUnsigned().Equals(other);
+    }
+
     public ConstantSigned Divide(ConstantSigned value)
     {
         return Create(Size, _value / value._value);
     }
-
-    public override bool Equals(IValue? other) => Equals(other as ConstantSigned);
 
     public ConstantSigned Extend(Bits size)
     {

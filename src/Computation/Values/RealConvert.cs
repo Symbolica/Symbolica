@@ -24,5 +24,8 @@ internal sealed record RealConvert : Float, IRealValue
         return _value.AsReal(solver);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as RealConvert);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as RealConvert);
+    }
 }

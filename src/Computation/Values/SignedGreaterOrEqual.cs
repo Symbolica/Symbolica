@@ -20,7 +20,10 @@ internal sealed record SignedGreaterOrEqual : Bool
         return solver.Context.MkBVSGE(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as SignedGreaterOrEqual);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as SignedGreaterOrEqual);
+    }
 
     public static IValue Create(IValue left, IValue right)
     {

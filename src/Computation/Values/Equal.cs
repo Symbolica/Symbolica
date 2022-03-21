@@ -20,7 +20,10 @@ internal sealed record Equal : Bool
             : Bitwise(solver);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as Equal);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as Equal);
+    }
 
     private BoolExpr Logical(ISolver solver)
     {

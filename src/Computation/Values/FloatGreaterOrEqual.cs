@@ -21,7 +21,10 @@ internal sealed record FloatGreaterOrEqual : Bool
         return solver.Context.MkFPGEq(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as FloatGreaterOrEqual);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as FloatGreaterOrEqual);
+    }
 
     public static IValue Create(IValue left, IValue right)
     {

@@ -53,7 +53,10 @@ internal sealed record ConstantDouble : Float, IConstantValue
         return this;
     }
 
-    public override bool Equals(IValue? other) => Equals(other as ConstantDouble);
+    public override bool Equals(IValue? other)
+    {
+        return AsUnsigned().Equals(other);
+    }
 
     public static implicit operator double(ConstantDouble value)
     {

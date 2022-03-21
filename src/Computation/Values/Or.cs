@@ -22,7 +22,10 @@ internal sealed record Or : BitVector
         return solver.Context.MkBVOR(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as Or);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as Or);
+    }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
     {
