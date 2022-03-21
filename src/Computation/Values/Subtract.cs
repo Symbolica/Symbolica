@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
@@ -31,7 +30,7 @@ internal sealed record Subtract : BitVector
         {
             (_, IConstantValue r) when r.AsUnsigned().IsZero => left,
             (IConstantValue l, IConstantValue r) => l.AsUnsigned().Subtract(r.AsUnsigned()),
-            _ when left.Equals(right) => ConstantUnsigned.Zero(left.Size),
+            _ when left.Equals(right) => ConstantUnsigned.CreateZero(left.Size),
             _ => new Subtract(left, right)
         };
     }

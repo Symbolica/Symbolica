@@ -16,7 +16,6 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
     }
 
     public bool IsZero => _value.IsZero;
-
     public bool IsOne => _value.IsOne;
 
     public override BitVecExpr AsBitVector(ISolver solver)
@@ -161,16 +160,16 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
         return value._value;
     }
 
+    public static ConstantUnsigned CreateZero(Bits size)
+    {
+        return new ConstantUnsigned(size, BigInteger.Zero);
+    }
+
     public static ConstantUnsigned Create(Bits size, BigInteger value)
     {
         return new ConstantUnsigned(size, value.IsZero || value.Sign > 0 && value.GetBitLength() <= (uint) size
             ? value
             : Normalize(size, value));
-    }
-
-    public static ConstantUnsigned Zero(Bits size)
-    {
-        return Create(size, BigInteger.Zero);
     }
 
     private static BigInteger Normalize(Bits size, BigInteger value)
