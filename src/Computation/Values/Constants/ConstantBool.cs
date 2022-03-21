@@ -50,7 +50,8 @@ internal sealed record ConstantBool : Bool, IConstantValue
 
     public override bool Equals(IValue? other)
     {
-        return Equals(other as ConstantBool);
+        return Equals(other as ConstantBool) ||
+               other is IConstantValue v && AsUnsigned().Equal(v.AsUnsigned());
     }
 
     public ConstantBool Not()
