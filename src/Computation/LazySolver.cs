@@ -9,7 +9,7 @@ namespace Symbolica.Computation;
 internal sealed class LazySolver : ISolver
 {
     private readonly IList<Action<ISolver>> _actions;
-    private readonly ISolver? _solver;
+    private ISolver? _solver;
 
     public LazySolver()
     {
@@ -62,12 +62,12 @@ internal sealed class LazySolver : ISolver
 
     private ISolver GetSolver()
     {
-        var solver = _solver ?? PooledSolver.Create();
+        _solver ??= PooledSolver.Create();
 
         foreach (var action in _actions)
-            action(solver);
+            action(_solver);
 
         _actions.Clear();
-        return solver;
+        return _solver;
     }
 }
