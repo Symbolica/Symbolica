@@ -22,7 +22,10 @@ internal sealed record FloatToSigned : BitVector
         return solver.Context.MkFPToBV(rounding, value, (uint) Size, true);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as FloatToSigned);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as FloatToSigned);
+    }
 
     public static IValue Create(Bits size, IValue value)
     {

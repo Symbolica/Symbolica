@@ -22,7 +22,10 @@ internal sealed record Add : BitVector
         return solver.Context.MkBVAdd(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as Add);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as Add);
+    }
 
     private static IValue ShortCircuit(IValue left, ConstantUnsigned right)
     {

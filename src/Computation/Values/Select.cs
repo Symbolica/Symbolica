@@ -42,7 +42,10 @@ internal sealed record Select : IValue
         return (FPExpr) solver.Context.MkITE(predicate, trueValue, falseValue);
     }
 
-    public bool Equals(IValue? other) => Equals(other as Select);
+    public bool Equals(IValue? other)
+    {
+        return Equals(other as Select);
+    }
 
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
     {

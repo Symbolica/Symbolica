@@ -21,7 +21,10 @@ internal sealed record LogicalAnd : Bool
         return solver.Context.MkAnd(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as LogicalAnd);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as LogicalAnd);
+    }
 
     private static IValue ShortCircuit(IValue left, ConstantBool right)
     {

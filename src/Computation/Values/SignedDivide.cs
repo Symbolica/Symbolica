@@ -21,7 +21,10 @@ internal sealed record SignedDivide : BitVector
         return solver.Context.MkBVSDiv(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as SignedDivide);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as SignedDivide);
+    }
 
     public static IValue Create(IValue left, IValue right)
     {

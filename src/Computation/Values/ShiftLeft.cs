@@ -21,7 +21,10 @@ internal sealed record ShiftLeft : BitVector
         return solver.Context.MkBVSHL(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as ShiftLeft);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as ShiftLeft);
+    }
 
     public static IValue Create(IValue left, IValue right)
     {

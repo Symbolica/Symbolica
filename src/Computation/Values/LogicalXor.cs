@@ -21,7 +21,10 @@ internal sealed record LogicalXor : Bool
         return solver.Context.MkXor(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as LogicalXor);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as LogicalXor);
+    }
 
     private static IValue ShortCircuit(IValue left, ConstantBool right)
     {

@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 
 namespace Symbolica.Computation.Values;
@@ -23,7 +22,10 @@ internal sealed record Subtract : BitVector
         return solver.Context.MkBVSub(left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as Subtract);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as Subtract);
+    }
 
     public static IValue Create(IValue left, IValue right)
     {

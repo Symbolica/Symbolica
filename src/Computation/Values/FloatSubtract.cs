@@ -23,7 +23,10 @@ internal sealed record FloatSubtract : Float
         return solver.Context.MkFPSub(rounding, left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as FloatSubtract);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as FloatSubtract);
+    }
 
     public static IValue Create(IValue left, IValue right)
     {

@@ -20,6 +20,8 @@ internal sealed record RealToSigned : BitVector
         return solver.Context.MkInt2BV((uint) Size, intValue);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as RealToSigned);
-
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as RealToSigned);
+    }
 }

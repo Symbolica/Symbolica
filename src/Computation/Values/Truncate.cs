@@ -19,7 +19,10 @@ internal sealed record Truncate : BitVector
         return solver.Context.MkExtract((uint) (Size - Bits.One), 0U, value);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as Truncate);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as Truncate);
+    }
 
     public static IValue Create(Bits size, IValue value)
     {

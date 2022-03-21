@@ -23,7 +23,10 @@ internal sealed record FloatAdd : Float
         return solver.Context.MkFPAdd(rounding, left, right);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as FloatAdd);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as FloatAdd);
+    }
 
     public static IValue Create(IValue left, IValue right)
     {
