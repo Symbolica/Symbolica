@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -14,12 +15,73 @@ namespace Symbolica.Computation.Values;
 
 internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
 {
+    private sealed class Fields : IEnumerable<IValue>
+    {
+        private readonly Bits _size;
+        private readonly ImmutableList<AggregateWrite> _values;
+
+        private Fields(Bits size, IValue mask, ImmutableList<AggregateWrite> values)
+        {
+            _size = size;
+            Mask = mask;
+            _values = values;
+        }
+
+        public IValue Data => _values.Aggregate(
+                ConstantUnsigned.Zero(_size) as IValue,
+                (acc, field) => Or.Create(acc, CreateData(field)));
+
+        public IValue Mask { get; }
+
+        public AggregateWrite this[int index] => _values[index];
+
+        public int BinarySearch(AggregateWrite item)
+        {
+            return _values.BinarySearch(item);
+        }
+
+        public Fields Insert(int index, AggregateWrite field)
+        {
+            return new(_size, Or.Create(Mask, Mask(_size, field._offset, field.Size)), _values.Insert(index, field));
+        }
+
+        public Fields Replace(AggregateWrite oldValue, AggregateWrite newValue)
+        {
+            return new(_size, Mask, _values.Replace(oldValue, newValue));
+        }
+
+        public IEnumerator<IValue> GetEnumerator()
+        {
+            return _values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return (_values as IEnumerable).GetEnumerator();
+        }
+
+        private IValue CreateData(AggregateWrite field)
+        {
+            return ShiftLeft.Create(Resize(field.Flatten(), _size), Resize(field._offset, _size));
+        }
+
+        public static Fields Create(Bits size, AggregateWrite field)
+        {
+            return new Fields(size, Mask(size, field._offset, field.Size), ImmutableList.Create(field));
+        }
+
+        public static Fields Empty(Bits size)
+        {
+            return new Fields(size, ConstantUnsigned.Zero(size), ImmutableList.Create<AggregateWrite>());
+        }
+    }
+
     private readonly IValue _buffer;
     private readonly IValue _offset;
     private readonly BigInteger _rank;
-    private readonly ImmutableList<AggregateWrite> _fields;
+    private readonly Fields _fields;
 
-    private AggregateWrite(IValue buffer, IValue offset, BigInteger rank, ImmutableList<AggregateWrite> fields)
+    private AggregateWrite(IValue buffer, IValue offset, BigInteger rank, Fields fields)
         : base(buffer.Size)
     {
         if (rank < 0)
@@ -138,7 +200,7 @@ internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
                     WriteOffsets.Create(ConstantUnsigned.Zero(Size), Size, value.Size),
                     value);
 
-            return new AggregateWrite(value, _offset, _rank, ImmutableList.Create<AggregateWrite>());
+            return new AggregateWrite(value, _offset, _rank, Fields.Empty(Size));
         }
 
         WriteOffset offset = offsets.Head();
@@ -174,7 +236,7 @@ internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
                 this,
                 _offset,
                 _rank,
-                ImmutableList.Create(CreateField(collectionFactory, assertions, this, offsets, value)));
+                Fields.Create(Size, CreateField(collectionFactory, assertions, this, offsets, value)));
         }
 
         var result = _fields.BinarySearch(CreateLeaf(assertions, offset, ConstantUnsigned.Zero(offset.FieldSize)));
@@ -216,7 +278,7 @@ internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
     private static IValue Mask(Bits bufferSize, IValue offset, Bits size)
     {
         return ShiftLeft.Create(
-            ConstantUnsigned.Create(size, BigInteger.Zero).Not().Extend(bufferSize),
+            ConstantUnsigned.Zero(size).Not().Extend(bufferSize),
             Resize(offset, bufferSize));
     }
 
@@ -225,20 +287,11 @@ internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
 
     private bool IsNotOverlappingAnyField(IAssertions assertions, WriteOffset offset)
     {
-        var isOverlapping = And.Create(AggregateMask(), Mask(Size, offset.Value, offset.FieldSize));
+        var isOverlapping = And.Create(_fields.Mask, Mask(Size, offset.Value, offset.FieldSize));
         using var proposition = assertions.GetProposition(isOverlapping);
 
         return !proposition.CanBeTrue;
     }
-
-    private IValue AggregateFields(Func<AggregateWrite, IValue> f)
-    {
-        return _fields.Aggregate(
-            ConstantUnsigned.Create(Size, BigInteger.Zero) as IValue,
-            (acc, field) => Or.Create(acc, f(field)));
-    }
-
-    private IValue AggregateMask() => AggregateFields(f => Mask(Size, f._offset, f.Size));
 
     private IValue Flatten()
     {
@@ -251,14 +304,8 @@ internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
         // only merge those together for a given a layer, the caller of this can then
         // apply the result to their copy of the underlying which will mean we only see
         // a single instance of it but with a minimised size still.
-        IValue CreateData(AggregateWrite field)
-        {
-            return ShiftLeft.Create(Resize(field.Flatten(), Size), Resize(field._offset, Size));
-        }
 
-        var data = AggregateFields(CreateData);
-
-        return Or.Create(And.Create(_buffer, Not.Create(AggregateMask())), data);
+        return Or.Create(And.Create(_buffer, Not.Create(_fields.Mask)), _fields.Data);
     }
 
     public static IValue Create(ICollectionFactory collectionFactory, IAssertions assertions,
@@ -318,6 +365,6 @@ internal sealed class AggregateWrite : BitVector, IComparable<AggregateWrite>
             value,
             offset.Value,
             assertions.GetValue(offset.Value).AsUnsigned(),
-            ImmutableList.Create<AggregateWrite>());
+            Fields.Empty(value.Size));
     }
 }
