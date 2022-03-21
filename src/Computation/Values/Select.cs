@@ -50,6 +50,7 @@ internal sealed record Select : IValue
         {
             (IConstantValue p, _, _) => p.AsBool() ? trueValue : falseValue,
             (_, IConstantValue t, IConstantValue f) when t.AsUnsigned().Equal(f.AsUnsigned()) => t,
+            _ when trueValue.Equals(falseValue) => trueValue,
             _ => new Select(predicate, trueValue, falseValue)
         };
     }
