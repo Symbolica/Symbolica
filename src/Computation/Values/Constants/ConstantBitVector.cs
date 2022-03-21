@@ -54,7 +54,7 @@ internal sealed record ConstantBitVector : BitVector, IConstantValue
 
     public override bool Equals(IValue? other)
     {
-        return other is IConstantValue v && AsUnsigned().Equal(v.AsUnsigned());
+        return AsUnsigned().Equals(other);
     }
 
     public ConstantBitVector Read(ConstantUnsigned offset, Bits size)

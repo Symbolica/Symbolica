@@ -55,8 +55,7 @@ internal sealed record ConstantSingle : Float, IConstantValue
 
     public override bool Equals(IValue? other)
     {
-        return Equals(other as ConstantSingle) ||
-               other is IConstantValue v && AsUnsigned().Equal(v.AsUnsigned());
+        return AsUnsigned().Equals(other);
     }
 
     public static implicit operator float(ConstantSingle value)
