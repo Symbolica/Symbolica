@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Computation.Values.TestData;
 using Xunit;
@@ -48,7 +47,7 @@ public class OrTests
     {
         using var solver = PooledSolver.Create();
 
-        var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
+        var zero = ConstantUnsigned.CreateZero(value.Size);
 
         using var or = Or.Create(value, zero).AsBitVector(solver);
         using var actual = or.Simplify();
@@ -65,7 +64,7 @@ public class OrTests
     {
         using var solver = PooledSolver.Create();
 
-        var zero = ConstantUnsigned.Create(value.Size, BigInteger.Zero);
+        var zero = ConstantUnsigned.CreateZero(value.Size);
 
         using var or = Or.Create(zero, value).AsBitVector(solver);
         using var actual = or.Simplify();
@@ -82,7 +81,7 @@ public class OrTests
     {
         using var solver = PooledSolver.Create();
 
-        var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
+        var ones = ConstantUnsigned.CreateZero(value.Size).Not();
 
         using var or = Or.Create(value, ones).AsBitVector(solver);
         using var actual = or.Simplify();
@@ -99,7 +98,7 @@ public class OrTests
     {
         using var solver = PooledSolver.Create();
 
-        var ones = ConstantUnsigned.Create(value.Size, BigInteger.Zero).Not();
+        var ones = ConstantUnsigned.CreateZero(value.Size).Not();
 
         using var or = Or.Create(ones, value).AsBitVector(solver);
         using var actual = or.Simplify();

@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
@@ -70,7 +69,7 @@ internal sealed record Write : BitVector
 
     private static IValue Mask(IValue buffer, IValue offset, Bits size)
     {
-        return ShiftLeft.Create(ConstantUnsigned.Create(size, BigInteger.Zero).Not().Extend(buffer.Size), offset);
+        return ShiftLeft.Create(ConstantUnsigned.CreateZero(size).Not().Extend(buffer.Size), offset);
     }
 
     public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, IValue value)
