@@ -3,14 +3,14 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class SymbolicProposition : IProposition
+internal sealed class Proposition : IProposition
 {
     private readonly IValue _assertion;
     private readonly IValue _negation;
     private readonly ISolver _solver;
     private readonly IPersistentSpace _space;
 
-    private SymbolicProposition(IPersistentSpace space, ISolver solver, IValue assertion, IValue negation)
+    private Proposition(IPersistentSpace space, ISolver solver, IValue assertion, IValue negation)
     {
         _space = space;
         _solver = solver;
@@ -47,6 +47,6 @@ internal sealed class SymbolicProposition : IProposition
     {
         var solver = space.CreateSolver();
 
-        return new SymbolicProposition(space, solver, assertion, LogicalNot.Create(assertion));
+        return new Proposition(space, solver, assertion, LogicalNot.Create(assertion));
     }
 }

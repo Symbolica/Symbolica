@@ -27,13 +27,15 @@ internal sealed class PersistentSpace : IPersistentSpace
 
     public IPersistentSpace Assert(IValue assertion)
     {
-        return new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory,
-            _assertions.Push(assertion));
+        return assertion is IConstantValue
+            ? this
+            : new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory,
+                _assertions.Push(assertion));
     }
 
     public ISolver CreateSolver()
     {
-        var solver = PooledSolver.Create();
+        var solver = new LazySolver();
         solver.Assert(_assertions);
 
         return solver;
