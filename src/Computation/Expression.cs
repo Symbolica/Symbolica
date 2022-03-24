@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
@@ -14,12 +15,17 @@ internal sealed class Expression : IExpression
 {
     private readonly ICollectionFactory _collectionFactory;
     private readonly IValue _value;
+    private readonly IValue _constantValue;
 
     public Expression(ICollectionFactory collectionFactory,
-        IValue value)
+        IValue value, IValue constantValue)
     {
         _collectionFactory = collectionFactory;
         _value = value;
+        _constantValue = constantValue;
+
+        if (value is IConstantValue x && constantValue is IConstantValue y && !x.AsUnsigned().Equal(y.AsUnsigned()))
+            Debugger.Break();
     }
 
     public Bits Size => _value.Size;
@@ -256,7 +262,8 @@ internal sealed class Expression : IExpression
         using var solver = ((IPersistentSpace) space).CreateSolver();
         return new Expression(
             _collectionFactory,
-            Values.Read.Create(_collectionFactory, solver, _value, ((Expression) offset)._value, size));
+            Values.Read.Create(_collectionFactory, solver, _value, ((Expression) offset)._value, size),
+            Values.Read.Create(_collectionFactory, solver, _constantValue, ((Expression) offset)._constantValue, size));
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -383,21 +390,21 @@ internal sealed class Expression : IExpression
     private IExpression Create(Func<IValue, IValue> func)
     {
         return new Expression(_collectionFactory,
-            func(_value));
+            func(_value), func(_constantValue));
     }
 
     private IExpression Create(IExpression y, Func<IValue, IValue, IValue> func)
     {
         return Size == y.Size
             ? new Expression(_collectionFactory,
-                func(_value, ((Expression) y)._value))
+                func(_value, ((Expression) y)._value), func(_constantValue, ((Expression) y)._constantValue))
             : throw new InconsistentExpressionSizesException(Size, y.Size);
     }
 
     private IExpression Create(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
     {
         return new Expression(_collectionFactory,
-            func(_value, ((Expression) y)._value, ((Expression) z)._value));
+            func(_value, ((Expression) y)._value, ((Expression) z)._value), func(_constantValue, ((Expression) y)._constantValue, ((Expression) z)._constantValue));
     }
 
     public static IExpression CreateAddress(ICollectionFactory collectionFactory,
@@ -411,7 +418,15 @@ internal sealed class Expression : IExpression
                         o.AggregateSize,
                         o.AggregateType,
                         o.FieldSize,
-                        ((Expression) o.Value)._value)).ToArray()));
+                        ((Expression) o.Value)._value)).ToArray()),
+            Address<Bytes>.Create(
+                ((Expression) baseAddress)._constantValue,
+                offsets.Select(
+                    o => new Offset<Bytes>(
+                        o.AggregateSize,
+                        o.AggregateType,
+                        o.FieldSize,
+                        ((Expression) o.Value)._constantValue)).ToArray()));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
@@ -419,6 +434,7 @@ internal sealed class Expression : IExpression
     {
         return new Expression(collectionFactory,
             Symbol.Create(size, name, assertions.Select(a => new Func<IValue, IValue>(
-                v => ((Expression) a(new Expression(collectionFactory, v)))._value))));
+                v => ((Expression) a(new Expression(collectionFactory, v, ConstantUnsigned.Create(size, BigInteger.One))))._value))),
+            ConstantUnsigned.Create(size, BigInteger.One));
     }
 }
