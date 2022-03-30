@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -53,6 +54,8 @@ internal sealed record Select : IValue
     }
 
     public IValue BitCast(Bits targetSize) => this;
+
+    public IValue ToBits() => Multiply.Create(this, ConstantUnsigned.Create(Size, (uint) Bytes.One.ToBits()));
 
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
     {

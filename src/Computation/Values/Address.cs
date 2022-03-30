@@ -50,6 +50,16 @@ internal sealed record Address<TSize> : Integer
         };
     }
 
+    public override IValue ToBits()
+    {
+        return Offsets switch
+        {
+            IEnumerable<Offset<Bytes>> byteOffsets => Address<Bits>.Create(BaseAddress.ToBits(), byteOffsets.Select(o => o.ToBits())),
+            IEnumerable<Offset<Bits>> => this,
+            _ => throw new Exception($"{typeof(TSize)} is not a supported size.")
+        };
+    }
+
     internal IValue Aggregate()
     {
         return Offsets

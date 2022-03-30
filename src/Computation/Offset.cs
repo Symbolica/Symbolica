@@ -62,4 +62,13 @@ internal static class OffsetExtensions
             (Bytes) ((uint) offset.FieldSize * value),
             Values.Multiply.Create(offset.Value, ConstantUnsigned.Create(offset.Value.Size, value)));
     }
+
+    public static Offset<Bits> ToBits(this Offset<Bytes> offset)
+    {
+        return new Offset<Bits>(
+            offset.AggregateSize.ToBits(),
+            offset.AggregateType,
+            offset.FieldSize.ToBits(),
+            Values.Multiply.Create(offset.Value, ConstantUnsigned.Create(offset.Value.Size, (uint) Bytes.One.ToBits())));
+    }
 }

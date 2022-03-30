@@ -316,6 +316,11 @@ internal sealed class Expression : IExpression
         return Create(v => Values.Truncate.Create(size, v));
     }
 
+    public IExpression ToBits()
+    {
+        return Create(v => v.ToBits());
+    }
+
     public IExpression UnsignedDivide(IExpression expression)
     {
         return Create(expression, Values.UnsignedDivide.Create);
