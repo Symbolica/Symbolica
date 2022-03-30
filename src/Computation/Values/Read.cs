@@ -1,4 +1,5 @@
 ﻿using Symbolica.Collection;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -12,6 +13,15 @@ internal static class Read
             ? b.AsBitVector(collectionFactory).Read(o.AsUnsigned(), size)
             : buffer is Write w
                 ? w.LayerRead(collectionFactory, solver, offset, size)
-                : Truncate.Create(size, LogicalShiftRight.Create(buffer, offset));
+                : SymbolicRead(solver, buffer, offset, size);
+    }
+
+    private static IValue SymbolicRead(ISolver solver, IValue buffer, IValue offset, Bits size)
+    {
+        var value = Truncate.Create(size, LogicalShiftRight.Create(buffer, offset));
+
+        return solver.TryGetSingleValue(value, out var constant)
+            ? ConstantUnsigned.Create(value.Size, constant)
+            : value;
     }
 }

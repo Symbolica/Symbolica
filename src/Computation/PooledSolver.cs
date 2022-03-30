@@ -62,11 +62,9 @@ internal sealed class PooledSolver : ISolver
 
     public BigInteger GetSingleValue(IValue value)
     {
-        var constant = GetExampleValue(value);
-
-        return IsSatisfiable(NotEqual.Create(value, ConstantUnsigned.Create(value.Size, constant)))
-            ? throw new IrreducibleSymbolicExpressionException()
-            : constant;
+        return TryGetSingleValue(value, out var constant)
+            ? constant
+            : throw new IrreducibleSymbolicExpressionException();
     }
 
     public BigInteger GetExampleValue(IValue value)
@@ -83,6 +81,12 @@ internal sealed class PooledSolver : ISolver
         return new Example(model.Consts
             .Select(CreateExample)
             .ToArray());
+    }
+
+    public bool TryGetSingleValue(IValue value, out BigInteger constant)
+    {
+        constant = GetExampleValue(value);
+        return !IsSatisfiable(NotEqual.Create(value, ConstantUnsigned.Create(value.Size, constant)));
     }
 
     private Model CreateModel()
