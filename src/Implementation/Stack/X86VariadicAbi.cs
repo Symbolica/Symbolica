@@ -22,7 +22,7 @@ internal sealed class X86VariadicAbi : IVariadicAbi
             bytes = (bytes + argument.Size.ToBytes()).AlignTo(Bytes.One);
         }
 
-        var value = space.CreateConstant(bytes.ToBits(), BigInteger.Zero);
+        var value = space.CreateZero(bytes.ToBits());
 
         foreach (var (argument, offset) in varargs.Zip(offsets, (a, o) => (a, o)))
             value = value.Write(space.CreateConstant(value.Size, (uint) offset), argument);
@@ -44,8 +44,8 @@ internal sealed class X86VariadicAbi : IVariadicAbi
 
         public IExpression Initialize(ISpace space, IStructType vaListType)
         {
-            return vaListType.CreateStruct(space.CreateConstant(vaListType.Size, BigInteger.Zero))
-                .Write(space, 0, _address ?? space.CreateConstant(space.PointerSize, BigInteger.Zero))
+            return vaListType.CreateStruct(space.CreateZero(vaListType.Size))
+                .Write(space, 0, _address ?? space.CreateZero(space.PointerSize))
                 .Expression;
         }
     }

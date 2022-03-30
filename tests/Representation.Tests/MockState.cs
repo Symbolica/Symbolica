@@ -14,6 +14,9 @@ internal static class MockState
         mockSpace
             .Setup(s => s.CreateConstant(Nibble.Size, It.IsAny<BigInteger>()))
             .Returns<Bits, BigInteger>((_, v) => MockExpression.Create(mockSpace.Object, (Nibble) v));
+        mockSpace
+            .Setup(s => s.CreateZero(Nibble.Size))
+            .Returns<Bits>(_ => MockExpression.Create(mockSpace.Object, (Nibble) BigInteger.Zero));
 
         var mockStack = new Mock<IStack>(MockBehavior.Strict);
         mockStack

@@ -81,7 +81,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
     public IExpression Read(ISpace space, IExpression address, Bits size)
     {
-        var expression = space.CreateConstant(size, BigInteger.Zero);
+        var expression = space.CreateZero(size);
 
         foreach (var block in _blocks)
         {
@@ -108,12 +108,12 @@ internal sealed class SymbolicMemory : IPersistentMemory
                 .Where(b => b.IsValid)
                 .Select(b => new Func<IExpression, IExpression>(a => IsFullyOutside(space, b, a, size)))
                 .Append(a => a
-                    .NotEqual(space.CreateConstant(a.Size, BigInteger.Zero)))
+                    .NotEqual(space.CreateZero(a.Size)))
                 .Append(a => a
                     .UnsignedLessOrEqual(GetBound(space, a, size)))
                 .Append(a => a
                     .UnsignedRemainder(space.CreateConstant(a.Size, (uint) _alignment))
-                    .Equal(space.CreateConstant(a.Size, BigInteger.Zero))));
+                    .Equal(space.CreateZero(a.Size))));
     }
 
     private static IExpression IsFullyOutside(ISpace space, IPersistentBlock block, IExpression address, Bytes size)

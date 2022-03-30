@@ -36,7 +36,7 @@ internal sealed class AllocateAndClear : IFunction
             var size = (Bytes) (uint) value;
 
             var address = size == Bytes.Zero
-                ? state.Space.CreateConstant(state.Space.PointerSize, BigInteger.Zero)
+                ? state.Space.CreateZero(state.Space.PointerSize)
                 : Allocate(state, size.ToBits());
 
             state.Stack.SetVariable(_caller.Id, address);
@@ -45,7 +45,7 @@ internal sealed class AllocateAndClear : IFunction
         private static IExpression Allocate(IState state, Bits size)
         {
             var address = state.Memory.Allocate(size);
-            state.Memory.Write(address, state.Space.CreateConstant(size, BigInteger.Zero));
+            state.Memory.Write(address, state.Space.CreateZero(size));
 
             return address;
         }

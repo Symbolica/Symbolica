@@ -72,7 +72,7 @@ internal sealed class DescriptionFactory : IDescriptionFactory
 
         public IExpression ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression address, int tell)
         {
-            return space.CreateConstant(space.PointerSize, BigInteger.Zero);
+            return space.CreateZero(space.PointerSize);
         }
 
         public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression address)
