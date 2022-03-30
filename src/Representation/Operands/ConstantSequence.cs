@@ -17,7 +17,7 @@ public sealed class ConstantSequence : IOperand
 
     public IExpression Evaluate(IState state)
     {
-        var sequence = state.Space.CreateConstant(_size, BigInteger.Zero);
+        var sequence = state.Space.CreateZero(_size);
         var offset = Bits.Zero;
 
         foreach (var element in _elements)

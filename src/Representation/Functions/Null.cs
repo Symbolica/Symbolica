@@ -16,6 +16,6 @@ internal sealed class Null : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(state.Space.PointerSize, BigInteger.Zero));
+        state.Stack.SetVariable(caller.Id, state.Space.CreateZero(state.Space.PointerSize));
     }
 }

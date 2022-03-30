@@ -20,6 +20,6 @@ internal sealed class SetupJump : IFunction
 
         state.Stack.Save(address, true);
 
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, BigInteger.Zero));
+        state.Stack.SetVariable(caller.Id, state.Space.CreateZero(caller.Size));
     }
 }

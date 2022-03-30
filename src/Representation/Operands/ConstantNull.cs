@@ -8,6 +8,6 @@ public sealed class ConstantNull : IOperand
 {
     public IExpression Evaluate(IState state)
     {
-        return state.Space.CreateConstant(state.Space.PointerSize, BigInteger.Zero);
+        return state.Space.CreateZero(state.Space.PointerSize);
     }
 }

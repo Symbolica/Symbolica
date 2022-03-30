@@ -15,7 +15,7 @@ public sealed class FloatFalse : IInstruction
 
     public void Execute(IState state)
     {
-        var result = state.Space.CreateConstant(Bits.One, BigInteger.Zero);
+        var result = state.Space.CreateZero(Bits.One);
 
         state.Stack.SetVariable(Id, result);
     }

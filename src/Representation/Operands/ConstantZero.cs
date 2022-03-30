@@ -15,6 +15,6 @@ public sealed class ConstantZero : IOperand
 
     public IExpression Evaluate(IState state)
     {
-        return state.Space.CreateConstant(_size, BigInteger.Zero);
+        return state.Space.CreateZero(_size);
     }
 }

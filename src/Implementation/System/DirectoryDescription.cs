@@ -29,7 +29,7 @@ internal sealed class DirectoryDescription : IPersistentDescription
     {
         return tell >= 0 && tell < _directory.Names.Length
             ? Read(space, memory, entry, address, _directory.Names[tell])
-            : space.CreateConstant(space.PointerSize, BigInteger.Zero);
+            : space.CreateZero(space.PointerSize);
     }
 
     public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression address)

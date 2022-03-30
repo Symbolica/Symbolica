@@ -87,7 +87,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     public IExpression Read(ISpace space, IExpression address, Bits size)
     {
-        var expression = space.CreateConstant(size, BigInteger.Zero);
+        var expression = space.CreateZero(size);
 
         while (true)
         {

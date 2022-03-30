@@ -36,7 +36,7 @@ internal sealed class Allocate : IFunction
             var size = (Bytes) (uint) value;
 
             var address = size == Bytes.Zero
-                ? state.Space.CreateConstant(state.Space.PointerSize, BigInteger.Zero)
+                ? state.Space.CreateZero(state.Space.PointerSize)
                 : state.Memory.Allocate(size.ToBits());
 
             state.Stack.SetVariable(_caller.Id, address);

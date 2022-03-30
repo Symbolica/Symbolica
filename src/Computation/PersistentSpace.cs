@@ -69,7 +69,7 @@ internal sealed class PersistentSpace : IPersistentSpace
     {
         return _useSymbolicGarbage
             ? CreateSymbolic(size, null)
-            : CreateConstant(size, BigInteger.Zero);
+            : CreateZero(size);
     }
 
     public IExpression CreateSymbolic(Bits size, string? name)
@@ -81,6 +81,11 @@ internal sealed class PersistentSpace : IPersistentSpace
     {
         return Expression.CreateSymbolic(_collectionFactory,
             size, name ?? Guid.NewGuid().ToString(), assertions);
+    }
+
+    public IExpression CreateZero(Bits size)
+    {
+        return new Expression(_collectionFactory, ConstantUnsigned.CreateZero(size));
     }
 
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
