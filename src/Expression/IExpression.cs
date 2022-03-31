@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace Symbolica.Expression;
 
@@ -6,11 +7,13 @@ public interface IExpression
 {
     Bits Size { get; }
 
+    IEnumerable<(IExpression, Bytes)> GetAddresses(Bytes length);
     BigInteger GetSingleValue(ISpace space);
     BigInteger GetExampleValue(ISpace space);
     IProposition GetProposition(ISpace space);
     IExpression Add(IExpression expression);
     IExpression And(IExpression expression);
+    IExpression BitCast(Bits size);
     IExpression ArithmeticShiftRight(IExpression expression);
     IExpression Equal(IExpression expression);
     IExpression FloatAdd(IExpression expression);
@@ -36,8 +39,10 @@ public interface IExpression
     IExpression LogicalShiftRight(IExpression expression);
     IExpression Multiply(IExpression expression);
     IExpression NotEqual(IExpression expression);
+    IExpression OffsetBy(Bytes offset);
     IExpression Or(IExpression expression);
-    IExpression Read(IExpression offset, Bits size);
+    IExpression PointerToInteger(Bits size);
+    IExpression Read(ISpace space, IExpression offset, Bits size);
     IExpression Select(IExpression trueValue, IExpression falseValue);
     IExpression ShiftLeft(IExpression expression);
     IExpression SignedDivide(IExpression expression);
@@ -50,6 +55,7 @@ public interface IExpression
     IExpression SignExtend(Bits size);
     IExpression Subtract(IExpression expression);
     IExpression Truncate(Bits size);
+    IExpression ToBits();
     IExpression UnsignedDivide(IExpression expression);
     IExpression UnsignedGreater(IExpression expression);
     IExpression UnsignedGreaterOrEqual(IExpression expression);
@@ -57,7 +63,7 @@ public interface IExpression
     IExpression UnsignedLessOrEqual(IExpression expression);
     IExpression UnsignedRemainder(IExpression expression);
     IExpression UnsignedToFloat(Bits size);
-    IExpression Write(IExpression offset, IExpression value);
+    IExpression Write(ISpace space, IExpression offset, IExpression value);
     IExpression Xor(IExpression expression);
     IExpression ZeroExtend(Bits size);
 }

@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+using System.Collections.Generic;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
 
@@ -19,6 +20,7 @@ internal sealed class StackProxy : IStackProxy
 
     public bool IsInitialFrame => _stack.IsInitialFrame;
     public BasicBlockId PredecessorId => _stack.PredecessorId;
+    public IEnumerable<string> Trace => _stack.StackTrace;
 
     public IStackProxy Clone(ISpace space, IMemoryProxy memory)
     {

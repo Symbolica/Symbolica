@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -13,6 +15,10 @@ internal sealed record NormalFloat : Float
     {
         _value = value;
     }
+
+    public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
+
+    public override string? PrintedValue => _value;
 
     public override FPExpr AsFloat(ISolver solver)
     {

@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+using System.Collections.Generic;
+using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -11,6 +13,8 @@ internal abstract record Integer : IValue
     }
 
     public Bits Size { get; }
+    public abstract IEnumerable<IValue> Children { get; }
+    public abstract string? PrintedValue { get; }
 
     public abstract BitVecExpr AsBitVector(ISolver solver);
     public abstract BoolExpr AsBool(ISolver solver);
@@ -22,4 +26,8 @@ internal abstract record Integer : IValue
         using var sort = Size.GetSort(solver);
         return solver.Context.MkFPToFP(bitVector, sort);
     }
+
+    public virtual IValue BitCast(Bits targetSize) => this;
+
+    public virtual IValue ToBits() => Values.Multiply.Create(this, ConstantUnsigned.Create(Size, (uint) Bytes.One.ToBits()));
 }

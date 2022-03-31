@@ -48,6 +48,11 @@ internal sealed class PersistentSpace : IPersistentSpace
         return solver.GetExample();
     }
 
+    public IExpression CreateAddress(IExpression baseAddress, Offset[] offsets)
+    {
+        return Expression.CreateAddress(_collectionFactory, baseAddress, offsets);
+    }
+
     public IExpression CreateConstant(Bits size, BigInteger value)
     {
         return new Expression(_collectionFactory,

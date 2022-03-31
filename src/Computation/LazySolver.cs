@@ -60,6 +60,17 @@ internal sealed class LazySolver : ISolver
         return GetSolver().GetExample();
     }
 
+    public bool TryGetSingleValue(IValue value, out BigInteger constant)
+    {
+        if (value is IConstantValue v)
+        {
+            constant = v.AsUnsigned();
+            return true;
+        }
+
+        return GetSolver().TryGetSingleValue(value, out constant);
+    }
+
     private ISolver GetSolver()
     {
         _solver ??= PooledSolver.Create();

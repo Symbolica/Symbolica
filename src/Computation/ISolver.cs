@@ -16,4 +16,5 @@ internal interface ISolver : IDisposable
     BigInteger GetSingleValue(IValue value);
     BigInteger GetExampleValue(IValue value);
     IExample GetExample();
+    bool TryGetSingleValue(IValue value, out BigInteger constant);
 }

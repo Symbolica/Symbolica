@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
 
@@ -9,7 +10,7 @@ internal interface IPersistentStack
     bool IsInitialFrame { get; }
     BasicBlockId PredecessorId { get; }
     IInstruction Instruction { get; }
-
+    IEnumerable<string> StackTrace { get; }
     IPersistentStack Wind(ISpace space, IMemoryProxy memory, ICaller caller, IInvocation invocation);
     (ICaller, IPersistentStack) Unwind(IMemoryProxy memory);
     IPersistentStack Save(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer);

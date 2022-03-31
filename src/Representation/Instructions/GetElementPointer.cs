@@ -5,10 +5,10 @@ namespace Symbolica.Representation.Instructions;
 
 public sealed class GetElementPointer : IInstruction
 {
-    private readonly IOperand[] _offsets;
+    private readonly Offset[] _offsets;
     private readonly IOperand[] _operands;
 
-    public GetElementPointer(InstructionId id, IOperand[] operands, IOperand[] offsets)
+    public GetElementPointer(InstructionId id, IOperand[] operands, Offset[] offsets)
     {
         Id = id;
         _operands = operands;
@@ -19,9 +19,20 @@ public sealed class GetElementPointer : IInstruction
 
     public void Execute(IState state)
     {
-        var address = _operands[0].Evaluate(state);
-        var result = _offsets.Aggregate(address, (l, r) => l.Add(r.Evaluate(state)));
+        Expression.Offset EvaluateOffset(Offset offset)
+        {
+            return new Expression.Offset(
+                offset.AggregateSize,
+                offset.AggregateType,
+                offset.FieldSize,
+                offset.Value.Evaluate(state));
+        }
 
-        state.Stack.SetVariable(Id, result);
+        var baseAddress = _operands[0].Evaluate(state);
+        var offsets = _offsets.Select(EvaluateOffset).ToArray();
+
+        var address = state.Space.CreateAddress(baseAddress, offsets);
+
+        state.Stack.SetVariable(Id, address);
     }
 }

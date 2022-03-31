@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -12,6 +14,10 @@ internal sealed record Equal : Bool
         _left = left;
         _right = right;
     }
+
+    public override IEnumerable<IValue> Children => new[] { _left, _right };
+
+    public override string? PrintedValue => null;
 
     public override BoolExpr AsBool(ISolver solver)
     {
@@ -41,8 +47,14 @@ internal sealed record Equal : Bool
 
     public static IValue Create(IValue left, IValue right)
     {
-        return left is IConstantValue l && right is IConstantValue r
-            ? l.AsUnsigned().Equal(r.AsUnsigned())
-            : new Equal(left, right);
+        return (left, right) switch
+        {
+            (IConstantValue l, IConstantValue r) => l.AsUnsigned().Equal(r.AsUnsigned()),
+            (Address<Bits> l, _) => Create(l.Aggregate(), right),
+            (Address<Bytes> l, _) => Create(l.Aggregate(), right),
+            (_, Address<Bits> r) => Create(left, r.Aggregate()),
+            (_, Address<Bytes> r) => Create(left, r.Aggregate()),
+            _ => new Equal(left, right)
+        };
     }
 }

@@ -18,6 +18,9 @@ internal sealed record Symbol : BitVector
         _assertions = assertions;
     }
 
+    public override IEnumerable<IValue> Children => Enumerable.Empty<IValue>();
+    public override string? PrintedValue => _name;
+
     public override BitVecExpr AsBitVector(ISolver solver)
     {
         solver.Assert(_name, _assertions);

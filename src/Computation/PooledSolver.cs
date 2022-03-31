@@ -48,6 +48,10 @@ internal sealed class PooledSolver : ISolver
 
     public bool IsSatisfiable(IValue assertion)
     {
+        string PrintAssertion(IValue assertion, int depth) => $"{System.Environment.NewLine}{string.Join("", Enumerable.Repeat(" ", depth * 2))}{assertion.GetType().Name}{(assertion.PrintedValue is null ? string.Empty : $" ({assertion.PrintedValue})")}{string.Join("", assertion.Children.Select(v => PrintAssertion(v, depth + 1)))}";
+
+        int AssertionCount(IValue assertion) => 1 + assertion.Children.Sum(AssertionCount);
+
         using var expr = assertion.AsBool(this);
         var status = _solver.Check(expr);
 
@@ -62,11 +66,9 @@ internal sealed class PooledSolver : ISolver
 
     public BigInteger GetSingleValue(IValue value)
     {
-        var constant = GetExampleValue(value);
-
-        return IsSatisfiable(NotEqual.Create(value, ConstantUnsigned.Create(value.Size, constant)))
-            ? throw new IrreducibleSymbolicExpressionException()
-            : constant;
+        return TryGetSingleValue(value, out var constant)
+            ? constant
+            : throw new IrreducibleSymbolicExpressionException();
     }
 
     public BigInteger GetExampleValue(IValue value)
@@ -83,6 +85,12 @@ internal sealed class PooledSolver : ISolver
         return new Example(model.Consts
             .Select(CreateExample)
             .ToArray());
+    }
+
+    public bool TryGetSingleValue(IValue value, out BigInteger constant)
+    {
+        constant = GetExampleValue(value);
+        return !IsSatisfiable(NotEqual.Create(value, ConstantUnsigned.Create(value.Size, constant)));
     }
 
     private Model CreateModel()

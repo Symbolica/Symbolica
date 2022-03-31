@@ -1,6 +1,8 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -13,6 +15,8 @@ internal abstract record Float : IValue
     }
 
     public Bits Size { get; }
+    public abstract IEnumerable<IValue> Children { get; }
+    public abstract string? PrintedValue { get; }
 
     public BitVecExpr AsBitVector(ISolver solver)
     {
@@ -41,6 +45,10 @@ internal abstract record Float : IValue
 
         return solver.Context.MkBV(nan.ToString(), (uint) Size);
     }
+
+    public IValue BitCast(Bits targetSize) => this;
+
+    public IValue ToBits() => Values.Multiply.Create(this, ConstantUnsigned.Create(Size, (uint) Bytes.One.ToBits()));
 
     public static IValue Unary(IValue value,
         Func<float, IValue> constantSingle,
