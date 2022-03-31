@@ -16,7 +16,7 @@ internal sealed class Floor : IFunction
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
         var expression = arguments.Get(0);
-        var result = expression.FloatFloor();
+        var result = Expression.Values.FloatFloor.Create(expression);
 
         state.Stack.SetVariable(caller.Id, result);
     }

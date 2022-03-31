@@ -31,7 +31,7 @@ public sealed class GetElementPointer : IInstruction
         var baseAddress = _operands[0].Evaluate(state);
         var offsets = _offsets.Select(EvaluateOffset).ToArray();
 
-        var address = state.Space.CreateAddress(baseAddress, offsets);
+        var address = Expression.Values.Address.Create(baseAddress, offsets);
 
         state.Stack.SetVariable(Id, address);
     }

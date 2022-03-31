@@ -18,7 +18,7 @@ public sealed class UnsignedGreaterOrEqual : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.UnsignedGreaterOrEqual(right);
+        var result = Expression.Values.UnsignedGreaterOrEqual.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

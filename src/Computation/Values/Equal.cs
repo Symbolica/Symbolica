@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -19,7 +18,7 @@ internal sealed record Equal : Bool
 
     public override string? PrintedValue => null;
 
-    public override BoolExpr AsBool(ISolver solver)
+    public override Microsoft.Z3.BoolExpr AsBool(ISolver solver)
     {
         return _left is Bool || _right is Bool
             ? Logical(solver)
@@ -31,14 +30,14 @@ internal sealed record Equal : Bool
         return Equals(other as Equal);
     }
 
-    private BoolExpr Logical(ISolver solver)
+    private Microsoft.Z3.BoolExpr Logical(ISolver solver)
     {
         using var left = _left.AsBool(solver);
         using var right = _right.AsBool(solver);
         return solver.Context.MkEq(left, right);
     }
 
-    private BoolExpr Bitwise(ISolver solver)
+    private Microsoft.Z3.BoolExpr Bitwise(ISolver solver)
     {
         using var left = _left.AsBitVector(solver);
         using var right = _right.AsBitVector(solver);

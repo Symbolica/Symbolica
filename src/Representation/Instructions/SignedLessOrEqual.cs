@@ -18,7 +18,7 @@ public sealed class SignedLessOrEqual : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.SignedLessOrEqual(right);
+        var result = Expression.Values.SignedLessOrEqual.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

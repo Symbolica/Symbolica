@@ -17,7 +17,7 @@ internal sealed class FloatMultiply : IFunction
     {
         var left = arguments.Get(0);
         var right = arguments.Get(1);
-        var result = left.FloatMultiply(right);
+        var result = Expression.Values.FloatMultiply.Create(left, right);
 
         state.Stack.SetVariable(caller.Id, result);
     }

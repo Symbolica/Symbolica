@@ -20,7 +20,7 @@ internal sealed class PersistentBlock : IPersistentBlock
 
     public IPersistentBlock Move(IExpression address, Bits size)
     {
-        return new PersistentBlock(_section, address, _data.ZeroExtend(size).Truncate(size));
+        return new PersistentBlock(_section, address, Expression.Values.Resize.Create(size, _data));
     }
 
     public bool CanFree(ISpace space, Section section, IExpression address)
@@ -35,7 +35,7 @@ internal sealed class PersistentBlock : IPersistentBlock
                 new PersistentBlock(_section, Address, value));
 
         var isFullyInside = IsFullyInside(space, address, value.Size.ToBytes());
-        using var proposition = isFullyInside.GetProposition(space);
+        using var proposition = space.CreateProposition(isFullyInside);
 
         return proposition.CanBeFalse()
             ? proposition.CanBeTrue()
@@ -55,7 +55,7 @@ internal sealed class PersistentBlock : IPersistentBlock
                 _data);
 
         var isFullyInside = IsFullyInside(space, address, size.ToBytes());
-        using var proposition = isFullyInside.GetProposition(space);
+        using var proposition = space.CreateProposition(isFullyInside);
 
         return proposition.CanBeFalse()
             ? proposition.CanBeTrue()
@@ -70,8 +70,8 @@ internal sealed class PersistentBlock : IPersistentBlock
 
     private bool IsZeroOffset(ISpace space, IExpression address)
     {
-        var isEqual = Address.Equal(address);
-        using var proposition = isEqual.GetProposition(space);
+        var isEqual = Expression.Values.Equal.Create(Address, address);
+        using var proposition = space.CreateProposition(isEqual);
 
         return !proposition.CanBeFalse();
     }

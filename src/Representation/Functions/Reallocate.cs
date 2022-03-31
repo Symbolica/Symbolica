@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -47,7 +48,7 @@ internal sealed class Reallocate : IFunction
         private static void Free(IState state, ICaller caller, IExpression address)
         {
             state.Memory.Free(address);
-            state.Stack.SetVariable(caller.Id, state.Space.CreateZero(address.Size));
+            state.Stack.SetVariable(caller.Id, ConstantUnsigned.CreateZero(address.Size));
         }
 
         private static void Allocate(IState state, ICaller caller, IExpression address, Bits size)

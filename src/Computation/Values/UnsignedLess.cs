@@ -19,7 +19,7 @@ internal sealed record UnsignedLess : Bool
 
     public override string? PrintedValue => null;
 
-    public override BoolExpr AsBool(ISolver solver)
+    public override Microsoft.Z3.BoolExpr AsBool(ISolver solver)
     {
         using var left = _left.AsBitVector(solver);
         using var right = _right.AsBitVector(solver);

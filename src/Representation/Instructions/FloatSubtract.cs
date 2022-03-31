@@ -18,7 +18,7 @@ public sealed class FloatSubtract : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.FloatSubtract(right);
+        var result = Expression.Values.FloatSubtract.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

@@ -19,12 +19,12 @@ public sealed class SignedRemainder : IInstruction
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
 
-        using var proposition = right.GetProposition(state.Space);
+        using var proposition = state.Space.CreateProposition(right);
 
         if (proposition.CanBeFalse())
             throw new StateException(StateError.DivideByZero, proposition.CreateFalseSpace());
 
-        var result = left.SignedRemainder(right);
+        var result = Expression.Values.SignedRemainder.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

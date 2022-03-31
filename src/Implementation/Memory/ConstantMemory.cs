@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Implementation.Memory;
 
@@ -87,7 +87,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     public IExpression Read(ISpace space, IExpression address, Bits size)
     {
-        var expression = space.CreateZero(size);
+        IExpression expression = ConstantUnsigned.CreateZero(size);
 
         while (true)
         {
@@ -97,7 +97,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryRead, space);
 
-            expression = expression.Or(result.Value);
+            expression = Expression.Values.Or.Create(expression, result.Value);
 
             if (!result.CanBeFailure)
                 return expression;
@@ -108,7 +108,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     private IExpression CreateAddress(ISpace space)
     {
-        return space.CreateConstant(space.PointerSize, (uint) _nextAddress);
+        return ConstantUnsigned.Create(space.PointerSize, (uint) _nextAddress);
     }
 
     private Bytes GetNextAddress(Bits size)
@@ -120,7 +120,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     private (int, Allocation) GetAllocation(ISpace space, IExpression address)
     {
-        var key = new Allocation((Bytes) (uint) address.GetExampleValue(space), _blockFactory.CreateInvalid());
+        var key = new Allocation((Bytes) (uint) space.GetExampleValue(address), _blockFactory.CreateInvalid());
         var result = _allocations.BinarySearch(key);
 
         var index = result < 0

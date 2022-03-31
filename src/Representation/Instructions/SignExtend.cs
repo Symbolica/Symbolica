@@ -20,7 +20,7 @@ public sealed class SignExtend : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.SignExtend(_size);
+        var result = Expression.Values.SignExtend.Create(_size, expression);
 
         state.Stack.SetVariable(Id, result);
     }

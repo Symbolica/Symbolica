@@ -79,8 +79,8 @@ public sealed class Call : IInstruction, ICaller
         private static IExpression Coerce(Bits size, IExpression expression, IAttributes attributes)
         {
             return attributes.IsSignExtended
-                ? expression.SignExtend(size)
-                : expression.ZeroExtend(size);
+                ? Expression.Values.SignExtend.Create(size, expression)
+                : Expression.Values.ZeroExtend.Create(size, expression);
         }
     }
 }

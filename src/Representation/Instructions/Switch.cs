@@ -47,9 +47,9 @@ public sealed class Switch : IInstruction
         private void TransferCase(IState state, IExpression expression, int index)
         {
             var value = _operands[index].Evaluate(state);
-            var successorId = (BasicBlockId) (ulong) _operands[index + 1].Evaluate(state).GetSingleValue(state.Space);
+            var successorId = (BasicBlockId) (ulong) state.Space.GetSingleValue(_operands[index + 1].Evaluate(state));
 
-            var isEqual = expression.Equal(value);
+            var isEqual = Expression.Values.Equal.Create(expression, value);
 
             state.Fork(isEqual,
                 new TransferBasicBlock(successorId),
@@ -58,7 +58,7 @@ public sealed class Switch : IInstruction
 
         private void TransferDefault(IState state)
         {
-            var successorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).GetSingleValue(state.Space);
+            var successorId = (BasicBlockId) (ulong) state.Space.GetSingleValue(_operands[1].Evaluate(state));
 
             state.Stack.TransferBasicBlock(successorId);
         }

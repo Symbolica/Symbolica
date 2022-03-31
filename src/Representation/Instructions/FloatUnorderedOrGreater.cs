@@ -18,7 +18,9 @@ public sealed class FloatUnorderedOrGreater : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.FloatUnordered(right).Or(left.FloatGreater(right));
+        var result = Expression.Values.Or.Create(
+            Expression.Values.FloatUnordered.Create(left, right),
+            Expression.Values.FloatGreater.Create(left, right));
 
         state.Stack.SetVariable(Id, result);
     }

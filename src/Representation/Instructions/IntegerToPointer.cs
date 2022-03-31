@@ -20,7 +20,7 @@ public sealed class IntegerToPointer : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.ZeroExtend(_size).Truncate(_size);
+        var result = Expression.Values.Resize.Create(_size, expression);
 
         state.Stack.SetVariable(Id, result);
     }

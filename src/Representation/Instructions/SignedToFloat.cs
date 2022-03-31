@@ -20,7 +20,7 @@ public sealed class SignedToFloat : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.SignedToFloat(_size);
+        var result = Expression.Values.SignedToFloat.Create(_size, expression);
 
         state.Stack.SetVariable(Id, result);
     }

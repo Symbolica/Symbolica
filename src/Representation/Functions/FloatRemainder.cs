@@ -17,7 +17,7 @@ internal sealed class FloatRemainder : IFunction
     {
         var left = arguments.Get(0);
         var right = arguments.Get(1);
-        var result = left.FloatRemainder(right);
+        var result = Expression.Values.FloatRemainder.Create(left, right);
 
         state.Stack.SetVariable(caller.Id, result);
     }

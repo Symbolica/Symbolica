@@ -18,7 +18,7 @@ public sealed class UnsignedGreater : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.UnsignedGreater(right);
+        var result = Expression.Values.UnsignedGreater.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

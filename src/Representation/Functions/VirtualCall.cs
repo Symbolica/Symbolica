@@ -1,5 +1,5 @@
-using System.Numerics;
 using Symbolica.Abstraction;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -16,6 +16,6 @@ internal sealed class VirtualCall : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        state.Stack.SetVariable(caller.Id, state.Space.CreateZero(caller.Size));
+        state.Stack.SetVariable(caller.Id, ConstantUnsigned.CreateZero(caller.Size));
     }
 }

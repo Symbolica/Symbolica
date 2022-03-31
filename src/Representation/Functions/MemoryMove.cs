@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation.Functions;
 
@@ -40,8 +41,8 @@ internal sealed class MemoryMove : IFunction
         public void Invoke(IState state, BigInteger value)
         {
             var bytes = (Bytes) (uint) value;
-            var sources = _source.GetAddresses(bytes);
-            var destinations = _destination.GetAddresses(bytes);
+            var sources = Address.Create(_source).GetAddresses(bytes);
+            var destinations = Address.Create(_destination).GetAddresses(bytes);
             if (sources.Count() != destinations.Count())
                 throw new Exception("Can't do a memory move when the source and destination have different field sizes.");
 

@@ -20,7 +20,7 @@ public sealed class UnsignedToFloat : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.UnsignedToFloat(_size);
+        var result = Expression.Values.UnsignedToFloat.Create(_size, expression);
 
         state.Stack.SetVariable(Id, result);
     }

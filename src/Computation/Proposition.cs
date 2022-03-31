@@ -1,16 +1,15 @@
-﻿using Symbolica.Computation.Values;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
 internal sealed class Proposition : IProposition
 {
-    private readonly IValue _assertion;
-    private readonly IValue _negation;
+    private readonly IExpression _assertion;
+    private readonly IExpression _negation;
     private readonly ISolver _solver;
     private readonly IPersistentSpace _space;
 
-    private Proposition(IPersistentSpace space, ISolver solver, IValue assertion, IValue negation)
+    private Proposition(IPersistentSpace space, ISolver solver, IExpression assertion, IExpression negation)
     {
         _space = space;
         _solver = solver;
@@ -43,10 +42,10 @@ internal sealed class Proposition : IProposition
         return _solver.IsSatisfiable(_assertion);
     }
 
-    public static IProposition Create(IPersistentSpace space, IValue assertion)
+    public static IProposition Create(IPersistentSpace space, IExpression assertion)
     {
         var solver = space.CreateSolver();
 
-        return new Proposition(space, solver, assertion, LogicalNot.Create(assertion));
+        return new Proposition(space, solver, assertion, Symbolica.Expression.Values.LogicalNot.Create(assertion));
     }
 }

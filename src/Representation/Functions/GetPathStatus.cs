@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -22,6 +23,6 @@ internal sealed class GetPathStatus : IFunction
         var result = state.System.GetStatus(descriptor, address);
         state.System.Close(descriptor);
 
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, result));
+        state.Stack.SetVariable(caller.Id, ConstantUnsigned.Create(caller.Size, result));
     }
 }

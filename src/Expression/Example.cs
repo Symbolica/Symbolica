@@ -1,11 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Symbolica.Expression;
 
-namespace Symbolica.Computation;
+namespace Symbolica.Expression;
 
-internal sealed class Example : IExample
+public sealed class Example : IEnumerable<KeyValuePair<string, string>>
 {
     private readonly KeyValuePair<string, string>[] _pairs;
 

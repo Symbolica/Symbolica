@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -15,7 +16,7 @@ public sealed class FloatTrue : IInstruction
 
     public void Execute(IState state)
     {
-        var result = state.Space.CreateConstant(Bits.One, BigInteger.One);
+        var result = ConstantUnsigned.Create(Bits.One, BigInteger.One);
 
         state.Stack.SetVariable(Id, result);
     }

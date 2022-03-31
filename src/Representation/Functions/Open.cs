@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -19,6 +20,6 @@ internal sealed class Open : IFunction
 
         var descriptor = state.System.Open(path);
 
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, descriptor));
+        state.Stack.SetVariable(caller.Id, ConstantUnsigned.Create(caller.Size, descriptor));
     }
 }

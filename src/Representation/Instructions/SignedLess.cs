@@ -18,7 +18,7 @@ public sealed class SignedLess : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.SignedLess(right);
+        var result = Expression.Values.SignedLess.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

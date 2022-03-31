@@ -18,7 +18,7 @@ public sealed class Multiply : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.Multiply(right);
+        var result = Expression.Values.Multiply.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

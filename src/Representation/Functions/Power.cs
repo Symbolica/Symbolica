@@ -17,7 +17,9 @@ internal sealed class Power : IFunction
     {
         var left = arguments.Get(0);
         var right = arguments.Get(1);
-        var result = left.FloatPower(right.SignedToFloat(left.Size));
+        var result = Expression.Values.FloatPower.Create(
+            left,
+            Expression.Values.SignedToFloat.Create(left.Size, right));
 
         state.Stack.SetVariable(caller.Id, result);
     }

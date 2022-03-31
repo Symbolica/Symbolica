@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -19,11 +20,12 @@ internal sealed class FunnelShiftRight : IFunction
         var low = arguments.Get(1);
         var shift = arguments.Get(2);
 
-        var size = state.Space.CreateConstant(shift.Size, (uint) shift.Size);
-        var offset = shift.UnsignedRemainder(size);
+        var size = ConstantUnsigned.Create(shift.Size, (uint) shift.Size);
+        var offset = Expression.Values.UnsignedRemainder.Create(shift, size);
 
-        var result = low.LogicalShiftRight(offset)
-            .Or(high.ShiftLeft(size.Subtract(offset)));
+        var result = Expression.Values.Or.Create(
+            Expression.Values.LogicalShiftRight.Create(low, offset),
+            Expression.Values.ShiftLeft.Create(high, Expression.Values.Subtract.Create(size, offset)));
 
         state.Stack.SetVariable(caller.Id, result);
     }

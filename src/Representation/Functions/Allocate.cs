@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -36,7 +37,7 @@ internal sealed class Allocate : IFunction
             var size = (Bytes) (uint) value;
 
             var address = size == Bytes.Zero
-                ? state.Space.CreateZero(state.Space.PointerSize)
+                ? ConstantUnsigned.CreateZero(state.Space.PointerSize)
                 : state.Memory.Allocate(size.ToBits());
 
             state.Stack.SetVariable(_caller.Id, address);

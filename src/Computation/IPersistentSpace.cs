@@ -4,6 +4,6 @@ namespace Symbolica.Computation;
 
 internal interface IPersistentSpace : ISpace
 {
-    IPersistentSpace Assert(IValue assertion);
+    IPersistentSpace Assert(IExpression assertion);
     ISolver CreateSolver();
 }

@@ -1,6 +1,6 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -15,7 +15,7 @@ public sealed class FloatFalse : IInstruction
 
     public void Execute(IState state)
     {
-        var result = state.Space.CreateZero(Bits.One);
+        var result = ConstantUnsigned.CreateZero(Bits.One);
 
         state.Stack.SetVariable(Id, result);
     }

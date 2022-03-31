@@ -20,7 +20,7 @@ public sealed class FloatExtend : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.FloatConvert(_size);
+        var result = Expression.Values.FloatConvert.Create(_size, expression);
 
         state.Stack.SetVariable(Id, result);
     }

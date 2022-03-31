@@ -18,7 +18,7 @@ public sealed class Subtract : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.Subtract(right);
+        var result = Expression.Values.Subtract.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

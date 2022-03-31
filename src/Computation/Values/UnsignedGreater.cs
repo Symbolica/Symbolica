@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -19,7 +18,7 @@ internal sealed record UnsignedGreater : Bool
 
     public override string? PrintedValue => null;
 
-    public override BoolExpr AsBool(ISolver solver)
+    public override Microsoft.Z3.BoolExpr AsBool(ISolver solver)
     {
         using var left = _left.AsBitVector(solver);
         using var right = _right.AsBitVector(solver);
