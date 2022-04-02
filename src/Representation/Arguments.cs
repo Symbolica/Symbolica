@@ -8,19 +8,19 @@ namespace Symbolica.Representation;
 
 internal sealed class Arguments : IArguments
 {
-    private readonly IExpression[] _expressions;
+    private readonly IExpression<IType>[] _expressions;
 
-    public Arguments(IExpression[] expressions)
+    public Arguments(IExpression<IType>[] expressions)
     {
         _expressions = expressions;
     }
 
-    public IExpression Get(int index)
+    public IExpression<IType> Get(int index)
     {
         return _expressions[index];
     }
 
-    public IEnumerator<IExpression> GetEnumerator()
+    public IEnumerator<IExpression<IType>> GetEnumerator()
     {
         return _expressions.AsEnumerable().GetEnumerator();
     }

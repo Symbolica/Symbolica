@@ -6,39 +6,42 @@ using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Expression.Values;
 
-public sealed record Address : IExpression
+public sealed record Address : IBitVectorExpression
 {
-    private Address(IExpression baseAddress, IEnumerable<Offset> offsets)
+    private Address(IExpression<IType> baseAddress, IEnumerable<Offset> offsets)
     {
         BaseAddress = baseAddress;
         Offsets = offsets;
+        Type = new BitVector(BaseAddress.Size);
     }
 
-    public IExpression BaseAddress { get; }
+    public IExpression<IType> BaseAddress { get; }
 
     public IEnumerable<Offset> Offsets { get; }
 
-    public Bits Size => BaseAddress.Size;
+    public BitVector Type { get; }
 
-    public bool Equals(IExpression? other)
+    IInteger IExpression<IInteger>.Type => Type;
+
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as Address);
     }
 
-    public IExpression BitCast(Bits targetSize)
-    {
-        return ReplaceLastOffset(Offsets.Last().BitCast(targetSize));
-    }
-
-    public IExpression Aggregate()
+    public IExpression<IType> Aggregate()
     {
         return Offsets
             .Aggregate(BaseAddress, (l, r) => Values.Add.Create(l, r.Value));
     }
 
-    internal IExpression Add(IConstantValue value)
+    internal IExpression<IType> Add(IConstantValue<IType> value)
     {
         return Create(Values.Add.Create(BaseAddress, value), Offsets);
+    }
+
+    public IExpression<IType> BitCast(Bits targetSize)
+    {
+        return ReplaceLastOffset(Offsets.Last().BitCast(targetSize));
     }
 
     public IEnumerable<(Address, Bytes)> GetAddresses(Bytes length)
@@ -51,7 +54,7 @@ public sealed record Address : IExpression
             throw new Exception("Can only deal with lengths that are whole field multiples right now.");
 
         var numFields = (uint) length / (uint) field.FieldSize;
-        IExpression CreateFieldMultiple(int i)
+        IExpression<IType> CreateFieldMultiple(int i)
         {
             return ConstantUnsigned.Create(field.Value.Size, (uint) i * (uint) field.FieldSize);
         }
@@ -62,18 +65,33 @@ public sealed record Address : IExpression
                 field.FieldSize));
     }
 
-    internal Address IncrementFinalOffset(Bytes offset)
+    public Address IncrementFinalOffset(Bytes offset)
     {
         var finalOffset = Offsets.Last();
         return ReplaceLastOffset(finalOffset.Add(ConstantUnsigned.Create(finalOffset.Value.Size, (uint) offset)));
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    internal IExpression Multiply(IConstantValue value)
+    public T Map<T>(ITypeMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public U Map<U>(IIntegerMapper<U> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBitVectorMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    internal IExpression<IType> Multiply(IConstantValue<IType> value)
     {
         return Create(
             Values.Multiply.Create(BaseAddress, value),
@@ -82,13 +100,13 @@ public sealed record Address : IExpression
 
     internal Address Negate()
     {
-        static IExpression NegateValue(IExpression value) => Values.Multiply.Create(value, ConstantUnsigned.Create(value.Size, -1));
+        static IExpression<IType> NegateValue(IExpression<IType> value) => Values.Multiply.Create(value, ConstantUnsigned.Create(value.Size, -1));
         return Create(
             NegateValue(BaseAddress),
             Offsets.Select(o => o.Negate()));
     }
 
-    internal IExpression Subtract(IExpression value)
+    internal IExpression<IType> Subtract(IExpression<IType> value)
     {
         return Create(Values.Subtract.Create(BaseAddress, value), Offsets);
     }
@@ -98,12 +116,12 @@ public sealed record Address : IExpression
         return Create(BaseAddress, Offsets.SkipLast(1).Append(offset));
     }
 
-    public static Address Create(IExpression baseAddress)
+    public static Address Create(IExpression<IType> baseAddress)
     {
         return Create(baseAddress, Enumerable.Empty<Offset>());
     }
 
-    public static Address Create(IExpression baseAddress, IEnumerable<Offset> offsets)
+    public static Address Create(IExpression<IType> baseAddress, IEnumerable<Offset> offsets)
     {
         Address Merge(Address baseAddress)
         {

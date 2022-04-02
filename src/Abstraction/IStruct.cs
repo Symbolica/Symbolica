@@ -5,9 +5,9 @@ namespace Symbolica.Abstraction;
 
 public interface IStruct
 {
-    IExpression Expression { get; }
+    IExpression<IType> Expression { get; }
 
-    IExpression Read(ISpace space, int index);
-    IStruct Write(ISpace space, int index, IExpression value);
+    IExpression<IType> Read(ISpace space, int index);
+    IStruct Write(ISpace space, int index, IExpression<IType> value);
     IStruct Write(ISpace space, int index, BigInteger value);
 }

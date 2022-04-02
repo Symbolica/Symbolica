@@ -59,14 +59,14 @@ internal sealed class FrameFactory : IFrameFactory
 
     private sealed class InitialArguments : IArguments
     {
-        public IExpression Get(int index)
+        public IExpression<IType> Get(int index)
         {
             throw new UnboundMainArgumentsException();
         }
 
-        public IEnumerator<IExpression> GetEnumerator()
+        public IEnumerator<IExpression<IType>> GetEnumerator()
         {
-            return Enumerable.Empty<IExpression>().GetEnumerator();
+            return Enumerable.Empty<IExpression<IType>>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

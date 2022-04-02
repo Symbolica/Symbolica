@@ -57,7 +57,7 @@ public sealed class Return : IInstruction
         return caller;
     }
 
-    private static IExpression Coerce(IExpression expression, ICaller caller)
+    private static IExpression<IType> Coerce(IExpression<IType> expression, ICaller caller)
     {
         return caller.ReturnAttributes.IsSignExtended
             ? Expression.Values.SignExtend.Create(caller.Size, expression)

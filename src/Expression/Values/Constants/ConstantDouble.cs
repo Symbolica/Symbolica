@@ -4,16 +4,17 @@ using Symbolica.Collection;
 
 namespace Symbolica.Expression.Values.Constants;
 
-public sealed record ConstantDouble : IFloat, IConstantValue
+public sealed record ConstantDouble : IConstantFloat
 {
     private readonly double _value;
 
     public ConstantDouble(double value)
     {
+        Type = Float.Double();
         _value = value;
     }
 
-    public Bits Size => (Bits) 64U;
+    public Float Type { get; }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)
     {
@@ -27,7 +28,7 @@ public sealed record ConstantDouble : IFloat, IConstantValue
 
     public ConstantSigned AsSigned()
     {
-        return ConstantSigned.Create(Size, BitConverter.DoubleToInt64Bits(_value));
+        return ConstantSigned.Create(Type.Size, BitConverter.DoubleToInt64Bits(_value));
     }
 
     public ConstantBool AsBool()
@@ -45,17 +46,27 @@ public sealed record ConstantDouble : IFloat, IConstantValue
         return this;
     }
 
-    public bool Equals(IExpression? other)
+    public bool Equals(IExpression<IType>? other)
     {
         return AsUnsigned().Equals(other);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
     public T Map<T>(IConstantMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IFloatMapper<T> mapper)
     {
         return mapper.Map(this);
     }
@@ -67,8 +78,8 @@ public sealed record ConstantDouble : IFloat, IConstantValue
 
     public static ConstantDouble Create(ConstantSigned value)
     {
-        return value.Size == (Bits) 64U
+        return value.Type.Size == (Bits) 64U
             ? new ConstantDouble(BitConverter.Int64BitsToDouble((long) (BigInteger) value))
-            : throw new InconsistentExpressionSizesException(value.Size, (Bits) 64U);
+            : throw new InconsistentExpressionSizesException(value.Type.Size, (Bits) 64U);
     }
 }

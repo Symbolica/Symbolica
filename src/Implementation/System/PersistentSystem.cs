@@ -2,6 +2,7 @@
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.System;
@@ -12,10 +13,10 @@ internal sealed class PersistentSystem : IPersistentSystem
     private readonly IPersistentList<Handle> _handles;
     private readonly IPersistentList<int> _indices;
     private readonly IModule _module;
-    private readonly IExpression? _threadAddress;
+    private readonly IExpression<IType>? _threadAddress;
 
     private PersistentSystem(IModule module, IDescriptionFactory descriptionFactory,
-        IExpression? threadAddress, IPersistentList<int> indices, IPersistentList<Handle> handles)
+        IExpression<IType>? threadAddress, IPersistentList<int> indices, IPersistentList<Handle> handles)
     {
         _module = module;
         _descriptionFactory = descriptionFactory;
@@ -24,7 +25,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         _handles = handles;
     }
 
-    public (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemoryProxy memory)
+    public (IExpression<IType>, IPersistentSystem) GetThreadAddress(ISpace space, IMemoryProxy memory)
     {
         return _threadAddress == null
             ? AllocateThread(space, memory)
@@ -68,23 +69,23 @@ internal sealed class PersistentSystem : IPersistentSystem
             _threadAddress, _indices, _handles.SetItem(index, new Handle(handle.References, description))));
     }
 
-    public int Read(ISpace space, IMemory memory, int descriptor, IExpression address, int count)
+    public int Read(ISpace space, IMemory memory, int descriptor, IExpression<IType> address, int count)
     {
         var (_, handle) = Get(descriptor);
 
         return handle.Description.Read(space, memory, address, count);
     }
 
-    public IExpression ReadDirectory(ISpace space, IMemory memory, IExpression address)
+    public IExpression<IType> ReadDirectory(ISpace space, IMemory memory, IExpression<IType> address)
     {
         var streamType = _module.DirectoryStreamType;
         var entryType = _module.DirectoryEntryType;
 
         var stream = streamType.CreateStruct(memory.Read(address, streamType.Size));
 
-        var tell = (int) stream.Read(space, 0).GetSingleValue(space);
-        var descriptor = (int) stream.Read(space, 1).GetSingleValue(space);
-        var buffer = address.Add(space.CreateConstant(address.Size, (uint) streamType.GetOffset(5).ToBytes()));
+        var tell = (int) space.GetSingleValue(stream.Read(space, 0));
+        var descriptor = (int) space.GetSingleValue(stream.Read(space, 1));
+        var buffer = Expression.Values.Add.Create(address, ConstantUnsigned.Create(address.Size, (uint) streamType.GetOffset(5).ToBytes()));
 
         memory.Write(address, stream
             .Write(space, 0, tell + 1)
@@ -97,7 +98,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         return handle.Description.ReadDirectory(space, memory, entry, buffer, tell);
     }
 
-    public int GetStatus(ISpace space, IMemory memory, int descriptor, IExpression address)
+    public int GetStatus(ISpace space, IMemory memory, int descriptor, IExpression<IType> address)
     {
         var statType = _module.StatType;
 
@@ -108,7 +109,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         return handle.Description.GetStatus(space, memory, stat, address);
     }
 
-    private (IExpression, IPersistentSystem) AllocateThread(ISpace space, IMemoryProxy memory)
+    private (IExpression<IType>, IPersistentSystem) AllocateThread(ISpace space, IMemoryProxy memory)
     {
         var localeType = _module.LocaleType;
         var threadType = _module.ThreadType;

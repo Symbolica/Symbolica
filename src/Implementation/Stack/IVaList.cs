@@ -5,5 +5,5 @@ namespace Symbolica.Implementation.Stack;
 
 internal interface IVaList
 {
-    IExpression Initialize(ISpace space, IStructType vaListType);
+    IExpression<IType> Initialize(ISpace space, IStructType vaListType);
 }

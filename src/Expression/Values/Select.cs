@@ -1,40 +1,45 @@
 namespace Symbolica.Expression.Values;
 
-public sealed record Select : IExpression
+public sealed record Select : IExpression<IType>
 {
-    private Select(IExpression predicate, IExpression trueValue, IExpression falseValue)
+    private Select(IExpression<IType> predicate, IExpression<IType> trueValue, IExpression<IType> falseValue)
     {
         Predicate = predicate;
         TrueValue = trueValue;
         FalseValue = falseValue;
     }
 
-    public Bits Size => TrueValue.Size;
+    public IType Type => TrueValue.Type;
 
-    public IExpression FalseValue { get; }
+    public IExpression<IType> FalseValue { get; }
 
-    public IExpression Predicate { get; }
+    public IExpression<IType> Predicate { get; }
 
-    public IExpression TrueValue { get; }
+    public IExpression<IType> TrueValue { get; }
 
-    public bool Equals(IExpression? other)
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as Select);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public static IExpression Create(IExpression predicate, IExpression trueValue, IExpression falseValue)
+    public T Map<T>(ITypeMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public static IExpression<IType> Create(IExpression<IType> predicate, IExpression<IType> trueValue, IExpression<IType> falseValue)
     {
         if (trueValue.Size != falseValue.Size)
             throw new InconsistentExpressionSizesException(trueValue.Size, falseValue.Size);
 
         return (predicate, trueValue, falseValue) switch
         {
-            (IConstantValue p, _, _) => p.AsBool() ? trueValue : falseValue,
+            (IConstantValue<IType> p, _, _) => p.AsBool() ? trueValue : falseValue,
             _ when trueValue.Equals(falseValue) => trueValue,
             _ => new Select(predicate, trueValue, falseValue)
         };

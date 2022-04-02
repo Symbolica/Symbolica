@@ -49,7 +49,7 @@ public sealed class Definition : IDefinition
                 new Arguments(arguments.Skip(Parameters.Count).ToArray()))
             : new Invocation(this,
                 arguments,
-                new Arguments(Array.Empty<IExpression>())));
+                new Arguments(Array.Empty<IExpression<IType>>())));
     }
 
     public static IFunction Create(

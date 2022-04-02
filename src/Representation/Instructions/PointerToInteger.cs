@@ -20,7 +20,7 @@ public sealed class PointerToInteger : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.PointerToInteger(_size);
+        var result = Expression.Values.PointerToInteger.Create(_size, expression);
 
         state.Stack.SetVariable(Id, result);
     }

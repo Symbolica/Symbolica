@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public interface IArguments : IEnumerable<IExpression>
+public interface IArguments : IEnumerable<IExpression<IType>>
 {
-    IExpression Get(int index);
+    IExpression<IType> Get(int index);
 }

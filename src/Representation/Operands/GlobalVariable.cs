@@ -12,7 +12,7 @@ public sealed class GlobalVariable : IOperand
         _id = id;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         return state.GetGlobalAddress(_id);
     }

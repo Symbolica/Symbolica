@@ -4,9 +4,9 @@ namespace Symbolica.Abstraction;
 
 public interface IMemory
 {
-    IExpression Allocate(Bits size);
-    IExpression Move(IExpression address, Bits size);
-    void Free(IExpression address);
-    void Write(IExpression address, IExpression value);
-    IExpression Read(IExpression address, Bits size);
+    IExpression<IType> Allocate(Bits size);
+    IExpression<IType> Move(IExpression<IType> address, Bits size);
+    void Free(IExpression<IType> address);
+    void Write(IExpression<IType> address, IExpression<IType> value);
+    IExpression<IType> Read(IExpression<IType> address, Bits size);
 }

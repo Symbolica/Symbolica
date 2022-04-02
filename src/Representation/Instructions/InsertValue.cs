@@ -25,7 +25,7 @@ public sealed class InsertValue : IInstruction
         var value = _operands[1].Evaluate(state);
         var offset = ConstantUnsigned.Create(aggregate.Size,
             (uint) _offsets.Aggregate(Bits.Zero, (l, r) => l + r));
-        var result = aggregate.Write(state.Space, offset, value);
+        var result = state.Space.Write(aggregate, offset, value);
 
         state.Stack.SetVariable(Id, result);
     }

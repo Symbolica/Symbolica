@@ -3,7 +3,7 @@ using Symbolica.Collection;
 
 namespace Symbolica.Expression.Values.Constants;
 
-public sealed record ConstantBool : Bool, IConstantValue
+public sealed record ConstantBool : IConstantBool
 {
     private readonly bool _value;
 
@@ -12,6 +12,10 @@ public sealed record ConstantBool : Bool, IConstantValue
         _value = value;
     }
 
+    public Bool Type => Bool.Type;
+
+    IInteger IExpression<IInteger>.Type => Type;
+
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)
     {
         return AsUnsigned().AsBitVector(collectionFactory);
@@ -19,12 +23,12 @@ public sealed record ConstantBool : Bool, IConstantValue
 
     public ConstantUnsigned AsUnsigned()
     {
-        return ConstantUnsigned.Create(Size, _value ? BigInteger.One : BigInteger.Zero);
+        return ConstantUnsigned.Create(Type.Size, _value ? BigInteger.One : BigInteger.Zero);
     }
 
     public ConstantSigned AsSigned()
     {
-        return ConstantSigned.Create(Size, _value ? BigInteger.One : BigInteger.Zero);
+        return ConstantSigned.Create(Type.Size, _value ? BigInteger.One : BigInteger.Zero);
     }
 
     public ConstantBool AsBool()
@@ -42,17 +46,32 @@ public sealed record ConstantBool : Bool, IConstantValue
         return AsSigned().AsDouble();
     }
 
-    public override bool Equals(IExpression? other)
+    public bool Equals(IExpression<IType>? other)
     {
         return AsUnsigned().Equals(other);
     }
 
-    public override T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
     public T Map<T>(IConstantMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBoolMapper<T> mapper)
     {
         return mapper.Map(this);
     }

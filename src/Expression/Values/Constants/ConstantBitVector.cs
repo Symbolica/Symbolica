@@ -5,17 +5,19 @@ using Symbolica.Collection;
 
 namespace Symbolica.Expression.Values.Constants;
 
-public sealed record ConstantBitVector : IBitVector, IConstantValue
+public sealed record ConstantBitVector : IConstantBitVector
 {
     private readonly IPersistentList<byte> _value;
 
     private ConstantBitVector(Bits size, IPersistentList<byte> value)
     {
-        Size = size;
+        Type = new BitVector(size);
         _value = value;
     }
 
-    public Bits Size { get; }
+    public BitVector Type { get; }
+
+    IInteger IExpression<IInteger>.Type => Type;
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)
     {
@@ -24,7 +26,7 @@ public sealed record ConstantBitVector : IBitVector, IConstantValue
 
     public ConstantUnsigned AsUnsigned()
     {
-        return ConstantUnsigned.Create(Size, new BigInteger(_value.ToArray(), true));
+        return ConstantUnsigned.Create(Type.Size, new BigInteger(_value.ToArray(), true));
     }
 
     public ConstantSigned AsSigned()
@@ -47,17 +49,32 @@ public sealed record ConstantBitVector : IBitVector, IConstantValue
         return AsSigned().AsDouble();
     }
 
-    public bool Equals(IExpression? other)
+    public bool Equals(IExpression<IType>? other)
     {
         return AsUnsigned().Equals(other);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
     public T Map<T>(IConstantMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBitVectorMapper<T> mapper)
     {
         return mapper.Map(this);
     }
@@ -69,13 +86,13 @@ public sealed record ConstantBitVector : IBitVector, IConstantValue
 
     public ConstantBitVector Write(ConstantUnsigned offset, ConstantBitVector value)
     {
-        return new(Size, _value.SetRange(GetIndex(offset), value._value));
+        return new(Type.Size, _value.SetRange(GetIndex(offset), value._value));
     }
 
     public static ConstantBitVector Create(ICollectionFactory collectionFactory, ConstantUnsigned value)
     {
-        return new ConstantBitVector(value.Size,
-            collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(value.Size, value)));
+        return new ConstantBitVector(value.Type.Size,
+            collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(value.Type.Size, value)));
     }
 
     private static IEnumerable<byte> GetBytes(Bits size, BigInteger value)

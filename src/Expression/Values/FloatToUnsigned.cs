@@ -3,36 +3,53 @@ using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Expression.Values;
 
-public sealed record FloatToUnsigned : IBitVector, IUnaryExpr
+public sealed record FloatToUnsigned : IUnaryBitVectorExpression
 {
-    private FloatToUnsigned(Bits size, IExpression value)
+    private FloatToUnsigned(Bits size, IExpression<IType> value)
     {
-        Size = size;
+        Type = new BitVector(size);
         Value = value;
     }
 
-    public Bits Size { get; }
+    public IExpression<IType> Value { get; }
 
-    public IExpression Value { get; }
+    public BitVector Type { get; }
 
-    public bool Equals(IExpression? other)
+    IInteger IExpression<IInteger>.Type => Type;
+
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as FloatToUnsigned);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public T Map<T>(IUnaryExprMapper<T> mapper)
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public static IExpression Create(Bits size, IExpression value)
+    public T Map<T>(IUnaryMapper<T> mapper)
     {
-        return IFloat.Unary(value,
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBitVectorMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public static IExpression<IType> Create(Bits size, IExpression<IType> value)
+    {
+        return Float.Unary(value,
             v => ConstantUnsigned.Create(size, (BigInteger) v),
             v => ConstantUnsigned.Create(size, (BigInteger) v),
             v => new FloatToUnsigned(size, v));

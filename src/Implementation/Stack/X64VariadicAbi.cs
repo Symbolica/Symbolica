@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack;
@@ -27,12 +27,12 @@ internal sealed class X64VariadicAbi : IVariadicAbi
             bytes = (bytes + size).AlignTo((Bytes) 8U);
         }
 
-        var value = space.CreateZero(bytes.ToBits());
+        var value = ConstantUnsigned.CreateZero(bytes.ToBits()) as IExpression<IType>;
 
         foreach (var (argument, offset) in varargs.Zip(offsets, (a, o) => (a, o)))
-            value = value.Write(space, space.CreateConstant(value.Size, (uint) offset), argument);
+            value = space.Write(value, ConstantUnsigned.Create(value.Type.Size, (uint) offset), argument);
 
-        var address = memory.Allocate(Section.Stack, value.Size);
+        var address = memory.Allocate(Section.Stack, value.Type.Size);
         memory.Write(address, value);
 
         return new VaList(address);
@@ -40,19 +40,19 @@ internal sealed class X64VariadicAbi : IVariadicAbi
 
     private sealed class VaList : IVaList
     {
-        private readonly IExpression? _address;
+        private readonly IExpression<IType>? _address;
 
-        public VaList(IExpression? address)
+        public VaList(IExpression<IType>? address)
         {
             _address = address;
         }
 
-        public IExpression Initialize(ISpace space, IStructType vaListType)
+        public IExpression<IType> Initialize(ISpace space, IStructType vaListType)
         {
-            return vaListType.CreateStruct(space.CreateZero(vaListType.Size))
+            return vaListType.CreateStruct(ConstantUnsigned.CreateZero(vaListType.Size))
                 .Write(space, 0, 48U)
                 .Write(space, 1, 304U)
-                .Write(space, 2, _address ?? space.CreateZero(space.PointerSize))
+                .Write(space, 2, _address ?? ConstantUnsigned.CreateZero(space.PointerSize))
                 .Expression;
         }
     }

@@ -25,9 +25,9 @@ internal sealed class Free : IFunction
 
     private sealed class FreeMemory : IStateAction
     {
-        private readonly IExpression _address;
+        private readonly IExpression<IType> _address;
 
-        public FreeMemory(IExpression address)
+        public FreeMemory(IExpression<IType> address)
         {
             _address = address;
         }

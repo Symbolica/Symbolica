@@ -21,7 +21,7 @@ public sealed class StructType : IStructType
         return _offsets[index];
     }
 
-    public IStruct CreateStruct(IExpression expression)
+    public IStruct CreateStruct(IExpression<IType> expression)
     {
         var sizes = _offsets
             .Skip(1)

@@ -7,9 +7,11 @@ public interface ISpace
     Bits PointerSize { get; }
 
     Example GetExample();
-    IExpression CreateConstantFloat(Bits size, string value);
-    IExpression CreateGarbage(Bits size);
-    IProposition CreateProposition(IExpression expression);
-    BigInteger GetExampleValue(IExpression expression);
-    BigInteger GetSingleValue(IExpression expression);
+    IExpression<IType> CreateGarbage(Bits size);
+    IProposition CreateProposition(IExpression<IType> expression);
+    BigInteger GetExampleValue(IExpression<IType> expression);
+    BigInteger GetSingleValue(IExpression<IType> expression);
+    IExpression<IType> Read(IExpression<IType> buffer, IExpression<IType> offset, Bits size);
+    bool TryGetSingleValue(IExpression<IType> expression, out BigInteger constant);
+    IExpression<IType> Write(IExpression<IType> buffer, IExpression<IType> offset, IExpression<IType> value);
 }

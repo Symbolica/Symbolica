@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Implementation.Memory;
@@ -23,7 +24,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         _allocations = allocations;
     }
 
-    public (IExpression, IPersistentMemory) Allocate(ISpace space, Section section, Bits size)
+    public (IExpression<IType>, IPersistentMemory) Allocate(ISpace space, Section section, Bits size)
     {
         var address = CreateAddress(space);
         var block = _blockFactory.Create(space, section, address, size);
@@ -33,7 +34,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             GetNextAddress(size), _allocations.Add(allocation)));
     }
 
-    public (IExpression, IPersistentMemory) Move(ISpace space, Section section, IExpression address, Bits size)
+    public (IExpression<IType>, IPersistentMemory) Move(ISpace space, Section section, IExpression<IType> address, Bits size)
     {
         var (index, allocation) = GetAllocation(space, address);
 
@@ -50,7 +51,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             GetNextAddress(size), _allocations.SetItem(index, freedAllocation).Add(newAllocation)));
     }
 
-    public IPersistentMemory Free(ISpace space, Section section, IExpression address)
+    public IPersistentMemory Free(ISpace space, Section section, IExpression<IType> address)
     {
         var (index, allocation) = GetAllocation(space, address);
 
@@ -63,7 +64,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             _nextAddress, _allocations.SetItem(index, freedAllocation));
     }
 
-    public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
+    public IPersistentMemory Write(ISpace space, IExpression<IType> address, IExpression<IType> value)
     {
         var newAllocations = new List<KeyValuePair<int, Allocation>>();
 
@@ -85,9 +86,9 @@ internal sealed class ConstantMemory : IPersistentMemory
         }
     }
 
-    public IExpression Read(ISpace space, IExpression address, Bits size)
+    public IExpression<IType> Read(ISpace space, IExpression<IType> address, Bits size)
     {
-        IExpression expression = ConstantUnsigned.CreateZero(size);
+        IExpression<IType> expression = ConstantUnsigned.CreateZero(size);
 
         while (true)
         {
@@ -97,7 +98,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryRead, space);
 
-            expression = Expression.Values.Or.Create(expression, result.Value);
+            expression = Or.Create(expression, result.Value);
 
             if (!result.CanBeFailure)
                 return expression;
@@ -106,7 +107,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         }
     }
 
-    private IExpression CreateAddress(ISpace space)
+    private IExpression<IType> CreateAddress(ISpace space)
     {
         return ConstantUnsigned.Create(space.PointerSize, (uint) _nextAddress);
     }
@@ -118,7 +119,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             : (_nextAddress + size.ToBytes()).AlignTo(_alignment);
     }
 
-    private (int, Allocation) GetAllocation(ISpace space, IExpression address)
+    private (int, Allocation) GetAllocation(ISpace space, IExpression<IType> address)
     {
         var key = new Allocation((Bytes) (uint) space.GetExampleValue(address), _blockFactory.CreateInvalid());
         var result = _allocations.BinarySearch(key);

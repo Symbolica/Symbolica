@@ -12,12 +12,12 @@ public sealed class Variable : IOperand
         _id = id;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         return Evaluate(state, false);
     }
 
-    internal IExpression Evaluate(IState state, bool useIncomingValue)
+    internal IExpression<IType> Evaluate(IState state, bool useIncomingValue)
     {
         return state.Stack.GetVariable(_id, useIncomingValue);
     }

@@ -7,17 +7,17 @@ namespace Symbolica.Implementation.Stack;
 
 internal sealed class PersistentVariables : IPersistentVariables
 {
-    private readonly IPersistentDictionary<InstructionId, IExpression> _incomingVariables;
-    private readonly IPersistentDictionary<InstructionId, IExpression> _variables;
+    private readonly IPersistentDictionary<InstructionId, IExpression<IType>> _incomingVariables;
+    private readonly IPersistentDictionary<InstructionId, IExpression<IType>> _variables;
 
-    private PersistentVariables(IPersistentDictionary<InstructionId, IExpression> incomingVariables,
-        IPersistentDictionary<InstructionId, IExpression> variables)
+    private PersistentVariables(IPersistentDictionary<InstructionId, IExpression<IType>> incomingVariables,
+        IPersistentDictionary<InstructionId, IExpression<IType>> variables)
     {
         _incomingVariables = incomingVariables;
         _variables = variables;
     }
 
-    public IExpression Get(InstructionId id, bool useIncomingValue)
+    public IExpression<IType> Get(InstructionId id, bool useIncomingValue)
     {
         var variables = useIncomingValue
             ? _incomingVariables
@@ -28,7 +28,7 @@ internal sealed class PersistentVariables : IPersistentVariables
             : throw new UndefinedVariableException(id);
     }
 
-    public IPersistentVariables Set(InstructionId instructionId, IExpression variable)
+    public IPersistentVariables Set(InstructionId instructionId, IExpression<IType> variable)
     {
         return new PersistentVariables(_incomingVariables,
             _variables.SetItem(instructionId, variable));
@@ -42,7 +42,7 @@ internal sealed class PersistentVariables : IPersistentVariables
 
     public static IPersistentVariables Create(ICollectionFactory collectionFactory)
     {
-        var variables = collectionFactory.CreatePersistentDictionary<InstructionId, IExpression>();
+        var variables = collectionFactory.CreatePersistentDictionary<InstructionId, IExpression<IType>>();
 
         return new PersistentVariables(variables,
             variables);

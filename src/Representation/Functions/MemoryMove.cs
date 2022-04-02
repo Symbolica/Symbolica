@@ -29,10 +29,10 @@ internal sealed class MemoryMove : IFunction
 
     private sealed class MoveMemory : IParameterizedStateAction
     {
-        private readonly IExpression _destination;
-        private readonly IExpression _source;
+        private readonly IExpression<IType> _destination;
+        private readonly IExpression<IType> _source;
 
-        public MoveMemory(IExpression destination, IExpression source)
+        public MoveMemory(IExpression<IType> destination, IExpression<IType> source)
         {
             _destination = destination;
             _source = source;

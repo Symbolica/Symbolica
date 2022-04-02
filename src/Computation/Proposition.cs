@@ -4,12 +4,12 @@ namespace Symbolica.Computation;
 
 internal sealed class Proposition : IProposition
 {
-    private readonly IExpression _assertion;
-    private readonly IExpression _negation;
+    private readonly IExpression<IType> _assertion;
+    private readonly IExpression<IType> _negation;
     private readonly ISolver _solver;
     private readonly IPersistentSpace _space;
 
-    private Proposition(IPersistentSpace space, ISolver solver, IExpression assertion, IExpression negation)
+    private Proposition(IPersistentSpace space, ISolver solver, IExpression<IType> assertion, IExpression<IType> negation)
     {
         _space = space;
         _solver = solver;
@@ -42,7 +42,7 @@ internal sealed class Proposition : IProposition
         return _solver.IsSatisfiable(_assertion);
     }
 
-    public static IProposition Create(IPersistentSpace space, IExpression assertion)
+    public static IProposition Create(IPersistentSpace space, IExpression<IType> assertion)
     {
         var solver = space.CreateSolver();
 

@@ -3,19 +3,21 @@ using Symbolica.Collection;
 
 namespace Symbolica.Expression.Values.Constants;
 
-public sealed record ConstantUnsigned : IBitVector, IConstantValue
+public sealed record ConstantUnsigned : IConstantBitVector
 {
     private readonly BigInteger _value;
 
     private ConstantUnsigned(Bits size, BigInteger value)
     {
-        Size = size;
+        Type = new BitVector(size);
         _value = value;
     }
 
     public bool IsZero => _value.IsZero;
     public bool IsOne => _value.IsOne;
-    public Bits Size { get; }
+    public BitVector Type { get; }
+
+    IInteger IExpression<IInteger>.Type => Type;
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)
     {
@@ -29,7 +31,7 @@ public sealed record ConstantUnsigned : IBitVector, IConstantValue
 
     public ConstantSigned AsSigned()
     {
-        return ConstantSigned.Create(Size, _value);
+        return ConstantSigned.Create(Type.Size, _value);
     }
 
     public ConstantBool AsBool()
@@ -47,24 +49,24 @@ public sealed record ConstantUnsigned : IBitVector, IConstantValue
         return AsSigned().AsDouble();
     }
 
-    public bool Equals(IExpression? other)
+    public bool Equals(IExpression<IType>? other)
     {
-        return other is IConstantValue v && Equal(v.AsUnsigned());
+        return other is IConstantValue<IType> v && Equal(v.AsUnsigned());
     }
 
     public ConstantUnsigned Add(ConstantUnsigned value)
     {
-        return Create(Size, _value + value._value);
+        return Create(Type.Size, _value + value._value);
     }
 
     public ConstantUnsigned And(ConstantUnsigned value)
     {
-        return Create(Size, _value & value._value);
+        return Create(Type.Size, _value & value._value);
     }
 
     public ConstantUnsigned Divide(ConstantUnsigned value)
     {
-        return Create(Size, _value / value._value);
+        return Create(Type.Size, _value / value._value);
     }
 
     public ConstantBool Equal(ConstantUnsigned value)
@@ -97,7 +99,12 @@ public sealed record ConstantUnsigned : IBitVector, IConstantValue
         return new ConstantBool(_value <= value._value);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
@@ -107,39 +114,49 @@ public sealed record ConstantUnsigned : IBitVector, IConstantValue
         return mapper.Map(this);
     }
 
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBitVectorMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
     public ConstantUnsigned Multiply(ConstantUnsigned value)
     {
-        return Create(Size, _value * value._value);
+        return Create(Type.Size, _value * value._value);
     }
 
     public ConstantUnsigned Not()
     {
-        return Create(Size, ~_value);
+        return Create(Type.Size, ~_value);
     }
 
     public ConstantUnsigned Or(ConstantUnsigned value)
     {
-        return Create(Size, _value | value._value);
+        return Create(Type.Size, _value | value._value);
     }
 
     public ConstantUnsigned Remainder(ConstantUnsigned value)
     {
-        return Create(Size, _value % value._value);
+        return Create(Type.Size, _value % value._value);
     }
 
     public ConstantUnsigned ShiftLeft(ConstantUnsigned value)
     {
-        return Create(Size, _value << (int) value._value);
+        return Create(Type.Size, _value << (int) value._value);
     }
 
     public ConstantUnsigned ShiftRight(ConstantUnsigned value)
     {
-        return Create(Size, _value >> (int) value._value);
+        return Create(Type.Size, _value >> (int) value._value);
     }
 
     public ConstantUnsigned Subtract(ConstantUnsigned value)
     {
-        return Create(Size, _value - value._value);
+        return Create(Type.Size, _value - value._value);
     }
 
     public ConstantDouble ToDouble()
@@ -159,7 +176,7 @@ public sealed record ConstantUnsigned : IBitVector, IConstantValue
 
     public ConstantUnsigned Xor(ConstantUnsigned value)
     {
-        return Create(Size, _value ^ value._value);
+        return Create(Type.Size, _value ^ value._value);
     }
 
     public static implicit operator BigInteger(ConstantUnsigned value)

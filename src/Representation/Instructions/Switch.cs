@@ -25,11 +25,11 @@ public sealed class Switch : IInstruction
 
     private sealed class Transfer : IStateAction
     {
-        private readonly IExpression _expression;
+        private readonly IExpression<IType> _expression;
         private readonly int _index;
         private readonly IOperand[] _operands;
 
-        public Transfer(IExpression expression, int index, IOperand[] operands)
+        public Transfer(IExpression<IType> expression, int index, IOperand[] operands)
         {
             _expression = expression;
             _index = index;
@@ -44,7 +44,7 @@ public sealed class Switch : IInstruction
                 TransferDefault(state);
         }
 
-        private void TransferCase(IState state, IExpression expression, int index)
+        private void TransferCase(IState state, IExpression<IType> expression, int index)
         {
             var value = _operands[index].Evaluate(state);
             var successorId = (BasicBlockId) (ulong) state.Space.GetSingleValue(_operands[index + 1].Evaluate(state));

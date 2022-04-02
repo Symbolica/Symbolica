@@ -1,34 +1,54 @@
 ﻿namespace Symbolica.Expression.Values;
 
-public sealed record Not : IBitVector, IUnaryExpr
+public sealed record Not : IUnaryBitVectorExpression
 {
-    private Not(IExpression value)
+    private Not(IExpression<IType> value)
     {
+        Type = new BitVector(value.Size);
         Value = value;
     }
 
-    public IExpression Value { get; }
+    public IExpression<IType> Value { get; }
 
-    public bool Equals(IExpression? other)
+    public BitVector Type { get; }
+
+    IInteger IExpression<IInteger>.Type => Type;
+
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as Not);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public T Map<T>(IUnaryExprMapper<T> mapper)
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public static IExpression Create(IExpression value)
+    public T Map<T>(IUnaryMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBitVectorMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public static IExpression<IType> Create(IExpression<IType> value)
     {
         return value switch
         {
-            IConstantValue v => v.AsUnsigned().Not(),
+            IConstantValue<IType> v => v.AsUnsigned().Not(),
             Not v => v.Value,
             _ => new Not(value)
         };

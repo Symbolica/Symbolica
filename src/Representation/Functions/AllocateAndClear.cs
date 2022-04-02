@@ -43,7 +43,7 @@ internal sealed class AllocateAndClear : IFunction
             state.Stack.SetVariable(_caller.Id, address);
         }
 
-        private static IExpression Allocate(IState state, Bits size)
+        private static IExpression<IType> Allocate(IState state, Bits size)
         {
             var address = state.Memory.Allocate(size);
             state.Memory.Write(address, ConstantUnsigned.CreateZero(size));

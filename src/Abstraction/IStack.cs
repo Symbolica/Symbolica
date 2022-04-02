@@ -11,12 +11,12 @@ public interface IStack
 
     void Wind(ICaller caller, IInvocation invocation);
     ICaller Unwind();
-    void Save(IExpression address, bool useJumpBuffer);
-    InstructionId Restore(IExpression address, bool useJumpBuffer);
+    void Save(IExpression<IType> address, bool useJumpBuffer);
+    InstructionId Restore(IExpression<IType> address, bool useJumpBuffer);
     void TransferBasicBlock(BasicBlockId id);
-    IExpression GetFormal(int index);
-    IExpression GetInitializedVaList();
-    IExpression GetVariable(InstructionId id, bool useIncomingValue);
-    void SetVariable(InstructionId id, IExpression variable);
-    IExpression Allocate(Bits size);
+    IExpression<IType> GetFormal(int index);
+    IExpression<IType> GetInitializedVaList();
+    IExpression<IType> GetVariable(InstructionId id, bool useIncomingValue);
+    void SetVariable(InstructionId id, IExpression<IType> variable);
+    IExpression<IType> Allocate(Bits size);
 }

@@ -3,39 +3,52 @@ using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Expression.Values;
 
-public sealed record FloatPower : IBinaryExpr, IFloat, IRealValue
+public sealed record FloatPower : IBinaryRealExpression
 {
-    private FloatPower(IExpression left, IExpression right)
+    private FloatPower(IExpression<IType> left, IExpression<IType> right)
     {
         Left = left;
         Right = right;
+        Type = new Real(left.Size);
     }
 
-    public IExpression Left { get; }
+    public IExpression<IType> Left { get; }
 
-    public IExpression Right { get; }
+    public IExpression<IType> Right { get; }
 
-    public bool Equals(IExpression? other)
+    public Real Type { get; }
+
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as FloatPower);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public T Map<T>(IBinaryExprMapper<T> mapper)
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public static IExpression Create(IExpression left, IExpression right)
+    public T Map<T>(IBinaryMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IRealMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public static IExpression<IType> Create(IExpression<IType> left, IExpression<IType> right)
     {
         if (left.Size != right.Size)
             throw new InconsistentExpressionSizesException(left.Size, right.Size);
 
-        return IFloat.Binary(left, right,
+        return Float.Binary(left, right,
             (l, r) => new ConstantSingle(MathF.Pow(l, r)),
             (l, r) => new ConstantDouble(Math.Pow(l, r)),
             (l, r) => new FloatPower(l, r));

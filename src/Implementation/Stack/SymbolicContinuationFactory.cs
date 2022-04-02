@@ -4,9 +4,9 @@ namespace Symbolica.Implementation.Stack;
 
 internal sealed class SymbolicContinuationFactory : IPersistentContinuationFactory
 {
-    public (IExpression, IPersistentContinuationFactory) Create(ISpace space, Bits size)
+    public (IExpression<IType>, IPersistentContinuationFactory) Create(Bits size)
     {
-        var continuation = space.CreateSymbolic(size, null);
+        var continuation = Symbol.Create(size);
 
         return (continuation, this);
     }

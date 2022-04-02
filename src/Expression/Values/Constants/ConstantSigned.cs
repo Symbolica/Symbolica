@@ -3,17 +3,19 @@ using Symbolica.Collection;
 
 namespace Symbolica.Expression.Values.Constants;
 
-public sealed record ConstantSigned : IBitVector, IConstantValue
+public sealed record ConstantSigned : IConstantBitVector
 {
     private readonly BigInteger _value;
 
     private ConstantSigned(Bits size, BigInteger value)
     {
-        Size = size;
+        Type = new BitVector(size);
         _value = value;
     }
 
-    public Bits Size { get; }
+    public BitVector Type { get; }
+
+    IInteger IExpression<IInteger>.Type => Type;
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)
     {
@@ -22,7 +24,7 @@ public sealed record ConstantSigned : IBitVector, IConstantValue
 
     public ConstantUnsigned AsUnsigned()
     {
-        return ConstantUnsigned.Create(Size, _value);
+        return ConstantUnsigned.Create(Type.Size, _value);
     }
 
     public ConstantSigned AsSigned()
@@ -45,14 +47,14 @@ public sealed record ConstantSigned : IBitVector, IConstantValue
         return ConstantDouble.Create(this);
     }
 
-    public bool Equals(IExpression? other)
+    public bool Equals(IExpression<IType>? other)
     {
         return AsUnsigned().Equals(other);
     }
 
     public ConstantSigned Divide(ConstantSigned value)
     {
-        return Create(Size, _value / value._value);
+        return Create(Type.Size, _value / value._value);
     }
 
     public ConstantSigned Extend(Bits size)
@@ -80,7 +82,12 @@ public sealed record ConstantSigned : IBitVector, IConstantValue
         return new ConstantBool(_value <= value._value);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
@@ -90,14 +97,24 @@ public sealed record ConstantSigned : IBitVector, IConstantValue
         return mapper.Map(this);
     }
 
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBitVectorMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
     public ConstantSigned Remainder(ConstantSigned value)
     {
-        return Create(Size, _value % value._value);
+        return Create(Type.Size, _value % value._value);
     }
 
     public ConstantSigned ShiftRight(ConstantUnsigned value)
     {
-        return Create(Size, _value >> (int) (BigInteger) value);
+        return Create(Type.Size, _value >> (int) (BigInteger) value);
     }
 
     public ConstantDouble ToDouble()

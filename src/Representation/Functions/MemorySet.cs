@@ -29,10 +29,10 @@ internal sealed class MemorySet : IFunction
 
     private sealed class SetMemory : IParameterizedStateAction
     {
-        private readonly IExpression _destination;
-        private readonly IExpression _value;
+        private readonly IExpression<IType> _destination;
+        private readonly IExpression<IType> _value;
 
-        public SetMemory(IExpression destination, IExpression value)
+        public SetMemory(IExpression<IType> destination, IExpression<IType> value)
         {
             _destination = destination;
             _value = value;
@@ -40,19 +40,17 @@ internal sealed class MemorySet : IFunction
 
         public void Invoke(IState state, BigInteger bytes)
         {
-            IExpression MakeBuffer(Bytes size)
+            IExpression<IType> MakeBuffer(Bytes bytes)
             {
-                var bits = size.ToBits();
-                var buffer = ConstantUnsigned.CreateZero(bits);
-                foreach (var offset in Enumerable.Range(0, (int) (uint) size))
-                    buffer.Write(state.Space, ConstantUnsigned.Create(bits, offset), _value);
-
-                return buffer;
+                var size = bytes.ToBits();
+                return Enumerable.Range(0, (int) (uint) bytes)
+                    .Select(offset => ConstantUnsigned.Create(size, offset))
+                    .Aggregate(
+                        ConstantUnsigned.CreateZero(size) as IExpression<IType>,
+                        (buffer, offset) => state.Space.Write(buffer, offset, _value));
             }
 
-            var addresses = Address.Create(_destination).GetAddresses((Bytes) (uint) bytes);
-
-            foreach (var destination in addresses)
+            foreach (var destination in Address.Create(_destination).GetAddresses((Bytes) (uint) bytes))
                 state.Memory.Write(destination.Item1, MakeBuffer(destination.Item2));
         }
     }

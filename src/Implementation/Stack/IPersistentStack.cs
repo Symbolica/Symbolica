@@ -13,13 +13,13 @@ internal interface IPersistentStack
     IEnumerable<string> StackTrace { get; }
     IPersistentStack Wind(ISpace space, IMemoryProxy memory, ICaller caller, IInvocation invocation);
     (ICaller, IPersistentStack) Unwind(IMemoryProxy memory);
-    IPersistentStack Save(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer);
-    IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression address, bool useJumpBuffer);
+    IPersistentStack Save(IMemory memory, IExpression<IType> address, bool useJumpBuffer);
+    IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression<IType> address, bool useJumpBuffer);
     IPersistentStack TransferBasicBlock(BasicBlockId id);
     IPersistentStack MoveNextInstruction();
-    IExpression GetFormal(int index);
-    IExpression GetInitializedVaList(ISpace space);
-    IExpression GetVariable(InstructionId id, bool useIncomingValue);
-    IPersistentStack SetVariable(InstructionId id, IExpression variable);
-    (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Bits size);
+    IExpression<IType> GetFormal(int index);
+    IExpression<IType> GetInitializedVaList(ISpace space);
+    IExpression<IType> GetVariable(InstructionId id, bool useIncomingValue);
+    IPersistentStack SetVariable(InstructionId id, IExpression<IType> variable);
+    (IExpression<IType>, IPersistentStack) Allocate(IMemoryProxy memory, Bits size);
 }

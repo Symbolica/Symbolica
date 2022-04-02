@@ -6,9 +6,9 @@ public readonly record struct Offset(
     Bytes AggregateSize,
     string AggregateType,
     Bytes FieldSize,
-    IExpression Value)
+    IExpression<IType> Value)
 {
-    internal Offset Add(IExpression value)
+    internal Offset Add(IExpression<IType> value)
     {
         return new(AggregateSize, AggregateType, FieldSize, Values.Add.Create(Value, value));
     }

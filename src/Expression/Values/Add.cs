@@ -2,60 +2,80 @@ using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Expression.Values;
 
-public sealed record Add : IBitVector, IBinaryExpr
+public sealed record Add : IBinaryBitVectorExpression
 {
-    private Add(IExpression left, IExpression right)
+    private Add(IExpression<IType> left, IExpression<IType> right)
     {
         Left = left;
         Right = right;
+        Type = new BitVector(left.Size);
     }
 
-    public IExpression Left { get; }
+    public IExpression<IType> Left { get; }
 
-    public IExpression Right { get; }
+    public IExpression<IType> Right { get; }
 
-    public bool Equals(IExpression? other)
+    public BitVector Type { get; }
+
+    IInteger IExpression<IInteger>.Type => Type;
+
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as Add);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public T Map<T>(IBinaryExprMapper<T> mapper)
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    private static IExpression ShortCircuit(IExpression left, ConstantUnsigned right)
+    public T Map<T>(IBinaryMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBitVectorMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    private static IExpression<IType> ShortCircuit(IExpression<IType> left, ConstantUnsigned right)
     {
         return right.IsZero
             ? left
             : Create(left, right);
     }
 
-    private static IExpression Create(IExpression left, ConstantUnsigned right)
+    private static IExpression<IType> Create(IExpression<IType> left, ConstantUnsigned right)
     {
         return left switch
         {
-            IConstantValue l => l.AsUnsigned().Add(right),
+            IConstantValue<IType> l => l.AsUnsigned().Add(right),
             Address l => l.Add(right),
             Add l => Create(l.Left, Create(l.Right, right)),
             _ => new Add(left, right)
         };
     }
 
-    public static IExpression Create(IExpression left, IExpression right)
+    public static IExpression<IType> Create(IExpression<IType> left, IExpression<IType> right)
     {
         if (left.Size != right.Size)
             throw new InconsistentExpressionSizesException(left.Size, right.Size);
 
         return (left, right) switch
         {
-            (IConstantValue l, _) => ShortCircuit(right, l.AsUnsigned()),
-            (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
+            (IConstantValue<IType> l, _) => ShortCircuit(right, l.AsUnsigned()),
+            (_, IConstantValue<IType> r) => ShortCircuit(left, r.AsUnsigned()),
             (Address l, Address r) => Create(r.Aggregate(), l.Aggregate()),
             (Address l, _) => Create(l.Aggregate(), right),
             (_, Address r) => Create(left, r.Aggregate()),

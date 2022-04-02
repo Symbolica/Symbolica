@@ -2,39 +2,59 @@
 
 namespace Symbolica.Expression.Values;
 
-public sealed record FloatGreaterOrEqual : Bool, IBinaryExpr
+public sealed record FloatGreaterOrEqual : IBinaryBoolExpression
 {
-    private FloatGreaterOrEqual(IExpression left, IExpression right)
+    private FloatGreaterOrEqual(IExpression<IType> left, IExpression<IType> right)
     {
         Left = left;
         Right = right;
+        Type = Bool.Type;
     }
 
-    public IExpression Left { get; }
+    public IExpression<IType> Left { get; }
 
-    public IExpression Right { get; }
+    public IExpression<IType> Right { get; }
 
-    public override bool Equals(IExpression? other)
+    public Bool Type { get; }
+
+    IInteger IExpression<IInteger>.Type => Type;
+
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as FloatGreaterOrEqual);
     }
 
-    public override T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public T Map<T>(IBinaryExprMapper<T> mapper)
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public static IExpression Create(IExpression left, IExpression right)
+    public T Map<T>(IBinaryMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBoolMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public static IExpression<IType> Create(IExpression<IType> left, IExpression<IType> right)
     {
         if (left.Size != right.Size)
             throw new InconsistentExpressionSizesException(left.Size, right.Size);
 
-        return IFloat.Binary(left, right,
+        return Float.Binary(left, right,
             (l, r) => new ConstantBool(l >= r),
             (l, r) => new ConstantBool(l >= r),
             (l, r) => new FloatGreaterOrEqual(l, r));

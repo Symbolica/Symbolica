@@ -14,7 +14,7 @@ public sealed class UninitializedGlobal : IGlobal
     public GlobalId Id { get; }
     public Bits Size { get; }
 
-    public void Initialize(IState state, IExpression address)
+    public void Initialize(IState state, IExpression<IType> address)
     {
     }
 }

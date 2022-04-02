@@ -7,5 +7,5 @@ namespace Symbolica.Implementation;
 
 internal interface IPersistentGlobals
 {
-    (IExpression, Action<IState>, IPersistentGlobals) GetAddress(IMemoryProxy memory, GlobalId id);
+    (IExpression<IType>, Action<IState>, IPersistentGlobals) GetAddress(IMemoryProxy memory, GlobalId id);
 }

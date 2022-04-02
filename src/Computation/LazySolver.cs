@@ -24,45 +24,45 @@ internal sealed class LazySolver : ISolver
         _solver?.Dispose();
     }
 
-    public void Assert(IEnumerable<IExpression> assertions)
+    public void Assert(IEnumerable<IExpression<IType>> assertions)
     {
         _actions.Add(s => s.Assert(assertions));
     }
 
-    public void Assert(string name, IEnumerable<IExpression> assertions)
+    public void Assert(string name, IEnumerable<IExpression<IType>> assertions)
     {
         _actions.Add(s => s.Assert(name, assertions));
     }
 
-    public bool IsSatisfiable(IExpression assertion)
+    public bool IsSatisfiable(IExpression<IType> assertion)
     {
-        return assertion is IConstantValue v
+        return assertion is IConstantValue<IType> v
             ? v.AsBool()
             : GetSolver().IsSatisfiable(assertion);
     }
 
-    public BigInteger GetSingleValue(IExpression expression)
+    public BigInteger GetSingleValue(IExpression<IType> expression)
     {
-        return expression is IConstantValue v
+        return expression is IConstantValue<IType> v
             ? v.AsUnsigned()
             : GetSolver().GetSingleValue(expression);
     }
 
-    public BigInteger GetExampleValue(IExpression expression)
+    public BigInteger GetExampleValue(IExpression<IType> expression)
     {
-        return expression is IConstantValue v
+        return expression is IConstantValue<IType> v
             ? v.AsUnsigned()
             : GetSolver().GetExampleValue(expression);
     }
 
-    public IExample GetExample()
+    public Example GetExample()
     {
         return GetSolver().GetExample();
     }
 
-    public bool TryGetSingleValue(IExpression expression, out BigInteger constant)
+    public bool TryGetSingleValue(IExpression<IType> expression, out BigInteger constant)
     {
-        if (expression is IConstantValue v)
+        if (expression is IConstantValue<IType> v)
         {
             constant = v.AsUnsigned();
             return true;

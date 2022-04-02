@@ -1,5 +1,7 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation;
 
@@ -14,11 +16,11 @@ public sealed class ArrayOffset : IOperand
         _index = index;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         var index = _index.Evaluate(state);
-        var elementSize = state.Space.CreateConstant(state.Space.PointerSize, (uint) _elementSize);
+        var elementSize = ConstantUnsigned.Create(state.Space.PointerSize, (uint) _elementSize);
 
-        return index.SignExtend(state.Space.PointerSize).Multiply(elementSize);
+        return Multiply.Create(SignExtend.Create(state.Space.PointerSize, index), elementSize);
     }
 }

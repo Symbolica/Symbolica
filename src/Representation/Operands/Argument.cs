@@ -12,7 +12,7 @@ public sealed class Argument : IOperand
         _index = index;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         return state.Stack.GetFormal(_index);
     }

@@ -1,6 +1,6 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Operands;
 
@@ -13,8 +13,8 @@ public sealed class ConstantZero : IOperand
         _size = size;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
-        return state.Space.CreateZero(_size);
+        return ConstantUnsigned.CreateZero(_size);
     }
 }

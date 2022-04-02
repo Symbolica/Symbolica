@@ -46,12 +46,12 @@ internal sealed class StackProxy : IStackProxy
         return caller;
     }
 
-    public void Save(IExpression address, bool useJumpBuffer)
+    public void Save(IExpression<IType> address, bool useJumpBuffer)
     {
-        _stack = _stack.Save(_space, _memory, address, useJumpBuffer);
+        _stack = _stack.Save(_memory, address, useJumpBuffer);
     }
 
-    public InstructionId Restore(IExpression address, bool useJumpBuffer)
+    public InstructionId Restore(IExpression<IType> address, bool useJumpBuffer)
     {
         _stack = _stack.Restore(_space, _memory, address, useJumpBuffer);
 
@@ -63,27 +63,27 @@ internal sealed class StackProxy : IStackProxy
         _stack = _stack.TransferBasicBlock(id);
     }
 
-    public IExpression GetFormal(int index)
+    public IExpression<IType> GetFormal(int index)
     {
         return _stack.GetFormal(index);
     }
 
-    public IExpression GetInitializedVaList()
+    public IExpression<IType> GetInitializedVaList()
     {
         return _stack.GetInitializedVaList(_space);
     }
 
-    public IExpression GetVariable(InstructionId id, bool useIncomingValue)
+    public IExpression<IType> GetVariable(InstructionId id, bool useIncomingValue)
     {
         return _stack.GetVariable(id, useIncomingValue);
     }
 
-    public void SetVariable(InstructionId id, IExpression variable)
+    public void SetVariable(InstructionId id, IExpression<IType> variable)
     {
         _stack = _stack.SetVariable(id, variable);
     }
 
-    public IExpression Allocate(Bits size)
+    public IExpression<IType> Allocate(Bits size)
     {
         var (address, stack) = _stack.Allocate(_memory, size);
         _stack = stack;

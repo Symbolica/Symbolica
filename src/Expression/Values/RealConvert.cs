@@ -1,28 +1,38 @@
 ﻿namespace Symbolica.Expression.Values;
 
-public sealed record RealConvert : IFloat, IRealValue, IUnaryExpr<IRealValue>
+public sealed record RealConvert : IUnaryRealExpression<Real>
 {
-    public RealConvert(Bits size, IRealValue value)
+    public RealConvert(Bits size, IExpression<Real> value)
     {
-        Size = size;
+        Type = new Real(size);
         Value = value;
     }
 
-    public Bits Size { get; }
+    public Real Type { get; }
 
-    public IRealValue Value { get; }
+    public IExpression<Real> Value { get; }
 
-    public bool Equals(IExpression? other)
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as RealConvert);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public T Map<T>(IUnaryExprMapper<T> mapper)
+    public T Map<T>(ITypeMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IUnaryMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IRealMapper<T> mapper)
     {
         return mapper.Map(this);
     }

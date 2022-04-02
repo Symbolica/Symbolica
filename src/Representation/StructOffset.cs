@@ -1,5 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation;
 
@@ -12,8 +13,8 @@ public sealed class StructOffset : IOperand
         _offset = offset;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
-        return state.Space.CreateConstant(state.Space.PointerSize, (uint) _offset);
+        return ConstantUnsigned.Create(state.Space.PointerSize, (uint) _offset);
     }
 }

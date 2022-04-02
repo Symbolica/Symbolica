@@ -1,19 +1,18 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using Symbolica.Collection;
-using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Computation;
 
 internal sealed class PersistentSpace : IPersistentSpace
 {
-    private readonly IPersistentStack<IExpression> _assertions;
+    private readonly IPersistentStack<IExpression<IType>> _assertions;
     private readonly ICollectionFactory _collectionFactory;
     private readonly bool _useSymbolicGarbage;
 
     private PersistentSpace(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory,
-        IPersistentStack<IExpression> assertions)
+        IPersistentStack<IExpression<IType>> assertions)
     {
         PointerSize = pointerSize;
         _useSymbolicGarbage = useSymbolicGarbage;
@@ -23,33 +22,22 @@ internal sealed class PersistentSpace : IPersistentSpace
 
     public Bits PointerSize { get; }
 
-    public IPersistentSpace Assert(IExpression assertion)
+    public IPersistentSpace Assert(IExpression<IType> assertion)
     {
-        return assertion is IConstantValue
+        return assertion is IConstantValue<IType>
             ? this
             : new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory,
                 _assertions.Push(assertion));
     }
 
-    public IExpression CreateConstantFloat(Bits size, string value)
-    {
-        return new Expression(_collectionFactory,
-            (uint) size switch
-            {
-                32U => new ConstantSingle(float.Parse(value)),
-                64U => new ConstantDouble(double.Parse(value)),
-                _ => new NormalFloat(size, value)
-            });
-    }
-
-    public IExpression CreateGarbage(Bits size)
+    public IExpression<IType> CreateGarbage(Bits size)
     {
         return _useSymbolicGarbage
-            ? Symbolica.Expression.Symbol.Create(size, Guid.NewGuid().ToString())
-            : Symbolica.Expression.Values.Constants.ConstantUnsigned.CreateZero(size);
+            ? Symbol.Create(size)
+            : ConstantUnsigned.CreateZero(size);
     }
 
-    public IProposition CreateProposition(IExpression assertion)
+    public IProposition CreateProposition(IExpression<IType> assertion)
     {
         return Proposition.Create(this, assertion);
     }
@@ -62,23 +50,47 @@ internal sealed class PersistentSpace : IPersistentSpace
         return solver;
     }
 
-    public IExample GetExample()
+    public Example GetExample()
     {
         using var solver = CreateSolver();
 
         return solver.GetExample();
     }
 
-    public BigInteger GetSingleValue(IExpression expression)
+    public BigInteger GetExampleValue(IExpression<IType> expression)
+    {
+        using var solver = CreateSolver();
+
+        return solver.GetExampleValue(expression);
+    }
+
+    public BigInteger GetSingleValue(IExpression<IType> expression)
     {
         using var solver = CreateSolver();
 
         return solver.GetSingleValue(expression);
     }
 
+    public IExpression<IType> Read(IExpression<IType> buffer, IExpression<IType> offset, Bits size)
+    {
+        return Expression.Values.Read.Create(_collectionFactory, this, buffer, offset, size);
+    }
+
+    public IExpression<IType> Write(IExpression<IType> buffer, IExpression<IType> offset, IExpression<IType> value)
+    {
+        return Expression.Values.Write.Create(_collectionFactory, this, buffer, offset, value);
+    }
+
+    public bool TryGetSingleValue(IExpression<IType> expression, out BigInteger constant)
+    {
+        using var solver = CreateSolver();
+
+        return solver.TryGetSingleValue(expression, out constant);
+    }
+
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
     {
         return new PersistentSpace(pointerSize, useSymbolicGarbage, collectionFactory,
-            collectionFactory.CreatePersistentStack<IExpression>());
+            collectionFactory.CreatePersistentStack<IExpression<IType>>());
     }
 }

@@ -20,7 +20,7 @@ public sealed class BitCast : IInstruction
     public void Execute(IState state)
     {
         var value = _operands[0].Evaluate(state);
-        var result = value.BitCast(_targetSize);
+        var result = Expression.Values.BitCast.Create(_targetSize, value);
 
         state.Stack.SetVariable(Id, result);
     }

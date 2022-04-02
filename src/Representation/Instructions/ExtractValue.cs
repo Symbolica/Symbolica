@@ -26,7 +26,7 @@ public sealed class ExtractValue : IInstruction
         var aggregate = _operands[0].Evaluate(state);
         var offset = ConstantUnsigned.Create(aggregate.Size,
             (uint) _offsets.Aggregate(Bits.Zero, (l, r) => l + r));
-        var result = aggregate.Read(state.Space, offset, _size);
+        var result = state.Space.Read(aggregate, offset, _size);
 
         state.Stack.SetVariable(Id, result);
     }

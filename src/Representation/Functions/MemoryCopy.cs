@@ -40,10 +40,10 @@ internal sealed class MemoryCopy : IFunction
 
     private sealed class CopyMemory : IParameterizedStateAction
     {
-        private readonly IExpression _destination;
-        private readonly IExpression _source;
+        private readonly IExpression<IType> _destination;
+        private readonly IExpression<IType> _source;
 
-        public CopyMemory(IExpression destination, IExpression source)
+        public CopyMemory(IExpression<IType> destination, IExpression<IType> source)
         {
             _destination = destination;
             _source = source;

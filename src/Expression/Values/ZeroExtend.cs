@@ -1,36 +1,53 @@
 ﻿namespace Symbolica.Expression.Values;
 
-public sealed record ZeroExtend : IBitVector, IUnaryExpr
+public sealed record ZeroExtend : IUnaryBitVectorExpression
 {
-    private ZeroExtend(Bits size, IExpression value)
+    private ZeroExtend(Bits size, IExpression<IType> value)
     {
-        Size = size;
+        Type = new BitVector(size);
         Value = value;
     }
 
-    public Bits Size { get; }
+    public IExpression<IType> Value { get; }
 
-    public IExpression Value { get; }
+    public BitVector Type { get; }
 
-    public bool Equals(IExpression? other)
+    IInteger IExpression<IInteger>.Type => Type;
+
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as ZeroExtend);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public T Map<T>(IUnaryExprMapper<T> mapper)
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public static IExpression Create(Bits size, IExpression value)
+    public T Map<T>(IUnaryMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IIntegerMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IBitVectorMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public static IExpression<IType> Create(Bits size, IExpression<IType> value)
     {
         return size > value.Size
-            ? value is IConstantValue v
+            ? value is IConstantValue<IType> v
                 ? v.AsUnsigned().Extend(size)
                 : new ZeroExtend(size, value)
             : value;

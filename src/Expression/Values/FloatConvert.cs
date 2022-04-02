@@ -2,36 +2,46 @@
 
 namespace Symbolica.Expression.Values;
 
-public sealed record FloatConvert : IUnaryExpr, IFloat
+public sealed record FloatConvert : IUnaryFloatExpression
 {
-    private FloatConvert(Bits size, IExpression value)
+    private FloatConvert(Bits size, IExpression<IType> value)
     {
-        Size = size;
+        Type = new Float(size);
         Value = value;
     }
 
-    public Bits Size { get; }
+    public IExpression<IType> Value { get; }
 
-    public IExpression Value { get; }
+    public Float Type { get; }
 
-    public bool Equals(IExpression? other)
+    public bool Equals(IExpression<IType>? other)
     {
         return Equals(other as FloatConvert);
     }
 
-    public T Map<T>(IExprMapper<T> mapper)
+    public T Map<T>(IArityMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public T Map<T>(IUnaryExprMapper<T> mapper)
+    public T Map<T>(ITypeMapper<T> mapper)
     {
         return mapper.Map(this);
     }
 
-    public static IExpression Create(Bits size, IExpression value)
+    public T Map<T>(IUnaryMapper<T> mapper)
     {
-        return IFloat.Unary(value,
+        return mapper.Map(this);
+    }
+
+    public T Map<T>(IFloatMapper<T> mapper)
+    {
+        return mapper.Map(this);
+    }
+
+    public static IExpression<IType> Create(Bits size, IExpression<IType> value)
+    {
+        return Float.Unary(value,
             v => (uint) size switch
             {
                 32U => new ConstantSingle(v),
@@ -44,7 +54,7 @@ public sealed record FloatConvert : IUnaryExpr, IFloat
                 64U => new ConstantDouble(v),
                 _ => new FloatConvert(size, new ConstantDouble(v))
             },
-            v => v is IRealValue r
+            v => v is IExpression<Real> r
                 ? new RealConvert(size, r)
                 : new FloatConvert(size, v));
     }
