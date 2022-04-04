@@ -9,7 +9,7 @@ internal sealed class PersistentBlock : IPersistentBlock
     private readonly IExpression<IType> _data;
     private readonly Section _section;
 
-    public PersistentBlock(Section section, IExpression<IType> address, IExpression<IType> data)
+    public PersistentBlock(Section section, Address address, IExpression<IType> data)
     {
         _section = section;
         Address = address;
@@ -17,20 +17,20 @@ internal sealed class PersistentBlock : IPersistentBlock
     }
 
     public bool IsValid => true;
-    public IExpression<IType> Address { get; }
+    public Address Address { get; }
     public Bytes Size => _data.Size.ToBytes();
 
-    public IPersistentBlock Move(IExpression<IType> address, Bits size)
+    public IPersistentBlock Move(Address address, Bits size)
     {
-        return new PersistentBlock(_section, address, Expression.Values.Resize.Create(size, _data));
+        return new PersistentBlock(_section, address, Resize.Create(size, _data));
     }
 
-    public bool CanFree(ISpace space, Section section, IExpression<IType> address)
+    public bool CanFree(ISpace space, Section section, Address address)
     {
         return _section == section && IsZeroOffset(space, address);
     }
 
-    public Result<IPersistentBlock> TryWrite(ISpace space, IExpression<IType> address, IExpression<IType> value)
+    public Result<IPersistentBlock> TryWrite(ISpace space, Address address, IExpression<IType> value)
     {
         if (value.Size == _data.Size && IsZeroOffset(space, address))
             return Result<IPersistentBlock>.Success(
@@ -50,7 +50,7 @@ internal sealed class PersistentBlock : IPersistentBlock
                 Write(space, GetOffset(address), value));
     }
 
-    public Result<IExpression<IType>> TryRead(ISpace space, IExpression<IType> address, Bits size)
+    public Result<IExpression<IType>> TryRead(ISpace space, Address address, Bits size)
     {
         if (size == _data.Size && IsZeroOffset(space, address))
             return Result<IExpression<IType>>.Success(
@@ -90,27 +90,25 @@ internal sealed class PersistentBlock : IPersistentBlock
         return Add.Create(address, ConstantUnsigned.Create(address.Size, (uint) size));
     }
 
-    private IExpression<IType> GetOffset(IExpression<IType> address)
+    private Address GetOffset(Address address)
     {
-        return Multiply.Create(
-            ConstantUnsigned.Create(address.Size, (uint) Bytes.One.ToBits()),
-            Subtract.Create(address, Address));
+        return address.Subtract(Address);
     }
 
-    private IExpression<IType> GetOffset(IExpression<IType> address, IExpression<IType> isFullyInside)
+    private Address GetOffset(Address address, IExpression<IType> isFullyInside)
     {
         return Select.Create(
             isFullyInside,
             GetOffset(address),
-            ConstantUnsigned.Create(address.Size, (uint) _data.Size));
+            ConstantUnsigned.Create(address.Type.Size, (uint) _data.Size));
     }
 
-    private IPersistentBlock Write(ISpace space, IExpression<IType> offset, IExpression<IType> value)
+    private IPersistentBlock Write(ISpace space, Address offset, IExpression<IType> value)
     {
         return new PersistentBlock(_section, Address, space.Write(_data, offset, value));
     }
 
-    private IExpression<IType> Read(ISpace space, IExpression<IType> offset, Bits size)
+    private IExpression<IType> Read(ISpace space, Address offset, Bits size)
     {
         return space.Read(_data, offset, size);
     }

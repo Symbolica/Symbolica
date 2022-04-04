@@ -15,7 +15,7 @@ internal sealed class StackRestore : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var address = arguments.Get(0);
+        var address = arguments.GetAddress(0);
 
         state.Stack.Restore(address, false);
     }

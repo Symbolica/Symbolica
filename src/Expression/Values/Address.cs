@@ -28,18 +28,19 @@ public sealed record Address : IBitVectorExpression
         return Equals(other as Address);
     }
 
-    public IExpression<IType> Aggregate()
+    public IExpression<IType> ToBitVector()
     {
-        return Offsets
-            .Aggregate(BaseAddress, (l, r) => Values.Add.Create(l, r.Value));
+        return Values.Multiply.Create(
+            Offsets.Aggregate(BaseAddress, (l, r) => Values.Add.Create(l, r.Value)),
+            ConstantUnsigned.Create(Type.Size, (uint) Bytes.One.ToBits()));
     }
 
-    internal IExpression<IType> Add(IConstantValue<IType> value)
+    internal Address Add(IConstantValue<IType> value)
     {
-        return Create(Values.Add.Create(BaseAddress, value), Offsets);
+        return new(Values.Add.Create(BaseAddress, value), Offsets);
     }
 
-    public IExpression<IType> BitCast(Bits targetSize)
+    public Address BitCast(Bits targetSize)
     {
         return ReplaceLastOffset(Offsets.Last().BitCast(targetSize));
     }
@@ -63,6 +64,21 @@ public sealed record Address : IBitVectorExpression
             .Select(i => (
                 ReplaceLastOffset(field.Add(CreateFieldMultiple(i))),
                 field.FieldSize));
+    }
+
+    public Address AppendOffsets(IEnumerable<Offset> offsets)
+    {
+        return AppendOffsets(offsets.ToArray());
+    }
+
+    public Address AppendOffsets(params Offset[] offsets)
+    {
+        return new Address(
+            BaseAddress,
+            Offsets.Concat(offsets.Select(
+                o => o.Value is Address a
+                    ? new Offset(o.AggregateSize, o.AggregateType, o.FieldSize, a.ToBitVector())
+                    : o)));
     }
 
     public Address IncrementFinalOffset(Bytes offset)
@@ -91,9 +107,9 @@ public sealed record Address : IBitVectorExpression
         return mapper.Map(this);
     }
 
-    internal IExpression<IType> Multiply(IConstantValue<IType> value)
+    internal Address Multiply(IConstantValue<IType> value)
     {
-        return Create(
+        return new(
             Values.Multiply.Create(BaseAddress, value),
             Offsets.Select(o => o.Multiply((uint) (BigInteger) value.AsUnsigned())));
     }
@@ -101,42 +117,35 @@ public sealed record Address : IBitVectorExpression
     internal Address Negate()
     {
         static IExpression<IType> NegateValue(IExpression<IType> value) => Values.Multiply.Create(value, ConstantUnsigned.Create(value.Size, -1));
-        return Create(
-            NegateValue(BaseAddress),
-            Offsets.Select(o => o.Negate()));
-    }
-
-    internal IExpression<IType> Subtract(IExpression<IType> value)
-    {
-        return Create(Values.Subtract.Create(BaseAddress, value), Offsets);
+        return new(NegateValue(BaseAddress), Offsets.Select(o => o.Negate()));
     }
 
     internal Address ReplaceLastOffset(Offset offset)
     {
-        return Create(BaseAddress, Offsets.SkipLast(1).Append(offset));
+        return new(BaseAddress, Offsets.SkipLast(1).Append(offset));
+    }
+
+    internal Address Subtract(IExpression<IType> value)
+    {
+        return new(Values.Subtract.Create(BaseAddress, value), Offsets);
+    }
+
+    public static Address Create(Bits size, Bytes baseAddress)
+    {
+        return Create(ConstantUnsigned.Create(size, (uint) baseAddress));
+    }
+
+    public static Address CreateNull(Bits size)
+    {
+        return Create(ConstantUnsigned.CreateZero(size));
     }
 
     public static Address Create(IExpression<IType> baseAddress)
     {
-        return Create(baseAddress, Enumerable.Empty<Offset>());
-    }
-
-    public static Address Create(IExpression<IType> baseAddress, IEnumerable<Offset> offsets)
-    {
-        Address Merge(Address baseAddress)
-        {
-            return Create(baseAddress.BaseAddress, baseAddress.Offsets.Concat(offsets));
-        }
-
         return baseAddress switch
         {
-            Address b => Merge(b),
-            _ => new Address(
-                baseAddress,
-                offsets.Select(
-                    o => o.Value is Address a
-                        ? new Offset(o.AggregateSize, o.AggregateType, o.FieldSize, a.Aggregate())
-                        : o))
+            Address a => Create(a.BaseAddress).AppendOffsets(a.Offsets),
+            _ => new Address(baseAddress, Enumerable.Empty<Offset>())
         };
     }
 }

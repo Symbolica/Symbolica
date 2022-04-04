@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Symbolica.Abstraction;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -31,7 +32,7 @@ public sealed class GetElementPointer : IInstruction
         var baseAddress = _operands[0].Evaluate(state);
         var offsets = _offsets.Select(EvaluateOffset).ToArray();
 
-        var address = Expression.Values.Address.Create(baseAddress, offsets);
+        var address = Address.Create(baseAddress).AppendOffsets(offsets);
 
         state.Stack.SetVariable(Id, address);
     }

@@ -108,7 +108,7 @@ internal sealed class AsBitVector : ITypeMapper<BitVecExpr>
 
         public BitVecExpr Map(Address address)
         {
-            return address.Aggregate().Map(new AsBitVector(_solver));
+            return address.ToBitVector().Map(new AsBitVector(_solver));
         }
 
         public BitVecExpr Map(And and)

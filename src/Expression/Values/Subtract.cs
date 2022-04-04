@@ -60,8 +60,8 @@ public sealed record Subtract : IBinaryBitVectorExpression
             (IConstantValue<IType> l, IConstantValue<IType> r) => l.AsUnsigned().Subtract(r.AsUnsigned()),
             (Address l, IConstantValue<IType> r) => l.Subtract(r),
             (IConstantValue<IType> l, Address r) => r.Negate().Add(l),
-            (Address l, _) => Create(l.Aggregate(), right),
-            (_, Address r) => Create(left, r.Aggregate()),
+            (Address l, _) => Create(l.ToBitVector(), right),
+            (_, Address r) => Create(left, r.ToBitVector()),
             _ when left.Equals(right) => ConstantUnsigned.CreateZero(left.Size),
             _ => new Subtract(left, right)
         };

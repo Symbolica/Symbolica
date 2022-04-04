@@ -1,5 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Operands;
@@ -23,7 +24,7 @@ public sealed class ConstantSequence : IOperand
         foreach (var element in _elements)
         {
             var value = element.Evaluate(state);
-            sequence = state.Space.Write(sequence, ConstantUnsigned.Create(_size, (uint) offset), value);
+            sequence = state.Space.Write(sequence, Address.Create(_size, offset.ToBytes()), value);
             offset += value.Size;
         }
 

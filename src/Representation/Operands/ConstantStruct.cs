@@ -1,6 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
-using Symbolica.Expression.Values.Constants;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation.Operands;
 
@@ -22,8 +22,8 @@ public sealed class ConstantStruct : IOperand
         foreach (var element in _elements)
         {
             var value = element.Operand.Evaluate(state);
-            var offset = ConstantUnsigned.Create(_size, (uint) element.Offset);
-            expression = state.Space.Write(expression, offset, value);
+            var address = Address.CreateNull(state.Space.PointerSize).AppendOffsets(element.Offset);
+            expression = state.Space.Write(expression, address, value);
         }
 
         return expression;

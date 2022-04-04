@@ -1,5 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Implementation.Stack;
 
@@ -18,6 +19,6 @@ internal interface IPersistentFrame
     IExpression<IType> GetInitializedVaList(ISpace space, IStructType vaListType);
     IExpression<IType> GetVariable(InstructionId id, bool useIncomingValue);
     IPersistentFrame SetVariable(InstructionId id, IExpression<IType> variable);
-    IPersistentFrame AddAllocation(IExpression<IType> allocation);
+    IPersistentFrame AddAllocation(Address allocation);
     IAllocations GetAllocations();
 }

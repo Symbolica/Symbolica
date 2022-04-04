@@ -1,5 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation;
 
@@ -17,7 +18,7 @@ public sealed class Global : IGlobal
     public GlobalId Id { get; }
     public Bits Size { get; }
 
-    public void Initialize(IState state, IExpression<IType> address)
+    public void Initialize(IState state, Address address)
     {
         var value = _initializer.Evaluate(state);
 

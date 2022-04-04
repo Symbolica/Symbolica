@@ -10,12 +10,12 @@ namespace Symbolica.Representation;
 
 internal static class StateExtensions
 {
-    public static string ReadString(this IState self, IExpression<IType> address)
+    public static string ReadString(this IState self, Address address)
     {
         return new string(ReadCharacters(self, address).ToArray());
     }
 
-    private static IEnumerable<char> ReadCharacters(IState state, IExpression<IType> address)
+    private static IEnumerable<char> ReadCharacters(IState state, Address address)
     {
         while (true)
         {
@@ -24,7 +24,7 @@ internal static class StateExtensions
                 yield break;
 
             yield return character;
-            address = Address.Create(address).IncrementFinalOffset(Bytes.One);
+            address = address.IncrementFinalOffset(Bytes.One);
         }
     }
 

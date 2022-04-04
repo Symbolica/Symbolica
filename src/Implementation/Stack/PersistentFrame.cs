@@ -1,5 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Implementation.Stack;
 
@@ -84,7 +85,7 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
             _variables.Set(id, variable), _allocations);
     }
 
-    public IPersistentFrame AddAllocation(IExpression<IType> allocation)
+    public IPersistentFrame AddAllocation(Address allocation)
     {
         return new PersistentFrame(Caller, _formals, _vaList,
             _jumps, _programCounter,

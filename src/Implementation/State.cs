@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Implementation.Memory;
 using Symbolica.Implementation.Stack;
 using Symbolica.Implementation.System;
@@ -57,7 +58,7 @@ internal sealed class State : IState, IExecutable
         return _module.GetFunction(id);
     }
 
-    public IExpression<IType> GetGlobalAddress(GlobalId id)
+    public Address GetGlobalAddress(GlobalId id)
     {
         var (address, action, globals) = _globals.GetAddress(_memory, id);
         _globals = globals;

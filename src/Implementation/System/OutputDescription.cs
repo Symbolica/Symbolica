@@ -1,7 +1,7 @@
 ﻿using System;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
-using Symbolica.Expression.Values.Constants;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Implementation.System;
 
@@ -12,17 +12,17 @@ internal sealed class OutputDescription : IPersistentDescription
         return (-1L, this);
     }
 
-    public int Read(ISpace space, IMemory memory, IExpression<IType> address, int count)
+    public int Read(ISpace space, IMemory memory, Address address, int count)
     {
         return -1;
     }
 
-    public IExpression<IType> ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression<IType> address, int tell)
+    public Address ReadDirectory(ISpace space, IMemory memory, IStruct entry, Address address, int tell)
     {
-        return ConstantUnsigned.CreateZero(space.PointerSize);
+        return Address.CreateNull(space.PointerSize);
     }
 
-    public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression<IType> address)
+    public int GetStatus(ISpace space, IMemory memory, IStruct stat, Address address)
     {
         var type = Convert.ToInt32("0010000", 8);
         var mode = Convert.ToInt32("00222", 8);

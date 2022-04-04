@@ -3,6 +3,7 @@ using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack;
@@ -51,7 +52,7 @@ internal sealed class PersistentStack : IPersistentStack
         return (_currentFrame.Caller, Pop(memory));
     }
 
-    public IPersistentStack Save(IMemory memory, IExpression<IType> address, bool useJumpBuffer)
+    public IPersistentStack Save(IMemory memory, Address address, bool useJumpBuffer)
     {
         var size = GetContinuationSize(useJumpBuffer);
         var (continuation, continuationFactory) = _continuationFactory.Create(size);
@@ -63,7 +64,7 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.Save(continuation, useJumpBuffer));
     }
 
-    public IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression<IType> address, bool useJumpBuffer)
+    public IPersistentStack Restore(ISpace space, IMemoryProxy memory, Address address, bool useJumpBuffer)
     {
         var size = GetContinuationSize(useJumpBuffer);
         var continuation = memory.Read(address, size);
@@ -129,7 +130,7 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.SetVariable(id, variable));
     }
 
-    public (IExpression<IType>, IPersistentStack) Allocate(IMemoryProxy memory, Bits size)
+    public (Address, IPersistentStack) Allocate(IMemoryProxy memory, Bits size)
     {
         var address = memory.Allocate(Section.Stack, size);
 
@@ -154,7 +155,7 @@ internal sealed class PersistentStack : IPersistentStack
             : Bytes.One.ToBits();
     }
 
-    private static void Free(IMemoryProxy memory, IEnumerable<IExpression<IType>> allocations)
+    private static void Free(IMemoryProxy memory, IEnumerable<Address> allocations)
     {
         foreach (var allocation in allocations)
             memory.Free(Section.Stack, allocation);

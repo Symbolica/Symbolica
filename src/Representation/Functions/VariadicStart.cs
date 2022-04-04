@@ -15,7 +15,7 @@ internal sealed class VariadicStart : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var address = arguments.Get(0);
+        var address = arguments.GetAddress(0);
 
         state.Memory.Write(address, state.Stack.GetInitializedVaList());
     }

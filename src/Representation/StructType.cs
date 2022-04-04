@@ -6,9 +6,9 @@ namespace Symbolica.Representation;
 
 public sealed class StructType : IStructType
 {
-    private readonly Bits[] _offsets;
+    private readonly Expression.Offset[] _offsets;
 
-    public StructType(Bits size, Bits[] offsets)
+    public StructType(Bits size, Expression.Offset[] offsets)
     {
         Size = size;
         _offsets = offsets;
@@ -16,20 +16,21 @@ public sealed class StructType : IStructType
 
     public Bits Size { get; }
 
-    public Bits GetOffset(int index)
+    public Expression.Offset GetOffset(int index)
     {
         return _offsets[index];
     }
 
     public IStruct CreateStruct(IExpression<IType> expression)
     {
-        var sizes = _offsets
+        var offsetSizes = _offsets
+            .Select(o => o.FieldSize.ToBits());
+        var sizes = offsetSizes
             .Skip(1)
             .Append(Size)
-            .Zip(_offsets, (h, l) => h - l)
+            .Zip(offsetSizes, (h, l) => h - l)
             .ToArray();
 
-        return new Struct(_offsets, sizes,
-            expression);
+        return new Struct(_offsets, sizes, expression);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.System;
@@ -21,7 +22,7 @@ internal sealed class SystemProxy : ISystemProxy
         return new SystemProxy(space, memory, _system);
     }
 
-    public IExpression<IType> GetThreadAddress()
+    public Address GetThreadAddress()
     {
         var (address, system) = _system.GetThreadAddress(_space, _memory);
         _system = system;
@@ -61,7 +62,7 @@ internal sealed class SystemProxy : ISystemProxy
         return result;
     }
 
-    public int Read(int descriptor, IExpression<IType> address, int count)
+    public int Read(int descriptor, Address address, int count)
     {
         var result = _system.Read(_space, _memory, descriptor, address, count);
 
@@ -71,12 +72,12 @@ internal sealed class SystemProxy : ISystemProxy
         return result;
     }
 
-    public IExpression<IType> ReadDirectory(IExpression<IType> address)
+    public Address ReadDirectory(Address address)
     {
         return _system.ReadDirectory(_space, _memory, address);
     }
 
-    public int GetStatus(int descriptor, IExpression<IType> address)
+    public int GetStatus(int descriptor, Address address)
     {
         return _system.GetStatus(_space, _memory, descriptor, address);
     }

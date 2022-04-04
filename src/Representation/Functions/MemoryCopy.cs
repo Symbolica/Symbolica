@@ -20,8 +20,8 @@ internal sealed class MemoryCopy : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var destination = arguments.Get(0);
-        var source = arguments.Get(1);
+        var destination = arguments.GetAddress(0);
+        var source = arguments.GetAddress(1);
         var length = arguments.Get(2);
 
         var isInvalid = And.Create(
@@ -40,10 +40,10 @@ internal sealed class MemoryCopy : IFunction
 
     private sealed class CopyMemory : IParameterizedStateAction
     {
-        private readonly IExpression<IType> _destination;
-        private readonly IExpression<IType> _source;
+        private readonly Address _destination;
+        private readonly Address _source;
 
-        public CopyMemory(IExpression<IType> destination, IExpression<IType> source)
+        public CopyMemory(Address destination, Address source)
         {
             _destination = destination;
             _source = source;
@@ -52,8 +52,8 @@ internal sealed class MemoryCopy : IFunction
         public void Invoke(IState state, BigInteger value)
         {
             var bytes = (Bytes) (uint) value;
-            var sources = Address.Create(_source).GetAddresses(bytes);
-            var destinations = Address.Create(_destination).GetAddresses(bytes);
+            var sources = _source.GetAddresses(bytes);
+            var destinations = _destination.GetAddresses(bytes);
             if (sources.Count() != destinations.Count())
                 throw new Exception("Can't do a memory set when the source and destination have different field sizes.");
 

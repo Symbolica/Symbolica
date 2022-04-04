@@ -17,7 +17,7 @@ internal sealed class GetRandom : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var address = arguments.Get(0);
+        var address = arguments.GetAddress(0);
         var length = state.Space.GetSingleValue(arguments.Get(1));
         var size = (Bytes) (uint) length;
 

@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Text;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
-using Symbolica.Expression.Values.Constants;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Implementation.System;
 
@@ -21,19 +21,19 @@ internal sealed class DirectoryDescription : IPersistentDescription
         return (-1L, this);
     }
 
-    public int Read(ISpace space, IMemory memory, IExpression<IType> address, int count)
+    public int Read(ISpace space, IMemory memory, Address address, int count)
     {
         return -1;
     }
 
-    public IExpression<IType> ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression<IType> address, int tell)
+    public Address ReadDirectory(ISpace space, IMemory memory, IStruct entry, Address address, int tell)
     {
         return tell >= 0 && tell < _directory.Names.Length
             ? Read(space, memory, entry, address, _directory.Names[tell])
-            : ConstantUnsigned.CreateZero(space.PointerSize);
+            : Address.CreateNull(space.PointerSize);
     }
 
-    public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression<IType> address)
+    public int GetStatus(ISpace space, IMemory memory, IStruct stat, Address address)
     {
         var type = Convert.ToInt32("0040000", 8);
         var mode = Convert.ToInt32("00444", 8);
@@ -49,7 +49,7 @@ internal sealed class DirectoryDescription : IPersistentDescription
         return 0;
     }
 
-    private static IExpression<IType> Read(ISpace space, IMemory memory, IStruct entry, IExpression<IType> address, string name)
+    private static Address Read(ISpace space, IMemory memory, IStruct entry, Address address, string name)
     {
         memory.Write(address, entry
             .Write(space, 4, new BigInteger(Encoding.UTF8.GetBytes(name), true))

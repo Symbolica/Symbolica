@@ -1,5 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation.Functions;
 
@@ -16,7 +17,7 @@ internal sealed class Free : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var address = arguments.Get(0);
+        var address = arguments.GetAddress(0);
 
         state.Fork(address,
             new FreeMemory(address),
@@ -25,9 +26,9 @@ internal sealed class Free : IFunction
 
     private sealed class FreeMemory : IStateAction
     {
-        private readonly IExpression<IType> _address;
+        private readonly Address _address;
 
-        public FreeMemory(IExpression<IType> address)
+        public FreeMemory(Address address)
         {
             _address = address;
         }

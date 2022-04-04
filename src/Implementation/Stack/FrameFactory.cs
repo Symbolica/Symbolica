@@ -4,6 +4,7 @@ using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Implementation.Exceptions;
 using Symbolica.Implementation.Memory;
 
@@ -60,6 +61,11 @@ internal sealed class FrameFactory : IFrameFactory
     private sealed class InitialArguments : IArguments
     {
         public IExpression<IType> Get(int index)
+        {
+            throw new UnboundMainArgumentsException();
+        }
+
+        public Address GetAddress(int index)
         {
             throw new UnboundMainArgumentsException();
         }

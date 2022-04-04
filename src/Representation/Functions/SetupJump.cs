@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
@@ -17,7 +16,7 @@ internal sealed class SetupJump : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var address = arguments.Get(0);
+        var address = arguments.GetAddress(0);
 
         state.Stack.Save(address, true);
 

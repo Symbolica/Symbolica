@@ -1,8 +1,8 @@
-﻿using Symbolica.Expression;
+﻿using Symbolica.Expression.Values;
 
 namespace Symbolica.Implementation.Stack;
 
 internal interface IPersistentAllocations : IAllocations
 {
-    IPersistentAllocations Add(IExpression<IType> allocation);
+    IPersistentAllocations Add(Address allocation);
 }

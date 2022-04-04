@@ -6,7 +6,7 @@ public static class PointerToInteger
     {
         return Resize.Create(size, expression switch
         {
-            Address a => a.Aggregate(),
+            Address a => a.ToBitVector(),
             _ => expression
         });
     }

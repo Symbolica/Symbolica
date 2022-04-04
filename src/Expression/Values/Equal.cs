@@ -55,8 +55,8 @@ public sealed record Equal : IBinaryBoolExpression
         return (left, right) switch
         {
             (IConstantValue<IType> l, IConstantValue<IType> r) => l.AsUnsigned().Equal(r.AsUnsigned()),
-            (Address l, _) => Create(l.Aggregate(), right),
-            (_, Address r) => Create(left, r.Aggregate()),
+            (Address l, _) => Create(l.ToBitVector(), right),
+            (_, Address r) => Create(left, r.ToBitVector()),
             _ => new Equal(left, right)
         };
     }

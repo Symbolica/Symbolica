@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack;
@@ -46,12 +47,12 @@ internal sealed class StackProxy : IStackProxy
         return caller;
     }
 
-    public void Save(IExpression<IType> address, bool useJumpBuffer)
+    public void Save(Address address, bool useJumpBuffer)
     {
         _stack = _stack.Save(_memory, address, useJumpBuffer);
     }
 
-    public InstructionId Restore(IExpression<IType> address, bool useJumpBuffer)
+    public InstructionId Restore(Address address, bool useJumpBuffer)
     {
         _stack = _stack.Restore(_space, _memory, address, useJumpBuffer);
 
@@ -83,7 +84,7 @@ internal sealed class StackProxy : IStackProxy
         _stack = _stack.SetVariable(id, variable);
     }
 
-    public IExpression<IType> Allocate(Bits size)
+    public Address Allocate(Bits size)
     {
         var (address, stack) = _stack.Allocate(_memory, size);
         _stack = stack;

@@ -78,9 +78,9 @@ public sealed record Multiply : IBinaryBitVectorExpression
         {
             (IConstantValue<IType> l, _) => ShortCircuit(right, l.AsUnsigned()),
             (_, IConstantValue<IType> r) => ShortCircuit(left, r.AsUnsigned()),
-            (Address l, Address r) => Create(r.Aggregate(), l.Aggregate()),
-            (Address l, _) => Create(l.Aggregate(), right),
-            (_, Address r) => Create(left, r.Aggregate()),
+            (Address l, Address r) => Create(r.ToBitVector(), l.ToBitVector()),
+            (Address l, _) => Create(l.ToBitVector(), right),
+            (_, Address r) => Create(left, r.ToBitVector()),
             _ => new Multiply(left, right)
         };
     }

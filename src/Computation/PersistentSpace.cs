@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Computation;
@@ -71,12 +72,12 @@ internal sealed class PersistentSpace : IPersistentSpace
         return solver.GetSingleValue(expression);
     }
 
-    public IExpression<IType> Read(IExpression<IType> buffer, IExpression<IType> offset, Bits size)
+    public IExpression<IType> Read(IExpression<IType> buffer, Address offset, Bits size)
     {
         return Expression.Values.Read.Create(_collectionFactory, this, buffer, offset, size);
     }
 
-    public IExpression<IType> Write(IExpression<IType> buffer, IExpression<IType> offset, IExpression<IType> value)
+    public IExpression<IType> Write(IExpression<IType> buffer, Address offset, IExpression<IType> value)
     {
         return Expression.Values.Write.Create(_collectionFactory, this, buffer, offset, value);
     }

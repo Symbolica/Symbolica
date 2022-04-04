@@ -1,16 +1,17 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation;
 
 internal sealed class Struct : IStruct
 {
-    private readonly Bits[] _offsets;
+    private readonly Expression.Offset[] _offsets;
     private readonly Bits[] _sizes;
 
-    public Struct(Bits[] offsets, Bits[] sizes,
+    public Struct(Expression.Offset[] offsets, Bits[] sizes,
         IExpression<IType> expression)
     {
         _offsets = offsets;
@@ -22,23 +23,23 @@ internal sealed class Struct : IStruct
 
     public IExpression<IType> Read(ISpace space, int index)
     {
-        return space.Read(Expression, GetOffset(index), _sizes[index]);
+        return space.Read(Expression, GetOffset(space, index), _sizes[index]);
     }
 
     public IStruct Write(ISpace space, int index, IExpression<IType> value)
     {
         return new Struct(_offsets, _sizes,
-            space.Write(Expression, GetOffset(index), value));
+            space.Write(Expression, GetOffset(space, index), value));
     }
 
     public IStruct Write(ISpace space, int index, BigInteger value)
     {
         return new Struct(_offsets, _sizes,
-            space.Write(Expression, GetOffset(index), ConstantUnsigned.Create(_sizes[index], value)));
+            space.Write(Expression, GetOffset(space, index), ConstantUnsigned.Create(_sizes[index], value)));
     }
 
-    private IExpression<IType> GetOffset(int index)
+    private Address GetOffset(ISpace space, int index)
     {
-        return ConstantUnsigned.Create(Expression.Size, (uint) _offsets[index]);
+        return Address.CreateNull(space.PointerSize).AppendOffsets(_offsets[index]);
     }
 }

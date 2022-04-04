@@ -15,8 +15,8 @@ internal sealed class VariadicCopy : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var destination = arguments.Get(0);
-        var source = arguments.Get(1);
+        var destination = arguments.GetAddress(0);
+        var source = arguments.GetAddress(1);
 
         var size = state.Stack.GetInitializedVaList().Size;
 

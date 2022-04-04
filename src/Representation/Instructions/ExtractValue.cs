@@ -1,17 +1,16 @@
-﻿using System.Linq;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
-using Symbolica.Expression.Values.Constants;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation.Instructions;
 
 public sealed class ExtractValue : IInstruction
 {
-    private readonly Bits[] _offsets;
+    private readonly Expression.Offset[] _offsets;
     private readonly IOperand[] _operands;
     private readonly Bits _size;
 
-    public ExtractValue(InstructionId id, IOperand[] operands, Bits size, Bits[] offsets)
+    public ExtractValue(InstructionId id, IOperand[] operands, Bits size, Expression.Offset[] offsets)
     {
         Id = id;
         _operands = operands;
@@ -24,9 +23,8 @@ public sealed class ExtractValue : IInstruction
     public void Execute(IState state)
     {
         var aggregate = _operands[0].Evaluate(state);
-        var offset = ConstantUnsigned.Create(aggregate.Size,
-            (uint) _offsets.Aggregate(Bits.Zero, (l, r) => l + r));
-        var result = state.Space.Read(aggregate, offset, _size);
+        var address = Address.CreateNull(state.Space.PointerSize).AppendOffsets(_offsets);
+        var result = state.Space.Read(aggregate, address, _size);
 
         state.Stack.SetVariable(Id, result);
     }

@@ -15,7 +15,7 @@ internal sealed class GetWorkingDirectory : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var address = arguments.Get(0);
+        var address = arguments.GetAddress(0);
 
         state.Stack.SetVariable(caller.Id, address);
     }

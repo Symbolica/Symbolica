@@ -1,31 +1,31 @@
 ﻿using System;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
-using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation;
 
 internal sealed class PersistentGlobals : IPersistentGlobals
 {
-    private readonly IPersistentDictionary<GlobalId, IExpression<IType>> _addresses;
+    private readonly IPersistentDictionary<GlobalId, Address> _addresses;
     private readonly IModule _module;
 
     private PersistentGlobals(IModule module,
-        IPersistentDictionary<GlobalId, IExpression<IType>> addresses)
+        IPersistentDictionary<GlobalId, Address> addresses)
     {
         _module = module;
         _addresses = addresses;
     }
 
-    public (IExpression<IType>, Action<IState>, IPersistentGlobals) GetAddress(IMemoryProxy memory, GlobalId id)
+    public (Address, Action<IState>, IPersistentGlobals) GetAddress(IMemoryProxy memory, GlobalId id)
     {
         return _addresses.TryGetValue(id, out var address)
             ? (address, _ => { }, this)
             : Allocate(memory, _module.GetGlobal(id));
     }
 
-    private (IExpression<IType>, Action<IState>, IPersistentGlobals) Allocate(IMemoryProxy memory, IGlobal global)
+    private (Address, Action<IState>, IPersistentGlobals) Allocate(IMemoryProxy memory, IGlobal global)
     {
         var address = memory.Allocate(Section.Global, global.Size);
 
@@ -36,6 +36,6 @@ internal sealed class PersistentGlobals : IPersistentGlobals
     public static IPersistentGlobals Create(IModule module, ICollectionFactory collectionFactory)
     {
         return new PersistentGlobals(module,
-            collectionFactory.CreatePersistentDictionary<GlobalId, IExpression<IType>>());
+            collectionFactory.CreatePersistentDictionary<GlobalId, Address>());
     }
 }

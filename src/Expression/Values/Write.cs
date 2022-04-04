@@ -7,10 +7,10 @@ public sealed record Write : IBitVectorExpression
 {
     private readonly IExpression<IType> _writeBuffer;
     private readonly IExpression<IType> _writeMask;
-    private readonly IExpression<IType> _writeOffset;
+    private readonly Address _writeOffset;
     private readonly IExpression<IType> _writeValue;
 
-    private Write(IExpression<IType> writeBuffer, IExpression<IType> writeOffset, IExpression<IType> writeValue)
+    private Write(IExpression<IType> writeBuffer, Address writeOffset, IExpression<IType> writeValue)
     {
         _writeBuffer = writeBuffer;
         _writeOffset = writeOffset;
@@ -58,7 +58,7 @@ public sealed record Write : IBitVectorExpression
     }
 
     public IExpression<IType> LayerRead(ICollectionFactory collectionFactory, ISpace space,
-        IExpression<IType> offset, Bits size)
+        Address offset, Bits size)
     {
         var mask = Mask(this, offset, size);
 
@@ -70,7 +70,7 @@ public sealed record Write : IBitVectorExpression
     }
 
     private IExpression<IType> LayerWrite(ICollectionFactory collectionFactory, ISpace space,
-        IExpression<IType> offset, IExpression<IType> value)
+        Address offset, IExpression<IType> value)
     {
         var mask = Mask(this, offset, value.Size);
 
@@ -95,20 +95,17 @@ public sealed record Write : IBitVectorExpression
         return !proposition.CanBeTrue();
     }
 
-    private static IExpression<IType> Mask(IExpression<IType> buffer, IExpression<IType> offset, Bits size)
+    private static IExpression<IType> Mask(IExpression<IType> buffer, Address offset, Bits size)
     {
         return ShiftLeft.Create(
             ConstantUnsigned.CreateZero(size).Not().Extend(buffer.Size),
-            Resize.Create(buffer.Size, offset));
+            Resize.Create(buffer.Size, offset.ToBitVector()));
     }
 
     public static IExpression<IType> Create(ICollectionFactory collectionFactory, ISpace space,
-        IExpression<IType> buffer, IExpression<IType> offset, IExpression<IType> value)
+        IExpression<IType> buffer, Address offset, IExpression<IType> value)
     {
-        if (offset is Address a)
-            offset = a.Aggregate();
-
-        return buffer is IConstantValue<IType> b && offset is IConstantValue<IType> o && value is IConstantValue<IType> v
+        return buffer is IConstantValue<IType> b && offset.ToBitVector() is IConstantValue<IType> o && value is IConstantValue<IType> v
             ? b.AsBitVector(collectionFactory).Write(o.AsUnsigned(), v.AsBitVector(collectionFactory))
             : buffer is Write w
                 ? w.LayerWrite(collectionFactory, space, offset, value)

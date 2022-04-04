@@ -20,7 +20,7 @@ internal sealed class MemorySet : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var destination = arguments.Get(0);
+        var destination = arguments.GetAddress(0);
         var value = arguments.Get(1);
         var length = arguments.Get(2);
 
@@ -29,10 +29,10 @@ internal sealed class MemorySet : IFunction
 
     private sealed class SetMemory : IParameterizedStateAction
     {
-        private readonly IExpression<IType> _destination;
+        private readonly Address _destination;
         private readonly IExpression<IType> _value;
 
-        public SetMemory(IExpression<IType> destination, IExpression<IType> value)
+        public SetMemory(Address destination, IExpression<IType> value)
         {
             _destination = destination;
             _value = value;
@@ -44,13 +44,13 @@ internal sealed class MemorySet : IFunction
             {
                 var size = bytes.ToBits();
                 return Enumerable.Range(0, (int) (uint) bytes)
-                    .Select(offset => ConstantUnsigned.Create(size, offset))
+                    .Select(offset => Address.Create(ConstantUnsigned.Create(size, offset)))
                     .Aggregate(
                         ConstantUnsigned.CreateZero(size) as IExpression<IType>,
                         (buffer, offset) => state.Space.Write(buffer, offset, _value));
             }
 
-            foreach (var destination in Address.Create(_destination).GetAddresses((Bytes) (uint) bytes))
+            foreach (var destination in _destination.GetAddresses((Bytes) (uint) bytes))
                 state.Memory.Write(destination.Item1, MakeBuffer(destination.Item2));
         }
     }

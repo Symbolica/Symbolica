@@ -17,7 +17,7 @@ internal sealed class Read : IFunction
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
         var descriptor = (int) state.Space.GetSingleValue(arguments.Get(0));
-        var address = arguments.Get(1);
+        var address = arguments.GetAddress(1);
         var count = (int) state.Space.GetSingleValue(arguments.Get(2));
 
         var result = state.System.Read(descriptor, address, count);

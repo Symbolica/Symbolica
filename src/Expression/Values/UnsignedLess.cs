@@ -55,8 +55,8 @@ public sealed record UnsignedLess : IBinaryBoolExpression
         return (left, right) switch
         {
             (IConstantValue<IType> l, IConstantValue<IType> r) => l.AsUnsigned().Less(r.AsUnsigned()),
-            (Address l, _) => Create(l.Aggregate(), right),
-            (_, Address r) => Create(left, r.Aggregate()),
+            (Address l, _) => Create(l.ToBitVector(), right),
+            (_, Address r) => Create(left, r.ToBitVector()),
             _ => new UnsignedLess(left, right)
         };
     }

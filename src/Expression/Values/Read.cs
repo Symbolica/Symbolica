@@ -8,16 +8,15 @@ namespace Symbolica.Expression.Values;
 public static class Read
 {
     public static IExpression<IType> Create(ICollectionFactory collectionFactory, ISpace space,
-        IExpression<IType> buffer, IExpression<IType> offset, Bits size)
+        IExpression<IType> buffer, Address offset, Bits size)
     {
-        if (offset is Address a)
-            offset = a.Aggregate();
+        var bitsOffset = offset.ToBitVector();
 
-        return buffer is IConstantValue<IType> b && offset is IConstantValue<IType> o
+        return buffer is IConstantValue<IType> b && bitsOffset is IConstantValue<IType> o
             ? b.AsBitVector(collectionFactory).Read(o.AsUnsigned(), size)
             : buffer is Write w
                 ? w.LayerRead(collectionFactory, space, offset, size)
-                : SymbolicRead(space, buffer, offset, size);
+                : SymbolicRead(space, buffer, bitsOffset, size);
     }
 
     private static IExpression<IType> SymbolicRead(ISpace space, IExpression<IType> buffer, IExpression<IType> offset, Bits size)

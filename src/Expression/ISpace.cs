@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Expression;
 
@@ -11,7 +12,7 @@ public interface ISpace
     IProposition CreateProposition(IExpression<IType> expression);
     BigInteger GetExampleValue(IExpression<IType> expression);
     BigInteger GetSingleValue(IExpression<IType> expression);
-    IExpression<IType> Read(IExpression<IType> buffer, IExpression<IType> offset, Bits size);
+    IExpression<IType> Read(IExpression<IType> buffer, Address offset, Bits size);
     bool TryGetSingleValue(IExpression<IType> expression, out BigInteger constant);
-    IExpression<IType> Write(IExpression<IType> buffer, IExpression<IType> offset, IExpression<IType> value);
+    IExpression<IType> Write(IExpression<IType> buffer, Address offset, IExpression<IType> value);
 }

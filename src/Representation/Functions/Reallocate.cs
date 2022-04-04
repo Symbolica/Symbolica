@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
@@ -18,7 +19,7 @@ internal sealed class Reallocate : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var address = arguments.Get(0);
+        var address = arguments.GetAddress(0);
         var size = arguments.Get(1);
 
         state.ForkAll(size, new ReallocateMemory(caller, address));
@@ -26,10 +27,10 @@ internal sealed class Reallocate : IFunction
 
     private sealed class ReallocateMemory : IParameterizedStateAction
     {
-        private readonly IExpression<IType> _address;
+        private readonly Address _address;
         private readonly ICaller _caller;
 
-        public ReallocateMemory(ICaller caller, IExpression<IType> address)
+        public ReallocateMemory(ICaller caller, Address address)
         {
             _caller = caller;
             _address = address;
@@ -45,13 +46,13 @@ internal sealed class Reallocate : IFunction
                 Allocate(state, _caller, _address, size.ToBits());
         }
 
-        private static void Free(IState state, ICaller caller, IExpression<IType> address)
+        private static void Free(IState state, ICaller caller, Address address)
         {
             state.Memory.Free(address);
-            state.Stack.SetVariable(caller.Id, ConstantUnsigned.CreateZero(address.Size));
+            state.Stack.SetVariable(caller.Id, Address.CreateNull(address.Type.Size));
         }
 
-        private static void Allocate(IState state, ICaller caller, IExpression<IType> address, Bits size)
+        private static void Allocate(IState state, ICaller caller, Address address, Bits size)
         {
             state.Fork(address,
                 new MoveMemory(caller, address, size),
@@ -61,11 +62,11 @@ internal sealed class Reallocate : IFunction
 
     private sealed class MoveMemory : IStateAction
     {
-        private readonly IExpression<IType> _address;
+        private readonly Address _address;
         private readonly ICaller _caller;
         private readonly Bits _size;
 
-        public MoveMemory(ICaller caller, IExpression<IType> address, Bits size)
+        public MoveMemory(ICaller caller, Address address, Bits size)
         {
             _caller = caller;
             _address = address;
