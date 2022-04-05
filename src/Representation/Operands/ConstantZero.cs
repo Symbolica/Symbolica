@@ -1,14 +1,13 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Operands;
 
 public sealed class ConstantZero : IOperand
 {
-    private readonly Bits _size;
+    private readonly Size _size;
 
-    public ConstantZero(Bits size)
+    public ConstantZero(Size size)
     {
         _size = size;
     }

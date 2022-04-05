@@ -5,9 +5,9 @@ namespace Symbolica.Representation.Operands;
 
 public sealed class Undefined : IOperand
 {
-    private readonly Bits _size;
+    private readonly Size _size;
 
-    public Undefined(Bits size)
+    public Undefined(Size size)
     {
         _size = size;
     }

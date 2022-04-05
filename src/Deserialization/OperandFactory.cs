@@ -57,9 +57,9 @@ internal sealed class OperandFactory : IOperandFactory
             LLVMValueKind.LLVMConstantVectorValueKind =>
                 CreateConstantAggregate(operand, instructionFactory),
             LLVMValueKind.LLVMUndefValueValueKind =>
-                new Undefined(operand.TypeOf.GetStoreSize(_targetData).ToBits()),
+                new Undefined(operand.TypeOf.GetStoreSize(_targetData)),
             LLVMValueKind.LLVMConstantAggregateZeroValueKind =>
-                new ConstantZero(operand.TypeOf.GetStoreSize(_targetData).ToBits()),
+                new ConstantZero(operand.TypeOf.GetStoreSize(_targetData)),
             LLVMValueKind.LLVMConstantDataArrayValueKind =>
                 CreateConstantData(operand, instructionFactory),
             LLVMValueKind.LLVMConstantDataVectorValueKind =>
@@ -88,10 +88,10 @@ internal sealed class OperandFactory : IOperandFactory
     private IOperand CreateConstantStruct(LLVMValueRef operand, IInstructionFactory instructionFactory)
     {
         return new ConstantStruct(
-            operand.TypeOf.GetStoreSize(_targetData).ToBits(),
+            operand.TypeOf.GetStoreSize(_targetData),
             operand.GetOperands()
                 .Select((o, i) => new StructElement(
-                    operand.TypeOf.GetElementOffset(_targetData, (uint) i).ToBits(),
+                    operand.TypeOf.GetElementOffset(_targetData, (uint) i),
                     Create(o, instructionFactory)))
                 .ToArray());
     }
@@ -99,7 +99,7 @@ internal sealed class OperandFactory : IOperandFactory
     private IOperand CreateConstantAggregate(LLVMValueRef operand, IInstructionFactory instructionFactory)
     {
         return new ConstantSequence(
-            operand.TypeOf.GetStoreSize(_targetData).ToBits(),
+            operand.TypeOf.GetStoreSize(_targetData),
             operand.GetOperands()
                 .Select(o => Create(o, instructionFactory))
                 .ToArray());
@@ -108,7 +108,7 @@ internal sealed class OperandFactory : IOperandFactory
     private IOperand CreateConstantData(LLVMValueRef operand, IInstructionFactory instructionFactory)
     {
         return new ConstantSequence(
-            operand.TypeOf.GetStoreSize(_targetData).ToBits(),
+            operand.TypeOf.GetStoreSize(_targetData),
             operand.GetConstants()
                 .Select(o => Create(o, instructionFactory))
                 .ToArray());
@@ -121,7 +121,7 @@ internal sealed class OperandFactory : IOperandFactory
 
         return new ConstantInteger(
             size,
-            size == Bits.One && bool.TryParse(value, out var boolean)
+            size == Size.Bit && bool.TryParse(value, out var boolean)
                 ? boolean
                     ? BigInteger.One
                     : BigInteger.Zero

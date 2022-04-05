@@ -15,7 +15,7 @@ public sealed class FloatTrue : IInstruction
 
     public void Execute(IState state)
     {
-        var result = state.Space.CreateConstant(Bits.One, BigInteger.One);
+        var result = state.Space.CreateConstant(Size.Bit, BigInteger.One);
 
         state.Stack.SetVariable(Id, result);
     }

@@ -7,7 +7,7 @@ internal sealed record SignExtend : BitVector
 {
     private readonly IValue _value;
 
-    private SignExtend(Bits size, IValue value)
+    private SignExtend(Size size, IValue value)
         : base(size)
     {
         _value = value;
@@ -16,7 +16,7 @@ internal sealed record SignExtend : BitVector
     public override BitVecExpr AsBitVector(ISolver solver)
     {
         using var value = _value.AsBitVector(solver);
-        return solver.Context.MkSignExt((uint) (Size - _value.Size), value);
+        return solver.Context.MkSignExt((Size - _value.Size).Bits, value);
     }
 
     public override bool Equals(IValue? other)
@@ -24,7 +24,7 @@ internal sealed record SignExtend : BitVector
         return Equals(other as SignExtend);
     }
 
-    public static IValue Create(Bits size, IValue value)
+    public static IValue Create(Size size, IValue value)
     {
         return size > value.Size
             ? value is IConstantValue v

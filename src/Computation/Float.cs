@@ -7,12 +7,12 @@ namespace Symbolica.Computation;
 
 internal abstract record Float : IValue
 {
-    protected Float(Bits size)
+    protected Float(Size size)
     {
         Size = size;
     }
 
-    public Bits Size { get; }
+    public Size Size { get; }
 
     public BitVecExpr AsBitVector(ISolver solver)
     {
@@ -39,7 +39,7 @@ internal abstract record Float : IValue
         using var sort = Size.GetSort(solver);
         var nan = ((BigInteger.One << ((int) sort.EBits + 2)) - BigInteger.One) << ((int) sort.SBits - 2);
 
-        return solver.Context.MkBV(nan.ToString(), (uint) Size);
+        return solver.Context.MkBV(nan.ToString(), Size.Bits);
     }
 
     public static IValue Unary(IValue value,
@@ -48,7 +48,7 @@ internal abstract record Float : IValue
         Func<IValue, IValue> symbolic)
     {
         return value is IConstantValue x
-            ? (uint) x.Size switch
+            ? x.Size.Bits switch
             {
                 32U => constantSingle(x.AsSingle()),
                 64U => constantDouble(x.AsDouble()),
@@ -63,7 +63,7 @@ internal abstract record Float : IValue
         Func<IValue, IValue, IValue> symbolic)
     {
         return left is IConstantValue x && right is IConstantValue y
-            ? (uint) x.Size switch
+            ? x.Size.Bits switch
             {
                 32U => constantSingle(x.AsSingle(), y.AsSingle()),
                 64U => constantDouble(x.AsDouble(), y.AsDouble()),

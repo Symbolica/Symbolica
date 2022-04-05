@@ -11,7 +11,7 @@ internal sealed record Symbol : BitVector
     private readonly IValue[] _assertions;
     private readonly string _name;
 
-    private Symbol(Bits size, string name, IValue[] assertions)
+    private Symbol(Size size, string name, IValue[] assertions)
         : base(size)
     {
         _name = name;
@@ -22,7 +22,7 @@ internal sealed record Symbol : BitVector
     {
         solver.Assert(_name, _assertions);
 
-        return solver.Context.MkBVConst(_name, (uint) Size);
+        return solver.Context.MkBVConst(_name, Size.Bits);
     }
 
     public override bool Equals(IValue? other)
@@ -30,7 +30,7 @@ internal sealed record Symbol : BitVector
         return Equals(other as Symbol);
     }
 
-    public static IValue Create(Bits size, string name, IEnumerable<Func<IValue, IValue>> assertions)
+    public static IValue Create(Size size, string name, IEnumerable<Func<IValue, IValue>> assertions)
     {
         var unconstrained = new Symbol(size, name, Array.Empty<IValue>());
 

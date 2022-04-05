@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
@@ -15,7 +14,7 @@ public sealed class FloatFalse : IInstruction
 
     public void Execute(IState state)
     {
-        var result = state.Space.CreateZero(Bits.One);
+        var result = state.Space.CreateZero(Size.Bit);
 
         state.Stack.SetVariable(Id, result);
     }

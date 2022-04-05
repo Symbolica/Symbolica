@@ -14,7 +14,7 @@ public sealed class Invoke : IInstruction, ICaller
         _successorId = successorId;
     }
 
-    public Bits Size => _call.Size;
+    public Size Size => _call.Size;
     public IAttributes ReturnAttributes => _call.ReturnAttributes;
 
     public void Return(IState state)

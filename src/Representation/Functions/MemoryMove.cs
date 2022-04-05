@@ -37,10 +37,10 @@ internal sealed class MemoryMove : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
-            var length = (Bytes) (uint) value;
+            var size = Size.FromBytes(value);
 
-            if (length != Bytes.Zero)
-                state.Memory.Write(_destination, state.Memory.Read(_source, length.ToBits()));
+            if (size != Size.Zero)
+                state.Memory.Write(_destination, state.Memory.Read(_source, size));
         }
     }
 }

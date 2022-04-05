@@ -9,7 +9,7 @@ internal sealed record FloatToUnsigned : BitVector
 {
     private readonly IValue _value;
 
-    private FloatToUnsigned(Bits size, IValue value)
+    private FloatToUnsigned(Size size, IValue value)
         : base(size)
     {
         _value = value;
@@ -19,7 +19,7 @@ internal sealed record FloatToUnsigned : BitVector
     {
         using var rounding = solver.Context.MkFPRTZ();
         using var value = _value.AsFloat(solver);
-        return solver.Context.MkFPToBV(rounding, value, (uint) Size, false);
+        return solver.Context.MkFPToBV(rounding, value, Size.Bits, false);
     }
 
     public override bool Equals(IValue? other)
@@ -27,7 +27,7 @@ internal sealed record FloatToUnsigned : BitVector
         return Equals(other as FloatToUnsigned);
     }
 
-    public static IValue Create(Bits size, IValue value)
+    public static IValue Create(Size size, IValue value)
     {
         return Float.Unary(value,
             v => ConstantUnsigned.Create(size, (BigInteger) v),

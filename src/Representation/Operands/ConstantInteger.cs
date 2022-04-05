@@ -6,10 +6,10 @@ namespace Symbolica.Representation.Operands;
 
 public sealed class ConstantInteger : IOperand
 {
-    private readonly Bits _size;
+    private readonly Size _size;
     private readonly BigInteger _value;
 
-    public ConstantInteger(Bits size, BigInteger value)
+    public ConstantInteger(Size size, BigInteger value)
     {
         _size = size;
         _value = value;

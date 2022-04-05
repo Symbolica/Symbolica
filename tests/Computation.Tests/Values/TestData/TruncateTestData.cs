@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Symbolica.Computation.Values.TestData;
 
-internal sealed class TruncateTestData : TheoryData<Bits,
+internal sealed class TruncateTestData : TheoryData<Size,
     IValue,
     IValue>
 {
@@ -28,13 +28,13 @@ internal sealed class TruncateTestData : TheoryData<Bits,
                 value1(value));
     }
 
-    private static IEnumerable<Bits> Sizes()
+    private static IEnumerable<Size> Sizes()
     {
-        return Enumerable.Range(1, 4).Select(s => (Bits) (uint) s);
+        return Enumerable.Range(1, 4).Select(s => Size.FromBits(s));
     }
 
     private static IEnumerable<ConstantUnsigned> Values()
     {
-        return Enumerable.Range(-8, 24).Select(v => ConstantUnsigned.Create((Bits) 4U, v));
+        return Enumerable.Range(-8, 24).Select(v => ConstantUnsigned.Create(Size.FromBits(4U), v));
     }
 }

@@ -33,16 +33,16 @@ internal sealed class AllocateAndClear : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
-            var size = (Bytes) (uint) value;
+            var size = Size.FromBytes(value);
 
-            var address = size == Bytes.Zero
+            var address = size == Size.Zero
                 ? state.Space.CreateZero(state.Space.PointerSize)
-                : Allocate(state, size.ToBits());
+                : Allocate(state, size);
 
             state.Stack.SetVariable(_caller.Id, address);
         }
 
-        private static IExpression Allocate(IState state, Bits size)
+        private static IExpression Allocate(IState state, Size size)
         {
             var address = state.Memory.Allocate(size);
             state.Memory.Write(address, state.Space.CreateZero(size));

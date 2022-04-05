@@ -12,7 +12,7 @@ internal sealed record ConstantDouble : Float, IConstantValue
     private readonly double _value;
 
     public ConstantDouble(double value)
-        : base((Bits) 64U)
+        : base(Size.FromBits(64U))
     {
         _value = value;
     }
@@ -65,8 +65,8 @@ internal sealed record ConstantDouble : Float, IConstantValue
 
     public static ConstantDouble Create(ConstantSigned value)
     {
-        return value.Size == (Bits) 64U
+        return value.Size == Size.FromBits(64U)
             ? new ConstantDouble(BitConverter.Int64BitsToDouble((long) (BigInteger) value))
-            : throw new InconsistentExpressionSizesException(value.Size, (Bits) 64U);
+            : throw new InconsistentExpressionSizesException(value.Size, Size.FromBits(64U));
     }
 }

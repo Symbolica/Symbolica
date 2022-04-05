@@ -10,7 +10,7 @@ public class FloatToUnsignedTests
     [Theory]
     [ClassData(typeof(SingleToUnsignedTestData))]
     [ClassData(typeof(DoubleToUnsignedTestData))]
-    private void ShouldCreateEquivalentBitVectors(Bits size,
+    private void ShouldCreateEquivalentBitVectors(Size size,
         IValue value0,
         IValue value1)
     {
@@ -28,7 +28,7 @@ public class FloatToUnsignedTests
     [Theory]
     [ClassData(typeof(SingleToUnsignedTestData))]
     [ClassData(typeof(DoubleToUnsignedTestData))]
-    private void ShouldCreateEquivalentBooleans(Bits size,
+    private void ShouldCreateEquivalentBooleans(Size size,
         IValue value0,
         IValue value1)
     {
@@ -46,7 +46,7 @@ public class FloatToUnsignedTests
     [Theory]
     [ClassData(typeof(SingleToUnsignedTestData))]
     [ClassData(typeof(DoubleToUnsignedTestData))]
-    private void ShouldCreateEquivalentFloats(Bits size,
+    private void ShouldCreateEquivalentFloats(Size size,
         IValue value0,
         IValue value1)
     {

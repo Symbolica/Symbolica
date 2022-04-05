@@ -20,5 +20,5 @@ internal interface IPersistentStack
     IExpression GetInitializedVaList(ISpace space);
     IExpression GetVariable(InstructionId id, bool useIncomingValue);
     IPersistentStack SetVariable(InstructionId id, IExpression variable);
-    (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Bits size);
+    (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Size size);
 }

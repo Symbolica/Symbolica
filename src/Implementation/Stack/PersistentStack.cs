@@ -120,7 +120,7 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.SetVariable(id, variable));
     }
 
-    public (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Bits size)
+    public (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Size size)
     {
         var address = memory.Allocate(Section.Stack, size);
 
@@ -138,11 +138,11 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames.Pop(out var currentFrame), currentFrame);
     }
 
-    private Bits GetContinuationSize(bool useJumpBuffer)
+    private Size GetContinuationSize(bool useJumpBuffer)
     {
         return useJumpBuffer
             ? _module.JumpBufferType.Size
-            : Bytes.One.ToBits();
+            : Size.Byte;
     }
 
     private static void Free(IMemoryProxy memory, IEnumerable<IExpression> allocations)

@@ -38,12 +38,11 @@ public sealed class ExecutableFactory
 
     private IPersistentMemory CreateMemory(IModule module, Options options)
     {
-        var alignment = module.PointerSize.ToBytes();
         var blockFactory = new BlockFactory();
 
         return options.UseSymbolicAddresses
-            ? SymbolicMemory.Create(alignment, blockFactory, _collectionFactory)
-            : ConstantMemory.Create(alignment, blockFactory, _collectionFactory);
+            ? SymbolicMemory.Create(module.PointerSize, blockFactory, _collectionFactory)
+            : ConstantMemory.Create(module.PointerSize, blockFactory, _collectionFactory);
     }
 
     private IPersistentStack CreateStack(IModule module, Options options)

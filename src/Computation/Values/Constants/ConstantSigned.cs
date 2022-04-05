@@ -9,7 +9,7 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
 {
     private readonly BigInteger _value;
 
-    private ConstantSigned(Bits size, BigInteger value)
+    private ConstantSigned(Size size, BigInteger value)
         : base(size)
     {
         _value = value;
@@ -60,7 +60,7 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
         return Create(Size, _value / value._value);
     }
 
-    public ConstantSigned Extend(Bits size)
+    public ConstantSigned Extend(Size size)
     {
         return new ConstantSigned(size, _value);
     }
@@ -110,16 +110,16 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
         return value._value;
     }
 
-    public static ConstantSigned Create(Bits size, BigInteger value)
+    public static ConstantSigned Create(Size size, BigInteger value)
     {
         return new ConstantSigned(size, value.IsZero
             ? value
             : Normalize(size, value));
     }
 
-    private static BigInteger Normalize(Bits size, BigInteger value)
+    private static BigInteger Normalize(Size size, BigInteger value)
     {
-        var msb = BigInteger.One << ((int) (uint) size - 1);
+        var msb = BigInteger.One << ((int) size.Bits - 1);
         return (value & (msb - BigInteger.One)) - (value & msb);
     }
 }

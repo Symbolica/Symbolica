@@ -4,7 +4,7 @@ namespace Symbolica.Expression;
 
 public interface IExpression
 {
-    Bits Size { get; }
+    Size Size { get; }
 
     BigInteger GetSingleValue(ISpace space);
     BigInteger GetExampleValue(ISpace space);
@@ -15,7 +15,7 @@ public interface IExpression
     IExpression Equal(IExpression expression);
     IExpression FloatAdd(IExpression expression);
     IExpression FloatCeiling();
-    IExpression FloatConvert(Bits size);
+    IExpression FloatConvert(Size size);
     IExpression FloatDivide(IExpression expression);
     IExpression FloatEqual(IExpression expression);
     IExpression FloatFloor();
@@ -30,14 +30,14 @@ public interface IExpression
     IExpression FloatPower(IExpression expression);
     IExpression FloatRemainder(IExpression expression);
     IExpression FloatSubtract(IExpression expression);
-    IExpression FloatToSigned(Bits size);
-    IExpression FloatToUnsigned(Bits size);
+    IExpression FloatToSigned(Size size);
+    IExpression FloatToUnsigned(Size size);
     IExpression FloatUnordered(IExpression expression);
     IExpression LogicalShiftRight(IExpression expression);
     IExpression Multiply(IExpression expression);
     IExpression NotEqual(IExpression expression);
     IExpression Or(IExpression expression);
-    IExpression Read(IExpression offset, Bits size);
+    IExpression Read(IExpression offset, Size size);
     IExpression Select(IExpression trueValue, IExpression falseValue);
     IExpression ShiftLeft(IExpression expression);
     IExpression SignedDivide(IExpression expression);
@@ -46,18 +46,18 @@ public interface IExpression
     IExpression SignedLess(IExpression expression);
     IExpression SignedLessOrEqual(IExpression expression);
     IExpression SignedRemainder(IExpression expression);
-    IExpression SignedToFloat(Bits size);
-    IExpression SignExtend(Bits size);
+    IExpression SignedToFloat(Size size);
+    IExpression SignExtend(Size size);
     IExpression Subtract(IExpression expression);
-    IExpression Truncate(Bits size);
+    IExpression Truncate(Size size);
     IExpression UnsignedDivide(IExpression expression);
     IExpression UnsignedGreater(IExpression expression);
     IExpression UnsignedGreaterOrEqual(IExpression expression);
     IExpression UnsignedLess(IExpression expression);
     IExpression UnsignedLessOrEqual(IExpression expression);
     IExpression UnsignedRemainder(IExpression expression);
-    IExpression UnsignedToFloat(Bits size);
+    IExpression UnsignedToFloat(Size size);
     IExpression Write(IExpression offset, IExpression value);
     IExpression Xor(IExpression expression);
-    IExpression ZeroExtend(Bits size);
+    IExpression ZeroExtend(Size size);
 }

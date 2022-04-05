@@ -6,10 +6,10 @@ internal interface IPersistentBlock
 {
     bool IsValid { get; }
     IExpression Address { get; }
-    Bytes Size { get; }
+    Size Size { get; }
 
-    IPersistentBlock Move(IExpression address, Bits size);
+    IPersistentBlock Move(IExpression address, Size size);
     bool CanFree(ISpace space, Section section, IExpression address);
     Result<IPersistentBlock> TryWrite(ISpace space, IExpression address, IExpression value);
-    Result<IExpression> TryRead(ISpace space, IExpression address, Bits size);
+    Result<IExpression> TryRead(ISpace space, IExpression address, Size size);
 }

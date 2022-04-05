@@ -7,7 +7,7 @@ internal sealed record SignedToFloat : Float
 {
     private readonly IValue _value;
 
-    private SignedToFloat(Bits size, IValue value)
+    private SignedToFloat(Size size, IValue value)
         : base(size)
     {
         _value = value;
@@ -26,10 +26,10 @@ internal sealed record SignedToFloat : Float
         return Equals(other as SignedToFloat);
     }
 
-    public static IValue Create(Bits size, IValue value)
+    public static IValue Create(Size size, IValue value)
     {
         return value is IConstantValue v
-            ? (uint) size switch
+            ? size.Bits switch
             {
                 32U => v.AsSigned().ToSingle(),
                 64U => v.AsSigned().ToDouble(),

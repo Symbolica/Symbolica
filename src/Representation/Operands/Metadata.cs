@@ -9,6 +9,6 @@ public sealed class Metadata : IOperand
     public IExpression Evaluate(IState state)
     {
         // ... so this is total nonsense that is only implemented because function arguments are greedily evaluated.
-        return state.Space.CreateGarbage(Bytes.One.ToBits());
+        return state.Space.CreateGarbage(Size.Byte);
     }
 }

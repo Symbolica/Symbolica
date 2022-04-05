@@ -17,7 +17,7 @@ internal sealed class Absolute : IFunction
     {
         var value = arguments.Get(0);
 
-        var mask = value.ArithmeticShiftRight(state.Space.CreateConstant(value.Size, (uint) value.Size - 1U));
+        var mask = value.ArithmeticShiftRight(state.Space.CreateConstant(value.Size, value.Size.Bits - 1U));
         var result = value.Add(mask).Xor(mask);
 
         state.Stack.SetVariable(caller.Id, result);

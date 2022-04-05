@@ -68,7 +68,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMAlloca => new Allocate(
                 id,
                 operands,
-                _unsafeContext.GetAllocatedType(instruction).GetAllocSize(_targetData).ToBits()),
+                _unsafeContext.GetAllocatedType(instruction).GetAllocSize(_targetData)),
             LLVMOpcode.LLVMLoad => new Load(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMStore => new Store(id, operands),
             LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(
@@ -137,7 +137,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMExtractValue => new ExtractValue(
                 id,
                 operands,
-                instruction.TypeOf.GetStoreSize(_targetData).ToBits(),
+                instruction.TypeOf.GetStoreSize(_targetData),
                 GetAggregateOffsets(instruction)),
             LLVMOpcode.LLVMInsertValue => new InsertValue(
                 id,
@@ -163,7 +163,7 @@ internal sealed class InstructionFactory : IInstructionFactory
         return new Call(
             id,
             operands,
-            instruction.TypeOf.GetStoreSize(_targetData).ToBits(),
+            instruction.TypeOf.GetStoreSize(_targetData),
             GetAttributes(instruction, LLVMAttributeIndex.LLVMAttributeReturnIndex),
             instruction.GetAttributeIndices()
                 .Select(i => GetAttributes(instruction, i))
@@ -188,19 +188,19 @@ internal sealed class InstructionFactory : IInstructionFactory
             .ToArray();
     }
 
-    private Bits[] GetAggregateOffsets(LLVMValueRef instruction)
+    private Size[] GetAggregateOffsets(LLVMValueRef instruction)
     {
         var indices = _unsafeContext.GetIndices(instruction);
 
         return GetOffsets(instruction,
                 indices, indices,
-                s => s.ToBits(), (s, i) => s.ToBits() * i)
+                s => s, (s, i) => s * i)
             .ToArray();
     }
 
     private IEnumerable<TOffset> GetOffsets<TIndex, TOffset>(LLVMValueRef instruction,
         IEnumerable<uint> constantIndices, IEnumerable<TIndex> indices,
-        Func<Bytes, TOffset> constantOffset, Func<Bytes, TIndex, TOffset> offset)
+        Func<Size, TOffset> constantOffset, Func<Size, TIndex, TOffset> offset)
     {
         var indexedType = instruction.GetOperand(0U).TypeOf;
 

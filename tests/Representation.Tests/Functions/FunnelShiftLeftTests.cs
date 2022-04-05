@@ -24,7 +24,7 @@ public class FunnelShiftLeftTests
         var expected = ConcatenateThenShiftLeftThenExtractHigh(
             high,
             low,
-            shift.UnsignedRemainder((Nibble) (BigInteger) (uint) Nibble.Size));
+            shift.UnsignedRemainder((Nibble) (BigInteger) Nibble.Size.Bits));
 
         actual.Should().Be(expected);
     }

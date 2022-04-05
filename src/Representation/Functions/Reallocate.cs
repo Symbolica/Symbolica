@@ -36,12 +36,12 @@ internal sealed class Reallocate : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
-            var size = (Bytes) (uint) value;
+            var size = Size.FromBytes(value);
 
-            if (size == Bytes.Zero)
+            if (size == Size.Zero)
                 Free(state, _caller, _address);
             else
-                Allocate(state, _caller, _address, size.ToBits());
+                Allocate(state, _caller, _address, size);
         }
 
         private static void Free(IState state, ICaller caller, IExpression address)
@@ -50,7 +50,7 @@ internal sealed class Reallocate : IFunction
             state.Stack.SetVariable(caller.Id, state.Space.CreateZero(address.Size));
         }
 
-        private static void Allocate(IState state, ICaller caller, IExpression address, Bits size)
+        private static void Allocate(IState state, ICaller caller, IExpression address, Size size)
         {
             state.Fork(address,
                 new MoveMemory(caller, address, size),
@@ -62,9 +62,9 @@ internal sealed class Reallocate : IFunction
     {
         private readonly IExpression _address;
         private readonly ICaller _caller;
-        private readonly Bits _size;
+        private readonly Size _size;
 
-        public MoveMemory(ICaller caller, IExpression address, Bits size)
+        public MoveMemory(ICaller caller, IExpression address, Size size)
         {
             _caller = caller;
             _address = address;
@@ -80,9 +80,9 @@ internal sealed class Reallocate : IFunction
     private sealed class AllocateMemory : IStateAction
     {
         private readonly ICaller _caller;
-        private readonly Bits _size;
+        private readonly Size _size;
 
-        public AllocateMemory(ICaller caller, Bits size)
+        public AllocateMemory(ICaller caller, Size size)
         {
             _caller = caller;
             _size = size;

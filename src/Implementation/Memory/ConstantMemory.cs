@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -9,13 +8,13 @@ namespace Symbolica.Implementation.Memory;
 
 internal sealed class ConstantMemory : IPersistentMemory
 {
-    private readonly Bytes _alignment;
+    private readonly Size _alignment;
     private readonly IPersistentList<Allocation> _allocations;
     private readonly IBlockFactory _blockFactory;
-    private readonly Bytes _nextAddress;
+    private readonly Size _nextAddress;
 
-    private ConstantMemory(Bytes alignment, IBlockFactory blockFactory,
-        Bytes nextAddress, IPersistentList<Allocation> allocations)
+    private ConstantMemory(Size alignment, IBlockFactory blockFactory,
+        Size nextAddress, IPersistentList<Allocation> allocations)
     {
         _alignment = alignment;
         _blockFactory = blockFactory;
@@ -23,7 +22,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         _allocations = allocations;
     }
 
-    public (IExpression, IPersistentMemory) Allocate(ISpace space, Section section, Bits size)
+    public (IExpression, IPersistentMemory) Allocate(ISpace space, Section section, Size size)
     {
         var address = CreateAddress(space);
         var block = _blockFactory.Create(space, section, address, size);
@@ -33,7 +32,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             GetNextAddress(size), _allocations.Add(allocation)));
     }
 
-    public (IExpression, IPersistentMemory) Move(ISpace space, Section section, IExpression address, Bits size)
+    public (IExpression, IPersistentMemory) Move(ISpace space, Section section, IExpression address, Size size)
     {
         var (index, allocation) = GetAllocation(space, address);
 
@@ -85,7 +84,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         }
     }
 
-    public IExpression Read(ISpace space, IExpression address, Bits size)
+    public IExpression Read(ISpace space, IExpression address, Size size)
     {
         var expression = space.CreateZero(size);
 
@@ -108,19 +107,19 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     private IExpression CreateAddress(ISpace space)
     {
-        return space.CreateConstant(space.PointerSize, (uint) _nextAddress);
+        return space.CreateConstant(space.PointerSize, _nextAddress.Bytes);
     }
 
-    private Bytes GetNextAddress(Bits size)
+    private Size GetNextAddress(Size size)
     {
-        return size == Bits.Zero
+        return size == Size.Zero
             ? _nextAddress + _alignment
-            : (_nextAddress + size.ToBytes()).AlignTo(_alignment);
+            : (_nextAddress + size).AlignToBytes(_alignment);
     }
 
     private (int, Allocation) GetAllocation(ISpace space, IExpression address)
     {
-        var key = new Allocation((Bytes) (uint) address.GetExampleValue(space), _blockFactory.CreateInvalid());
+        var key = new Allocation(Size.FromBytes(address.GetExampleValue(space)), _blockFactory.CreateInvalid());
         var result = _allocations.BinarySearch(key);
 
         var index = result < 0
@@ -130,10 +129,10 @@ internal sealed class ConstantMemory : IPersistentMemory
         return (index, _allocations.Get(index));
     }
 
-    public static IPersistentMemory Create(Bytes alignment,
+    public static IPersistentMemory Create(Size alignment,
         IBlockFactory blockFactory, ICollectionFactory collectionFactory)
     {
-        var nullAllocation = new Allocation(Bytes.Zero, blockFactory.CreateInvalid());
+        var nullAllocation = new Allocation(Size.Zero, blockFactory.CreateInvalid());
 
         return new ConstantMemory(alignment, blockFactory,
             alignment, collectionFactory.CreatePersistentList<Allocation>().Add(nullAllocation));
@@ -141,13 +140,13 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     private readonly struct Allocation : IComparable<Allocation>
     {
-        public Allocation(Bytes address, IPersistentBlock block)
+        public Allocation(Size address, IPersistentBlock block)
         {
             Address = address;
             Block = block;
         }
 
-        public Bytes Address { get; }
+        public Size Address { get; }
         public IPersistentBlock Block { get; }
 
         public int CompareTo(Allocation other)

@@ -8,7 +8,7 @@ internal sealed record NormalFloat : Float
 {
     private readonly string _value;
 
-    public NormalFloat(Bits size, string value)
+    public NormalFloat(Size size, string value)
         : base(size)
     {
         _value = value;

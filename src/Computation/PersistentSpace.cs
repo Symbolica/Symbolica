@@ -14,7 +14,7 @@ internal sealed class PersistentSpace : IPersistentSpace
     private readonly ICollectionFactory _collectionFactory;
     private readonly bool _useSymbolicGarbage;
 
-    private PersistentSpace(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory,
+    private PersistentSpace(Size pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory,
         IPersistentStack<IValue> assertions)
     {
         PointerSize = pointerSize;
@@ -23,7 +23,7 @@ internal sealed class PersistentSpace : IPersistentSpace
         _assertions = assertions;
     }
 
-    public Bits PointerSize { get; }
+    public Size PointerSize { get; }
 
     public IPersistentSpace Assert(IValue assertion)
     {
@@ -48,16 +48,21 @@ internal sealed class PersistentSpace : IPersistentSpace
         return solver.GetExample();
     }
 
-    public IExpression CreateConstant(Bits size, BigInteger value)
+    public IExpression CreateZero(Size size)
+    {
+        return new Expression(_collectionFactory, ConstantUnsigned.CreateZero(size));
+    }
+
+    public IExpression CreateConstant(Size size, BigInteger value)
     {
         return new Expression(_collectionFactory,
             ConstantUnsigned.Create(size, value));
     }
 
-    public IExpression CreateConstantFloat(Bits size, string value)
+    public IExpression CreateConstantFloat(Size size, string value)
     {
         return new Expression(_collectionFactory,
-            (uint) size switch
+            size.Bits switch
             {
                 32U => new ConstantSingle(float.Parse(value)),
                 64U => new ConstantDouble(double.Parse(value)),
@@ -65,30 +70,25 @@ internal sealed class PersistentSpace : IPersistentSpace
             });
     }
 
-    public IExpression CreateGarbage(Bits size)
+    public IExpression CreateGarbage(Size size)
     {
         return _useSymbolicGarbage
             ? CreateSymbolic(size, null)
             : CreateZero(size);
     }
 
-    public IExpression CreateSymbolic(Bits size, string? name)
+    public IExpression CreateSymbolic(Size size, string? name)
     {
         return CreateSymbolic(size, name, Enumerable.Empty<Func<IExpression, IExpression>>());
     }
 
-    public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions)
+    public IExpression CreateSymbolic(Size size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions)
     {
         return Expression.CreateSymbolic(_collectionFactory,
             size, name ?? Guid.NewGuid().ToString(), assertions);
     }
 
-    public IExpression CreateZero(Bits size)
-    {
-        return new Expression(_collectionFactory, ConstantUnsigned.CreateZero(size));
-    }
-
-    public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
+    public static ISpace Create(Size pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
     {
         return new PersistentSpace(pointerSize, useSymbolicGarbage, collectionFactory,
             collectionFactory.CreatePersistentStack<IValue>());

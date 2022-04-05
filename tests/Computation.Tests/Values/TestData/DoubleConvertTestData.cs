@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Symbolica.Computation.Values.TestData;
 
-internal sealed class DoubleConvertTestData : TheoryData<Bits,
+internal sealed class DoubleConvertTestData : TheoryData<Size,
     IValue,
     IValue>
 {
@@ -28,13 +28,13 @@ internal sealed class DoubleConvertTestData : TheoryData<Bits,
                 value1(value));
     }
 
-    private static IEnumerable<Bits> Sizes()
+    private static IEnumerable<Size> Sizes()
     {
-        yield return (Bits) 16U;
-        yield return (Bits) 32U;
-        yield return (Bits) 64U;
-        yield return (Bits) 80U;
-        yield return (Bits) 128U;
+        yield return Size.FromBits(16U);
+        yield return Size.FromBits(32U);
+        yield return Size.FromBits(64U);
+        yield return Size.FromBits(80U);
+        yield return Size.FromBits(128U);
     }
 
     private static IEnumerable<double> Values()

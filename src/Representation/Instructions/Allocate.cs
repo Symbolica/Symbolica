@@ -5,10 +5,10 @@ namespace Symbolica.Representation.Instructions;
 
 public sealed class Allocate : IInstruction
 {
-    private readonly Bits _elementSize;
+    private readonly Size _elementSize;
     private readonly IOperand[] _operands;
 
-    public Allocate(InstructionId id, IOperand[] operands, Bits elementSize)
+    public Allocate(InstructionId id, IOperand[] operands, Size elementSize)
     {
         Id = id;
         _operands = operands;

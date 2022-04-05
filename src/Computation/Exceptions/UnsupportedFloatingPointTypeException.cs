@@ -6,11 +6,11 @@ namespace Symbolica.Computation.Exceptions;
 [Serializable]
 public class UnsupportedFloatingPointTypeException : UnsupportedException
 {
-    public UnsupportedFloatingPointTypeException(Bits size)
+    public UnsupportedFloatingPointTypeException(Size size)
         : base($"Floating-point size {size} is unsupported.")
     {
         Size = size;
     }
 
-    public Bits Size { get; }
+    public Size Size { get; }
 }

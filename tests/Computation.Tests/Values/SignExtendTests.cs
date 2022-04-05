@@ -9,7 +9,7 @@ public class SignExtendTests
 {
     [Theory]
     [ClassData(typeof(ExtendTestData))]
-    private void ShouldCreateEquivalentBitVectors(Bits size,
+    private void ShouldCreateEquivalentBitVectors(Size size,
         IValue value0,
         IValue value1)
     {
@@ -26,7 +26,7 @@ public class SignExtendTests
 
     [Theory]
     [ClassData(typeof(ExtendTestData))]
-    private void ShouldCreateEquivalentBooleans(Bits size,
+    private void ShouldCreateEquivalentBooleans(Size size,
         IValue value0,
         IValue value1)
     {

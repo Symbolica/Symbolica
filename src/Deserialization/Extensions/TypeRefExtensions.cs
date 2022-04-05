@@ -5,25 +5,25 @@ namespace Symbolica.Deserialization.Extensions;
 
 internal static class TypeRefExtensions
 {
-    public static Bits GetSize(this LLVMTypeRef self, LLVMTargetDataRef targetData)
+    public static Size GetSize(this LLVMTypeRef self, LLVMTargetDataRef targetData)
     {
-        return (Bits) targetData.SizeOfTypeInBits(self);
+        return Size.FromBits(targetData.SizeOfTypeInBits(self));
     }
 
-    public static Bytes GetAllocSize(this LLVMTypeRef self, LLVMTargetDataRef targetData)
+    public static Size GetAllocSize(this LLVMTypeRef self, LLVMTargetDataRef targetData)
     {
-        return (Bytes) targetData.ABISizeOfType(self);
+        return Size.FromBytes(targetData.ABISizeOfType(self));
     }
 
-    public static Bytes GetStoreSize(this LLVMTypeRef self, LLVMTargetDataRef targetData)
+    public static Size GetStoreSize(this LLVMTypeRef self, LLVMTargetDataRef targetData)
     {
         return self.IsSized
-            ? (Bytes) targetData.StoreSizeOfType(self)
-            : Bytes.Zero;
+            ? Size.FromBytes(targetData.StoreSizeOfType(self))
+            : Size.Zero;
     }
 
-    public static Bytes GetElementOffset(this LLVMTypeRef self, LLVMTargetDataRef targetData, uint element)
+    public static Size GetElementOffset(this LLVMTypeRef self, LLVMTargetDataRef targetData, uint element)
     {
-        return (Bytes) targetData.OffsetOfElement(self, element);
+        return Size.FromBytes(targetData.OffsetOfElement(self, element));
     }
 }

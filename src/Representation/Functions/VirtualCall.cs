@@ -1,4 +1,3 @@
-using System.Numerics;
 using Symbolica.Abstraction;
 
 namespace Symbolica.Representation.Functions;

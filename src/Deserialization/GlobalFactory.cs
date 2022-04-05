@@ -24,7 +24,7 @@ internal sealed class GlobalFactory : IGlobalFactory
     public IGlobal Create(LLVMValueRef global)
     {
         var id = (GlobalId) _idFactory.GetOrCreate(global.Handle);
-        var size = global.TypeOf.ElementType.GetStoreSize(_targetData).ToBits();
+        var size = global.TypeOf.ElementType.GetStoreSize(_targetData);
 
         return global.Initializer == default
             ? new UninitializedGlobal(id, size)

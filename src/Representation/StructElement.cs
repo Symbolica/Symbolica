@@ -5,12 +5,12 @@ namespace Symbolica.Representation;
 
 public sealed class StructElement
 {
-    public StructElement(Bits offset, IOperand operand)
+    public StructElement(Size offset, IOperand operand)
     {
         Offset = offset;
         Operand = operand;
     }
 
-    public Bits Offset { get; }
+    public Size Offset { get; }
     public IOperand Operand { get; }
 }

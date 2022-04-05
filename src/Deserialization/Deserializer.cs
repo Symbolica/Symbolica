@@ -33,6 +33,6 @@ internal sealed class Deserializer : IDeserializer
 
         var moduleFactory = new ModuleFactory(structTypeFactory, functionFactory, globalFactory);
 
-        return moduleFactory.Create(module, (Bytes) _unsafeContext.GetPointerSize(targetData));
+        return moduleFactory.Create(module, Size.FromBytes(_unsafeContext.GetPointerSize(targetData)));
     }
 }

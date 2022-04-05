@@ -16,5 +16,5 @@ public interface IStack
     IExpression GetInitializedVaList();
     IExpression GetVariable(InstructionId id, bool useIncomingValue);
     void SetVariable(InstructionId id, IExpression variable);
-    IExpression Allocate(Bits size);
+    IExpression Allocate(Size size);
 }

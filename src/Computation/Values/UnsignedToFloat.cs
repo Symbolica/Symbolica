@@ -7,7 +7,7 @@ internal sealed record UnsignedToFloat : Float
 {
     private readonly IValue _value;
 
-    private UnsignedToFloat(Bits size, IValue value)
+    private UnsignedToFloat(Size size, IValue value)
         : base(size)
     {
         _value = value;
@@ -26,10 +26,10 @@ internal sealed record UnsignedToFloat : Float
         return Equals(other as UnsignedToFloat);
     }
 
-    public static IValue Create(Bits size, IValue value)
+    public static IValue Create(Size size, IValue value)
     {
         return value is IConstantValue v
-            ? (uint) size switch
+            ? size.Bits switch
             {
                 32U => v.AsUnsigned().ToSingle(),
                 64U => v.AsUnsigned().ToDouble(),

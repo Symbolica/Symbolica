@@ -5,15 +5,15 @@ namespace Symbolica.Representation;
 
 public sealed class ConstantOffset : IOperand
 {
-    private readonly Bytes _size;
+    private readonly Size _size;
 
-    public ConstantOffset(Bytes size)
+    public ConstantOffset(Size size)
     {
         _size = size;
     }
 
     public IExpression Evaluate(IState state)
     {
-        return state.Space.CreateConstant(state.Space.PointerSize, (uint) _size);
+        return state.Space.CreateConstant(state.Space.PointerSize, _size.Bytes);
     }
 }

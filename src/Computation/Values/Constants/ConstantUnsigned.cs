@@ -9,7 +9,7 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
 {
     private readonly BigInteger _value;
 
-    private ConstantUnsigned(Bits size, BigInteger value)
+    private ConstantUnsigned(Size size, BigInteger value)
         : base(size)
     {
         _value = value;
@@ -20,7 +20,7 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
 
     public override BitVecExpr AsBitVector(ISolver solver)
     {
-        return solver.Context.MkBV(_value.ToString(), (uint) Size);
+        return solver.Context.MkBV(_value.ToString(), Size.Bits);
     }
 
     public ConstantBitVector AsBitVector(ICollectionFactory collectionFactory)
@@ -78,7 +78,7 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
         return new ConstantBool(_value == value._value);
     }
 
-    public ConstantUnsigned Extend(Bits size)
+    public ConstantUnsigned Extend(Size size)
     {
         return new ConstantUnsigned(size, _value);
     }
@@ -148,7 +148,7 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
         return new ConstantSingle((float) _value);
     }
 
-    public ConstantUnsigned Truncate(Bits size)
+    public ConstantUnsigned Truncate(Size size)
     {
         return Create(size, _value);
     }
@@ -163,20 +163,20 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
         return value._value;
     }
 
-    public static ConstantUnsigned CreateZero(Bits size)
+    public static ConstantUnsigned CreateZero(Size size)
     {
         return new ConstantUnsigned(size, BigInteger.Zero);
     }
 
-    public static ConstantUnsigned Create(Bits size, BigInteger value)
+    public static ConstantUnsigned Create(Size size, BigInteger value)
     {
-        return new ConstantUnsigned(size, value.IsZero || value.Sign > 0 && value.GetBitLength() <= (uint) size
+        return new ConstantUnsigned(size, value.IsZero || value.Sign > 0 && value.GetBitLength() <= size.Bits
             ? value
             : Normalize(size, value));
     }
 
-    private static BigInteger Normalize(Bits size, BigInteger value)
+    private static BigInteger Normalize(Size size, BigInteger value)
     {
-        return value & ((BigInteger.One << (int) (uint) size) - BigInteger.One);
+        return value & ((BigInteger.One << (int) size.Bits) - BigInteger.One);
     }
 }

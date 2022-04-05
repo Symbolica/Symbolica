@@ -6,10 +6,10 @@ namespace Symbolica.Representation;
 
 internal sealed class Struct : IStruct
 {
-    private readonly Bits[] _offsets;
-    private readonly Bits[] _sizes;
+    private readonly Size[] _offsets;
+    private readonly Size[] _sizes;
 
-    public Struct(Bits[] offsets, Bits[] sizes,
+    public Struct(Size[] offsets, Size[] sizes,
         IExpression expression)
     {
         _offsets = offsets;
@@ -38,6 +38,6 @@ internal sealed class Struct : IStruct
 
     private IExpression GetOffset(ISpace space, int index)
     {
-        return space.CreateConstant(Expression.Size, (uint) _offsets[index]);
+        return space.CreateConstant(Expression.Size, _offsets[index].Bits);
     }
 }

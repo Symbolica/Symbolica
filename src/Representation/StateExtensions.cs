@@ -17,12 +17,12 @@ internal static class StateExtensions
     {
         while (true)
         {
-            var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).GetSingleValue(state.Space);
+            var character = (char) state.Memory.Read(address, Size.Byte).GetSingleValue(state.Space);
             if (character == default)
                 yield break;
 
             yield return character;
-            address = address.Add(state.Space.CreateConstant(address.Size, (uint) Bytes.One));
+            address = address.Add(state.Space.CreateConstant(address.Size, Size.Byte.Bytes));
         }
     }
 

@@ -34,9 +34,9 @@ internal sealed class FileDescription : IPersistentDescription
         var bytes = new byte[count];
         var result = _file.Read(bytes, _offset, count);
 
-        var size = ((Bytes) (uint) result).ToBits();
+        var size = Size.FromBytes(result);
 
-        if (size != Bits.Zero)
+        if (size != Size.Zero)
             memory.Write(address, space.CreateConstant(size, new BigInteger(bytes, true)));
 
         return result;

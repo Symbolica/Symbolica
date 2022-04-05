@@ -7,7 +7,7 @@ public sealed class Global : IGlobal
 {
     private readonly IOperand _initializer;
 
-    public Global(GlobalId id, Bits size, IOperand initializer)
+    public Global(GlobalId id, Size size, IOperand initializer)
     {
         _initializer = initializer;
         Id = id;
@@ -15,7 +15,7 @@ public sealed class Global : IGlobal
     }
 
     public GlobalId Id { get; }
-    public Bits Size { get; }
+    public Size Size { get; }
 
     public void Initialize(IState state, IExpression address)
     {

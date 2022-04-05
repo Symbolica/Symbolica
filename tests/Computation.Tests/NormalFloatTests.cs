@@ -36,7 +36,7 @@ public class NormalFloatTests
     {
         using var solver = PooledSolver.Create();
 
-        var normalFloat = new NormalFloat((Bits) 32U, value);
+        var normalFloat = new NormalFloat(Size.FromBits(32U), value);
 
         using var expr = normalFloat.AsFloat(solver);
         using var bitVector = solver.Context.MkFPToIEEEBV(expr);
@@ -76,7 +76,7 @@ public class NormalFloatTests
     {
         using var solver = PooledSolver.Create();
 
-        var normalFloat = new NormalFloat((Bits) 64U, value);
+        var normalFloat = new NormalFloat(Size.FromBits(64U), value);
 
         using var expr = normalFloat.AsFloat(solver);
         using var bitVector = solver.Context.MkFPToIEEEBV(expr);

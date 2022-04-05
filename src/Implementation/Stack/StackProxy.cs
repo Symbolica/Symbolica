@@ -81,7 +81,7 @@ internal sealed class StackProxy : IStackProxy
         _stack = _stack.SetVariable(id, variable);
     }
 
-    public IExpression Allocate(Bits size)
+    public IExpression Allocate(Size size)
     {
         var (address, stack) = _stack.Allocate(_memory, size);
         _stack = stack;

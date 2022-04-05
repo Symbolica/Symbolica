@@ -5,7 +5,7 @@ namespace Symbolica.Computation.Values;
 
 internal static class Read
 {
-    public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, Bits size)
+    public static IValue Create(ICollectionFactory collectionFactory, IValue buffer, IValue offset, Size size)
     {
         return buffer is IConstantValue b && offset is IConstantValue o
             ? b.AsBitVector(collectionFactory).Read(o.AsUnsigned(), size)

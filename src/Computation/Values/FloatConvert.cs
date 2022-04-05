@@ -8,7 +8,7 @@ internal sealed record FloatConvert : Float
 {
     private readonly IValue _value;
 
-    private FloatConvert(Bits size, IValue value)
+    private FloatConvert(Size size, IValue value)
         : base(size)
     {
         _value = value;
@@ -27,16 +27,16 @@ internal sealed record FloatConvert : Float
         return Equals(other as FloatConvert);
     }
 
-    public static IValue Create(Bits size, IValue value)
+    public static IValue Create(Size size, IValue value)
     {
         return Unary(value,
-            v => (uint) size switch
+            v => size.Bits switch
             {
                 32U => new ConstantSingle(v),
                 64U => new ConstantDouble(v),
                 _ => new FloatConvert(size, new ConstantSingle(v))
             },
-            v => (uint) size switch
+            v => size.Bits switch
             {
                 32U => new ConstantSingle((float) v),
                 64U => new ConstantDouble(v),

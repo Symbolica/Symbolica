@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -13,19 +12,19 @@ internal sealed class X86VariadicAbi : IVariadicAbi
 
     public IVaList PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs)
     {
-        var offsets = new List<Bits>();
-        var bytes = Bytes.Zero;
+        var offsets = new List<Size>();
+        var size = Size.Zero;
 
         foreach (var argument in varargs)
         {
-            offsets.Add(bytes.ToBits());
-            bytes = (bytes + argument.Size.ToBytes()).AlignTo(Bytes.One);
+            offsets.Add(size);
+            size = (size + argument.Size).AlignToBytes(Size.Byte);
         }
 
-        var value = space.CreateZero(bytes.ToBits());
+        var value = space.CreateZero(size);
 
         foreach (var (argument, offset) in varargs.Zip(offsets, (a, o) => (a, o)))
-            value = value.Write(space.CreateConstant(value.Size, (uint) offset), argument);
+            value = value.Write(space.CreateConstant(value.Size, offset.Bits), argument);
 
         var address = memory.Allocate(Section.Stack, value.Size);
         memory.Write(address, value);

@@ -5,12 +5,12 @@ namespace Symbolica.Computation;
 
 internal abstract record Integer : IValue
 {
-    protected Integer(Bits size)
+    protected Integer(Size size)
     {
         Size = size;
     }
 
-    public Bits Size { get; }
+    public Size Size { get; }
 
     public abstract BitVecExpr AsBitVector(ISolver solver);
     public abstract BoolExpr AsBool(ISolver solver);

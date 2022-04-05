@@ -5,7 +5,7 @@ namespace Symbolica.Implementation.Memory;
 
 internal sealed class BlockFactory : IBlockFactory
 {
-    public IPersistentBlock Create(ISpace space, Section section, IExpression address, Bits size)
+    public IPersistentBlock Create(ISpace space, Section section, IExpression address, Size size)
     {
         return new PersistentBlock(section, address, space.CreateGarbage(size));
     }
@@ -25,9 +25,9 @@ internal sealed class BlockFactory : IBlockFactory
 
         public bool IsValid => false;
         public IExpression Address => throw new ImplementationException("Invalid block has no address.");
-        public Bytes Size => throw new ImplementationException("Invalid block has no size.");
+        public Size Size => throw new ImplementationException("Invalid block has no size.");
 
-        public IPersistentBlock Move(IExpression address, Bits size)
+        public IPersistentBlock Move(IExpression address, Size size)
         {
             return this;
         }
@@ -42,7 +42,7 @@ internal sealed class BlockFactory : IBlockFactory
             return Result<IPersistentBlock>.Failure(space);
         }
 
-        public Result<IExpression> TryRead(ISpace space, IExpression address, Bits size)
+        public Result<IExpression> TryRead(ISpace space, IExpression address, Size size)
         {
             return Result<IExpression>.Failure(space);
         }

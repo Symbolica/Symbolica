@@ -33,11 +33,11 @@ internal sealed class Allocate : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
-            var size = (Bytes) (uint) value;
+            var size = Size.FromBytes(value);
 
-            var address = size == Bytes.Zero
+            var address = size == Size.Zero
                 ? state.Space.CreateZero(state.Space.PointerSize)
-                : state.Memory.Allocate(size.ToBits());
+                : state.Memory.Allocate(size);
 
             state.Stack.SetVariable(_caller.Id, address);
         }

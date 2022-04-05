@@ -31,7 +31,7 @@ internal sealed record Write : BitVector
         return Equals(other as Write);
     }
 
-    public IValue LayerRead(ICollectionFactory collectionFactory, IValue offset, Bits size)
+    public IValue LayerRead(ICollectionFactory collectionFactory, IValue offset, Size size)
     {
         var mask = Mask(this, offset, size);
 
@@ -70,7 +70,7 @@ internal sealed record Write : BitVector
         return Or.Create(And.Create(_writeBuffer, Not.Create(_writeMask)), writeData);
     }
 
-    private static IValue Mask(IValue buffer, IValue offset, Bits size)
+    private static IValue Mask(IValue buffer, IValue offset, Size size)
     {
         return ShiftLeft.Create(ConstantUnsigned.CreateZero(size).Not().Extend(buffer.Size), offset);
     }

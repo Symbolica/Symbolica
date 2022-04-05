@@ -6,7 +6,7 @@ namespace Symbolica.Computation;
 
 internal interface IValue : IEquatable<IValue>
 {
-    Bits Size { get; }
+    Size Size { get; }
 
     BitVecExpr AsBitVector(ISolver solver);
     BoolExpr AsBool(ISolver solver);

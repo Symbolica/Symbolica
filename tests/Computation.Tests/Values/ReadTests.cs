@@ -9,7 +9,7 @@ public class ReadTests
 {
     [Theory]
     [ClassData(typeof(ReadTestData))]
-    private void ShouldCreateEquivalentBitVectors(Bits size,
+    private void ShouldCreateEquivalentBitVectors(Size size,
         IValue buffer0, IValue offset0,
         IValue buffer1, IValue offset1)
     {
@@ -27,7 +27,7 @@ public class ReadTests
 
     [Theory]
     [ClassData(typeof(ReadTestData))]
-    private void ShouldCreateEquivalentBooleans(Bits size,
+    private void ShouldCreateEquivalentBooleans(Size size,
         IValue buffer0, IValue offset0,
         IValue buffer1, IValue offset1)
     {

@@ -21,11 +21,11 @@ internal sealed class ModuleFactory
         _globalFactory = globalFactory;
     }
 
-    public IModule Create(LLVMModuleRef module, Bytes pointerSize)
+    public IModule Create(LLVMModuleRef module, Size pointerSize)
     {
         return Module.Create(
             module.Target,
-            pointerSize.ToBits(),
+            pointerSize,
             CreateStructType(module, "struct.__dirstream"),
             CreateStructType(module, "struct.dirent"),
             CreateStructType(module, "struct.__jmp_buf_tag"),

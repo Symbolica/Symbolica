@@ -18,7 +18,7 @@ internal sealed class MemoryProxy : IMemoryProxy
         return new MemoryProxy(space, _memory);
     }
 
-    public IExpression Allocate(Section section, Bits size)
+    public IExpression Allocate(Section section, Size size)
     {
         var (address, memory) = _memory.Allocate(_space, section, size);
         _memory = memory;
@@ -31,12 +31,12 @@ internal sealed class MemoryProxy : IMemoryProxy
         _memory = _memory.Free(_space, section, address);
     }
 
-    public IExpression Allocate(Bits size)
+    public IExpression Allocate(Size size)
     {
         return Allocate(Section.Heap, size);
     }
 
-    public IExpression Move(IExpression address, Bits size)
+    public IExpression Move(IExpression address, Size size)
     {
         var (newAddress, memory) = _memory.Move(_space, Section.Heap, address, size);
         _memory = memory;
@@ -54,7 +54,7 @@ internal sealed class MemoryProxy : IMemoryProxy
         _memory = _memory.Write(_space, address, value);
     }
 
-    public IExpression Read(IExpression address, Bits size)
+    public IExpression Read(IExpression address, Size size)
     {
         return _memory.Read(_space, address, size);
     }

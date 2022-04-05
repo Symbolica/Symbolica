@@ -2,5 +2,5 @@
 
 public interface ISpaceFactory
 {
-    ISpace CreateInitial(Bits pointerSize, bool useSymbolicGarbage);
+    ISpace CreateInitial(Size pointerSize, bool useSymbolicGarbage);
 }

@@ -7,7 +7,7 @@ internal sealed record RealToSigned : BitVector
 {
     private readonly IRealValue _value;
 
-    public RealToSigned(Bits size, IRealValue value)
+    public RealToSigned(Size size, IRealValue value)
         : base(size)
     {
         _value = value;
@@ -17,7 +17,7 @@ internal sealed record RealToSigned : BitVector
     {
         using var value = _value.AsReal(solver);
         using var intValue = solver.Context.MkReal2Int(value);
-        return solver.Context.MkInt2BV((uint) Size, intValue);
+        return solver.Context.MkInt2BV(Size.Bits, intValue);
     }
 
     public override bool Equals(IValue? other)

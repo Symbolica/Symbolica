@@ -4,10 +4,10 @@ namespace Symbolica.Abstraction;
 
 public readonly struct Parameter
 {
-    public Parameter(Bits size)
+    public Parameter(Size size)
     {
         Size = size;
     }
 
-    public Bits Size { get; }
+    public Size Size { get; }
 }

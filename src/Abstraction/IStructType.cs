@@ -4,8 +4,8 @@ namespace Symbolica.Abstraction;
 
 public interface IStructType
 {
-    Bits Size { get; }
+    Size Size { get; }
 
-    Bits GetOffset(int index);
+    Size GetOffset(int index);
     IStruct CreateStruct(IExpression expression);
 }

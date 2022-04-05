@@ -32,6 +32,6 @@ internal sealed class DivideTestData : TheoryData<
 
     private static IEnumerable<ConstantUnsigned> Values()
     {
-        return Enumerable.Range(-8, 24).Select(v => ConstantUnsigned.Create((Bits) 4U, v));
+        return Enumerable.Range(-8, 24).Select(v => ConstantUnsigned.Create(Size.FromBits(4U), v));
     }
 }

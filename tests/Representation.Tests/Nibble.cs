@@ -21,7 +21,7 @@ internal readonly struct Nibble : IEquatable<Nibble>
     public bool B1 { get; }
     public bool B0 { get; }
 
-    public static Bits Size => (Bits) 4U;
+    public static Size Size => Size.FromBits(4U);
     public static Nibble Zero => new(false, false, false, false);
     public static Nibble One => new(false, false, false, true);
 

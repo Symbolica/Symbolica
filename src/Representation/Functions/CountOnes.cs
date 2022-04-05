@@ -19,7 +19,7 @@ internal sealed class CountOnes : IFunction
     {
         var expression = arguments.Get(0);
 
-        var result = Enumerable.Range(0, (int) (uint) expression.Size)
+        var result = Enumerable.Range(0, (int) expression.Size.Bits)
             .Aggregate(state.Space.CreateZero(expression.Size), (l, r) =>
                 l.Add(expression.LogicalShiftRight(state.Space.CreateConstant(expression.Size, r))
                     .And(state.Space.CreateConstant(expression.Size, BigInteger.One))));

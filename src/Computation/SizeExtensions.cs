@@ -4,11 +4,11 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal static class BitsExtensions
+internal static class SizeExtensions
 {
-    public static FPSort GetSort(this Bits self, ISolver solver)
+    public static FPSort GetSort(this Size self, ISolver solver)
     {
-        return (uint) self switch
+        return self.Bits switch
         {
             16U => solver.Context.MkFPSort16(),
             32U => solver.Context.MkFPSort32(),

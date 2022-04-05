@@ -44,7 +44,7 @@ internal sealed class FrameFactory : IFrameFactory
     private sealed class InitialCaller : ICaller
     {
         public InstructionId Id => throw new ImplementationException("The initial 'main' call has no caller.");
-        public Bits Size => (Bits) 16U;
+        public Size Size => Size.FromBits(16U);
         public IAttributes ReturnAttributes => new InitialReturnAttributes();
 
         public void Return(IState state)

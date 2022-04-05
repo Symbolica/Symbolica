@@ -5,7 +5,7 @@ namespace Symbolica.Abstraction;
 public interface IModule
 {
     string Target { get; }
-    Bits PointerSize { get; }
+    Size PointerSize { get; }
     IStructType DirectoryStreamType { get; }
     IStructType DirectoryEntryType { get; }
     IStructType JumpBufferType { get; }

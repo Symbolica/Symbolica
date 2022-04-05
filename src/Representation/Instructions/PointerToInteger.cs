@@ -6,9 +6,9 @@ namespace Symbolica.Representation.Instructions;
 public sealed class PointerToInteger : IInstruction
 {
     private readonly IOperand[] _operands;
-    private readonly Bits _size;
+    private readonly Size _size;
 
-    public PointerToInteger(InstructionId id, IOperand[] operands, Bits size)
+    public PointerToInteger(InstructionId id, IOperand[] operands, Size size)
     {
         Id = id;
         _operands = operands;

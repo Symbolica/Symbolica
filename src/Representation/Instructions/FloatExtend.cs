@@ -6,9 +6,9 @@ namespace Symbolica.Representation.Instructions;
 public sealed class FloatExtend : IInstruction
 {
     private readonly IOperand[] _operands;
-    private readonly Bits _size;
+    private readonly Size _size;
 
-    public FloatExtend(InstructionId id, IOperand[] operands, Bits size)
+    public FloatExtend(InstructionId id, IOperand[] operands, Size size)
     {
         Id = id;
         _operands = operands;

@@ -21,7 +21,7 @@ internal sealed class Expression : IExpression
         _value = value;
     }
 
-    public Bits Size => _value.Size;
+    public Size Size => _value.Size;
 
     public BigInteger GetSingleValue(ISpace space)
     {
@@ -74,7 +74,7 @@ internal sealed class Expression : IExpression
         return Create(Values.FloatCeiling.Create);
     }
 
-    public IExpression FloatConvert(Bits size)
+    public IExpression FloatConvert(Size size)
     {
         return Create(v => Values.FloatConvert.Create(size, v));
     }
@@ -149,12 +149,12 @@ internal sealed class Expression : IExpression
         return Create(expression, Values.FloatSubtract.Create);
     }
 
-    public IExpression FloatToSigned(Bits size)
+    public IExpression FloatToSigned(Size size)
     {
         return Create(v => Values.FloatToSigned.Create(size, v));
     }
 
-    public IExpression FloatToUnsigned(Bits size)
+    public IExpression FloatToUnsigned(Size size)
     {
         return Create(v => Values.FloatToUnsigned.Create(size, v));
     }
@@ -186,7 +186,7 @@ internal sealed class Expression : IExpression
             : Values.Or.Create(l, r));
     }
 
-    public IExpression Read(IExpression offset, Bits size)
+    public IExpression Read(IExpression offset, Size size)
     {
         return Create(offset, (b, o) => Values.Read.Create(_collectionFactory, b, o, size));
     }
@@ -233,12 +233,12 @@ internal sealed class Expression : IExpression
         return Create(expression, Values.SignedRemainder.Create);
     }
 
-    public IExpression SignedToFloat(Bits size)
+    public IExpression SignedToFloat(Size size)
     {
         return Create(v => Values.SignedToFloat.Create(size, v));
     }
 
-    public IExpression SignExtend(Bits size)
+    public IExpression SignExtend(Size size)
     {
         return Create(v => Values.SignExtend.Create(size, v));
     }
@@ -248,7 +248,7 @@ internal sealed class Expression : IExpression
         return Create(expression, Values.Subtract.Create);
     }
 
-    public IExpression Truncate(Bits size)
+    public IExpression Truncate(Size size)
     {
         return Create(v => Values.Truncate.Create(size, v));
     }
@@ -283,7 +283,7 @@ internal sealed class Expression : IExpression
         return Create(expression, Values.UnsignedRemainder.Create);
     }
 
-    public IExpression UnsignedToFloat(Bits size)
+    public IExpression UnsignedToFloat(Size size)
     {
         return Create(v => Values.UnsignedToFloat.Create(size, v));
     }
@@ -302,7 +302,7 @@ internal sealed class Expression : IExpression
             : Values.Xor.Create(l, r));
     }
 
-    public IExpression ZeroExtend(Bits size)
+    public IExpression ZeroExtend(Size size)
     {
         return Create(v => Values.ZeroExtend.Create(size, v));
     }
@@ -328,7 +328,7 @@ internal sealed class Expression : IExpression
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
-        Bits size, string name, IEnumerable<Func<IExpression, IExpression>> assertions)
+        Size size, string name, IEnumerable<Func<IExpression, IExpression>> assertions)
     {
         return new Expression(collectionFactory,
             Symbol.Create(size, name, assertions.Select(a => new Func<IValue, IValue>(

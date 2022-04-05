@@ -7,7 +7,7 @@ internal sealed record Truncate : BitVector
 {
     private readonly IValue _value;
 
-    private Truncate(Bits size, IValue value)
+    private Truncate(Size size, IValue value)
         : base(size)
     {
         _value = value;
@@ -16,7 +16,7 @@ internal sealed record Truncate : BitVector
     public override BitVecExpr AsBitVector(ISolver solver)
     {
         using var value = _value.AsBitVector(solver);
-        return solver.Context.MkExtract((uint) (Size - Bits.One), 0U, value);
+        return solver.Context.MkExtract((Size - Size.Bit).Bits, 0U, value);
     }
 
     public override bool Equals(IValue? other)
@@ -24,7 +24,7 @@ internal sealed record Truncate : BitVector
         return Equals(other as Truncate);
     }
 
-    public static IValue Create(Bits size, IValue value)
+    public static IValue Create(Size size, IValue value)
     {
         return size < value.Size
             ? value is IConstantValue v

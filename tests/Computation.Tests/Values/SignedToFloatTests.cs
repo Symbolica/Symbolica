@@ -9,7 +9,7 @@ public class SignedToFloatTests
 {
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
-    private void ShouldCreateEquivalentBitVectors(Bits size,
+    private void ShouldCreateEquivalentBitVectors(Size size,
         IValue value0,
         IValue value1)
     {
@@ -26,7 +26,7 @@ public class SignedToFloatTests
 
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
-    private void ShouldCreateEquivalentBooleans(Bits size,
+    private void ShouldCreateEquivalentBooleans(Size size,
         IValue value0,
         IValue value1)
     {
@@ -43,7 +43,7 @@ public class SignedToFloatTests
 
     [Theory]
     [ClassData(typeof(ToFloatTestData))]
-    private void ShouldCreateEquivalentFloats(Bits size,
+    private void ShouldCreateEquivalentFloats(Size size,
         IValue value0,
         IValue value1)
     {

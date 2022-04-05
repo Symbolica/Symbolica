@@ -8,7 +8,7 @@ internal sealed record SymbolicDouble : Float
     private readonly double _value;
 
     public SymbolicDouble(double value)
-        : base((Bits) 64U)
+        : base(Size.FromBits(64U))
     {
         _value = value;
     }

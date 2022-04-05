@@ -16,7 +16,7 @@ internal sealed record Select : IValue
         _falseValue = falseValue;
     }
 
-    public Bits Size => _trueValue.Size;
+    public Size Size => _trueValue.Size;
 
     public BitVecExpr AsBitVector(ISolver solver)
     {

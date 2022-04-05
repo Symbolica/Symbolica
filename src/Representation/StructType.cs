@@ -6,17 +6,17 @@ namespace Symbolica.Representation;
 
 public sealed class StructType : IStructType
 {
-    private readonly Bits[] _offsets;
+    private readonly Size[] _offsets;
 
-    public StructType(Bits size, Bits[] offsets)
+    public StructType(Size size, Size[] offsets)
     {
         Size = size;
         _offsets = offsets;
     }
 
-    public Bits Size { get; }
+    public Size Size { get; }
 
-    public Bits GetOffset(int index)
+    public Size GetOffset(int index)
     {
         return _offsets[index];
     }

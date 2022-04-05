@@ -27,7 +27,7 @@ internal sealed class FunctionFactory : IFunctionFactory
     {
         var id = (FunctionId) _idFactory.GetOrCreate(function.Handle);
         var parameters = new Parameters(function.Params
-            .Select(p => new Parameter(p.TypeOf.GetStoreSize(_targetData).ToBits()))
+            .Select(p => new Parameter(p.TypeOf.GetStoreSize(_targetData)))
             .ToArray());
 
         return function.IsDeclaration

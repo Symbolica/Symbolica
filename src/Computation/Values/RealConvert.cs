@@ -8,7 +8,7 @@ internal sealed record RealConvert : Float, IRealValue
 {
     private readonly IRealValue _value;
 
-    public RealConvert(Bits size, IRealValue value)
+    public RealConvert(Size size, IRealValue value)
         : base(size)
     {
         _value = value;

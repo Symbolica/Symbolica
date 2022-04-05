@@ -11,7 +11,7 @@ internal sealed record ConstantBitVector : BitVector, IConstantValue
 {
     private readonly IPersistentList<byte> _value;
 
-    private ConstantBitVector(Bits size, IPersistentList<byte> value)
+    private ConstantBitVector(Size size, IPersistentList<byte> value)
         : base(size)
     {
         _value = value;
@@ -57,7 +57,7 @@ internal sealed record ConstantBitVector : BitVector, IConstantValue
         return AsUnsigned().Equals(other);
     }
 
-    public ConstantBitVector Read(ConstantUnsigned offset, Bits size)
+    public ConstantBitVector Read(ConstantUnsigned offset, Size size)
     {
         return new ConstantBitVector(size, _value.GetRange(GetIndex(offset), GetCount(size)));
     }
@@ -73,7 +73,7 @@ internal sealed record ConstantBitVector : BitVector, IConstantValue
             collectionFactory.CreatePersistentList<byte>().AddRange(GetBytes(value.Size, value)));
     }
 
-    private static IEnumerable<byte> GetBytes(Bits size, BigInteger value)
+    private static IEnumerable<byte> GetBytes(Size size, BigInteger value)
     {
         var bytes = new byte[GetCount(size)];
         value.TryWriteBytes(bytes, out _, true);
@@ -83,11 +83,11 @@ internal sealed record ConstantBitVector : BitVector, IConstantValue
 
     private static int GetIndex(BigInteger offset)
     {
-        return (int) (uint) ((Bits) (uint) offset).ToBytes();
+        return (int) Size.FromBits(offset).Bytes;
     }
 
-    private static int GetCount(Bits size)
+    private static int GetCount(Size size)
     {
-        return (int) (uint) size.ToBytes();
+        return (int) size.Bytes;
     }
 }

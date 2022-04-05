@@ -19,7 +19,7 @@ internal sealed class FunnelShiftLeft : IFunction
         var low = arguments.Get(1);
         var shift = arguments.Get(2);
 
-        var size = state.Space.CreateConstant(shift.Size, (uint) shift.Size);
+        var size = state.Space.CreateConstant(shift.Size, shift.Size.Bits);
         var offset = shift.UnsignedRemainder(size);
 
         var result = high.ShiftLeft(offset)

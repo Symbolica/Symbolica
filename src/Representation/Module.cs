@@ -20,7 +20,7 @@ public sealed class Module : IModule
 
     private Module(
         string target,
-        Bits pointerSize,
+        Size pointerSize,
         (string, IStructType?) directoryStreamType,
         (string, IStructType?) directoryEntryType,
         (string, IStructType?) jumpBufferType,
@@ -45,7 +45,7 @@ public sealed class Module : IModule
     }
 
     public string Target { get; }
-    public Bits PointerSize { get; }
+    public Size PointerSize { get; }
     public IStructType DirectoryStreamType => GetStructType(_directoryStreamType);
     public IStructType DirectoryEntryType => GetStructType(_directoryEntryType);
     public IStructType JumpBufferType => GetStructType(_jumpBufferType);
@@ -83,7 +83,7 @@ public sealed class Module : IModule
 
     public static IModule Create(
         string target,
-        Bits pointerSize,
+        Size pointerSize,
         (string, IStructType?) directoryStreamType,
         (string, IStructType?) directoryEntryType,
         (string, IStructType?) jumpBufferType,

@@ -6,7 +6,7 @@ namespace Symbolica.Computation;
 internal abstract record Bool : Integer
 {
     protected Bool()
-        : base(Bits.One)
+        : base(Size.Bit)
     {
     }
 

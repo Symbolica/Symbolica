@@ -6,13 +6,13 @@ namespace Symbolica.Computation.Exceptions;
 [Serializable]
 public class InconsistentExpressionSizesException : SymbolicaException
 {
-    public InconsistentExpressionSizesException(Bits left, Bits right)
+    public InconsistentExpressionSizesException(Size left, Size right)
         : base($"Expression sizes {left} and {right} are inconsistent.")
     {
         Left = left;
         Right = right;
     }
 
-    public Bits Left { get; }
-    public Bits Right { get; }
+    public Size Left { get; }
+    public Size Right { get; }
 }

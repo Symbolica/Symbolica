@@ -6,13 +6,13 @@ namespace Symbolica.Expression;
 
 public interface ISpace
 {
-    Bits PointerSize { get; }
+    Size PointerSize { get; }
 
     IExample GetExample();
-    IExpression CreateConstant(Bits size, BigInteger value);
-    IExpression CreateConstantFloat(Bits size, string value);
-    IExpression CreateGarbage(Bits size);
-    IExpression CreateSymbolic(Bits size, string? name);
-    IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions);
-    IExpression CreateZero(Bits size);
+    IExpression CreateZero(Size size);
+    IExpression CreateConstant(Size size, BigInteger value);
+    IExpression CreateConstantFloat(Size size, string value);
+    IExpression CreateGarbage(Size size);
+    IExpression CreateSymbolic(Size size, string? name);
+    IExpression CreateSymbolic(Size size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions);
 }

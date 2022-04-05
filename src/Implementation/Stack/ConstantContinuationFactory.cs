@@ -11,7 +11,7 @@ internal sealed class ConstantContinuationFactory : IPersistentContinuationFacto
         _count = count;
     }
 
-    public (IExpression, IPersistentContinuationFactory) Create(ISpace space, Bits size)
+    public (IExpression, IPersistentContinuationFactory) Create(ISpace space, Size size)
     {
         return (space.CreateConstant(size, _count), new ConstantContinuationFactory(_count + 1UL));
     }

@@ -14,7 +14,7 @@ public sealed class Call : IInstruction, ICaller
     public Call(
         InstructionId id,
         IOperand[] operands,
-        Bits size,
+        Size size,
         IAttributes returnAttributes,
         IAttributes[] parameterAttributes)
     {
@@ -25,7 +25,7 @@ public sealed class Call : IInstruction, ICaller
         _parameterAttributes = parameterAttributes;
     }
 
-    public Bits Size { get; }
+    public Size Size { get; }
     public IAttributes ReturnAttributes { get; }
 
     public void Return(IState state)
@@ -76,7 +76,7 @@ public sealed class Call : IInstruction, ICaller
                 : argument;
         }
 
-        private static IExpression Coerce(Bits size, IExpression expression, IAttributes attributes)
+        private static IExpression Coerce(Size size, IExpression expression, IAttributes attributes)
         {
             return attributes.IsSignExtended
                 ? expression.SignExtend(size)

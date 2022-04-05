@@ -12,7 +12,7 @@ internal sealed record ConstantSingle : Float, IConstantValue
     private readonly float _value;
 
     public ConstantSingle(float value)
-        : base((Bits) 32U)
+        : base(Size.FromBits(32U))
     {
         _value = value;
     }
@@ -65,8 +65,8 @@ internal sealed record ConstantSingle : Float, IConstantValue
 
     public static ConstantSingle Create(ConstantSigned value)
     {
-        return value.Size == (Bits) 32U
+        return value.Size == Size.FromBits(32U)
             ? new ConstantSingle(BitConverter.Int32BitsToSingle((int) (BigInteger) value))
-            : throw new InconsistentExpressionSizesException(value.Size, (Bits) 32U);
+            : throw new InconsistentExpressionSizesException(value.Size, Size.FromBits(32U));
     }
 }

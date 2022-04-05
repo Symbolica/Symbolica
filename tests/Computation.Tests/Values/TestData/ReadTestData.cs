@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Symbolica.Computation.Values.TestData;
 
-internal sealed class ReadTestData : TheoryData<Bits,
+internal sealed class ReadTestData : TheoryData<Size,
     IValue, IValue,
     IValue, IValue>
 {
@@ -32,22 +32,22 @@ internal sealed class ReadTestData : TheoryData<Bits,
 
     private static IEnumerable<ConstantUnsigned> Buffers()
     {
-        yield return ConstantUnsigned.Create((Bits) 32U, int.MinValue);
-        yield return ConstantUnsigned.Create((Bits) 32U, uint.MinValue);
-        yield return ConstantUnsigned.Create((Bits) 32U, int.MaxValue);
-        yield return ConstantUnsigned.Create((Bits) 32U, uint.MaxValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), int.MinValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), uint.MinValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), int.MaxValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), uint.MaxValue);
     }
 
     private static IEnumerable<ConstantUnsigned> Offsets()
     {
-        yield return ConstantUnsigned.Create((Bits) 32U, 0U);
-        yield return ConstantUnsigned.Create((Bits) 32U, 8U);
-        yield return ConstantUnsigned.Create((Bits) 32U, 16U);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), 0U);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), 8U);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), 16U);
     }
 
-    private static IEnumerable<Bits> Sizes()
+    private static IEnumerable<Size> Sizes()
     {
-        yield return (Bits) 8U;
-        yield return (Bits) 16U;
+        yield return Size.FromBits(8U);
+        yield return Size.FromBits(16U);
     }
 }

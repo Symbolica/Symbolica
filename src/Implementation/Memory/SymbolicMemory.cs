@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -10,11 +9,11 @@ namespace Symbolica.Implementation.Memory;
 
 internal sealed class SymbolicMemory : IPersistentMemory
 {
-    private readonly Bytes _alignment;
+    private readonly Size _alignment;
     private readonly IBlockFactory _blockFactory;
     private readonly IPersistentList<IPersistentBlock> _blocks;
 
-    private SymbolicMemory(Bytes alignment, IBlockFactory blockFactory,
+    private SymbolicMemory(Size alignment, IBlockFactory blockFactory,
         IPersistentList<IPersistentBlock> blocks)
     {
         _alignment = alignment;
@@ -22,21 +21,21 @@ internal sealed class SymbolicMemory : IPersistentMemory
         _blocks = blocks;
     }
 
-    public (IExpression, IPersistentMemory) Allocate(ISpace space, Section section, Bits size)
+    public (IExpression, IPersistentMemory) Allocate(ISpace space, Section section, Size size)
     {
-        var address = CreateAddress(space, size.ToBytes());
+        var address = CreateAddress(space, size);
         var block = _blockFactory.Create(space, section, address, size);
 
         return (address, new SymbolicMemory(_alignment, _blockFactory,
             _blocks.Add(block)));
     }
 
-    public (IExpression, IPersistentMemory) Move(ISpace space, Section section, IExpression address, Bits size)
+    public (IExpression, IPersistentMemory) Move(ISpace space, Section section, IExpression address, Size size)
     {
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
             if (block.CanFree(space, section, address))
             {
-                var newAddress = CreateAddress(space, size.ToBytes());
+                var newAddress = CreateAddress(space, size);
                 var newBlock = block.Move(newAddress, size);
 
                 return (newAddress, new SymbolicMemory(_alignment, _blockFactory,
@@ -79,7 +78,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
         throw new StateException(StateError.InvalidMemoryWrite, space);
     }
 
-    public IExpression Read(ISpace space, IExpression address, Bits size)
+    public IExpression Read(ISpace space, IExpression address, Size size)
     {
         var expression = space.CreateZero(size);
 
@@ -101,7 +100,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
         throw new StateException(StateError.InvalidMemoryRead, space);
     }
 
-    private IExpression CreateAddress(ISpace space, Bytes size)
+    private IExpression CreateAddress(ISpace space, Size size)
     {
         return space.CreateSymbolic(space.PointerSize, null,
             _blocks
@@ -112,22 +111,22 @@ internal sealed class SymbolicMemory : IPersistentMemory
                 .Append(a => a
                     .UnsignedLessOrEqual(GetBound(space, a, size)))
                 .Append(a => a
-                    .UnsignedRemainder(space.CreateConstant(a.Size, (uint) _alignment))
+                    .UnsignedRemainder(space.CreateConstant(a.Size, _alignment.Bytes))
                     .Equal(space.CreateZero(a.Size))));
     }
 
-    private static IExpression IsFullyOutside(ISpace space, IPersistentBlock block, IExpression address, Bytes size)
+    private static IExpression IsFullyOutside(ISpace space, IPersistentBlock block, IExpression address, Size size)
     {
         return GetBound(space, address, size).UnsignedLessOrEqual(block.Address)
             .Or(address.UnsignedGreaterOrEqual(GetBound(space, block.Address, block.Size)));
     }
 
-    private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
+    private static IExpression GetBound(ISpace space, IExpression address, Size size)
     {
-        return address.Add(space.CreateConstant(address.Size, (uint) size));
+        return address.Add(space.CreateConstant(address.Size, size.Bytes));
     }
 
-    public static IPersistentMemory Create(Bytes alignment,
+    public static IPersistentMemory Create(Size alignment,
         IBlockFactory blockFactory, ICollectionFactory collectionFactory)
     {
         return new SymbolicMemory(alignment, blockFactory,

@@ -33,24 +33,24 @@ internal sealed class WriteTestData : TheoryData<
 
     private static IEnumerable<ConstantUnsigned> Buffers()
     {
-        yield return ConstantUnsigned.Create((Bits) 32U, int.MinValue);
-        yield return ConstantUnsigned.Create((Bits) 32U, uint.MinValue);
-        yield return ConstantUnsigned.Create((Bits) 32U, int.MaxValue);
-        yield return ConstantUnsigned.Create((Bits) 32U, uint.MaxValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), int.MinValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), uint.MinValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), int.MaxValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), uint.MaxValue);
     }
 
     private static IEnumerable<ConstantUnsigned> Offsets()
     {
-        yield return ConstantUnsigned.Create((Bits) 32U, 0U);
-        yield return ConstantUnsigned.Create((Bits) 32U, 8U);
-        yield return ConstantUnsigned.Create((Bits) 32U, 16U);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), 0U);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), 8U);
+        yield return ConstantUnsigned.Create(Size.FromBits(32U), 16U);
     }
 
     private static IEnumerable<ConstantUnsigned> Values()
     {
-        yield return ConstantUnsigned.Create((Bits) 16U, short.MinValue);
-        yield return ConstantUnsigned.Create((Bits) 16U, ushort.MinValue);
-        yield return ConstantUnsigned.Create((Bits) 16U, short.MaxValue);
-        yield return ConstantUnsigned.Create((Bits) 16U, ushort.MaxValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(16U), short.MinValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(16U), ushort.MinValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(16U), short.MaxValue);
+        yield return ConstantUnsigned.Create(Size.FromBits(16U), ushort.MaxValue);
     }
 }

@@ -8,7 +8,7 @@ internal sealed record SymbolicSingle : Float
     private readonly float _value;
 
     public SymbolicSingle(float value)
-        : base((Bits) 32U)
+        : base(Size.FromBits(32U))
     {
         _value = value;
     }

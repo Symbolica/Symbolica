@@ -18,9 +18,9 @@ internal sealed class StructTypeFactory : IStructTypeFactory
     public IStructType Create(LLVMTypeRef type)
     {
         return new StructType(
-            type.GetStoreSize(_targetData).ToBits(),
+            type.GetStoreSize(_targetData),
             type.StructElementTypes
-                .Select((_, i) => type.GetElementOffset(_targetData, (uint) i).ToBits())
+                .Select((_, i) => type.GetElementOffset(_targetData, (uint) i))
                 .ToArray());
     }
 }

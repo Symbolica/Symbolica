@@ -19,7 +19,7 @@ public sealed class ArithmeticShiftRight : IInstruction
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
 
-        var isUndefined = right.UnsignedGreaterOrEqual(state.Space.CreateConstant(right.Size, (uint) left.Size));
+        var isUndefined = right.UnsignedGreaterOrEqual(state.Space.CreateConstant(right.Size, left.Size.Bits));
         using var proposition = isUndefined.GetProposition(state.Space);
 
         if (proposition.CanBeTrue())
