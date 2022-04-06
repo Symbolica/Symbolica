@@ -1,6 +1,8 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -17,7 +19,7 @@ internal sealed class AllocateAndClear : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var size = arguments.Get(0).Multiply(arguments.Get(1));
+        var size = Multiply.Create(arguments.Get(0), arguments.Get(1));
 
         state.ForkAll(size, new AllocateAndClearMemory(caller));
     }
@@ -36,16 +38,16 @@ internal sealed class AllocateAndClear : IFunction
             var size = (Bytes) (uint) value;
 
             var address = size == Bytes.Zero
-                ? state.Space.CreateZero(state.Space.PointerSize)
+                ? ConstantUnsigned.CreateZero(state.Space.PointerSize)
                 : Allocate(state, size.ToBits());
 
             state.Stack.SetVariable(_caller.Id, address);
         }
 
-        private static IExpression Allocate(IState state, Bits size)
+        private static IExpression<IType> Allocate(IState state, Bits size)
         {
             var address = state.Memory.Allocate(size);
-            state.Memory.Write(address, state.Space.CreateZero(size));
+            state.Memory.Write(address, ConstantUnsigned.CreateZero(size));
 
             return address;
         }

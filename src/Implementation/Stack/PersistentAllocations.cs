@@ -7,19 +7,19 @@ namespace Symbolica.Implementation.Stack;
 
 internal sealed class PersistentAllocations : IPersistentAllocations
 {
-    private readonly IPersistentStack<IExpression> _allocations;
+    private readonly IPersistentStack<IExpression<IType>> _allocations;
 
-    private PersistentAllocations(IPersistentStack<IExpression> allocations)
+    private PersistentAllocations(IPersistentStack<IExpression<IType>> allocations)
     {
         _allocations = allocations;
     }
 
-    public IPersistentAllocations Add(IExpression allocation)
+    public IPersistentAllocations Add(IExpression<IType> allocation)
     {
         return new PersistentAllocations(_allocations.Push(allocation));
     }
 
-    public IEnumerator<IExpression> GetEnumerator()
+    public IEnumerator<IExpression<IType>> GetEnumerator()
     {
         return _allocations.GetEnumerator();
     }
@@ -31,6 +31,6 @@ internal sealed class PersistentAllocations : IPersistentAllocations
 
     public static IPersistentAllocations Create(ICollectionFactory collectionFactory)
     {
-        return new PersistentAllocations(collectionFactory.CreatePersistentStack<IExpression>());
+        return new PersistentAllocations(collectionFactory.CreatePersistentStack<IExpression<IType>>());
     }
 }

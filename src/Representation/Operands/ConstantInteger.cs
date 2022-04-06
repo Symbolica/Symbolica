@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Operands;
 
@@ -15,8 +16,8 @@ public sealed class ConstantInteger : IOperand
         _value = value;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
-        return state.Space.CreateConstant(_size, _value);
+        return ConstantUnsigned.Create(_size, _value);
     }
 }

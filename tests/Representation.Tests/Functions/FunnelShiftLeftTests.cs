@@ -17,7 +17,7 @@ public class FunnelShiftLeftTests
 
         var state = MockState.Create((InstructionId) 123UL, v => { actual = v; });
         var caller = MockCaller.Create((InstructionId) 123UL);
-        var arguments = MockArguments.Create(state.Space, high, low, shift);
+        var arguments = MockArguments.Create(high, low, shift);
 
         function.Call(state, caller, arguments);
 
@@ -45,9 +45,9 @@ public class FunnelShiftLeftTests
         public TestData()
         {
             foreach (var high in Nibble.GenerateAll())
-            foreach (var low in Nibble.GenerateAll())
-            foreach (var shift in Nibble.GenerateAll())
-                Add(high, low, shift);
+                foreach (var low in Nibble.GenerateAll())
+                    foreach (var shift in Nibble.GenerateAll())
+                        Add(high, low, shift);
         }
     }
 }

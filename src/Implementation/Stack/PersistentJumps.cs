@@ -1,5 +1,6 @@
 ﻿using Symbolica.Collection;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Implementation.Stack;
 
@@ -12,12 +13,12 @@ internal sealed class PersistentJumps : IPersistentJumps
         _points = points;
     }
 
-    public IPersistentJumps Add(IExpression continuation, bool useJumpBuffer, ISavedFrame frame)
+    public IPersistentJumps Add(IExpression<IType> continuation, bool useJumpBuffer, ISavedFrame frame)
     {
         return new PersistentJumps(_points.Push(new Point(continuation, useJumpBuffer, frame)));
     }
 
-    public Result<ISavedFrame> TryGet(ISpace space, IExpression continuation, bool useJumpBuffer)
+    public Result<ISavedFrame> TryGet(ISpace space, IExpression<IType> continuation, bool useJumpBuffer)
     {
         foreach (var point in _points)
             if (point.IsMatch(space, continuation, useJumpBuffer))
@@ -33,10 +34,10 @@ internal sealed class PersistentJumps : IPersistentJumps
 
     private readonly struct Point
     {
-        private readonly IExpression _continuation;
+        private readonly IExpression<IType> _continuation;
         private readonly bool _useJumpBuffer;
 
-        public Point(IExpression continuation, bool useJumpBuffer, ISavedFrame frame)
+        public Point(IExpression<IType> continuation, bool useJumpBuffer, ISavedFrame frame)
         {
             _continuation = continuation;
             _useJumpBuffer = useJumpBuffer;
@@ -45,15 +46,15 @@ internal sealed class PersistentJumps : IPersistentJumps
 
         public ISavedFrame Frame { get; }
 
-        public bool IsMatch(ISpace space, IExpression continuation, bool useJumpBuffer)
+        public bool IsMatch(ISpace space, IExpression<IType> continuation, bool useJumpBuffer)
         {
             return _useJumpBuffer == useJumpBuffer && IsMatch(space, continuation);
         }
 
-        private bool IsMatch(ISpace space, IExpression continuation)
+        private bool IsMatch(ISpace space, IExpression<IType> continuation)
         {
-            var isEqual = _continuation.Equal(continuation);
-            using var proposition = isEqual.GetProposition(space);
+            var isEqual = Equal.Create(_continuation, continuation);
+            using var proposition = space.CreateProposition(isEqual);
 
             return !proposition.CanBeFalse();
         }

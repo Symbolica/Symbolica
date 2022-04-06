@@ -10,7 +10,7 @@ public interface IState
     ISystem System { get; }
 
     IFunction GetFunction(FunctionId id);
-    IExpression GetGlobalAddress(GlobalId id);
+    IExpression<IType> GetGlobalAddress(GlobalId id);
     void Complete();
-    void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction);
+    void Fork(IExpression<IType> condition, IStateAction trueAction, IStateAction falseAction);
 }

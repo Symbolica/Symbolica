@@ -42,10 +42,10 @@ internal sealed class PersistentStack : IPersistentStack
         return (_currentFrame.Caller, Pop(memory));
     }
 
-    public IPersistentStack Save(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer)
+    public IPersistentStack Save(IMemory memory, IExpression<IType> address, bool useJumpBuffer)
     {
         var size = GetContinuationSize(useJumpBuffer);
-        var (continuation, continuationFactory) = _continuationFactory.Create(space, size);
+        var (continuation, continuationFactory) = _continuationFactory.Create(size);
 
         memory.Write(address, continuation);
 
@@ -54,7 +54,7 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.Save(continuation, useJumpBuffer));
     }
 
-    public IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression address, bool useJumpBuffer)
+    public IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression<IType> address, bool useJumpBuffer)
     {
         var size = GetContinuationSize(useJumpBuffer);
         var continuation = memory.Read(address, size);
@@ -98,29 +98,29 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.MoveNextInstruction());
     }
 
-    public IExpression GetFormal(int index)
+    public IExpression<IType> GetFormal(int index)
     {
         return _currentFrame.GetFormal(index);
     }
 
-    public IExpression GetInitializedVaList(ISpace space)
+    public IExpression<IType> GetInitializedVaList(ISpace space)
     {
         return _currentFrame.GetInitializedVaList(space, _module.VaListType);
     }
 
-    public IExpression GetVariable(InstructionId id, bool useIncomingValue)
+    public IExpression<IType> GetVariable(InstructionId id, bool useIncomingValue)
     {
         return _currentFrame.GetVariable(id, useIncomingValue);
     }
 
-    public IPersistentStack SetVariable(InstructionId id, IExpression variable)
+    public IPersistentStack SetVariable(InstructionId id, IExpression<IType> variable)
     {
         return new PersistentStack(_module, _frameFactory,
             _continuationFactory,
             _pushedFrames, _currentFrame.SetVariable(id, variable));
     }
 
-    public (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Bits size)
+    public (IExpression<IType>, IPersistentStack) Allocate(IMemoryProxy memory, Bits size)
     {
         var address = memory.Allocate(Section.Stack, size);
 
@@ -145,7 +145,7 @@ internal sealed class PersistentStack : IPersistentStack
             : Bytes.One.ToBits();
     }
 
-    private static void Free(IMemoryProxy memory, IEnumerable<IExpression> allocations)
+    private static void Free(IMemoryProxy memory, IEnumerable<IExpression<IType>> allocations)
     {
         foreach (var allocation in allocations)
             memory.Free(Section.Stack, allocation);

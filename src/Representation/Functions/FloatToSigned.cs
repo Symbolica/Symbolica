@@ -16,7 +16,7 @@ internal sealed class FloatToSigned : IFunction
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
         var expression = arguments.Get(0);
-        var result = expression.FloatToSigned(caller.Size);
+        var result = Expression.Values.FloatToSigned.Create(caller.Size, expression);
 
         state.Stack.SetVariable(caller.Id, result);
     }

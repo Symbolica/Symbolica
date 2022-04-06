@@ -1,6 +1,6 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Implementation.System;
 
@@ -65,17 +65,17 @@ internal sealed class DescriptionFactory : IDescriptionFactory
             return (-1L, this);
         }
 
-        public int Read(ISpace space, IMemory memory, IExpression address, int count)
+        public int Read(ISpace space, IMemory memory, IExpression<IType> address, int count)
         {
             return -1;
         }
 
-        public IExpression ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression address, int tell)
+        public IExpression<IType> ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression<IType> address, int tell)
         {
-            return space.CreateZero(space.PointerSize);
+            return ConstantUnsigned.CreateZero(space.PointerSize);
         }
 
-        public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression address)
+        public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression<IType> address)
         {
             return -1;
         }

@@ -29,14 +29,14 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
     public BasicBlockId PredecessorId => _programCounter.PredecessorId;
     public IInstruction Instruction => _programCounter.Instruction;
 
-    public IPersistentFrame Save(IExpression continuation, bool useJumpBuffer)
+    public IPersistentFrame Save(IExpression<IType> continuation, bool useJumpBuffer)
     {
         return new PersistentFrame(Caller, _formals, _vaList,
             _jumps.Add(continuation, useJumpBuffer, this), _programCounter,
             _variables, _allocations);
     }
 
-    public Result<IPersistentFrame> TryRestore(ISpace space, IExpression continuation, bool useJumpBuffer)
+    public Result<IPersistentFrame> TryRestore(ISpace space, IExpression<IType> continuation, bool useJumpBuffer)
     {
         var result = _jumps.TryGet(space, continuation, useJumpBuffer);
 
@@ -61,29 +61,29 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
             _variables, _allocations);
     }
 
-    public IExpression GetFormal(int index)
+    public IExpression<IType> GetFormal(int index)
     {
         return _formals.Get(index);
     }
 
-    public IExpression GetInitializedVaList(ISpace space, IStructType vaListType)
+    public IExpression<IType> GetInitializedVaList(ISpace space, IStructType vaListType)
     {
         return _vaList.Initialize(space, vaListType);
     }
 
-    public IExpression GetVariable(InstructionId id, bool useIncomingValue)
+    public IExpression<IType> GetVariable(InstructionId id, bool useIncomingValue)
     {
         return _variables.Get(id, useIncomingValue);
     }
 
-    public IPersistentFrame SetVariable(InstructionId id, IExpression variable)
+    public IPersistentFrame SetVariable(InstructionId id, IExpression<IType> variable)
     {
         return new PersistentFrame(Caller, _formals, _vaList,
             _jumps, _programCounter,
             _variables.Set(id, variable), _allocations);
     }
 
-    public IPersistentFrame AddAllocation(IExpression allocation)
+    public IPersistentFrame AddAllocation(IExpression<IType> allocation)
     {
         return new PersistentFrame(Caller, _formals, _vaList,
             _jumps, _programCounter,

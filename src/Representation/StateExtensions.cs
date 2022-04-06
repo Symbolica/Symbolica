@@ -3,33 +3,35 @@ using System.Linq;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation;
 
 internal static class StateExtensions
 {
-    public static string ReadString(this IState self, IExpression address)
+    public static string ReadString(this IState self, IExpression<IType> address)
     {
         return new string(ReadCharacters(self, address).ToArray());
     }
 
-    private static IEnumerable<char> ReadCharacters(IState state, IExpression address)
+    private static IEnumerable<char> ReadCharacters(IState state, IExpression<IType> address)
     {
         while (true)
         {
-            var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).GetSingleValue(state.Space);
+            var character = (char) state.Space.GetSingleValue(state.Memory.Read(address, Bytes.One.ToBits()));
             if (character == default)
                 yield break;
 
             yield return character;
-            address = address.Add(state.Space.CreateConstant(address.Size, (uint) Bytes.One));
+            address = Add.Create(address, ConstantUnsigned.Create(address.Size, (uint) Bytes.One));
         }
     }
 
-    public static void ForkAll(this IState self, IExpression expression, IParameterizedStateAction action)
+    public static void ForkAll(this IState self, IExpression<IType> expression, IParameterizedStateAction action)
     {
-        var value = expression.GetExampleValue(self.Space);
-        var isEqual = expression.Equal(self.Space.CreateConstant(expression.Size, value));
+        var value = self.Space.GetExampleValue(expression);
+        var isEqual = Equal.Create(expression, ConstantUnsigned.Create(expression.Size, value));
 
         self.Fork(isEqual,
             new Action(action, value),
@@ -56,9 +58,9 @@ internal static class StateExtensions
     private sealed class Fork : IStateAction
     {
         private readonly IParameterizedStateAction _action;
-        private readonly IExpression _expression;
+        private readonly IExpression<IType> _expression;
 
-        public Fork(IParameterizedStateAction action, IExpression expression)
+        public Fork(IParameterizedStateAction action, IExpression<IType> expression)
         {
             _action = action;
             _expression = expression;

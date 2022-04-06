@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace Symbolica.Expression;
 
@@ -8,11 +6,11 @@ public interface ISpace
 {
     Bits PointerSize { get; }
 
-    IExample GetExample();
-    IExpression CreateConstant(Bits size, BigInteger value);
-    IExpression CreateConstantFloat(Bits size, string value);
-    IExpression CreateGarbage(Bits size);
-    IExpression CreateSymbolic(Bits size, string? name);
-    IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions);
-    IExpression CreateZero(Bits size);
+    Example GetExample();
+    IExpression<IType> CreateGarbage(Bits size);
+    IProposition CreateProposition(IExpression<IType> expression);
+    BigInteger GetExampleValue(IExpression<IType> expression);
+    BigInteger GetSingleValue(IExpression<IType> expression);
+    IExpression<IType> Read(IExpression<IType> buffer, IExpression<IType> offset, Bits size);
+    IExpression<IType> Write(IExpression<IType> buffer, IExpression<IType> offset, IExpression<IType> value);
 }

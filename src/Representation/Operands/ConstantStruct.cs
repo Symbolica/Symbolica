@@ -1,5 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Operands;
 
@@ -14,15 +15,15 @@ public sealed class ConstantStruct : IOperand
         _elements = elements;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         var expression = state.Space.CreateGarbage(_size);
 
         foreach (var element in _elements)
         {
             var value = element.Operand.Evaluate(state);
-            var offset = state.Space.CreateConstant(_size, (uint) element.Offset);
-            expression = expression.Write(offset, value);
+            var offset = ConstantUnsigned.Create(_size, (uint) element.Offset);
+            expression = state.Space.Write(expression, offset, value);
         }
 
         return expression;

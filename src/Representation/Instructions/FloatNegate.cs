@@ -17,7 +17,7 @@ public sealed class FloatNegate : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.FloatNegate();
+        var result = Expression.Values.FloatNegate.Create(expression);
 
         state.Stack.SetVariable(Id, result);
     }

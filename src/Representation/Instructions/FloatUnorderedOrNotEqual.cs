@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -18,7 +19,9 @@ public sealed class FloatUnorderedOrNotEqual : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.FloatUnordered(right).Or(left.FloatNotEqual(right));
+        var result = Expression.Values.Or.Create(
+            Expression.Values.FloatUnordered.Create(left, right),
+            FloatNotEqual.Create(left, right));
 
         state.Stack.SetVariable(Id, result);
     }

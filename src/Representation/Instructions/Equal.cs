@@ -18,7 +18,7 @@ public sealed class Equal : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.Equal(right);
+        var result = Expression.Values.Equal.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

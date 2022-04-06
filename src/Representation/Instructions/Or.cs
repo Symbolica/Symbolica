@@ -18,7 +18,7 @@ public sealed class Or : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.Or(right);
+        var result = Expression.Values.Or.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

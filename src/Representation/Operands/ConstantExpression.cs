@@ -12,7 +12,7 @@ public sealed class ConstantExpression : IOperand
         _instruction = instruction;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         _instruction.Execute(state);
 

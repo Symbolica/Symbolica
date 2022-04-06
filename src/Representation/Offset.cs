@@ -1,5 +1,6 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation;
 
@@ -14,11 +15,11 @@ public sealed class Offset : IOperand
         _index = index;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         var count = _index.Evaluate(state);
         var size = _elementSize.Evaluate(state);
 
-        return count.SignExtend(state.Space.PointerSize).Multiply(size);
+        return Multiply.Create(SignExtend.Create(state.Space.PointerSize, count), size);
     }
 }

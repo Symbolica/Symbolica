@@ -46,10 +46,10 @@ public sealed class Call : IInstruction, ICaller
 
     private sealed class Dispatch : IParameterizedStateAction
     {
-        private readonly IEnumerable<IExpression> _arguments;
+        private readonly IEnumerable<IExpression<IType>> _arguments;
         private readonly Call _call;
 
-        public Dispatch(Call call, IEnumerable<IExpression> arguments)
+        public Dispatch(Call call, IEnumerable<IExpression<IType>> arguments)
         {
             _call = call;
             _arguments = arguments;
@@ -69,18 +69,18 @@ public sealed class Call : IInstruction, ICaller
                 .ToArray());
         }
 
-        private IExpression Coerce(IParameters parameters, IExpression argument, int index)
+        private IExpression<IType> Coerce(IParameters parameters, IExpression<IType> argument, int index)
         {
             return index < parameters.Count
                 ? Coerce(parameters.Get(index).Size, argument, _call._parameterAttributes[index])
                 : argument;
         }
 
-        private static IExpression Coerce(Bits size, IExpression expression, IAttributes attributes)
+        private static IExpression<IType> Coerce(Bits size, IExpression<IType> expression, IAttributes attributes)
         {
             return attributes.IsSignExtended
-                ? expression.SignExtend(size)
-                : expression.ZeroExtend(size);
+                ? Expression.Values.SignExtend.Create(size, expression)
+                : Expression.Values.ZeroExtend.Create(size, expression);
         }
     }
 }

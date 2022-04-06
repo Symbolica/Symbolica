@@ -18,7 +18,7 @@ public sealed class FloatMultiply : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.FloatMultiply(right);
+        var result = Expression.Values.FloatMultiply.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

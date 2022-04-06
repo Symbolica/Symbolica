@@ -18,7 +18,7 @@ public sealed class FloatUnordered : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.FloatUnordered(right);
+        var result = Expression.Values.FloatUnordered.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

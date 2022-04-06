@@ -19,7 +19,7 @@ public sealed class Select : IInstruction
         var predicate = _operands[0].Evaluate(state);
         var trueValue = _operands[1].Evaluate(state);
         var falseValue = _operands[2].Evaluate(state);
-        var result = predicate.Select(trueValue, falseValue);
+        var result = Expression.Values.Select.Create(predicate, trueValue, falseValue);
 
         state.Stack.SetVariable(Id, result);
     }

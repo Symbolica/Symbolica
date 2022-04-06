@@ -2,6 +2,7 @@
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -27,10 +28,10 @@ internal sealed class MemorySet : IFunction
 
     private sealed class SetMemory : IParameterizedStateAction
     {
-        private readonly IExpression _destination;
-        private readonly IExpression _value;
+        private readonly IExpression<IType> _destination;
+        private readonly IExpression<IType> _value;
 
-        public SetMemory(IExpression destination, IExpression value)
+        public SetMemory(IExpression<IType> destination, IExpression<IType> value)
         {
             _destination = destination;
             _value = value;
@@ -38,11 +39,13 @@ internal sealed class MemorySet : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
-            var length = (Bytes) (uint) value;
+            var size = ((Bytes) (uint) value).ToBits();
 
             var buffer = Enumerable.Range(0, (int) value)
-                .Aggregate(state.Space.CreateZero(length.ToBits()), (b, o) =>
-                    b.Write(state.Space.CreateConstant(length.ToBits(), (uint) ((Bytes) (uint) o).ToBits()), _value));
+                .Select(o => ConstantUnsigned.Create(size, (uint) ((Bytes) (uint) o).ToBits()))
+                .Aggregate(
+                    ConstantUnsigned.CreateZero(size) as IExpression<IType>,
+                    (b, o) => state.Space.Write(b, o, _value));
 
             state.Memory.Write(_destination, buffer);
         }

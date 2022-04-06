@@ -10,10 +10,10 @@ internal interface ISolver : IDisposable
 {
     Context Context { get; }
 
-    void Assert(IEnumerable<IValue> assertions);
-    void Assert(string name, IEnumerable<IValue> assertions);
-    bool IsSatisfiable(IValue assertion);
-    BigInteger GetSingleValue(IValue value);
-    BigInteger GetExampleValue(IValue value);
-    IExample GetExample();
+    void Assert(IEnumerable<IExpression<IType>> assertions);
+    void Assert(string name, IEnumerable<IExpression<IType>> assertions);
+    bool IsSatisfiable(IExpression<IType> assertion);
+    BigInteger GetSingleValue(IExpression<IType> expression);
+    BigInteger GetExampleValue(IExpression<IType> expression);
+    Example GetExample();
 }

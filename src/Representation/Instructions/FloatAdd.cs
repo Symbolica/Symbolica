@@ -18,7 +18,7 @@ public sealed class FloatAdd : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.FloatAdd(right);
+        var result = Expression.Values.FloatAdd.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

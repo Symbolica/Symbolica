@@ -7,5 +7,5 @@ public interface IStructType
     Bits Size { get; }
 
     Bits GetOffset(int index);
-    IStruct CreateStruct(IExpression expression);
+    IStruct CreateStruct(IExpression<IType> expression);
 }

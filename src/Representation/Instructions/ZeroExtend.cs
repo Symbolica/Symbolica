@@ -20,7 +20,7 @@ public sealed class ZeroExtend : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.ZeroExtend(_size);
+        var result = Expression.Values.ZeroExtend.Create(_size, expression);
 
         state.Stack.SetVariable(Id, result);
     }

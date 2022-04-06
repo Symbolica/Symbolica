@@ -1,4 +1,5 @@
 ﻿using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Implementation.Stack;
 
@@ -11,9 +12,9 @@ internal sealed class ConstantContinuationFactory : IPersistentContinuationFacto
         _count = count;
     }
 
-    public (IExpression, IPersistentContinuationFactory) Create(ISpace space, Bits size)
+    public (IExpression<IType>, IPersistentContinuationFactory) Create(Bits size)
     {
-        return (space.CreateConstant(size, _count), new ConstantContinuationFactory(_count + 1UL));
+        return (ConstantUnsigned.Create(size, _count), new ConstantContinuationFactory(_count + 1UL));
     }
 
     public static IPersistentContinuationFactory Create()

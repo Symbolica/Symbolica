@@ -17,7 +17,7 @@ internal sealed class FloatAdd : IFunction
     {
         var left = arguments.Get(0);
         var right = arguments.Get(1);
-        var result = left.FloatAdd(right);
+        var result = Expression.Values.FloatAdd.Create(left, right);
 
         state.Stack.SetVariable(caller.Id, result);
     }

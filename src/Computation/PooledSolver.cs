@@ -4,9 +4,9 @@ using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
-using Symbolica.Computation.Values;
-using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Computation;
 
@@ -31,24 +31,24 @@ internal sealed class PooledSolver : ISolver
         Contexts.Add(Context);
     }
 
-    public void Assert(IEnumerable<IValue> assertions)
+    public void Assert(IEnumerable<IExpression<IType>> assertions)
     {
         foreach (var assertion in assertions)
         {
-            using var expr = assertion.AsBool(this);
+            using var expr = assertion.Map(new AsBool(this));
             _solver.Add(expr);
         }
     }
 
-    public void Assert(string name, IEnumerable<IValue> assertions)
+    public void Assert(string name, IEnumerable<IExpression<IType>> assertions)
     {
         if (_names.Add(name))
             Assert(assertions);
     }
 
-    public bool IsSatisfiable(IValue assertion)
+    public bool IsSatisfiable(IExpression<IType> assertion)
     {
-        using var expr = assertion.AsBool(this);
+        using var expr = assertion.Map(new AsBool(this));
         var status = _solver.Check(expr);
 
         return status switch
@@ -60,7 +60,7 @@ internal sealed class PooledSolver : ISolver
         };
     }
 
-    public BigInteger GetSingleValue(IValue value)
+    public BigInteger GetSingleValue(IExpression<IType> value)
     {
         var constant = GetExampleValue(value);
 
@@ -69,15 +69,15 @@ internal sealed class PooledSolver : ISolver
             : constant;
     }
 
-    public BigInteger GetExampleValue(IValue value)
+    public BigInteger GetExampleValue(IExpression<IType> value)
     {
-        using var bitVector = value.AsBitVector(this);
+        using var bitVector = value.Map(new AsBitVector(this));
         using var model = CreateModel();
         using var expr = model.Eval(bitVector, true);
         return ((BitVecNum) expr).BigInteger;
     }
 
-    public IExample GetExample()
+    public Example GetExample()
     {
         using var model = CreateModel();
         return new Example(model.Consts

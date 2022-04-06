@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation.Functions;
 
@@ -21,10 +22,13 @@ internal sealed class MemoryCopy : IFunction
         var source = arguments.Get(1);
         var length = arguments.Get(2);
 
-        var isInvalid = destination.NotEqual(source)
-            .And(destination.UnsignedLess(source.Add(length))
-                .And(source.UnsignedLess(destination.Add(length))));
-        using var proposition = isInvalid.GetProposition(state.Space);
+        var isInvalid = And.Create(
+            And.Create(
+                NotEqual.Create(destination, source),
+                UnsignedLess.Create(destination, Add.Create(source, length))),
+            UnsignedLess.Create(source, Add.Create(destination, length)));
+
+        using var proposition = state.Space.CreateProposition(isInvalid);
 
         if (proposition.CanBeTrue())
             throw new StateException(StateError.OverlappingMemoryCopy, proposition.CreateTrueSpace());
@@ -34,10 +38,10 @@ internal sealed class MemoryCopy : IFunction
 
     private sealed class CopyMemory : IParameterizedStateAction
     {
-        private readonly IExpression _destination;
-        private readonly IExpression _source;
+        private readonly IExpression<IType> _destination;
+        private readonly IExpression<IType> _source;
 
-        public CopyMemory(IExpression destination, IExpression source)
+        public CopyMemory(IExpression<IType> destination, IExpression<IType> source)
         {
             _destination = destination;
             _source = source;

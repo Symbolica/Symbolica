@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -15,10 +16,10 @@ internal sealed class Duplicate : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var descriptor = (int) arguments.Get(0).GetSingleValue(state.Space);
+        var descriptor = (int) state.Space.GetSingleValue(arguments.Get(0));
 
         var result = state.System.Duplicate(descriptor);
 
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, result));
+        state.Stack.SetVariable(caller.Id, ConstantUnsigned.Create(caller.Size, result));
     }
 }

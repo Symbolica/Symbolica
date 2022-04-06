@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -15,12 +16,12 @@ internal sealed class Seek : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        var descriptor = (int) arguments.Get(0).GetSingleValue(state.Space);
-        var offset = (long) arguments.Get(1).GetSingleValue(state.Space);
-        var whence = (uint) arguments.Get(2).GetSingleValue(state.Space);
+        var descriptor = (int) state.Space.GetSingleValue(arguments.Get(0));
+        var offset = (long) state.Space.GetSingleValue(arguments.Get(1));
+        var whence = (uint) state.Space.GetSingleValue(arguments.Get(2));
 
         var result = state.System.Seek(descriptor, offset, whence);
 
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, result));
+        state.Stack.SetVariable(caller.Id, ConstantUnsigned.Create(caller.Size, result));
     }
 }

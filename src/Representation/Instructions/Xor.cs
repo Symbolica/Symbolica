@@ -18,7 +18,7 @@ public sealed class Xor : IInstruction
     {
         var left = _operands[0].Evaluate(state);
         var right = _operands[1].Evaluate(state);
-        var result = left.Xor(right);
+        var result = Expression.Values.Xor.Create(left, right);
 
         state.Stack.SetVariable(Id, result);
     }

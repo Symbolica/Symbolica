@@ -17,7 +17,7 @@ internal sealed class FloatSubtract : IFunction
     {
         var left = arguments.Get(0);
         var right = arguments.Get(1);
-        var result = left.FloatSubtract(right);
+        var result = Expression.Values.FloatSubtract.Create(left, right);
 
         state.Stack.SetVariable(caller.Id, result);
     }

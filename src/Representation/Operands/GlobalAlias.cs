@@ -12,7 +12,7 @@ public sealed class GlobalAlias : IOperand
         _operand = operand;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         return _operand.Evaluate(state);
     }

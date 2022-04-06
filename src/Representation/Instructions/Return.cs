@@ -34,7 +34,7 @@ public sealed class Return : IInstruction
     private void ReturnFromInitialFrame(IState state)
     {
         var result = _operands[0].Evaluate(state);
-        using var proposition = result.GetProposition(state.Space);
+        using var proposition = state.Space.CreateProposition(result);
 
         if (proposition.CanBeTrue())
             throw new StateException(StateError.NonZeroExitCode, proposition.CreateTrueSpace());
@@ -57,10 +57,10 @@ public sealed class Return : IInstruction
         return caller;
     }
 
-    private static IExpression Coerce(IExpression expression, ICaller caller)
+    private static IExpression<IType> Coerce(IExpression<IType> expression, ICaller caller)
     {
         return caller.ReturnAttributes.IsSignExtended
-            ? expression.SignExtend(caller.Size)
-            : expression.ZeroExtend(caller.Size);
+            ? Expression.Values.SignExtend.Create(caller.Size, expression)
+            : Expression.Values.ZeroExtend.Create(caller.Size, expression);
     }
 }

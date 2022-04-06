@@ -17,7 +17,7 @@ internal sealed class FloatDivide : IFunction
     {
         var left = arguments.Get(0);
         var right = arguments.Get(1);
-        var result = left.FloatDivide(right);
+        var result = Expression.Values.FloatDivide.Create(left, right);
 
         state.Stack.SetVariable(caller.Id, result);
     }

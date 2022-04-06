@@ -13,7 +13,7 @@ public sealed class Unsupported : IOperand
         _type = type;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         throw new UnsupportedOperandException(_type);
     }

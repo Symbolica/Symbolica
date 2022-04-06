@@ -20,7 +20,7 @@ public sealed class Truncate : IInstruction
     public void Execute(IState state)
     {
         var expression = _operands[0].Evaluate(state);
-        var result = expression.Truncate(_size);
+        var result = Expression.Values.Truncate.Create(_size, expression);
 
         state.Stack.SetVariable(Id, result);
     }

@@ -1,4 +1,6 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression.Values;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -17,8 +19,12 @@ internal sealed class Absolute : IFunction
     {
         var value = arguments.Get(0);
 
-        var mask = value.ArithmeticShiftRight(state.Space.CreateConstant(value.Size, (uint) value.Size - 1U));
-        var result = value.Add(mask).Xor(mask);
+        var mask = ArithmeticShiftRight.Create(
+            value,
+            ConstantUnsigned.Create(value.Size, (uint) value.Size - 1U));
+        var result = Xor.Create(
+            Add.Create(value, mask),
+            mask);
 
         state.Stack.SetVariable(caller.Id, result);
     }

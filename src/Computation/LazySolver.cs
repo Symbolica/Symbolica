@@ -24,38 +24,38 @@ internal sealed class LazySolver : ISolver
         _solver?.Dispose();
     }
 
-    public void Assert(IEnumerable<IValue> assertions)
+    public void Assert(IEnumerable<IExpression<IType>> assertions)
     {
         _actions.Add(s => s.Assert(assertions));
     }
 
-    public void Assert(string name, IEnumerable<IValue> assertions)
+    public void Assert(string name, IEnumerable<IExpression<IType>> assertions)
     {
         _actions.Add(s => s.Assert(name, assertions));
     }
 
-    public bool IsSatisfiable(IValue assertion)
+    public bool IsSatisfiable(IExpression<IType> assertion)
     {
-        return assertion is IConstantValue v
+        return assertion is IConstantValue<IType> v
             ? v.AsBool()
             : GetSolver().IsSatisfiable(assertion);
     }
 
-    public BigInteger GetSingleValue(IValue value)
+    public BigInteger GetSingleValue(IExpression<IType> expression)
     {
-        return value is IConstantValue v
+        return expression is IConstantValue<IType> v
             ? v.AsUnsigned()
-            : GetSolver().GetSingleValue(value);
+            : GetSolver().GetSingleValue(expression);
     }
 
-    public BigInteger GetExampleValue(IValue value)
+    public BigInteger GetExampleValue(IExpression<IType> expression)
     {
-        return value is IConstantValue v
+        return expression is IConstantValue<IType> v
             ? v.AsUnsigned()
-            : GetSolver().GetExampleValue(value);
+            : GetSolver().GetExampleValue(expression);
     }
 
-    public IExample GetExample()
+    public Example GetExample()
     {
         return GetSolver().GetExample();
     }

@@ -20,7 +20,7 @@ public sealed class GetElementPointer : IInstruction
     public void Execute(IState state)
     {
         var address = _operands[0].Evaluate(state);
-        var result = _offsets.Aggregate(address, (l, r) => l.Add(r.Evaluate(state)));
+        var result = _offsets.Aggregate(address, (l, r) => Expression.Values.Add.Create(l, r.Evaluate(state)));
 
         state.Stack.SetVariable(Id, result);
     }

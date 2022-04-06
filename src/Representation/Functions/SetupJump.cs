@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -20,6 +21,6 @@ internal sealed class SetupJump : IFunction
 
         state.Stack.Save(address, true);
 
-        state.Stack.SetVariable(caller.Id, state.Space.CreateZero(caller.Size));
+        state.Stack.SetVariable(caller.Id, ConstantUnsigned.CreateZero(caller.Size));
     }
 }

@@ -12,7 +12,7 @@ public sealed class Undefined : IOperand
         _size = size;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression<IType> Evaluate(IState state)
     {
         return state.Space.CreateGarbage(_size);
     }

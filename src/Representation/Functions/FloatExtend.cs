@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression.Values;
 
 namespace Symbolica.Representation.Functions;
 
@@ -16,7 +17,7 @@ internal sealed class FloatExtend : IFunction
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
         var expression = arguments.Get(0);
-        var result = expression.FloatConvert(caller.Size);
+        var result = FloatConvert.Create(caller.Size, expression);
 
         state.Stack.SetVariable(caller.Id, result);
     }

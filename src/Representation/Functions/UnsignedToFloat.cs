@@ -16,7 +16,7 @@ internal sealed class UnsignedToFloat : IFunction
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
         var expression = arguments.Get(0);
-        var result = expression.UnsignedToFloat(caller.Size);
+        var result = Expression.Values.UnsignedToFloat.Create(caller.Size, expression);
 
         state.Stack.SetVariable(caller.Id, result);
     }

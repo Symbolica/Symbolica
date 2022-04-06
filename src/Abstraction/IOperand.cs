@@ -4,5 +4,5 @@ namespace Symbolica.Abstraction;
 
 public interface IOperand
 {
-    IExpression Evaluate(IState state);
+    IExpression<IType> Evaluate(IState state);
 }

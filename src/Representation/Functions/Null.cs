@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -16,6 +17,6 @@ internal sealed class Null : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        state.Stack.SetVariable(caller.Id, state.Space.CreateZero(state.Space.PointerSize));
+        state.Stack.SetVariable(caller.Id, ConstantUnsigned.CreateZero(state.Space.PointerSize));
     }
 }

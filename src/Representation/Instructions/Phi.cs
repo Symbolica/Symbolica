@@ -32,7 +32,7 @@ public sealed class Phi : IInstruction
         state.Stack.SetVariable(Id, result);
     }
 
-    private static IExpression Evaluate(IState state, IOperand operand)
+    private static IExpression<IType> Evaluate(IState state, IOperand operand)
     {
         return operand is Variable variable
             ? variable.Evaluate(state, true)

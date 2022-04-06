@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using Symbolica.Collection;
-using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Computation;
 
 internal sealed class PersistentSpace : IPersistentSpace
 {
-    private readonly IPersistentStack<IValue> _assertions;
+    private readonly IPersistentStack<IExpression<IType>> _assertions;
     private readonly ICollectionFactory _collectionFactory;
     private readonly bool _useSymbolicGarbage;
 
     private PersistentSpace(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory,
-        IPersistentStack<IValue> assertions)
+        IPersistentStack<IExpression<IType>> assertions)
     {
         PointerSize = pointerSize;
         _useSymbolicGarbage = useSymbolicGarbage;
@@ -25,12 +22,24 @@ internal sealed class PersistentSpace : IPersistentSpace
 
     public Bits PointerSize { get; }
 
-    public IPersistentSpace Assert(IValue assertion)
+    public IPersistentSpace Assert(IExpression<IType> assertion)
     {
-        return assertion is IConstantValue
+        return assertion is IConstantValue<IType>
             ? this
             : new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory,
                 _assertions.Push(assertion));
+    }
+
+    public IExpression<IType> CreateGarbage(Bits size)
+    {
+        return _useSymbolicGarbage
+            ? Symbol.Create(size)
+            : ConstantUnsigned.CreateZero(size);
+    }
+
+    public IProposition CreateProposition(IExpression<IType> assertion)
+    {
+        return Proposition.Create(this, assertion);
     }
 
     public ISolver CreateSolver()
@@ -41,56 +50,40 @@ internal sealed class PersistentSpace : IPersistentSpace
         return solver;
     }
 
-    public IExample GetExample()
+    public Example GetExample()
     {
         using var solver = CreateSolver();
 
         return solver.GetExample();
     }
 
-    public IExpression CreateConstant(Bits size, BigInteger value)
+    public BigInteger GetExampleValue(IExpression<IType> expression)
     {
-        return new Expression(_collectionFactory,
-            ConstantUnsigned.Create(size, value));
+        using var solver = CreateSolver();
+
+        return solver.GetExampleValue(expression);
     }
 
-    public IExpression CreateConstantFloat(Bits size, string value)
+    public BigInteger GetSingleValue(IExpression<IType> expression)
     {
-        return new Expression(_collectionFactory,
-            (uint) size switch
-            {
-                32U => new ConstantSingle(float.Parse(value)),
-                64U => new ConstantDouble(double.Parse(value)),
-                _ => new NormalFloat(size, value)
-            });
+        using var solver = CreateSolver();
+
+        return solver.GetSingleValue(expression);
     }
 
-    public IExpression CreateGarbage(Bits size)
+    public IExpression<IType> Read(IExpression<IType> buffer, IExpression<IType> offset, Bits size)
     {
-        return _useSymbolicGarbage
-            ? CreateSymbolic(size, null)
-            : CreateZero(size);
+        return Expression.Values.Read.Create(_collectionFactory, buffer, offset, size);
     }
 
-    public IExpression CreateSymbolic(Bits size, string? name)
+    public IExpression<IType> Write(IExpression<IType> buffer, IExpression<IType> offset, IExpression<IType> value)
     {
-        return CreateSymbolic(size, name, Enumerable.Empty<Func<IExpression, IExpression>>());
-    }
-
-    public IExpression CreateSymbolic(Bits size, string? name, IEnumerable<Func<IExpression, IExpression>> assertions)
-    {
-        return Expression.CreateSymbolic(_collectionFactory,
-            size, name ?? Guid.NewGuid().ToString(), assertions);
-    }
-
-    public IExpression CreateZero(Bits size)
-    {
-        return new Expression(_collectionFactory, ConstantUnsigned.CreateZero(size));
+        return Expression.Values.Write.Create(_collectionFactory, buffer, offset, value);
     }
 
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)
     {
         return new PersistentSpace(pointerSize, useSymbolicGarbage, collectionFactory,
-            collectionFactory.CreatePersistentStack<IValue>());
+            collectionFactory.CreatePersistentStack<IExpression<IType>>());
     }
 }

@@ -16,7 +16,7 @@ public class CountOnesTests
 
         var state = MockState.Create((InstructionId) 123UL, v => { actual = v; });
         var caller = MockCaller.Create((InstructionId) 123UL);
-        var arguments = MockArguments.Create(state.Space, value);
+        var arguments = MockArguments.Create(value);
 
         function.Call(state, caller, arguments);
 

@@ -57,7 +57,7 @@ internal sealed class State : IState, IExecutable
         return _module.GetFunction(id);
     }
 
-    public IExpression GetGlobalAddress(GlobalId id)
+    public IExpression<IType> GetGlobalAddress(GlobalId id)
     {
         var (address, action, globals) = _globals.GetAddress(_memory, id);
         _globals = globals;
@@ -71,9 +71,9 @@ internal sealed class State : IState, IExecutable
         _isActive = false;
     }
 
-    public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
+    public void Fork(IExpression<IType> condition, IStateAction trueAction, IStateAction falseAction)
     {
-        using var proposition = condition.GetProposition(Space);
+        using var proposition = Space.CreateProposition(condition);
 
         if (proposition.CanBeFalse())
         {

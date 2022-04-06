@@ -6,4 +6,8 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Collection\Collection.csproj"/>
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
+using Symbolica.Expression.Values;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Functions;
 
@@ -20,10 +22,10 @@ internal sealed class LongJump : IFunction
         var value = arguments.Get(1);
 
         var instructionId = state.Stack.Restore(address, true);
-        var result = value.Equal(state.Space.CreateZero(value.Size))
-            .Select(
-                state.Space.CreateConstant(value.Size, BigInteger.One),
-                value);
+        var result = Select.Create(
+            Equal.Create(value, ConstantUnsigned.CreateZero(value.Size)),
+            ConstantUnsigned.Create(value.Size, BigInteger.One),
+            value);
 
         state.Stack.SetVariable(instructionId, result);
     }

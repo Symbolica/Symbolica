@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Expression.Values.Constants;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -23,9 +24,9 @@ public sealed class ExtractValue : IInstruction
     public void Execute(IState state)
     {
         var aggregate = _operands[0].Evaluate(state);
-        var offset = state.Space.CreateConstant(aggregate.Size,
+        var offset = ConstantUnsigned.Create(aggregate.Size,
             (uint) _offsets.Aggregate(Bits.Zero, (l, r) => l + r));
-        var result = aggregate.Read(offset, _size);
+        var result = state.Space.Read(aggregate, offset, _size);
 
         state.Stack.SetVariable(Id, result);
     }
