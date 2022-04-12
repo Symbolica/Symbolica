@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Operands;

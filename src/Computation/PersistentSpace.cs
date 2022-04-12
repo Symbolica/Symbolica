@@ -48,6 +48,11 @@ internal sealed class PersistentSpace : IPersistentSpace
         return solver.GetExample();
     }
 
+    public IExpression CreateZero(Bits size)
+    {
+        return new Expression(_collectionFactory, ConstantUnsigned.CreateZero(size));
+    }
+
     public IExpression CreateConstant(Bits size, BigInteger value)
     {
         return new Expression(_collectionFactory,
@@ -81,11 +86,6 @@ internal sealed class PersistentSpace : IPersistentSpace
     {
         return Expression.CreateSymbolic(_collectionFactory,
             size, name ?? Guid.NewGuid().ToString(), assertions);
-    }
-
-    public IExpression CreateZero(Bits size)
-    {
-        return new Expression(_collectionFactory, ConstantUnsigned.CreateZero(size));
     }
 
     public static ISpace Create(Bits pointerSize, bool useSymbolicGarbage, ICollectionFactory collectionFactory)

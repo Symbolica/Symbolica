@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
