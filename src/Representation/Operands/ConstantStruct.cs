@@ -1,30 +1,26 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Linq;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Operands;
 
 public sealed class ConstantStruct : IOperand
 {
-    private readonly StructElement[] _elements;
-    private readonly Bits _size;
+    private readonly IOperand[] _elements;
+    private readonly IStructType _structType;
 
-    public ConstantStruct(Bits size, StructElement[] elements)
+    public ConstantStruct(IStructType structType, IOperand[] elements)
     {
-        _size = size;
+        _structType = structType;
         _elements = elements;
     }
 
     public IExpression Evaluate(IState state)
     {
-        var expression = state.Space.CreateGarbage(_size);
-
-        foreach (var element in _elements)
-        {
-            var value = element.Operand.Evaluate(state);
-            var offset = state.Space.CreateConstant(_size, (uint) element.Offset);
-            expression = expression.Write(offset, value);
-        }
-
-        return expression;
+        return _elements
+            .Select((o, i) => (o, i))
+            .Aggregate(_structType.CreateStruct(state.Space.CreateGarbage(_structType.Size)), (s, e) =>
+                s.Write(state.Space, e.i, e.o.Evaluate(state)))
+            .Expression;
     }
 }

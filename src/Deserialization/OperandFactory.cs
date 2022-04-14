@@ -5,7 +5,6 @@ using LLVMSharp.Interop;
 using Symbolica.Abstraction;
 using Symbolica.Deserialization.Extensions;
 using Symbolica.Expression;
-using Symbolica.Representation;
 using Symbolica.Representation.Exceptions;
 using Symbolica.Representation.Operands;
 
@@ -14,14 +13,17 @@ namespace Symbolica.Deserialization;
 internal sealed class OperandFactory : IOperandFactory
 {
     private readonly IIdFactory _idFactory;
+    private readonly IStructTypeFactory _structTypeFactory;
     private readonly LLVMTargetDataRef _targetData;
     private readonly IUnsafeContext _unsafeContext;
 
-    public OperandFactory(LLVMTargetDataRef targetData, IIdFactory idFactory, IUnsafeContext unsafeContext)
+    public OperandFactory(LLVMTargetDataRef targetData, IIdFactory idFactory, IUnsafeContext unsafeContext,
+        IStructTypeFactory structTypeFactory)
     {
         _targetData = targetData;
         _idFactory = idFactory;
         _unsafeContext = unsafeContext;
+        _structTypeFactory = structTypeFactory;
     }
 
     public IOperand Create(LLVMValueRef operand, IInstructionFactory instructionFactory)
@@ -88,11 +90,9 @@ internal sealed class OperandFactory : IOperandFactory
     private IOperand CreateConstantStruct(LLVMValueRef operand, IInstructionFactory instructionFactory)
     {
         return new ConstantStruct(
-            operand.TypeOf.GetStoreSize(_targetData).ToBits(),
+            _structTypeFactory.Create(operand.TypeOf),
             operand.GetOperands()
-                .Select((o, i) => new StructElement(
-                    operand.TypeOf.GetElementOffset(_targetData, (uint) i).ToBits(),
-                    Create(o, instructionFactory)))
+                .Select(o => Create(o, instructionFactory))
                 .ToArray());
     }
 
