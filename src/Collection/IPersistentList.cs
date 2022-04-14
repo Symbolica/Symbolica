@@ -2,10 +2,8 @@
 
 namespace Symbolica.Collection;
 
-public interface IPersistentList<T> : IEnumerable<T>
+public interface IPersistentList<T> : IReadOnlyCollection<T>
 {
-    int Count { get; }
-
     IPersistentList<T> Add(T value);
     IPersistentList<T> AddRange(IEnumerable<T> items);
     T Get(int index);
