@@ -1,6 +1,6 @@
-﻿using System;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Types;
 
@@ -15,16 +15,16 @@ public sealed class SingleValueType : IType
 
     public IType GetType(ISpace space, IExpression index)
     {
-        throw new NotImplementedException();
+        throw new InvalidIndexException();
     }
 
     public IExpression GetOffsetBits(ISpace space, IExpression index)
     {
-        throw new NotImplementedException();
+        throw new InvalidIndexException();
     }
 
     public IExpression GetOffsetBytes(ISpace space, IExpression index)
     {
-        throw new NotImplementedException();
+        throw new InvalidIndexException();
     }
 }
