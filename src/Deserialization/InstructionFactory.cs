@@ -1,11 +1,15 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using LLVMSharp.Interop;
 using Symbolica.Abstraction;
 using Symbolica.Deserialization.Exceptions;
 using Symbolica.Deserialization.Extensions;
+using Symbolica.Expression;
 using Symbolica.Representation;
 using Symbolica.Representation.Exceptions;
 using Symbolica.Representation.Instructions;
+using Symbolica.Representation.Operands;
+using Unsupported = Symbolica.Representation.Instructions.Unsupported;
 
 namespace Symbolica.Deserialization;
 
@@ -130,8 +134,14 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMExtractElement => new Unsupported(id, "extractelement"),
             LLVMOpcode.LLVMInsertElement => new Unsupported(id, "insertelement"),
             LLVMOpcode.LLVMShuffleVector => throw new UnexpectedInstructionException("shufflevector", "scalarizer"),
-            LLVMOpcode.LLVMExtractValue => new ExtractValue(id, operands, GetIndexedType(instruction)),
-            LLVMOpcode.LLVMInsertValue => new InsertValue(id, operands, GetIndexedType(instruction)),
+            LLVMOpcode.LLVMExtractValue => new ExtractValue(
+                id,
+                operands.Concat(GetIndices(instruction)).ToArray(),
+                GetIndexedType(instruction)),
+            LLVMOpcode.LLVMInsertValue => new InsertValue(
+                id,
+                operands.Concat(GetIndices(instruction)).ToArray(),
+                GetIndexedType(instruction)),
             LLVMOpcode.LLVMFreeze => new Unsupported(id, "freeze"),
             LLVMOpcode.LLVMFence => throw new UnexpectedInstructionException("fence", "loweratomic"),
             LLVMOpcode.LLVMAtomicCmpXchg => throw new UnexpectedInstructionException("cmpxchg", "loweratomic"),
@@ -145,6 +155,11 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMCatchSwitch => new Unsupported(id, "catchswitch"),
             _ => throw new UnsupportedInstructionException(opcode.ToString())
         };
+    }
+
+    private IEnumerable<IOperand> GetIndices(LLVMValueRef instruction)
+    {
+        return _unsafeContext.GetIndices(instruction).Select(i => new ConstantInteger((Bits) 32U, i));
     }
 
     private IType GetIndexedType(LLVMValueRef instruction)
