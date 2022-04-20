@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using LLVMSharp.Interop;
 using Symbolica.Abstraction;
 using Symbolica.Deserialization.Exceptions;
 using Symbolica.Deserialization.Extensions;
-using Symbolica.Expression;
 using Symbolica.Representation;
 using Symbolica.Representation.Exceptions;
 using Symbolica.Representation.Instructions;
@@ -17,15 +14,17 @@ internal sealed class InstructionFactory : IInstructionFactory
     private readonly IIdFactory _idFactory;
     private readonly IOperandFactory _operandFactory;
     private readonly LLVMTargetDataRef _targetData;
+    private readonly ITypeFactory _typeFactory;
     private readonly IUnsafeContext _unsafeContext;
 
     public InstructionFactory(LLVMTargetDataRef targetData, IIdFactory idFactory, IUnsafeContext unsafeContext,
-        IOperandFactory operandFactory)
+        IOperandFactory operandFactory, ITypeFactory typeFactory)
     {
         _targetData = targetData;
         _idFactory = idFactory;
         _unsafeContext = unsafeContext;
         _operandFactory = operandFactory;
+        _typeFactory = typeFactory;
     }
 
     public IInstruction Create(LLVMValueRef instruction, LLVMOpcode opcode)
@@ -71,10 +70,7 @@ internal sealed class InstructionFactory : IInstructionFactory
                 _unsafeContext.GetAllocatedType(instruction).GetAllocSize(_targetData).ToBits()),
             LLVMOpcode.LLVMLoad => new Load(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMStore => new Store(id, operands),
-            LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(
-                id,
-                operands,
-                GetGepOffsets(instruction, operands)),
+            LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(id, operands, GetIndexedType(instruction)),
             LLVMOpcode.LLVMTrunc => new Truncate(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMZExt => new ZeroExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMSExt => new SignExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
@@ -134,15 +130,8 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMExtractElement => new Unsupported(id, "extractelement"),
             LLVMOpcode.LLVMInsertElement => new Unsupported(id, "insertelement"),
             LLVMOpcode.LLVMShuffleVector => throw new UnexpectedInstructionException("shufflevector", "scalarizer"),
-            LLVMOpcode.LLVMExtractValue => new ExtractValue(
-                id,
-                operands,
-                instruction.TypeOf.GetStoreSize(_targetData).ToBits(),
-                GetAggregateOffsets(instruction)),
-            LLVMOpcode.LLVMInsertValue => new InsertValue(
-                id,
-                operands,
-                GetAggregateOffsets(instruction)),
+            LLVMOpcode.LLVMExtractValue => new ExtractValue(id, operands, GetIndexedType(instruction)),
+            LLVMOpcode.LLVMInsertValue => new InsertValue(id, operands, GetIndexedType(instruction)),
             LLVMOpcode.LLVMFreeze => new Unsupported(id, "freeze"),
             LLVMOpcode.LLVMFence => throw new UnexpectedInstructionException("fence", "loweratomic"),
             LLVMOpcode.LLVMAtomicCmpXchg => throw new UnexpectedInstructionException("cmpxchg", "loweratomic"),
@@ -156,6 +145,11 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMCatchSwitch => new Unsupported(id, "catchswitch"),
             _ => throw new UnsupportedInstructionException(opcode.ToString())
         };
+    }
+
+    private IType GetIndexedType(LLVMValueRef instruction)
+    {
+        return _typeFactory.Create<IType>(instruction.GetOperand(0U).TypeOf);
     }
 
     private Call CreateCall(InstructionId id, IOperand[] operands, LLVMValueRef instruction)
@@ -178,42 +172,5 @@ internal sealed class InstructionFactory : IInstructionFactory
         var isSignExtended = attributes.Any(a => _unsafeContext.GetEnumAttributeKind(a) == kind);
 
         return new Attributes(isSignExtended);
-    }
-
-    private IOperand[] GetGepOffsets(LLVMValueRef instruction, IEnumerable<IOperand> operands)
-    {
-        return GetOffsets<IOperand, IOperand>(instruction,
-                instruction.GetOperands().Skip(1).Select(o => (uint) o.ConstIntZExt), operands.Skip(1),
-                s => new ConstantOffset(s), (s, i) => new Offset(new ConstantOffset(s), i))
-            .ToArray();
-    }
-
-    private Bits[] GetAggregateOffsets(LLVMValueRef instruction)
-    {
-        var indices = _unsafeContext.GetIndices(instruction);
-
-        return GetOffsets(instruction,
-                indices, indices,
-                s => s.ToBits(), (s, i) => s.ToBits() * i)
-            .ToArray();
-    }
-
-    private IEnumerable<TOffset> GetOffsets<TIndex, TOffset>(LLVMValueRef instruction,
-        IEnumerable<uint> constantIndices, IEnumerable<TIndex> indices,
-        Func<Bytes, TOffset> constantOffset, Func<Bytes, TIndex, TOffset> offset)
-    {
-        var indexedType = instruction.GetOperand(0U).TypeOf;
-
-        foreach (var (constantIndex, index) in constantIndices.Zip(indices))
-            if (indexedType.Kind == LLVMTypeKind.LLVMStructTypeKind)
-            {
-                yield return constantOffset(indexedType.GetElementOffset(_targetData, constantIndex));
-                indexedType = indexedType.StructGetTypeAtIndex(constantIndex);
-            }
-            else
-            {
-                indexedType = indexedType.ElementType;
-                yield return offset(indexedType.GetStoreSize(_targetData), index);
-            }
     }
 }

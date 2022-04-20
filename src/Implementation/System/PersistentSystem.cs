@@ -84,7 +84,7 @@ internal sealed class PersistentSystem : IPersistentSystem
 
         var tell = (int) stream.Read(space, 0).GetSingleValue(space);
         var descriptor = (int) stream.Read(space, 1).GetSingleValue(space);
-        var buffer = address.Add(space.CreateConstant(address.Size, (uint) streamType.GetOffset(5).ToBytes()));
+        var buffer = address.Add(streamType.GetOffsetBytes(space, space.CreateConstant((Bits) 32U, 5U)));
 
         memory.Write(address, stream
             .Write(space, 0, tell + 1)

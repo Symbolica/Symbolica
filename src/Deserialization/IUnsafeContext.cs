@@ -8,7 +8,6 @@ internal interface IUnsafeContext
     LLVMTargetDataRef GetTargetData(LLVMModuleRef module);
     uint GetPointerSize(LLVMTargetDataRef targetData);
     LLVMTypeRef GetAllocatedType(LLVMValueRef instruction);
-    uint[] GetIndices(LLVMValueRef instruction);
     LLVMValueRef GetAlias(LLVMValueRef operand);
     uint GetEnumAttributeKind(LLVMAttributeRef attribute);
     uint GetEnumAttributeKind(string name);

@@ -2,7 +2,7 @@
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation;
+namespace Symbolica.Representation.Types;
 
 internal sealed class Struct : IStruct
 {

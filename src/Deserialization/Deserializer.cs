@@ -23,15 +23,15 @@ internal sealed class Deserializer : IDeserializer
         var targetData = _unsafeContext.GetTargetData(module);
 
         var idFactory = new IdFactory();
-        var structTypeFactory = new StructTypeFactory(targetData);
+        var typeFactory = new TypeFactory(targetData);
 
-        var operandFactory = new OperandFactory(targetData, idFactory, _unsafeContext, structTypeFactory);
-        var instructionFactory = new InstructionFactory(targetData, idFactory, _unsafeContext, operandFactory);
+        var operandFactory = new OperandFactory(targetData, idFactory, _unsafeContext, typeFactory);
+        var instructionFactory = new InstructionFactory(targetData, idFactory, _unsafeContext, operandFactory, typeFactory);
 
         var functionFactory = new FunctionFactory(targetData, idFactory, instructionFactory, _declarationFactory);
         var globalFactory = new GlobalFactory(targetData, idFactory, instructionFactory, operandFactory);
 
-        var moduleFactory = new ModuleFactory(structTypeFactory, functionFactory, globalFactory);
+        var moduleFactory = new ModuleFactory(typeFactory, functionFactory, globalFactory);
 
         return moduleFactory.Create(module, (Bytes) _unsafeContext.GetPointerSize(targetData));
     }

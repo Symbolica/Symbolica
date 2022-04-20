@@ -11,12 +11,12 @@ internal sealed class ModuleFactory
 {
     private readonly IFunctionFactory _functionFactory;
     private readonly IGlobalFactory _globalFactory;
-    private readonly IStructTypeFactory _structTypeFactory;
+    private readonly ITypeFactory _typeFactory;
 
-    public ModuleFactory(IStructTypeFactory structTypeFactory,
+    public ModuleFactory(ITypeFactory typeFactory,
         IFunctionFactory functionFactory, IGlobalFactory globalFactory)
     {
-        _structTypeFactory = structTypeFactory;
+        _typeFactory = typeFactory;
         _functionFactory = functionFactory;
         _globalFactory = globalFactory;
     }
@@ -43,6 +43,6 @@ internal sealed class ModuleFactory
 
         return (name, type == default
             ? null
-            : _structTypeFactory.Create(type));
+            : _typeFactory.Create<IStructType>(type));
     }
 }

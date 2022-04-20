@@ -19,5 +19,8 @@ internal sealed record SymbolicSingle : Float
         return solver.Context.MkFP(_value, sort);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as SymbolicSingle);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as SymbolicSingle);
+    }
 }

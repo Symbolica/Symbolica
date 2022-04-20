@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using LLVMSharp.Interop;
 
@@ -28,19 +27,6 @@ internal sealed unsafe class UnsafeContext : IUnsafeContext
     public LLVMTypeRef GetAllocatedType(LLVMValueRef instruction)
     {
         return LLVM.GetAllocatedType(instruction);
-    }
-
-    public uint[] GetIndices(LLVMValueRef instruction)
-    {
-        var count = LLVM.GetNumIndices(instruction);
-        var p = LLVM.GetIndices(instruction);
-
-        var indices = new uint[count];
-
-        foreach (var index in Enumerable.Range(0, (int) count))
-            indices[index] = *p++;
-
-        return indices;
     }
 
     public LLVMValueRef GetAlias(LLVMValueRef operand)
