@@ -9,6 +9,7 @@ using Symbolica.Representation;
 using Symbolica.Representation.Exceptions;
 using Symbolica.Representation.Instructions;
 using Symbolica.Representation.Operands;
+using Symbolica.Representation.Types;
 using Unsupported = Symbolica.Representation.Instructions.Unsupported;
 
 namespace Symbolica.Deserialization;
@@ -74,7 +75,10 @@ internal sealed class InstructionFactory : IInstructionFactory
                 _unsafeContext.GetAllocatedType(instruction).GetAllocSize(_targetData).ToBits()),
             LLVMOpcode.LLVMLoad => new Load(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMStore => new Store(id, operands),
-            LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(id, operands, GetIndexedType(instruction)),
+            LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(
+                id,
+                operands,
+                new ArrayType(1U, _typeFactory.Create<IType>(instruction.GetOperand(0U).TypeOf.ElementType))),
             LLVMOpcode.LLVMTrunc => new Truncate(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMZExt => new ZeroExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMSExt => new SignExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
@@ -137,11 +141,11 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMExtractValue => new ExtractValue(
                 id,
                 operands.Concat(GetIndices(instruction)).ToArray(),
-                GetIndexedType(instruction)),
+                _typeFactory.Create<IType>(instruction.GetOperand(0U).TypeOf)),
             LLVMOpcode.LLVMInsertValue => new InsertValue(
                 id,
                 operands.Concat(GetIndices(instruction)).ToArray(),
-                GetIndexedType(instruction)),
+                _typeFactory.Create<IType>(instruction.GetOperand(0U).TypeOf)),
             LLVMOpcode.LLVMFreeze => new Unsupported(id, "freeze"),
             LLVMOpcode.LLVMFence => throw new UnexpectedInstructionException("fence", "loweratomic"),
             LLVMOpcode.LLVMAtomicCmpXchg => throw new UnexpectedInstructionException("cmpxchg", "loweratomic"),
@@ -160,11 +164,6 @@ internal sealed class InstructionFactory : IInstructionFactory
     private IEnumerable<IOperand> GetIndices(LLVMValueRef instruction)
     {
         return _unsafeContext.GetIndices(instruction).Select(i => new ConstantInteger((Bits) 32U, i));
-    }
-
-    private IType GetIndexedType(LLVMValueRef instruction)
-    {
-        return _typeFactory.Create<IType>(instruction.GetOperand(0U).TypeOf);
     }
 
     private Call CreateCall(InstructionId id, IOperand[] operands, LLVMValueRef instruction)

@@ -24,13 +24,6 @@ internal sealed class TypeFactory : ITypeFactory
 
     private IType Create(LLVMTypeRef type)
     {
-        return type.Kind == LLVMTypeKind.LLVMPointerTypeKind
-            ? new PointerType(type.GetSize(_targetData), CreateNonPointer(type.ElementType))
-            : CreateNonPointer(type);
-    }
-
-    private IType CreateNonPointer(LLVMTypeRef type)
-    {
         return type.Kind switch
         {
             LLVMTypeKind.LLVMStructTypeKind => new StructType(
@@ -39,9 +32,9 @@ internal sealed class TypeFactory : ITypeFactory
                     .Select(e => type.GetElementOffset(_targetData, (uint) e).ToBits())
                     .ToArray(),
                 type.StructElementTypes
-                    .Select(CreateNonPointer)
+                    .Select(Create)
                     .ToArray()),
-            LLVMTypeKind.LLVMArrayTypeKind => new ArrayType(type.ArrayLength, CreateNonPointer(type.ElementType)),
+            LLVMTypeKind.LLVMArrayTypeKind => new ArrayType(type.ArrayLength, Create(type.ElementType)),
             _ => new SingleValueType(type.GetStoreSize(_targetData).ToBits())
         };
     }
