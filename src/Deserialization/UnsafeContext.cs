@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LLVMSharp.Interop;
@@ -30,7 +31,7 @@ internal sealed unsafe class UnsafeContext : IUnsafeContext
         return LLVM.GetAllocatedType(instruction);
     }
 
-    public uint[] GetIndices(LLVMValueRef instruction)
+    public IEnumerable<uint> GetIndices(LLVMValueRef instruction)
     {
         var count = LLVM.GetNumIndices(instruction);
         var p = LLVM.GetIndices(instruction);

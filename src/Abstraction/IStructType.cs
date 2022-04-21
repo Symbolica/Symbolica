@@ -2,10 +2,7 @@
 
 namespace Symbolica.Abstraction;
 
-public interface IStructType
+public interface IStructType : IType
 {
-    Bits Size { get; }
-
-    Bits GetOffset(int index);
     IStruct CreateStruct(IExpression expression);
 }

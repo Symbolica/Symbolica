@@ -19,5 +19,8 @@ internal sealed record SymbolicUnsigned : BitVector
         return solver.Context.MkBV(_value.ToString(), (uint) Size);
     }
 
-    public override bool Equals(IValue? other) => Equals(other as SymbolicUnsigned);
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as SymbolicUnsigned);
+    }
 }

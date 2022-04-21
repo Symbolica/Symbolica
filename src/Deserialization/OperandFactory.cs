@@ -13,17 +13,17 @@ namespace Symbolica.Deserialization;
 internal sealed class OperandFactory : IOperandFactory
 {
     private readonly IIdFactory _idFactory;
-    private readonly IStructTypeFactory _structTypeFactory;
     private readonly LLVMTargetDataRef _targetData;
+    private readonly ITypeFactory _typeFactory;
     private readonly IUnsafeContext _unsafeContext;
 
     public OperandFactory(LLVMTargetDataRef targetData, IIdFactory idFactory, IUnsafeContext unsafeContext,
-        IStructTypeFactory structTypeFactory)
+        ITypeFactory typeFactory)
     {
         _targetData = targetData;
         _idFactory = idFactory;
         _unsafeContext = unsafeContext;
-        _structTypeFactory = structTypeFactory;
+        _typeFactory = typeFactory;
     }
 
     public IOperand Create(LLVMValueRef operand, IInstructionFactory instructionFactory)
@@ -90,7 +90,7 @@ internal sealed class OperandFactory : IOperandFactory
     private IOperand CreateConstantStruct(LLVMValueRef operand, IInstructionFactory instructionFactory)
     {
         return new ConstantStruct(
-            _structTypeFactory.Create(operand.TypeOf),
+            _typeFactory.Create<IStructType>(operand.TypeOf),
             operand.GetOperands()
                 .Select(o => Create(o, instructionFactory))
                 .ToArray());

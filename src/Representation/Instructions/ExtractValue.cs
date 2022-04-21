@@ -1,21 +1,18 @@
 ﻿using System.Linq;
 using Symbolica.Abstraction;
-using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
 public sealed class ExtractValue : IInstruction
 {
-    private readonly Bits[] _offsets;
+    private readonly IType _indexedType;
     private readonly IOperand[] _operands;
-    private readonly Bits _size;
 
-    public ExtractValue(InstructionId id, IOperand[] operands, Bits size, Bits[] offsets)
+    public ExtractValue(InstructionId id, IOperand[] operands, IType indexedType)
     {
         Id = id;
         _operands = operands;
-        _size = size;
-        _offsets = offsets;
+        _indexedType = indexedType;
     }
 
     public InstructionId Id { get; }
@@ -23,9 +20,17 @@ public sealed class ExtractValue : IInstruction
     public void Execute(IState state)
     {
         var aggregate = _operands[0].Evaluate(state);
-        var offset = state.Space.CreateConstant(aggregate.Size,
-            (uint) _offsets.Aggregate(Bits.Zero, (l, r) => l + r));
-        var result = aggregate.Read(offset, _size);
+        var offset = state.Space.CreateZero(state.Space.PointerSize);
+        var indexedType = _indexedType;
+
+        foreach (var operand in _operands.Skip(1))
+        {
+            var index = operand.Evaluate(state);
+            offset = offset.Add(indexedType.GetOffsetBits(state.Space, index));
+            indexedType = indexedType.GetType(state.Space, index);
+        }
+
+        var result = aggregate.Read(offset.SignExtend(aggregate.Size).Truncate(aggregate.Size), indexedType.Size);
 
         state.Stack.SetVariable(Id, result);
     }
