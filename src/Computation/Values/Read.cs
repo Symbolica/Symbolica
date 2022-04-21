@@ -9,8 +9,6 @@ internal static class Read
     {
         return buffer is IConstantValue b && offset is IConstantValue o
             ? b.AsBitVector(collectionFactory).Read(o.AsUnsigned(), size)
-            : buffer is Write w
-                ? w.LayerRead(collectionFactory, offset, size)
-                : Truncate.Create(size, LogicalShiftRight.Create(buffer, offset));
+            : Truncate.Create(size, LogicalShiftRight.Create(buffer, offset));
     }
 }
