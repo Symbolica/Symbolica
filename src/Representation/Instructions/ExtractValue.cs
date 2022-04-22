@@ -30,7 +30,8 @@ public sealed class ExtractValue : IInstruction
             indexedType = indexedType.GetType(state.Space, index);
         }
 
-        var result = aggregate.Read(offset.SignExtend(aggregate.Size).Truncate(aggregate.Size), indexedType.Size);
+        var size = indexedType.Size.ToBits();
+        var result = aggregate.Read(offset.SignExtend(aggregate.Size).Truncate(aggregate.Size), size);
 
         state.Stack.SetVariable(Id, result);
     }

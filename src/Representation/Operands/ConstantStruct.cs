@@ -19,7 +19,7 @@ public sealed class ConstantStruct : IOperand
     {
         return _elements
             .Select((o, i) => (o, i))
-            .Aggregate(_structType.CreateStruct(state.Space.CreateGarbage(_structType.Size)), (s, e) =>
+            .Aggregate(_structType.CreateStruct(state.Space.CreateGarbage), (s, e) =>
                 s.Write(state.Space, e.i, e.o.Evaluate(state)))
             .Expression;
     }

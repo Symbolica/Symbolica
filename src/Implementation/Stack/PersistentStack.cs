@@ -141,7 +141,7 @@ internal sealed class PersistentStack : IPersistentStack
     private Bits GetContinuationSize(bool useJumpBuffer)
     {
         return useJumpBuffer
-            ? _module.JumpBufferType.Size
+            ? _module.JumpBufferType.Size.ToBits()
             : Bytes.One.ToBits();
     }
 
