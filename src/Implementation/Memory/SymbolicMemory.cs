@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
@@ -57,7 +56,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
     public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
     {
-        var newBlocks = new List<KeyValuePair<int, IPersistentBlock>>();
+        var blocks = _blocks;
 
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
         {
@@ -66,11 +65,11 @@ internal sealed class SymbolicMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 continue;
 
-            newBlocks.Add(KeyValuePair.Create(index, result.Value));
+            blocks = blocks.SetItem(index, result.Value);
 
             if (!result.CanBeFailure)
                 return new SymbolicMemory(_alignment, _blockFactory,
-                    _blocks.SetItems(newBlocks));
+                    blocks);
 
             space = result.FailureSpace;
         }
