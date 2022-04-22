@@ -80,7 +80,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         var streamType = _module.DirectoryStreamType;
         var entryType = _module.DirectoryEntryType;
 
-        var stream = streamType.CreateStruct(memory.Read(address, streamType.Size));
+        var stream = streamType.CreateStruct(s => memory.Read(address, s));
 
         var tell = (int) stream.Read(space, 0).GetSingleValue(space);
         var descriptor = (int) stream.Read(space, 1).GetSingleValue(space);
@@ -90,7 +90,7 @@ internal sealed class PersistentSystem : IPersistentSystem
             .Write(space, 0, tell + 1)
             .Expression);
 
-        var entry = entryType.CreateStruct(space.CreateGarbage(entryType.Size));
+        var entry = entryType.CreateStruct(space.CreateGarbage);
 
         var (_, handle) = Get(descriptor);
 
@@ -101,7 +101,7 @@ internal sealed class PersistentSystem : IPersistentSystem
     {
         var statType = _module.StatType;
 
-        var stat = statType.CreateStruct(space.CreateGarbage(statType.Size));
+        var stat = statType.CreateStruct(space.CreateGarbage);
 
         var (_, handle) = Get(descriptor);
 
@@ -113,12 +113,12 @@ internal sealed class PersistentSystem : IPersistentSystem
         var localeType = _module.LocaleType;
         var threadType = _module.ThreadType;
 
-        var locale = localeType.CreateStruct(space.CreateGarbage(localeType.Size));
+        var locale = localeType.CreateStruct(space.CreateGarbage);
 
         var localeAddress = memory.Allocate(Section.Global, locale.Expression.Size);
         memory.Write(localeAddress, locale.Expression);
 
-        var thread = threadType.CreateStruct(space.CreateGarbage(threadType.Size))
+        var thread = threadType.CreateStruct(space.CreateGarbage)
             .Write(space, 24, localeAddress);
 
         var threadAddress = memory.Allocate(Section.Global, thread.Expression.Size);

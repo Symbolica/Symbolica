@@ -72,7 +72,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMAlloca => new Allocate(
                 id,
                 operands,
-                _unsafeContext.GetAllocatedType(instruction).GetAllocSize(_targetData).ToBits()),
+                _unsafeContext.GetAllocatedType(instruction).GetAllocSize(_targetData)),
             LLVMOpcode.LLVMLoad => new Load(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMStore => new Store(id, operands),
             LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(

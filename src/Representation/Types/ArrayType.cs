@@ -15,7 +15,7 @@ public sealed class ArrayType : IType
         _elementType = elementType;
     }
 
-    public Bits Size => _elementType.Size * _count;
+    public Bytes Size => _elementType.Size * _count;
 
     public IType GetType(ISpace space, IExpression index)
     {
@@ -24,16 +24,16 @@ public sealed class ArrayType : IType
 
     public IExpression GetOffsetBits(ISpace space, IExpression index)
     {
-        return GetOffset(space, index, (uint) _elementType.Size);
+        return GetOffset(space, index, (uint) _elementType.Size.ToBits());
     }
 
     public IExpression GetOffsetBytes(ISpace space, IExpression index)
     {
-        return GetOffset(space, index, (uint) _elementType.Size.ToBytes());
+        return GetOffset(space, index, (uint) _elementType.Size);
     }
 
     private static IExpression GetOffset(ISpace space, IExpression index, BigInteger elementSize)
     {
-        return index.SignExtend(space.PointerSize).Multiply(space.CreateConstant(space.PointerSize, elementSize));
+        return space.CreateConstant(space.PointerSize, elementSize).Multiply(index.SignExtend(space.PointerSize));
     }
 }

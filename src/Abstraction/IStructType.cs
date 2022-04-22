@@ -1,8 +1,9 @@
-﻿using Symbolica.Expression;
+﻿using System;
+using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
 public interface IStructType : IType
 {
-    IStruct CreateStruct(IExpression expression);
+    IStruct CreateStruct(Func<Bits, IExpression> initializer);
 }

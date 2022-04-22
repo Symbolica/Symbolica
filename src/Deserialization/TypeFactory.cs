@@ -27,15 +27,15 @@ internal sealed class TypeFactory : ITypeFactory
         return type.Kind switch
         {
             LLVMTypeKind.LLVMStructTypeKind => new StructType(
-                type.GetStoreSize(_targetData).ToBits(),
+                type.GetStoreSize(_targetData),
                 Enumerable.Range(0, (int) type.StructElementTypesCount)
-                    .Select(e => type.GetElementOffset(_targetData, (uint) e).ToBits())
+                    .Select(e => type.GetElementOffset(_targetData, (uint) e))
                     .ToArray(),
                 type.StructElementTypes
                     .Select(Create)
                     .ToArray()),
             LLVMTypeKind.LLVMArrayTypeKind => new ArrayType(type.ArrayLength, Create(type.ElementType)),
-            _ => new SingleValueType(type.GetStoreSize(_targetData).ToBits())
+            _ => new SingleValueType(type.GetStoreSize(_targetData))
         };
     }
 }
