@@ -53,6 +53,16 @@ internal sealed class PersistentList<T> : IPersistentList<T>
         return new PersistentList<T>(_list.SetItem(index, value));
     }
 
+    public IPersistentList<T> SetItems(IEnumerable<KeyValuePair<int, T>> items)
+    {
+        var builder = _list.ToBuilder();
+
+        foreach (var (key, value) in items)
+            builder[key] = value;
+
+        return new PersistentList<T>(builder.ToImmutable());
+    }
+
     public IPersistentList<T> SetRange(int index, IPersistentList<T> values)
     {
         return new PersistentList<T>(_list.RemoveRange(index, values.Count).InsertRange(index, values));
