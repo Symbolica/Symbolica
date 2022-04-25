@@ -43,7 +43,7 @@ internal sealed class X86VariadicAbi : IVariadicAbi
 
         public IExpression Initialize(ISpace space, IStructType vaListType)
         {
-            return vaListType.CreateStruct(space.CreateZero(vaListType.Size))
+            return vaListType.CreateStruct(space.CreateZero)
                 .Write(space, 0, _address ?? space.CreateZero(space.PointerSize))
                 .Expression;
         }

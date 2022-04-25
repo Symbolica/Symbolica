@@ -6,12 +6,12 @@ namespace Symbolica.Representation.Types;
 
 public sealed class SingleValueType : IType
 {
-    public SingleValueType(Bits size)
+    public SingleValueType(Bytes size)
     {
         Size = size;
     }
 
-    public Bits Size { get; }
+    public Bytes Size { get; }
 
     public IType GetType(ISpace space, IExpression index)
     {

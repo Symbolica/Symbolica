@@ -4,7 +4,7 @@ namespace Symbolica.Abstraction;
 
 public interface IType
 {
-    Bits Size { get; }
+    Bytes Size { get; }
 
     IType GetType(ISpace space, IExpression index);
     IExpression GetOffsetBits(ISpace space, IExpression index);

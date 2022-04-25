@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -6,17 +7,17 @@ namespace Symbolica.Representation.Types;
 
 public sealed class StructType : IStructType
 {
-    private readonly Bits[] _offsets;
+    private readonly Bytes[] _offsets;
     private readonly IType[] _types;
 
-    public StructType(Bits size, Bits[] offsets, IType[] types)
+    public StructType(Bytes size, Bytes[] offsets, IType[] types)
     {
         Size = size;
         _offsets = offsets;
         _types = types;
     }
 
-    public Bits Size { get; }
+    public Bytes Size { get; }
 
     public IType GetType(ISpace space, IExpression index)
     {
@@ -25,23 +26,26 @@ public sealed class StructType : IStructType
 
     public IExpression GetOffsetBits(ISpace space, IExpression index)
     {
-        return space.CreateConstant(space.PointerSize, (uint) _offsets[(int) index.GetSingleValue(space)]);
+        return space.CreateConstant(space.PointerSize, (uint) _offsets[(int) index.GetSingleValue(space)].ToBits());
     }
 
     public IExpression GetOffsetBytes(ISpace space, IExpression index)
     {
-        return space.CreateConstant(space.PointerSize, (uint) _offsets[(int) index.GetSingleValue(space)].ToBytes());
+        return space.CreateConstant(space.PointerSize, (uint) _offsets[(int) index.GetSingleValue(space)]);
     }
 
-    public IStruct CreateStruct(IExpression expression)
+    public IStruct CreateStruct(Func<Bits, IExpression> initializer)
     {
-        var sizes = _offsets
+        var size = Size.ToBits();
+        var offsets = _offsets.Select(o => o.ToBits()).ToArray();
+
+        var sizes = offsets
             .Skip(1)
-            .Append(Size)
-            .Zip(_offsets, (h, l) => h - l)
+            .Append(size)
+            .Zip(offsets, (h, l) => h - l)
             .ToArray();
 
-        return new Struct(_offsets, sizes,
-            expression);
+        return new Struct(offsets, sizes,
+            initializer(size));
     }
 }
