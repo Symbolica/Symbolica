@@ -1,4 +1,6 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Representation.Exceptions;
 
@@ -12,6 +14,8 @@ public sealed class SingleValueType : IType
     }
 
     public Bytes Size { get; }
+    public IEnumerable<IType> Types => Enumerable.Empty<IType>();
+    public IEnumerable<Bytes> Offsets => Enumerable.Empty<Bytes>();
 
     public IType GetType(ISpace space, IExpression index)
     {

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -10,13 +12,15 @@ internal sealed class ConstantMemory : IPersistentMemory
     private readonly Bytes _alignment;
     private readonly IPersistentList<Allocation> _allocations;
     private readonly IBlockFactory _blockFactory;
+    private readonly ICollectionFactory _collectionFactory;
     private readonly Bytes _nextAddress;
 
-    private ConstantMemory(Bytes alignment, IBlockFactory blockFactory,
+    private ConstantMemory(Bytes alignment, IBlockFactory blockFactory, ICollectionFactory collectionFactory,
         Bytes nextAddress, IPersistentList<Allocation> allocations)
     {
         _alignment = alignment;
         _blockFactory = blockFactory;
+        _collectionFactory = collectionFactory;
         _nextAddress = nextAddress;
         _allocations = allocations;
     }
@@ -27,7 +31,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         var block = _blockFactory.Create(space, section, address, size);
         var allocation = new Allocation(_nextAddress, block);
 
-        return (address, new ConstantMemory(_alignment, _blockFactory,
+        return (address, new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
             GetNextAddress(size), _allocations.Add(allocation)));
     }
 
@@ -44,7 +48,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         var newBlock = allocation.Block.Move(newAddress, size);
         var newAllocation = new Allocation(_nextAddress, newBlock);
 
-        return (newAddress, new ConstantMemory(_alignment, _blockFactory,
+        return (newAddress, new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
             GetNextAddress(size), _allocations.SetItem(index, freedAllocation).Add(newAllocation)));
     }
 
@@ -57,27 +61,36 @@ internal sealed class ConstantMemory : IPersistentMemory
 
         var freedAllocation = new Allocation(allocation.Address, _blockFactory.CreateInvalid());
 
-        return new ConstantMemory(_alignment, _blockFactory,
+        return new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
             _nextAddress, _allocations.SetItem(index, freedAllocation));
     }
 
     public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
     {
-        var allocations = _allocations;
+        var newAllocations = new List<KeyValuePair<int, Allocation>>();
 
         while (true)
         {
             var (index, allocation) = GetAllocation(space, address);
-            var result = allocation.Block.TryWrite(space, address, value);
+
+            var block = address is IAddress a &&
+                        allocation.Block is not AggregateBlock &&
+                        allocation.Block.IsValid &&
+                        allocation.Block.Size == a.IndexedType.Size &&
+                        allocation.Address == (Bytes) (uint) a.BaseAddress.GetSingleValue(space)
+                ? AggregateBlock.Create(_collectionFactory, space, allocation.Address, a.IndexedType, allocation.Block)
+                : allocation.Block;
+
+            var result = block.TryWrite(space, address, value);
 
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryWrite, space);
 
-            allocations = allocations.SetItem(index, new Allocation(allocation.Address, result.Value));
+            newAllocations.Add(KeyValuePair.Create(index, new Allocation(allocation.Address, result.Value)));
 
             if (!result.CanBeFailure)
-                return new ConstantMemory(_alignment, _blockFactory,
-                    _nextAddress, allocations);
+                return new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
+                    _nextAddress, _allocations.SetItems(newAllocations));
 
             space = result.FailureSpace;
         }
@@ -98,7 +111,12 @@ internal sealed class ConstantMemory : IPersistentMemory
             expression = expression.Or(result.Value);
 
             if (!result.CanBeFailure)
+            {
+                //if (!expression.IsConstant)
+                    //Debugger.Break();
+
                 return expression;
+            }
 
             space = result.FailureSpace;
         }
@@ -133,7 +151,7 @@ internal sealed class ConstantMemory : IPersistentMemory
     {
         var nullAllocation = new Allocation(Bytes.Zero, blockFactory.CreateInvalid());
 
-        return new ConstantMemory(alignment, blockFactory,
+        return new ConstantMemory(alignment, blockFactory, collectionFactory,
             alignment, collectionFactory.CreatePersistentList<Allocation>().Add(nullAllocation));
     }
 

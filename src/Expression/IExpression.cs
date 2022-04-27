@@ -5,6 +5,10 @@ namespace Symbolica.Expression;
 public interface IExpression
 {
     Bits Size { get; }
+    bool IsConstant { get; }
+
+    TExpression As<TExpression>()
+        where TExpression : class, IExpression;
 
     BigInteger GetSingleValue(ISpace space);
     BigInteger GetExampleValue(ISpace space);

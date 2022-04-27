@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -17,6 +20,7 @@ internal sealed class State : IState, IExecutable
     private readonly ISystemProxy _system;
     private IPersistentGlobals _globals;
     private bool _isActive;
+    private readonly Stopwatch _stopwatch;
 
     public State(IStateAction initialAction, IModule module, ISpace space,
         IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
@@ -31,6 +35,8 @@ internal sealed class State : IState, IExecutable
         _memory = memory;
         _stack = stack;
         _system = system;
+        _stopwatch = new Stopwatch();
+        _stopwatch.Start();
     }
 
     public IEnumerable<IExecutable> Run()
@@ -69,6 +75,9 @@ internal sealed class State : IState, IExecutable
     public void Complete()
     {
         _isActive = false;
+        _stopwatch.Stop();
+        Console.WriteLine(_stopwatch.Elapsed);
+        Console.WriteLine(string.Join(", ", Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
     }
 
     public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
@@ -81,7 +90,7 @@ internal sealed class State : IState, IExecutable
             {
                 _forks.Add(Clone(proposition.CreateFalseSpace(), falseAction));
                 _forks.Add(Clone(proposition.CreateTrueSpace(), trueAction));
-                Complete();
+                _isActive = false;
             }
             else
             {

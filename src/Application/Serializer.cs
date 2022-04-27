@@ -41,7 +41,7 @@ internal static class Serializer
                 Arguments = isWindows ? command : $"-c \"{command.Replace("\"", "\\\"")}\"",
                 CreateNoWindow = true,
                 UseShellExecute = false,
-                RedirectStandardOutput = true,
+                //RedirectStandardOutput = true,
                 RedirectStandardError = true
             }
         };

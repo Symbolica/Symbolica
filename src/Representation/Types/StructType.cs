@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -18,6 +19,8 @@ public sealed class StructType : IStructType
     }
 
     public Bytes Size { get; }
+    public IEnumerable<IType> Types => _types;
+    public IEnumerable<Bytes> Offsets => _offsets;
 
     public IType GetType(ISpace space, IExpression index)
     {

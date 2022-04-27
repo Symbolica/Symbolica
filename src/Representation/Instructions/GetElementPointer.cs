@@ -19,7 +19,8 @@ public sealed class GetElementPointer : IInstruction
 
     public void Execute(IState state)
     {
-        var address = _operands[0].Evaluate(state);
+        var baseAddress = _operands[0].Evaluate(state);
+        var address = baseAddress;
         var indexedType = _indexedType;
 
         foreach (var operand in _operands.Skip(1))
@@ -29,6 +30,6 @@ public sealed class GetElementPointer : IInstruction
             indexedType = indexedType.GetType(state.Space, index);
         }
 
-        state.Stack.SetVariable(Id, address);
+        state.Stack.SetVariable(Id, Address.Create(_indexedType, baseAddress, address));
     }
 }

@@ -39,6 +39,11 @@ public readonly struct Bytes : IEquatable<Bytes>, IComparable<Bytes>
         return (Bytes) (left._value + right._value);
     }
 
+    public static Bytes operator -(Bytes left, Bytes right)
+    {
+        return (Bytes) (left._value - right._value);
+    }
+
     public static Bytes operator *(Bytes left, uint right)
     {
         return (Bytes) (left._value * right);
