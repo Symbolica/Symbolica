@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -69,6 +71,7 @@ internal sealed class State : IState, IExecutable
     public void Complete()
     {
         _isActive = false;
+        Console.WriteLine(string.Join(", ", Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
     }
 
     public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
@@ -81,7 +84,7 @@ internal sealed class State : IState, IExecutable
             {
                 _forks.Add(Clone(proposition.CreateFalseSpace(), falseAction));
                 _forks.Add(Clone(proposition.CreateTrueSpace(), trueAction));
-                Complete();
+                _isActive = false;
             }
             else
             {

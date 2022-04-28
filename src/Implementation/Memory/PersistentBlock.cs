@@ -68,6 +68,16 @@ internal sealed class PersistentBlock : IPersistentBlock
                 Read(GetOffset(space, address), size));
     }
 
+    public PersistentBlock Read(ISpace space, Bytes address, Bytes size)
+    {
+        return Read(space, space.CreateConstant(Address.Size, (uint) address), size.ToBits());
+    }
+
+    private PersistentBlock Read(ISpace space, IExpression address, Bits size)
+    {
+        return new PersistentBlock(_section, address, TryRead(space, address, size).Value);
+    }
+
     private bool IsZeroOffset(ISpace space, IExpression address)
     {
         var isEqual = Address.Equal(address);
