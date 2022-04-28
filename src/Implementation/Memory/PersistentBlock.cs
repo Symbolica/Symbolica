@@ -5,11 +5,10 @@ namespace Symbolica.Implementation.Memory;
 internal sealed class PersistentBlock : IPersistentBlock
 {
     private readonly IExpression _data;
-    private readonly Section _section;
 
     public PersistentBlock(Section section, IExpression address, IExpression data)
     {
-        _section = section;
+        Section = section;
         Address = address;
         _data = data;
     }
@@ -18,21 +17,23 @@ internal sealed class PersistentBlock : IPersistentBlock
     public IExpression Address { get; }
     public Bytes Size => _data.Size.ToBytes();
 
+    internal Section Section { get; }
+
     public IPersistentBlock Move(IExpression address, Bits size)
     {
-        return new PersistentBlock(_section, address, _data.ZeroExtend(size).Truncate(size));
+        return new PersistentBlock(Section, address, _data.ZeroExtend(size).Truncate(size));
     }
 
     public bool CanFree(ISpace space, Section section, IExpression address)
     {
-        return _section == section && IsZeroOffset(space, address);
+        return Section == section && IsZeroOffset(space, address);
     }
 
     public Result<IPersistentBlock> TryWrite(ISpace space, IExpression address, IExpression value)
     {
         if (value.Size == _data.Size && IsZeroOffset(space, address))
             return Result<IPersistentBlock>.Success(
-                new PersistentBlock(_section, Address, value));
+                new PersistentBlock(Section, Address, value));
 
         var isFullyInside = IsFullyInside(space, address, value.Size.ToBytes());
         using var proposition = isFullyInside.GetProposition(space);
@@ -71,7 +72,7 @@ internal sealed class PersistentBlock : IPersistentBlock
     public PersistentBlock Read(ISpace space, Bytes address, Bytes size)
     {
         var expression = space.CreateConstant(Address.Size, (uint) address);
-        return new PersistentBlock(_section, expression, TryRead(space, expression, size.ToBits()).Value);
+        return new PersistentBlock(Section, expression, TryRead(space, expression, size.ToBits()).Value);
     }
 
     private bool IsZeroOffset(ISpace space, IExpression address)
@@ -111,11 +112,16 @@ internal sealed class PersistentBlock : IPersistentBlock
 
     private IPersistentBlock Write(ISpace space, IExpression offset, IExpression value)
     {
-        return new PersistentBlock(_section, Address, _data.Write(space, offset, value));
+        return new PersistentBlock(Section, Address, _data.Write(space, offset, value));
     }
 
     private IExpression Read(ISpace space, IExpression offset, Bits size)
     {
         return _data.Read(space, offset, size);
+    }
+
+    public IExpression Data(ISpace space)
+    {
+        return _data;
     }
 }
