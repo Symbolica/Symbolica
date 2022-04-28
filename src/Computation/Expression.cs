@@ -192,7 +192,7 @@ internal sealed class Expression : IExpression
             : Values.Or.Create(l, r));
     }
 
-    public IExpression Read(IExpression offset, Bits size)
+    public IExpression Read(ISpace space, IExpression offset, Bits size)
     {
         return Create(offset, (b, o) => Values.Read.Create(_collectionFactory, b, o, size));
     }
@@ -294,7 +294,7 @@ internal sealed class Expression : IExpression
         return Create(v => Values.UnsignedToFloat.Create(size, v));
     }
 
-    public IExpression Write(IExpression offset, IExpression value)
+    public IExpression Write(ISpace space, IExpression offset, IExpression value)
     {
         return Size == offset.Size
             ? Create(offset, value, (b, o, v) => Values.Write.Create(_collectionFactory, b, o, v))

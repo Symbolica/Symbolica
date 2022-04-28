@@ -182,9 +182,9 @@ internal sealed class Address : IAddress
         return _address.Or(expression);
     }
 
-    public IExpression Read(IExpression offset, Bits size)
+    public IExpression Read(ISpace space, IExpression offset, Bits size)
     {
-        return _address.Read(offset, size);
+        return _address.Read(space, offset, size);
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
@@ -284,9 +284,9 @@ internal sealed class Address : IAddress
         return _address.UnsignedToFloat(size);
     }
 
-    public IExpression Write(IExpression offset, IExpression value)
+    public IExpression Write(ISpace space, IExpression offset, IExpression value)
     {
-        return _address.Write(offset, value);
+        return _address.Write(space, offset, value);
     }
 
     public IExpression Xor(IExpression expression)

@@ -31,7 +31,7 @@ public sealed class InsertValue : IInstruction
             indexedType = indexedType.GetType(state.Space, index);
         }
 
-        var result = aggregate.Write(offset.SignExtend(aggregate.Size).Truncate(aggregate.Size), value);
+        var result = aggregate.Write(state.Space, offset.SignExtend(aggregate.Size).Truncate(aggregate.Size), value);
 
         state.Stack.SetVariable(Id, result);
     }
