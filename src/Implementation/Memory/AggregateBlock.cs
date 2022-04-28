@@ -43,7 +43,8 @@ internal sealed class AggregateBlock : IPersistentBlock
 
         return result2.CanBeFailure
             ? result
-            : Result<IPersistentBlock>.Success(new AggregateBlock(result.Value, _allocations.SetItem(index, new Allocation(allocation.Address, result2.Value))));
+            : Result<IPersistentBlock>.Success(new AggregateBlock(result.Value,
+                _allocations.SetItem(index, new Allocation(allocation.Address, result2.Value))));
     }
 
     public Result<IExpression> TryRead(ISpace space, IExpression address, Bits size)
@@ -60,17 +61,6 @@ internal sealed class AggregateBlock : IPersistentBlock
         return result2.CanBeFailure
             ? result
             : result2;
-    }
-
-    private static IExpression TryGetSingleValue(ISpace space, IExpression expression)
-    {
-        var value = space.CreateConstant(expression.Size, expression.GetExampleValue(space));
-        var isEqual = expression.Equal(value);
-        using var proposition = isEqual.GetProposition(space);
-
-        return proposition.CanBeFalse()
-            ? expression
-            : value;
     }
 
     private static IPersistentBlock TrySplit(ICollectionFactory collectionFactory,

@@ -41,11 +41,11 @@ internal sealed class LazySolver : ISolver
             : GetSolver().IsSatisfiable(assertion);
     }
 
-    public BigInteger GetSingleValue(IValue value)
+    public BigInteger? TryGetSingleValue(IValue value)
     {
         return value is IConstantValue v
             ? v.AsUnsigned()
-            : GetSolver().GetSingleValue(value);
+            : GetSolver().TryGetSingleValue(value);
     }
 
     public BigInteger GetExampleValue(IValue value)

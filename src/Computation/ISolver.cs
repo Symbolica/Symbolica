@@ -13,7 +13,7 @@ internal interface ISolver : IDisposable
     void Assert(IEnumerable<IValue> assertions);
     void Assert(string name, IEnumerable<IValue> assertions);
     bool IsSatisfiable(IValue assertion);
-    BigInteger GetSingleValue(IValue value);
+    BigInteger? TryGetSingleValue(IValue value);
     BigInteger GetExampleValue(IValue value);
     IExample GetExample();
 }

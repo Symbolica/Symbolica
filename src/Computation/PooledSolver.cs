@@ -60,12 +60,12 @@ internal sealed class PooledSolver : ISolver
         };
     }
 
-    public BigInteger GetSingleValue(IValue value)
+    public BigInteger? TryGetSingleValue(IValue value)
     {
         var constant = GetExampleValue(value);
 
         return IsSatisfiable(NotEqual.Create(value, ConstantUnsigned.Create(value.Size, constant)))
-            ? throw new IrreducibleSymbolicExpressionException()
+            ? null
             : constant;
     }
 
