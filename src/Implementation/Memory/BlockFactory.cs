@@ -46,5 +46,10 @@ internal sealed class BlockFactory : IBlockFactory
         {
             return Result<IExpression>.Failure(space);
         }
+
+        public IExpression Data(ISpace space)
+        {
+            throw new global::System.NotImplementedException();
+        }
     }
 }
