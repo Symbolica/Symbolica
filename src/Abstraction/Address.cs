@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Symbolica.Abstraction;
 using Symbolica.Expression;
 
-namespace Symbolica.Representation;
+namespace Symbolica.Abstraction;
 
-internal sealed class Address : IAddress
+public sealed class Address : IAddress
 {
     private readonly IExpression[] _offsets;
     private IExpression Value => _offsets.Aggregate((a, o) => a.Add(o));
@@ -276,15 +275,22 @@ internal sealed class Address : IAddress
 
     public IExpression Subtract(IExpression expression)
     {
-        return expression is IAddress
-            ? throw new Exception("sub")
+        return expression is Address a
+            ? Value.Subtract(a.Value)
             : new Address(IndexedType, _offsets.SkipLast(1).Append(_offsets.Last().Subtract(expression)).ToArray());
     }
-    public IAddress SubtractBase(IExpression baseAddress)
+
+    public IAddress? SubtractBase(ISpace space, IExpression expression)
     {
-        return baseAddress is IAddress
-            ? throw new Exception("base")
-            : new Address(IndexedType, new[] { BaseAddress.Subtract(baseAddress) }.Concat(Offsets).ToArray());
+        if (expression is IAddress)
+            throw new Exception("base");
+
+        IExpression baseAddress = BaseAddress.Subtract(expression);
+        var isZero = baseAddress.Equal(space.CreateZero(baseAddress.Size));
+        using var proposition = isZero.GetProposition(space);
+
+        var offsets = (proposition.CanBeFalse() ? new[] { baseAddress } : Enumerable.Empty<IExpression>()).Concat(Offsets);
+        return offsets.Any() ? new Address(IndexedType, offsets.ToArray()) : null;
     }
 
     public IExpression Truncate(Bits size)
@@ -344,6 +350,11 @@ internal sealed class Address : IAddress
         return size == Size
             ? this
             : throw new Exception("zext");
+    }
+
+    public static Address Create(IExpression baseAddress)
+    {
+        return Create(null!, baseAddress, Enumerable.Empty<IExpression>());
     }
 
     public static Address Create(IType indexedType, IExpression baseAddress, IEnumerable<IExpression> offsets)

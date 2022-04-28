@@ -61,7 +61,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
         {
-            var result = block.TryWrite(space, address, value);
+            var result = block.TryWrite(space, Address.Create(address), value);
 
             if (!result.CanBeSuccess)
                 continue;
@@ -84,7 +84,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
         foreach (var block in _blocks)
         {
-            var result = block.TryRead(space, address, size);
+            var result = block.TryRead(space, Address.Create(address), size);
 
             if (!result.CanBeSuccess)
                 continue;
@@ -117,8 +117,8 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
     private static IExpression IsFullyOutside(ISpace space, IPersistentBlock block, IExpression address, Bytes size)
     {
-        return GetBound(space, address, size).UnsignedLessOrEqual(block.Address)
-            .Or(address.UnsignedGreaterOrEqual(GetBound(space, block.Address, block.Size)));
+        return GetBound(space, address, size).UnsignedLessOrEqual(block.Offset)
+            .Or(address.UnsignedGreaterOrEqual(GetBound(space, block.Offset, block.Size)));
     }
 
     private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
