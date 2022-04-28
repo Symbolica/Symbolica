@@ -31,7 +31,7 @@ public sealed class ExtractValue : IInstruction
         }
 
         var size = indexedType.Size.ToBits();
-        var result = aggregate.Read(offset.SignExtend(aggregate.Size).Truncate(aggregate.Size), size);
+        var result = aggregate.Read(state.Space, offset.SignExtend(aggregate.Size).Truncate(aggregate.Size), size);
 
         state.Stack.SetVariable(Id, result);
     }
