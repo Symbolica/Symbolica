@@ -111,7 +111,9 @@ internal sealed class AggregateBlock : IPersistentBlock
     private IExpression GetOffset(ISpace space, IExpression address)
     {
         var offset = space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
-            .Multiply(address.Subtract(Address));
+            .Multiply(address is IAddress a
+                ? a.SubtractBase(Address)
+                : address.Subtract(Address));
 
         return offset.ZeroExtend(Size.ToBits()).Truncate(Size.ToBits());
     }

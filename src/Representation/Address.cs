@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -6,18 +9,20 @@ namespace Symbolica.Representation;
 
 internal sealed class Address : IAddress
 {
-    private readonly IExpression _address;
+    private readonly IExpression[] _offsets;
+    private IExpression Value => _offsets.Aggregate((a, o) => a.Add(o));
 
-    private Address(IType indexedType, IExpression baseAddress, IExpression address)
+    private Address(IType indexedType, IExpression[] offsets)
     {
         IndexedType = indexedType;
-        BaseAddress = baseAddress;
-        _address = address;
+        _offsets = offsets;
     }
 
     public IType IndexedType { get; }
-    public IExpression BaseAddress { get; }
-    public Bits Size => _address.Size;
+    public IExpression BaseAddress => _offsets.First();
+    public IEnumerable<IExpression> Offsets => _offsets.Skip(1);
+
+    public Bits Size => BaseAddress.Size;
 
     public static bool operator ==(Address? left, Address? right)
     {
@@ -52,287 +57,299 @@ internal sealed class Address : IAddress
     public TExpression As<TExpression>()
         where TExpression : class, IExpression
     {
-        return _address.As<TExpression>();
+        return Value.As<TExpression>();
     }
 
     public BigInteger GetSingleValue(ISpace space)
     {
-        return _address.GetSingleValue(space);
+        return Value.GetSingleValue(space);
     }
 
     public BigInteger GetExampleValue(ISpace space)
     {
-        return _address.GetExampleValue(space);
+        return Value.GetExampleValue(space);
     }
 
     public IProposition GetProposition(ISpace space)
     {
-        return _address.GetProposition(space);
+        return Value.GetProposition(space);
     }
 
     public IExpression Add(IExpression expression)
     {
-        return expression is IAddress a && a.IndexedType.Size > IndexedType.Size
-            ? new Address(a.IndexedType, a.BaseAddress, _address.Add(expression))
-            : new Address(IndexedType, BaseAddress, _address.Add(expression));
+        return expression is IAddress // a && a.IndexedType.Size > IndexedType.Size
+            ? throw new Exception("add") // expression.Add(this)
+            : new Address(IndexedType, _offsets.SkipLast(1).Append(_offsets.Last().Add(expression)).ToArray());
     }
 
     public IExpression And(IExpression expression)
     {
-        return _address.And(expression);
+        return Value.And(expression);
     }
 
     public IExpression ArithmeticShiftRight(IExpression expression)
     {
-        return _address.ArithmeticShiftRight(expression);
+        return Value.ArithmeticShiftRight(expression);
     }
 
     public IExpression Equal(IExpression expression)
     {
-        return _address.Equal(expression);
+        return Value.Equal(expression);
     }
 
     public IExpression FloatAdd(IExpression expression)
     {
-        return _address.FloatAdd(expression);
+        return Value.FloatAdd(expression);
     }
 
     public IExpression FloatCeiling()
     {
-        return _address.FloatCeiling();
+        return Value.FloatCeiling();
     }
 
     public IExpression FloatConvert(Bits size)
     {
-        return _address.FloatConvert(size);
+        return Value.FloatConvert(size);
     }
 
     public IExpression FloatDivide(IExpression expression)
     {
-        return _address.FloatDivide(expression);
+        return Value.FloatDivide(expression);
     }
 
     public IExpression FloatEqual(IExpression expression)
     {
-        return _address.FloatEqual(expression);
+        return Value.FloatEqual(expression);
     }
 
     public IExpression FloatFloor()
     {
-        return _address.FloatFloor();
+        return Value.FloatFloor();
     }
 
     public IExpression FloatGreater(IExpression expression)
     {
-        return _address.FloatGreater(expression);
+        return Value.FloatGreater(expression);
     }
 
     public IExpression FloatGreaterOrEqual(IExpression expression)
     {
-        return _address.FloatGreaterOrEqual(expression);
+        return Value.FloatGreaterOrEqual(expression);
     }
 
     public IExpression FloatLess(IExpression expression)
     {
-        return _address.FloatLess(expression);
+        return Value.FloatLess(expression);
     }
 
     public IExpression FloatLessOrEqual(IExpression expression)
     {
-        return _address.FloatLessOrEqual(expression);
+        return Value.FloatLessOrEqual(expression);
     }
 
     public IExpression FloatMultiply(IExpression expression)
     {
-        return _address.FloatMultiply(expression);
+        return Value.FloatMultiply(expression);
     }
 
     public IExpression FloatNegate()
     {
-        return _address.FloatNegate();
+        return Value.FloatNegate();
     }
 
     public IExpression FloatNotEqual(IExpression expression)
     {
-        return _address.FloatNotEqual(expression);
+        return Value.FloatNotEqual(expression);
     }
 
     public IExpression FloatOrdered(IExpression expression)
     {
-        return _address.FloatOrdered(expression);
+        return Value.FloatOrdered(expression);
     }
 
     public IExpression FloatPower(IExpression expression)
     {
-        return _address.FloatPower(expression);
+        return Value.FloatPower(expression);
     }
 
     public IExpression FloatRemainder(IExpression expression)
     {
-        return _address.FloatRemainder(expression);
+        return Value.FloatRemainder(expression);
     }
 
     public IExpression FloatSubtract(IExpression expression)
     {
-        return _address.FloatSubtract(expression);
+        return Value.FloatSubtract(expression);
     }
 
     public IExpression FloatToSigned(Bits size)
     {
-        return _address.FloatToSigned(size);
+        return Value.FloatToSigned(size);
     }
 
     public IExpression FloatToUnsigned(Bits size)
     {
-        return _address.FloatToUnsigned(size);
+        return Value.FloatToUnsigned(size);
     }
 
     public IExpression FloatUnordered(IExpression expression)
     {
-        return _address.FloatUnordered(expression);
+        return Value.FloatUnordered(expression);
     }
 
     public IExpression LogicalShiftRight(IExpression expression)
     {
-        return _address.LogicalShiftRight(expression);
+        return Value.LogicalShiftRight(expression);
     }
 
     public IExpression Multiply(IExpression expression)
     {
-        return _address.Multiply(expression);
+        return Value.Multiply(expression);
     }
 
     public IExpression NotEqual(IExpression expression)
     {
-        return _address.NotEqual(expression);
+        return Value.NotEqual(expression);
     }
 
     public IExpression Or(IExpression expression)
     {
-        return _address.Or(expression);
+        return Value.Or(expression);
     }
 
     public IExpression Read(ISpace space, IExpression offset, Bits size)
     {
-        return _address.Read(space, offset, size);
+        return Value.Read(space, offset, size);
     }
 
     public IExpression Select(IExpression trueValue, IExpression falseValue)
     {
-        return _address.Select(trueValue, falseValue);
+        return Value.Select(trueValue, falseValue);
     }
 
     public IExpression ShiftLeft(IExpression expression)
     {
-        return _address.ShiftLeft(expression);
+        return Value.ShiftLeft(expression);
     }
 
     public IExpression SignedDivide(IExpression expression)
     {
-        return _address.SignedDivide(expression);
+        return Value.SignedDivide(expression);
     }
 
     public IExpression SignedGreater(IExpression expression)
     {
-        return _address.SignedGreater(expression);
+        return Value.SignedGreater(expression);
     }
 
     public IExpression SignedGreaterOrEqual(IExpression expression)
     {
-        return _address.SignedGreaterOrEqual(expression);
+        return Value.SignedGreaterOrEqual(expression);
     }
 
     public IExpression SignedLess(IExpression expression)
     {
-        return _address.SignedLess(expression);
+        return Value.SignedLess(expression);
     }
 
     public IExpression SignedLessOrEqual(IExpression expression)
     {
-        return _address.SignedLessOrEqual(expression);
+        return Value.SignedLessOrEqual(expression);
     }
 
     public IExpression SignedRemainder(IExpression expression)
     {
-        return _address.SignedRemainder(expression);
+        return Value.SignedRemainder(expression);
     }
 
     public IExpression SignedToFloat(Bits size)
     {
-        return _address.SignedToFloat(size);
+        return Value.SignedToFloat(size);
     }
 
     public IExpression SignExtend(Bits size)
     {
-        return new Address(IndexedType, BaseAddress, _address.SignExtend(size));
+        return size == Size
+            ? this
+            : throw new Exception("sext");
     }
 
     public IExpression Subtract(IExpression expression)
     {
-        return expression is IAddress a && a.IndexedType.Size > IndexedType.Size
-            ? new Address(a.IndexedType, a.BaseAddress, _address.Subtract(expression))
-            : new Address(IndexedType, BaseAddress, _address.Subtract(expression));
+        return expression is IAddress
+            ? throw new Exception("sub")
+            : new Address(IndexedType, _offsets.SkipLast(1).Append(_offsets.Last().Subtract(expression)).ToArray());
+    }
+    public IAddress SubtractBase(IExpression baseAddress)
+    {
+        return baseAddress is IAddress
+            ? throw new Exception("base")
+            : new Address(IndexedType, new[] { BaseAddress.Subtract(baseAddress) }.Concat(Offsets).ToArray());
     }
 
     public IExpression Truncate(Bits size)
     {
-        return new Address(IndexedType, BaseAddress, _address.Truncate(size));
+        return size == Size
+            ? this
+            : throw new Exception("trunc");
     }
 
     public IExpression UnsignedDivide(IExpression expression)
     {
-        return _address.UnsignedDivide(expression);
+        return Value.UnsignedDivide(expression);
     }
 
     public IExpression UnsignedGreater(IExpression expression)
     {
-        return _address.UnsignedGreater(expression);
+        return Value.UnsignedGreater(expression);
     }
 
     public IExpression UnsignedGreaterOrEqual(IExpression expression)
     {
-        return _address.UnsignedGreaterOrEqual(expression);
+        return Value.UnsignedGreaterOrEqual(expression);
     }
 
     public IExpression UnsignedLess(IExpression expression)
     {
-        return _address.UnsignedLess(expression);
+        return Value.UnsignedLess(expression);
     }
 
     public IExpression UnsignedLessOrEqual(IExpression expression)
     {
-        return _address.UnsignedLessOrEqual(expression);
+        return Value.UnsignedLessOrEqual(expression);
     }
 
     public IExpression UnsignedRemainder(IExpression expression)
     {
-        return _address.UnsignedRemainder(expression);
+        return Value.UnsignedRemainder(expression);
     }
 
     public IExpression UnsignedToFloat(Bits size)
     {
-        return _address.UnsignedToFloat(size);
+        return Value.UnsignedToFloat(size);
     }
 
     public IExpression Write(ISpace space, IExpression offset, IExpression value)
     {
-        return _address.Write(space, offset, value);
+        return Value.Write(space, offset, value);
     }
 
     public IExpression Xor(IExpression expression)
     {
-        return _address.Xor(expression);
+        return Value.Xor(expression);
     }
 
     public IExpression ZeroExtend(Bits size)
     {
-        return new Address(IndexedType, BaseAddress, _address.ZeroExtend(size));
+        return size == Size
+            ? this
+            : throw new Exception("zext");
     }
 
-    public static Address Create(IType indexedType, IExpression baseAddress, IExpression address)
+    public static Address Create(IType indexedType, IExpression baseAddress, IEnumerable<IExpression> offsets)
     {
-        return baseAddress is IAddress a
-            ? new Address(a.IndexedType, a.BaseAddress, address)
-            : new Address(indexedType, baseAddress, address);
+        return baseAddress is Address a
+            ? new Address(a.IndexedType, a._offsets.Concat(offsets).ToArray())
+            : new Address(indexedType, new[] { baseAddress }.Concat(offsets).ToArray());
     }
 }
