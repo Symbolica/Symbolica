@@ -23,6 +23,12 @@ internal sealed class Expression : IExpression
 
     public Bits Size => _value.Size;
 
+    public TExpression As<TExpression>()
+        where TExpression : class, IExpression
+    {
+        return this as TExpression ?? throw new UnsupportedExpressionTypeException(GetType());
+    }
+
     public BigInteger GetSingleValue(ISpace space)
     {
         using var solver = ((IPersistentSpace) space).CreateSolver();
@@ -317,14 +323,14 @@ internal sealed class Expression : IExpression
     {
         return Size == y.Size
             ? new Expression(_collectionFactory,
-                func(_value, ((Expression) y)._value))
+                func(_value, y.As<Expression>()._value))
             : throw new InconsistentExpressionSizesException(Size, y.Size);
     }
 
     private IExpression Create(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
     {
         return new Expression(_collectionFactory,
-            func(_value, ((Expression) y)._value, ((Expression) z)._value));
+            func(_value, y.As<Expression>()._value, z.As<Expression>()._value));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
@@ -332,6 +338,6 @@ internal sealed class Expression : IExpression
     {
         return new Expression(collectionFactory,
             Symbol.Create(size, name, assertions.Select(a => new Func<IValue, IValue>(
-                v => ((Expression) a(new Expression(collectionFactory, v)))._value))));
+                v => a(new Expression(collectionFactory, v)).As<Expression>()._value))));
     }
 }

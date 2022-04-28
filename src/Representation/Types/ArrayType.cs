@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -16,6 +18,8 @@ public sealed class ArrayType : IType
     }
 
     public Bytes Size => _elementType.Size * _count;
+    public IEnumerable<IType> Types => Enumerable.Repeat(_elementType, (int) _count);
+    public IEnumerable<Bytes> Offsets => Enumerable.Range(0, (int) _count).Select(i => _elementType.Size * (uint) i);
 
     public IType GetType(ISpace space, IExpression index)
     {

@@ -90,7 +90,12 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMFPExt => new FloatExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMPtrToInt => new PointerToInteger(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMIntToPtr => new IntegerToPointer(id, operands, instruction.TypeOf.GetSize(_targetData)),
-            LLVMOpcode.LLVMBitCast => new BitCast(id, operands),
+            LLVMOpcode.LLVMBitCast => new BitCast(
+                id,
+                operands,
+                instruction.TypeOf.Kind == LLVMTypeKind.LLVMPointerTypeKind
+                    ? _typeFactory.Create<IType>(instruction.TypeOf.ElementType)
+                    : null),
             LLVMOpcode.LLVMAddrSpaceCast => new Unsupported(id, "addrspacecast"),
             LLVMOpcode.LLVMICmp => instruction.ICmpPredicate switch
             {

@@ -6,6 +6,9 @@ public interface IExpression
 {
     Bits Size { get; }
 
+    TExpression As<TExpression>()
+        where TExpression : class, IExpression;
+
     BigInteger GetSingleValue(ISpace space);
     BigInteger GetExampleValue(ISpace space);
     IProposition GetProposition(ISpace space);
