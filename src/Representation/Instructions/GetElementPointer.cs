@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -21,6 +22,9 @@ public sealed class GetElementPointer : IInstruction
 
     public void Execute(IState state)
     {
+        if (Id == (InstructionId) 91516)
+            Debugger.Break();
+
         state.Stack.SetVariable(Id, Address.Create(_indexedType, _operands[0].Evaluate(state), GetOffsets(state)));
     }
 
