@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -63,7 +64,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
     {
-        var allocations = _allocations;
+        var newAllocations = new List<KeyValuePair<int, Allocation>>();
 
         while (true)
         {
@@ -73,11 +74,11 @@ internal sealed class ConstantMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryWrite, space);
 
-            allocations = allocations.SetItem(index, new Allocation(allocation.Address, result.Value));
+            newAllocations.Add(KeyValuePair.Create(index, new Allocation(allocation.Address, result.Value)));
 
             if (!result.CanBeFailure)
                 return new ConstantMemory(_alignment, _blockFactory,
-                    _nextAddress, allocations);
+                    _nextAddress, _allocations.SetItems(newAllocations));
 
             space = result.FailureSpace;
         }

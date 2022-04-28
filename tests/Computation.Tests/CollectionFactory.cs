@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Symbolica.Collection;
 
 namespace Symbolica.Computation;
@@ -68,6 +69,11 @@ internal sealed class CollectionFactory : ICollectionFactory
         public IPersistentList<T> SetItem(int index, T value)
         {
             return new PersistentList<T>(_list.SetItem(index, value));
+        }
+
+        public IPersistentList<T> SetItems(IEnumerable<KeyValuePair<int, T>> items)
+        {
+            return items.Aggregate((IPersistentList<T>) this, (l, i) => l.SetItem(i.Key, i.Value));
         }
 
         public IPersistentList<T> SetRange(int index, IPersistentList<T> values)
