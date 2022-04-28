@@ -1,4 +1,6 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Linq;
+using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -22,6 +24,6 @@ public sealed class BitCast : IInstruction
 
         state.Stack.SetVariable(Id, _indexedType == null
             ? result
-            : Address.Create(_indexedType, result, result));
+            : Address.Create(_indexedType, result, Enumerable.Empty<IExpression>()));
     }
 }

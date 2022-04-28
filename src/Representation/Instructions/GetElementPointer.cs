@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -19,17 +21,18 @@ public sealed class GetElementPointer : IInstruction
 
     public void Execute(IState state)
     {
-        var baseAddress = _operands[0].Evaluate(state);
-        var address = baseAddress;
+        state.Stack.SetVariable(Id, Address.Create(_indexedType, _operands[0].Evaluate(state), GetOffsets(state)));
+    }
+
+    private IEnumerable<IExpression> GetOffsets(IState state)
+    {
         var indexedType = _indexedType;
 
         foreach (var operand in _operands.Skip(1))
         {
             var index = operand.Evaluate(state);
-            address = address.Add(indexedType.GetOffsetBytes(state.Space, index));
+            yield return indexedType.GetOffsetBytes(state.Space, index);
             indexedType = indexedType.GetType(state.Space, index);
         }
-
-        state.Stack.SetVariable(Id, Address.Create(_indexedType, baseAddress, address));
     }
 }

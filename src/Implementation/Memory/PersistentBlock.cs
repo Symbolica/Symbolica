@@ -1,4 +1,5 @@
-﻿using Symbolica.Expression;
+﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
 
@@ -97,7 +98,9 @@ internal sealed class PersistentBlock : IPersistentBlock
     private IExpression GetOffset(ISpace space, IExpression address)
     {
         var offset = space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
-            .Multiply(address.Subtract(Address));
+            .Multiply(address is IAddress a
+                ? a.SubtractBase(Address)
+                : address.Subtract(Address));
 
         return offset.ZeroExtend(_data.Size).Truncate(_data.Size);
     }
