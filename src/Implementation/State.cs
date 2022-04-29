@@ -20,6 +20,7 @@ internal sealed class State : IState, IExecutable
     private readonly ISystemProxy _system;
     private IPersistentGlobals _globals;
     private bool _isActive;
+    private Stopwatch _stopwatch;
 
     public State(IStateAction initialAction, IModule module, ISpace space,
         IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
@@ -34,10 +35,12 @@ internal sealed class State : IState, IExecutable
         _memory = memory;
         _stack = stack;
         _system = system;
+        _stopwatch = new Stopwatch();
     }
 
     public IEnumerable<IExecutable> Run()
     {
+        _stopwatch.Start();
         _initialAction.Invoke(this);
 
         while (_isActive)
@@ -71,8 +74,10 @@ internal sealed class State : IState, IExecutable
 
     public void Complete()
     {
+        _stopwatch.Stop();
         _isActive = false;
-        Console.WriteLine(string.Join(", ", Space.GetExample().Select(p => $"{p.Key}={p.Value}")));
+        string example = string.Join(", ", Space.GetExample().Select(p => $"{p.Key}={p.Value}"));
+        Console.WriteLine($"{_stopwatch.Elapsed} {ExecutedInstructions} {example}");
     }
 
     public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
