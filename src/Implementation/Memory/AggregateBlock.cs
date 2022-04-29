@@ -36,9 +36,6 @@ internal sealed class AggregateBlock : IPersistentBlock
 
     public Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value)
     {
-        if (value.Size == Size.ToBits())
-            return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, value));
-
         var isBaseAddressFullyInside = IsFullyInside(space, address.BaseAddress, value.Size.ToBytes());
         using var proposition = isBaseAddressFullyInside.GetProposition(space);
 
@@ -46,7 +43,10 @@ internal sealed class AggregateBlock : IPersistentBlock
             // TODO: Handle both
             return Result<IPersistentBlock>.Failure(proposition.CreateFalseSpace());
 
-        var nextAddress = address.SubtractBase(space, Offset);
+        // if (value.Size == Size.ToBits())
+        //     return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, value));
+
+        var nextAddress = NextAddress(space, address);
         if (nextAddress is null)
             // TODO: This could happen if there are implicit zeros at the end of a GEP
             throw new Exception("Ran out of offsets before we hit the target field.");
@@ -65,7 +65,7 @@ internal sealed class AggregateBlock : IPersistentBlock
         var isWholeAddressFullyInside = IsFullyInside(space, address, value.Size.ToBytes());
         using var proposition2 = isWholeAddressFullyInside.GetProposition(space);
 
-        if (proposition.CanBeFalse())
+        if (proposition2.CanBeFalse())
             return Result<IPersistentBlock>.Failure(proposition.CreateFalseSpace());
 
         return Result<IPersistentBlock>.Success(
@@ -77,9 +77,6 @@ internal sealed class AggregateBlock : IPersistentBlock
 
     public Result<IExpression> TryRead(ISpace space, IAddress address, Bits size)
     {
-        if (size == Size.ToBits())
-            return Result<IExpression>.Success(Data(space));
-
         var isBaseAddressFullyInside = IsFullyInside(space, address.BaseAddress, size.ToBytes());
         using var proposition = isBaseAddressFullyInside.GetProposition(space);
 
@@ -87,8 +84,10 @@ internal sealed class AggregateBlock : IPersistentBlock
             // TODO: Handle both
             return Result<IExpression>.Failure(proposition.CreateFalseSpace());
 
-        var nextAddress = address.SubtractBase(space, Offset);
+        // if (size == Size.ToBits())
+        //     return Result<IExpression>.Success(Data(space));
 
+        var nextAddress = NextAddress(space, address);
         if (nextAddress is null)
             // TODO: This could happen if there are implicit zeros at the end of a GEP
             throw new Exception("Ran out of offsets before we hit the target field.");
@@ -102,11 +101,31 @@ internal sealed class AggregateBlock : IPersistentBlock
         var isWholeAddressFullyInside = IsFullyInside(space, address, size.ToBytes());
         using var proposition2 = isWholeAddressFullyInside.GetProposition(space);
 
-        if (proposition.CanBeFalse())
+        if (proposition2.CanBeFalse())
             return Result<IExpression>.Failure(proposition.CreateFalseSpace());
 
         return Result<IExpression>.Success(
-                Data(space).Read(space, GetOffset(space, nextAddress), size));
+            Data(space).Read(space, GetOffset(space, nextAddress), size));
+    }
+
+    private IAddress? NextAddress(ISpace space, IAddress address)
+    {
+        IAddress? SkipPointers(IType parentType, IAddress? address)
+        {
+            bool IsZero(IExpression expression)
+            {
+                var isZero = expression.Equal(space.CreateZero(expression.Size));
+                using var proposition = isZero.GetProposition(space);
+                return !proposition.CanBeFalse();
+            }
+
+            return address is not null && parentType is IPointerType p && address.IndexedType.Size == Size && IsZero(address.BaseAddress)
+                ? SkipPointers(address.IndexedType, address.Tail())
+                : address;
+        }
+
+        var next = address.SubtractBase(space, Offset);
+        return SkipPointers(address.IndexedType, next);
     }
 
     public IExpression Data(ISpace space)
@@ -139,6 +158,25 @@ internal sealed class AggregateBlock : IPersistentBlock
             .Truncate(Size.ToBits());
     }
 
+    private static IPersistentBlock SplitIndexedType(ICollectionFactory collectionFactory,
+        ISpace space, Bytes address, IType indexedType, PersistentBlock block)
+    {
+        var invalidSize = indexedType switch
+        {
+            IPointerType pointer => pointer.ElementType.Size > block.Size,
+            _ => indexedType.Size != block.Size
+        };
+        if (invalidSize)
+            throw new Exception("Size problem when spitting block.");
+
+        IType type = indexedType switch
+        {
+            IPointerType pointer => pointer.Deferefence(block.Size),
+            _ => indexedType
+        };
+        return Split(collectionFactory, space, address, type, block);
+    }
+
     private static IPersistentBlock Split(ICollectionFactory collectionFactory,
         ISpace space, Bytes address, IType type, PersistentBlock block)
     {
@@ -160,9 +198,8 @@ internal sealed class AggregateBlock : IPersistentBlock
         return address is IAddress a &&
                allocation.Block is PersistentBlock b &&
                allocation.Block.IsValid &&
-               allocation.Block.Size == a.IndexedType.Size &&
                allocation.Address == (Bytes) (uint) a.BaseAddress.GetSingleValue(space)
-            ? Split(collectionFactory, space, allocation.Address, a.IndexedType, b)
+            ? SplitIndexedType(collectionFactory, space, allocation.Address, a.IndexedType, b)
             : allocation.Block;
     }
 }

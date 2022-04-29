@@ -7,7 +7,9 @@ public interface IAddress : IExpression
 {
     IType IndexedType { get; }
     IExpression BaseAddress { get; }
-    IEnumerable<IExpression> Offsets { get; }
+    IEnumerable<(IType, IExpression)> Offsets { get; }
 
+    IAddress AddImplicitOffsets(ISpace space);
     IAddress? SubtractBase(ISpace space, IExpression baseAddress);
+    IAddress? Tail();
 }
