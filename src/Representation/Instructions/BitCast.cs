@@ -1,13 +1,15 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Linq;
+using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
 public sealed class BitCast : IInstruction
 {
-    private readonly IPointerType? _indexedType;
+    private readonly IArrayType? _indexedType;
     private readonly IOperand[] _operands;
 
-    public BitCast(InstructionId id, IOperand[] operands, IPointerType? indexedType)
+    public BitCast(InstructionId id, IOperand[] operands, IArrayType? indexedType)
     {
         Id = id;
         _operands = operands;
@@ -23,6 +25,6 @@ public sealed class BitCast : IInstruction
             ? result
             : result is IAddress a
                 ? a
-                : Address.Create(state.Space, _indexedType, result, new[] { (_indexedType.ElementType, state.Space.CreateConstant(state.Space.PointerSize, 0U)) }));
+                : Address.Create(_indexedType, result, Enumerable.Empty<(IType, IExpression)>()));
     }
 }

@@ -71,8 +71,8 @@ internal sealed class ConstantMemory : IPersistentMemory
         while (true)
         {
             var (index, allocation) = Allocation.Get(space, address, _allocations);
-            if (allocation.Address == (Bytes) 78304)
-                Debugger.Break();
+            // if (allocation.Address == (Bytes) 78304)
+            //     Debugger.Break();
 
             var block = AggregateBlock.TryCreate(_collectionFactory, space, address, allocation);
             var result = block.TryWrite(space, Address.Create(address), value);
