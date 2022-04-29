@@ -38,9 +38,10 @@ internal sealed class MemorySet : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
+            var destination = _destination is IAddress d ? d.AddImplicitOffsets(state.Space) : _destination;
             foreach (var offset in Enumerable.Range(0, (int) value))
             {
-                var address = _destination.Add(state.Space.CreateConstant(_destination.Size, offset));
+                var address = destination.Add(state.Space.CreateConstant(_destination.Size, offset));
                 state.Memory.Write(address, _value);
             }
         }

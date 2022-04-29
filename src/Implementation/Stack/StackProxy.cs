@@ -79,6 +79,10 @@ internal sealed class StackProxy : IStackProxy
 
     public void SetVariable(InstructionId id, IExpression variable)
     {
+        if (id == (InstructionId) 111343) // This geezer creates the block (make sure it's got the correct type information all the way down)
+            Debugger.Break();
+        if (id == (InstructionId) 111350) // This one writes to the block but seems to contain extraneous offsets
+            Debugger.Break();
         _stack = _stack.SetVariable(id, variable);
     }
 

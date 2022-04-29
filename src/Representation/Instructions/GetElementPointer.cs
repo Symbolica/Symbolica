@@ -22,21 +22,21 @@ public sealed class GetElementPointer : IInstruction
 
     public void Execute(IState state)
     {
-        if (Id == (InstructionId) 91516)
+        if (Id == (InstructionId) 111343) // This geezer creates the block (make sure it's got the correct type information all the way down)
             Debugger.Break();
-
-        state.Stack.SetVariable(Id, Address.Create(_indexedType, _operands[0].Evaluate(state), GetOffsets(state)));
+        state.Stack.SetVariable(Id, Address.Create(state.Space, _indexedType, _operands[0].Evaluate(state), GetOffsets(state)));
     }
 
-    private IEnumerable<IExpression> GetOffsets(IState state)
+    private IEnumerable<(IType, IExpression)> GetOffsets(IState state)
     {
         var indexedType = _indexedType;
 
         foreach (var operand in _operands.Skip(1))
         {
             var index = operand.Evaluate(state);
-            yield return indexedType.GetOffsetBytes(state.Space, index);
-            indexedType = indexedType.GetType(state.Space, index);
+            var elementType = indexedType.GetType(state.Space, index);
+            yield return (elementType, indexedType.GetOffsetBytes(state.Space, index));
+            indexedType = elementType;
         }
     }
 }

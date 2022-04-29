@@ -78,7 +78,7 @@ internal sealed class InstructionFactory : IInstructionFactory
             LLVMOpcode.LLVMGetElementPtr => new GetElementPointer(
                 id,
                 operands,
-                new ArrayType(1U, _typeFactory.Create<IType>(instruction.GetOperand(0U).TypeOf.ElementType))),
+                new PointerType(_typeFactory.Create<IType>(instruction.GetOperand(0U).TypeOf.ElementType))),
             LLVMOpcode.LLVMTrunc => new Truncate(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMZExt => new ZeroExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
             LLVMOpcode.LLVMSExt => new SignExtend(id, operands, instruction.TypeOf.GetSize(_targetData)),
@@ -94,7 +94,7 @@ internal sealed class InstructionFactory : IInstructionFactory
                 id,
                 operands,
                 instruction.TypeOf.Kind == LLVMTypeKind.LLVMPointerTypeKind
-                    ? _typeFactory.Create<IType>(instruction.TypeOf.ElementType)
+                    ? new PointerType(_typeFactory.Create<IType>(instruction.TypeOf.ElementType))
                     : null),
             LLVMOpcode.LLVMAddrSpaceCast => new Unsupported(id, "addrspacecast"),
             LLVMOpcode.LLVMICmp => instruction.ICmpPredicate switch

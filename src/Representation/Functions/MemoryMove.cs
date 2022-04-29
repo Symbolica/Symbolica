@@ -37,10 +37,12 @@ internal sealed class MemoryMove : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
+            var destination = _destination is IAddress d ? d.AddImplicitOffsets(state.Space) : _destination;
+            var source = _source is IAddress s ? s.AddImplicitOffsets(state.Space) : _source;
             var length = (Bytes) (uint) value;
 
             if (length != Bytes.Zero)
-                state.Memory.Write(_destination, state.Memory.Read(_source, length.ToBits()));
+                state.Memory.Write(destination, state.Memory.Read(source, length.ToBits()));
         }
     }
 }

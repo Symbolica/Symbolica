@@ -8,18 +8,17 @@ namespace Symbolica.Abstraction;
 
 public sealed class Address : IAddress
 {
-    private readonly IExpression[] _offsets;
-    private IExpression Value => _offsets.Aggregate((a, o) => a.Add(o));
+    private readonly (IType, IExpression)[] _offsets;
+    private IExpression Value => _offsets.Select(o => o.Item2).Aggregate((a, o) => a.Add(o));
 
-    private Address(IType indexedType, IExpression[] offsets)
+    private Address((IType, IExpression)[] offsets)
     {
-        IndexedType = indexedType;
         _offsets = offsets;
     }
 
-    public IType IndexedType { get; }
-    public IExpression BaseAddress => _offsets.First();
-    public IEnumerable<IExpression> Offsets => _offsets.Skip(1);
+    public IType IndexedType => _offsets.First().Item1;
+    public IExpression BaseAddress => _offsets.First().Item2;
+    public IEnumerable<(IType, IExpression)> Offsets => _offsets.Skip(1);
 
     public Bits Size => BaseAddress.Size;
 
@@ -78,7 +77,11 @@ public sealed class Address : IAddress
     {
         return expression is IAddress // a && a.IndexedType.Size > IndexedType.Size
             ? throw new Exception("add") // expression.Add(this)
-            : new Address(IndexedType, _offsets.SkipLast(1).Append(_offsets.Last().Add(expression)).ToArray());
+            : new Address(
+                _offsets
+                    .SkipLast(1)
+                    .Append((_offsets.Last().Item1, _offsets.Last().Item2.Add(expression)))
+                    .ToArray());
     }
 
     public IExpression And(IExpression expression)
@@ -277,7 +280,10 @@ public sealed class Address : IAddress
     {
         return expression is Address a
             ? Value.Subtract(a.Value)
-            : new Address(IndexedType, _offsets.SkipLast(1).Append(_offsets.Last().Subtract(expression)).ToArray());
+            : new Address(
+                _offsets.SkipLast(1)
+                .Append((_offsets.Last().Item1, _offsets.Last().Item2.Subtract(expression)))
+                .ToArray());
     }
 
     public IAddress? SubtractBase(ISpace space, IExpression expression)
@@ -289,8 +295,8 @@ public sealed class Address : IAddress
         var isZero = baseAddress.Equal(space.CreateZero(baseAddress.Size));
         using var proposition = isZero.GetProposition(space);
 
-        var offsets = (proposition.CanBeFalse() ? new[] { baseAddress } : Enumerable.Empty<IExpression>()).Concat(Offsets);
-        return offsets.Any() ? new Address(IndexedType, offsets.ToArray()) : null;
+        var offsets = (proposition.CanBeFalse() ? new[] { (IndexedType, baseAddress) } : Enumerable.Empty<(IType, IExpression)>()).Concat(Offsets);
+        return offsets.Any() ? new Address(offsets.ToArray()) : null;
     }
 
     public IExpression Truncate(Bits size)
@@ -354,13 +360,53 @@ public sealed class Address : IAddress
 
     public static Address Create(IExpression baseAddress)
     {
-        return Create(null!, baseAddress, Enumerable.Empty<IExpression>());
+        return baseAddress is Address a ? a : new Address(new List<(IType, IExpression)> { (null!, baseAddress) }.ToArray());
     }
 
-    public static Address Create(IType indexedType, IExpression baseAddress, IEnumerable<IExpression> offsets)
+    public static Address Create(ISpace space, IType indexedType, IExpression baseAddress, IEnumerable<(IType, IExpression)> offsets)
     {
+        if (!offsets.Any())
+            throw new ArgumentException(nameof(offsets));
+
+        IEnumerable<(IType, IExpression)> CombineOffsets(Address baseAddress)
+        {
+            if (!offsets.Any())
+                return baseAddress._offsets;
+
+            var lastRight = baseAddress._offsets.Last();
+            var firstLeft = offsets.First();
+            if ((lastRight.Item1 is IPointerType p ? p.ElementType.Size : lastRight.Item1.Size) != firstLeft.Item1.Size)
+                throw new Exception("Can't merge addresses when sizes of adjoining offsets are different.");
+
+            return baseAddress._offsets
+                .SkipLast(1)
+                .Append((lastRight.Item1, lastRight.Item2.Add(firstLeft.Item2)))
+                .Concat(offsets.Skip(1));
+        }
         return baseAddress is Address a
-            ? new Address(a.IndexedType, a._offsets.Concat(offsets).ToArray())
-            : new Address(indexedType, new[] { baseAddress }.Concat(offsets).ToArray());
+            ? new Address(CombineOffsets(a).ToArray())
+            : new Address(new[] { (indexedType, baseAddress) }.Concat(offsets).ToArray());
+    }
+
+    public IAddress? Tail()
+    {
+        return Offsets.Any() ? new Address(Offsets.ToArray()) : null;
+    }
+
+    public IAddress AddImplicitOffsets(ISpace space)
+    {
+        static IEnumerable<IType> GetImplicitTypes(IType type)
+        {
+            if (type.Types.Any())
+            {
+                var nextType = type.Types.First();
+                return new[] { nextType }.Concat(GetImplicitTypes(nextType));
+            }
+            return Enumerable.Empty<IType>();
+        }
+
+        var lastOffset = _offsets.Last();
+        var newOffsets = GetImplicitTypes(lastOffset.Item1).Select(t => (t, space.CreateZero(space.PointerSize)));
+        return new Address(_offsets.Concat(newOffsets).ToArray());
     }
 }
