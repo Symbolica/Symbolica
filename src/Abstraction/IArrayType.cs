@@ -2,8 +2,9 @@
 
 namespace Symbolica.Abstraction;
 
-public interface IPointerType : IType
+public interface IArrayType : IType
 {
     IType ElementType { get; }
-    IType Deferefence(Bytes allocatedSize);
+
+    IType Resize(Bytes allocatedSize);
 }

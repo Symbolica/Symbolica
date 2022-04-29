@@ -46,10 +46,8 @@ internal sealed class AggregateBlock : IPersistentBlock
         // if (value.Size == Size.ToBits())
         //     return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, value));
 
-        var nextAddress = NextAddress(space, address);
-        if (nextAddress is null)
-            // TODO: This could happen if there are implicit zeros at the end of a GEP
-            throw new Exception("Ran out of offsets before we hit the target field.");
+        var nextAddress = address.SubtractBase(space, Offset)
+            ?? Address.Create(space.CreateZero(space.PointerSize));
 
         var (index, allocation) = Allocation.Get(space, nextAddress.BaseAddress, _allocations);
         var result = allocation.Block.TryWrite(space, nextAddress, value);
@@ -87,10 +85,8 @@ internal sealed class AggregateBlock : IPersistentBlock
         // if (size == Size.ToBits())
         //     return Result<IExpression>.Success(Data(space));
 
-        var nextAddress = NextAddress(space, address);
-        if (nextAddress is null)
-            // TODO: This could happen if there are implicit zeros at the end of a GEP
-            throw new Exception("Ran out of offsets before we hit the target field.");
+        var nextAddress = address.SubtractBase(space, Offset)
+            ?? Address.Create(space.CreateZero(space.PointerSize));
 
         var (_, allocation) = Allocation.Get(space, nextAddress, _allocations);
         var result = allocation.Block.TryRead(space, nextAddress, size);
@@ -106,26 +102,6 @@ internal sealed class AggregateBlock : IPersistentBlock
 
         return Result<IExpression>.Success(
             Data(space).Read(space, GetOffset(space, nextAddress), size));
-    }
-
-    private IAddress? NextAddress(ISpace space, IAddress address)
-    {
-        IAddress? SkipPointers(IType parentType, IAddress? address)
-        {
-            bool IsZero(IExpression expression)
-            {
-                var isZero = expression.Equal(space.CreateZero(expression.Size));
-                using var proposition = isZero.GetProposition(space);
-                return !proposition.CanBeFalse();
-            }
-
-            return address is not null && parentType is IPointerType p && address.IndexedType.Size == Size && IsZero(address.BaseAddress)
-                ? SkipPointers(address.IndexedType, address.Tail())
-                : address;
-        }
-
-        var next = address.SubtractBase(space, Offset);
-        return SkipPointers(address.IndexedType, next);
     }
 
     public IExpression Data(ISpace space)
@@ -161,18 +137,10 @@ internal sealed class AggregateBlock : IPersistentBlock
     private static IPersistentBlock SplitIndexedType(ICollectionFactory collectionFactory,
         ISpace space, Bytes address, IType indexedType, PersistentBlock block)
     {
-        var invalidSize = indexedType switch
-        {
-            IPointerType pointer => pointer.ElementType.Size > block.Size,
-            _ => indexedType.Size != block.Size
-        };
-        if (invalidSize)
-            throw new Exception("Size problem when spitting block.");
-
         IType type = indexedType switch
         {
-            IPointerType pointer => pointer.Deferefence(block.Size),
-            _ => indexedType
+            IArrayType a => a.Resize(block.Size),
+            _ => throw new Exception("Cant split a non address type.")
         };
         return Split(collectionFactory, space, address, type, block);
     }

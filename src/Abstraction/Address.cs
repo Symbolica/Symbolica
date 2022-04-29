@@ -330,31 +330,13 @@ public sealed class Address : IAddress
 
     public static Address Create(IExpression baseAddress)
     {
-        return baseAddress is Address a ? a : new Address(new List<(IType, IExpression)> { (null!, baseAddress) }.ToArray());
+        return Create(null!, baseAddress, Enumerable.Empty<(IType, IExpression)>());
     }
 
-    public static Address Create(ISpace space, IType indexedType, IExpression baseAddress, IEnumerable<(IType, IExpression)> offsets)
+    public static Address Create(IType indexedType, IExpression baseAddress, IEnumerable<(IType, IExpression)> offsets)
     {
-        if (!offsets.Any())
-            throw new ArgumentException(nameof(offsets));
-
-        IEnumerable<(IType, IExpression)> CombineOffsets(Address baseAddress)
-        {
-            if (!offsets.Any())
-                return baseAddress._offsets;
-
-            var lastRight = baseAddress._offsets.Last();
-            var firstLeft = offsets.First();
-            if ((lastRight.Item1 is IPointerType p ? p.ElementType.Size : lastRight.Item1.Size) != firstLeft.Item1.Size)
-                throw new Exception("Can't merge addresses when sizes of adjoining offsets are different.");
-
-            return baseAddress._offsets
-                .SkipLast(1)
-                .Append((lastRight.Item1, lastRight.Item2.Add(firstLeft.Item2)))
-                .Concat(offsets.Skip(1));
-        }
         return baseAddress is Address a
-            ? new Address(CombineOffsets(a).ToArray())
+            ? new Address(a._offsets.Concat(offsets).ToArray())
             : new Address(new[] { (indexedType, baseAddress) }.Concat(offsets).ToArray());
     }
 
