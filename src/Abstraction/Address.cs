@@ -21,6 +21,7 @@ public sealed class Address : IAddress
     public IEnumerable<(IType, IExpression)> Offsets => _offsets.Skip(1);
 
     public Bits Size => BaseAddress.Size;
+    public bool IsSymbolic => Value.IsSymbolic;
 
     public static bool operator ==(Address? left, Address? right)
     {

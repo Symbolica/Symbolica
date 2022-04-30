@@ -22,6 +22,7 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
     }
 
     public Bits Size => _value.Size;
+    public bool IsSymbolic => _value is not IConstantValue;
 
     public static bool operator ==(Expression? left, Expression? right)
     {

@@ -6,6 +6,7 @@ namespace Symbolica.Expression;
 public interface IExpression : IEquatable<IExpression>
 {
     Bits Size { get; }
+    bool IsSymbolic { get; }
 
     TExpression As<TExpression>()
         where TExpression : class, IExpression;
