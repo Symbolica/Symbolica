@@ -11,6 +11,7 @@ internal sealed class StatePool : IDisposable
     private readonly SemaphoreSlim _throttler;
     private Exception? _exception;
     private ulong _executedInstructions;
+    private ulong _completedStates;
 
     public StatePool(int maxParallelism)
     {
@@ -43,6 +44,7 @@ internal sealed class StatePool : IDisposable
             }
             finally
             {
+                Interlocked.Increment(ref _completedStates);
                 Interlocked.Add(ref _executedInstructions, executable.ExecutedInstructions);
                 _throttler.Release();
                 _countdownEvent.Signal();
@@ -50,11 +52,11 @@ internal sealed class StatePool : IDisposable
         });
     }
 
-    public async Task<(ulong, Exception?)> Wait()
+    public async Task<(ulong, ulong, Exception?)> Wait()
     {
         _countdownEvent.Signal();
         await Task.Run(() => { _countdownEvent.Wait(); });
 
-        return (_executedInstructions, _exception);
+        return (_completedStates, _executedInstructions, _exception);
     }
 }

@@ -21,7 +21,7 @@ internal sealed class Executor
         _maxParallelism = maxParallelism;
     }
 
-    public async Task<(ulong, Exception?)> Run(byte[] bytes)
+    public async Task<(ulong, ulong, Exception?)> Run(byte[] bytes)
     {
         var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
 
