@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,8 +20,11 @@ internal static class Program
         var bytes = await Serializer.Serialize(dir, optLevel);
         var executor = new Executor(options, maxParallelism);
 
-        var (executedInstructions, exception) = await executor.Run(bytes);
-        console.WriteLine($"Executed {executedInstructions} instructions.");
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        var (completedStates, executedInstructions, exception) = await executor.Run(bytes);
+        stopwatch.Stop();
+        console.WriteLine($"Completed {completedStates} states and executed {executedInstructions} instructions in {stopwatch.Elapsed}.");
 
         if (exception != null)
         {
