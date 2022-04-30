@@ -23,6 +23,8 @@ internal sealed class Expression : IExpression
 
     public Bits Size => _value.Size;
 
+    public bool IsSymbolic => _value is not IConstantValue;
+
     public TExpression As<TExpression>()
         where TExpression : class, IExpression
     {

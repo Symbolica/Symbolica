@@ -5,6 +5,7 @@ namespace Symbolica.Expression;
 public interface IExpression
 {
     Bits Size { get; }
+    bool IsSymbolic { get; }
 
     TExpression As<TExpression>()
         where TExpression : class, IExpression;

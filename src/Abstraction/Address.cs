@@ -22,6 +22,8 @@ public sealed class Address : IAddress
 
     public Bits Size => BaseAddress.Size;
 
+    public bool IsSymbolic => Value.IsSymbolic;
+
     public TExpression As<TExpression>()
         where TExpression : class, IExpression
     {

@@ -76,8 +76,8 @@ internal sealed class State : IState, IExecutable
     {
         _stopwatch.Stop();
         _isActive = false;
-        string example = string.Join(", ", Space.GetExample().Select(p => $"{p.Key}={p.Value}"));
-        Console.WriteLine($"{_stopwatch.Elapsed} {ExecutedInstructions} {example}");
+        // string example = string.Join(", ", Space.GetExample().Select(p => $"{p.Key}={p.Value}"));
+        Console.WriteLine($"{_stopwatch.Elapsed} {ExecutedInstructions}");
     }
 
     public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
@@ -90,7 +90,7 @@ internal sealed class State : IState, IExecutable
             {
                 _forks.Add(Clone(proposition.CreateFalseSpace(), falseAction));
                 _forks.Add(Clone(proposition.CreateTrueSpace(), trueAction));
-                _isActive = false;
+                Complete();
             }
             else
             {
