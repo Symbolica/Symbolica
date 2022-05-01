@@ -43,9 +43,6 @@ internal sealed class AggregateBlock : IPersistentBlock
             // TODO: Handle both
             return Result<IPersistentBlock>.Failure(proposition.CreateFalseSpace());
 
-        // if (value.Size == Size.ToBits())
-        //     return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, value));
-
         var nextAddress = address.SubtractBase(space, Offset)
             ?? Address.Create(space.CreateZero(space.PointerSize));
 
@@ -66,11 +63,11 @@ internal sealed class AggregateBlock : IPersistentBlock
         if (proposition2.CanBeFalse())
             return Result<IPersistentBlock>.Failure(proposition.CreateFalseSpace());
 
-        return Result<IPersistentBlock>.Success(
-            new PersistentBlock(
-                Section,
-                Offset,
-                Data(space).Write(space, GetOffset(space, nextAddress), value)));
+        var data = value.Size == Size.ToBits()
+            ? value
+            : Data(space).Write(space, GetOffset(space, nextAddress), value);
+
+        return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, data));
     }
 
     public Result<IExpression> TryRead(ISpace space, IAddress address, Bits size)
@@ -81,9 +78,6 @@ internal sealed class AggregateBlock : IPersistentBlock
         if (proposition.CanBeFalse())
             // TODO: Handle both
             return Result<IExpression>.Failure(proposition.CreateFalseSpace());
-
-        // if (size == Size.ToBits())
-        //     return Result<IExpression>.Success(Data(space));
 
         var nextAddress = address.SubtractBase(space, Offset)
             ?? Address.Create(space.CreateZero(space.PointerSize));
@@ -100,8 +94,11 @@ internal sealed class AggregateBlock : IPersistentBlock
         if (proposition2.CanBeFalse())
             return Result<IExpression>.Failure(proposition.CreateFalseSpace());
 
-        return Result<IExpression>.Success(
-            Data(space).Read(space, GetOffset(space, nextAddress), size));
+        var value = size == Size.ToBits()
+            ? Data(space)
+            : Data(space).Read(space, GetOffset(space, nextAddress), size);
+
+        return Result<IExpression>.Success(value);
     }
 
     public IExpression Data(ISpace space)
