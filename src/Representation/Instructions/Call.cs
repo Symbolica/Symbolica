@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -36,20 +35,18 @@ public sealed class Call : IInstruction, ICaller
 
     public void Execute(IState state)
     {
-        var expressions = _operands.Select(o => o.Evaluate(state)).ToArray();
-
-        var arguments = expressions.SkipLast(1).ToArray();
-        var target = expressions.Last();
+        var arguments = _operands.SkipLast(1).Select(o => o.Evaluate(state)).ToArray();
+        var target = _operands.Last().Evaluate(state);
 
         state.ForkAll(target, new Dispatch(this, arguments));
     }
 
     private sealed class Dispatch : IParameterizedStateAction
     {
-        private readonly IEnumerable<IExpression> _arguments;
+        private readonly IExpression[] _arguments;
         private readonly Call _call;
 
-        public Dispatch(Call call, IEnumerable<IExpression> arguments)
+        public Dispatch(Call call, IExpression[] arguments)
         {
             _call = call;
             _arguments = arguments;
