@@ -223,6 +223,11 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
             : Values.Or.Create(l, r));
     }
 
+    public IExpression PointerToInteger(Bits size)
+    {
+        return ZeroExtend(size).Truncate(size);
+    }
+
     public IExpression Read(ISpace space, IExpression offset, Bits size)
     {
         return Create(offset, (b, o) => Values.Read.Create(_collectionFactory, (IPersistentSpace) space, b, o, size));
