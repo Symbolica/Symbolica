@@ -10,13 +10,15 @@ namespace Symbolica.Implementation.Memory;
 internal sealed class SymbolicMemory : IPersistentMemory
 {
     private readonly Bytes _alignment;
+    private readonly ICollectionFactory _collectionFactory;
     private readonly IBlockFactory _blockFactory;
     private readonly IPersistentList<IPersistentBlock> _blocks;
 
-    private SymbolicMemory(Bytes alignment, IBlockFactory blockFactory,
+    private SymbolicMemory(Bytes alignment, ICollectionFactory collectionFactory, IBlockFactory blockFactory,
         IPersistentList<IPersistentBlock> blocks)
     {
         _alignment = alignment;
+        _collectionFactory = collectionFactory;
         _blockFactory = blockFactory;
         _blocks = blocks;
     }
@@ -26,7 +28,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
         var address = CreateAddress(space, size.ToBytes());
         var block = _blockFactory.Create(space, section, address, size);
 
-        return (address, new SymbolicMemory(_alignment, _blockFactory,
+        return (address, new SymbolicMemory(_alignment, _collectionFactory, _blockFactory,
             _blocks.Add(block)));
     }
 
@@ -38,7 +40,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
                 var newAddress = CreateAddress(space, size.ToBytes());
                 var newBlock = block.Move(newAddress, size);
 
-                return (newAddress, new SymbolicMemory(_alignment, _blockFactory,
+                return (newAddress, new SymbolicMemory(_alignment, _collectionFactory, _blockFactory,
                     _blocks.SetItem(index, newBlock)));
             }
 
@@ -49,7 +51,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
     {
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
             if (block.CanFree(space, section, address))
-                return new SymbolicMemory(_alignment, _blockFactory,
+                return new SymbolicMemory(_alignment, _collectionFactory, _blockFactory,
                     _blocks.SetItem(index, _blockFactory.CreateInvalid()));
 
         throw new StateException(StateError.InvalidMemoryFree, space);
@@ -61,7 +63,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
         {
-            var result = block.TryWrite(space, Address.Create(address), value);
+            var result = block.TryWrite(_collectionFactory, space, Address.Create(address), value);
 
             if (!result.CanBeSuccess)
                 continue;
@@ -69,7 +71,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
             newBlocks.Add(KeyValuePair.Create(index, result.Value));
 
             if (!result.CanBeFailure)
-                return new SymbolicMemory(_alignment, _blockFactory,
+                return new SymbolicMemory(_alignment, _collectionFactory, _blockFactory,
                     _blocks.SetItems(newBlocks));
 
             space = result.FailureSpace;
@@ -129,7 +131,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
     public static IPersistentMemory Create(Bytes alignment,
         IBlockFactory blockFactory, ICollectionFactory collectionFactory)
     {
-        return new SymbolicMemory(alignment, blockFactory,
+        return new SymbolicMemory(alignment, collectionFactory, blockFactory,
             collectionFactory.CreatePersistentList<IPersistentBlock>());
     }
 }

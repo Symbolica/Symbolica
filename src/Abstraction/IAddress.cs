@@ -11,5 +11,4 @@ public interface IAddress : IExpression
 
     IAddress AddImplicitOffsets(ISpace space);
     IAddress? SubtractBase(ISpace space, IExpression baseAddress);
-    IAddress? Tail();
 }
