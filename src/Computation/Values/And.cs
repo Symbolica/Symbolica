@@ -52,6 +52,7 @@ internal sealed record And : BitVector
         {
             (IConstantValue l, _) => ShortCircuit(right, l.AsUnsigned()),
             (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
+            _ when left.Equals(right) => left,
             _ => new And(left, right)
         };
     }
