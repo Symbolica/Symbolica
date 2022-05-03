@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Collection;
 using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
 
@@ -27,6 +28,7 @@ internal sealed class BlockFactory : IBlockFactory
         public bool IsValid => false;
         public IExpression Offset => throw new ImplementationException("Invalid block has no address.");
         public Bytes Size => throw new ImplementationException("Invalid block has no size.");
+        public Section Section => throw new ImplementationException("Invalid block has no section.");
 
         public IPersistentBlock Move(IExpression address, Bits size)
         {
@@ -38,7 +40,7 @@ internal sealed class BlockFactory : IBlockFactory
             return false;
         }
 
-        public Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value)
+        public Result<IPersistentBlock> TryWrite(ICollectionFactory _, ISpace space, IAddress address, IExpression value)
         {
             return Result<IPersistentBlock>.Failure(space);
         }

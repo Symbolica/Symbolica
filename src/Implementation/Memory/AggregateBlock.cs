@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -34,7 +36,7 @@ internal sealed class AggregateBlock : IPersistentBlock
         return true;
     }
 
-    public Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value)
+    public Result<IPersistentBlock> TryWrite(ICollectionFactory collectionFactory, ISpace space, IAddress address, IExpression value)
     {
         var isBaseAddressFullyInside = IsFullyInside(space, address.BaseAddress, value.Size.ToBytes());
         using var proposition = isBaseAddressFullyInside.GetProposition(space);
@@ -43,11 +45,11 @@ internal sealed class AggregateBlock : IPersistentBlock
             // TODO: Handle both
             return Result<IPersistentBlock>.Failure(proposition.CreateFalseSpace());
 
-        var nextAddress = address.SubtractBase(space, Offset)
+        var relativeAddress = address.SubtractBase(space, Offset)
             ?? Address.Create(space.CreateZero(space.PointerSize));
 
-        var (index, allocation) = Allocation.Get(space, nextAddress.BaseAddress, _allocations);
-        var result = allocation.Block.TryWrite(space, nextAddress, value);
+        var (index, allocation) = Allocation.Get(space, relativeAddress.BaseAddress, _allocations);
+        var result = allocation.Block.TryWrite(collectionFactory, space, relativeAddress, value);
 
         if (!result.CanBeFailure)
             return Result<IPersistentBlock>.Success(
@@ -65,9 +67,25 @@ internal sealed class AggregateBlock : IPersistentBlock
 
         var data = value.Size == Size.ToBits()
             ? value
-            : Data(space).Write(space, GetOffset(space, nextAddress), value);
+            : Data(space).Write(space, GetOffset(space, relativeAddress), value);
 
-        return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, data));
+        var allocations = _allocations.Select(
+            a => new Allocation(
+                a.Address,
+                new PersistentBlock(
+                    a.Block.Section,
+                    a.Block.Offset,
+                    data.Read(
+                        space,
+                        GetOffset(space, space.CreateConstant(space.PointerSize, (uint) a.Address)),
+                        a.Block.Size.ToBits()))));
+
+        return Result<IPersistentBlock>.Success(
+            new AggregateBlock(
+                Section,
+                Offset,
+                Size,
+                collectionFactory.CreatePersistentList<Allocation>().AddRange(allocations)));
     }
 
     public Result<IExpression> TryRead(ISpace space, IAddress address, Bits size)
@@ -79,11 +97,11 @@ internal sealed class AggregateBlock : IPersistentBlock
             // TODO: Handle both
             return Result<IExpression>.Failure(proposition.CreateFalseSpace());
 
-        var nextAddress = address.SubtractBase(space, Offset)
+        var relativeAddress = address.SubtractBase(space, Offset)
             ?? Address.Create(space.CreateZero(space.PointerSize));
 
-        var (_, allocation) = Allocation.Get(space, nextAddress, _allocations);
-        var result = allocation.Block.TryRead(space, nextAddress, size);
+        var (_, allocation) = Allocation.Get(space, relativeAddress, _allocations);
+        var result = allocation.Block.TryRead(space, relativeAddress, size);
 
         if (!result.CanBeFailure)
             return result;
@@ -96,7 +114,7 @@ internal sealed class AggregateBlock : IPersistentBlock
 
         var value = size == Size.ToBits()
             ? Data(space)
-            : Data(space).Read(space, GetOffset(space, nextAddress), size);
+            : Data(space).Read(space, GetOffset(space, relativeAddress), size);
 
         return Result<IExpression>.Success(value);
     }
@@ -107,9 +125,11 @@ internal sealed class AggregateBlock : IPersistentBlock
             space.CreateZero(Size.ToBits()),
             (buffer, alloc) =>
                 buffer.Or(
-                        alloc.Block.Data(space)
-                            .ZeroExtend(Size.ToBits())
-                            .ShiftLeft(GetOffset(space, alloc.Block.Offset))));
+                    alloc.Block.Data(space)
+                        // Something in SQLite does a symbolic read from a buffer of addresses
+                        // This "works", but then leads to dumb read on a mega struct
+                        .ZeroExtend(Size.ToBits())
+                        .ShiftLeft(GetOffset(space, alloc.Block.Offset))));
     }
 
     private IExpression IsFullyInside(ISpace space, IExpression address, Bytes size)

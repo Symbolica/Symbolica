@@ -6,6 +6,7 @@ public interface IExpression
 {
     Bits Size { get; }
     bool IsSymbolic { get; }
+    bool IsTheOneThatIWant { get; }
 
     TExpression As<TExpression>()
         where TExpression : class, IExpression;

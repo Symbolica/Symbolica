@@ -22,6 +22,7 @@ public sealed class Address : IAddress
 
     public Bits Size => BaseAddress.Size;
 
+    public bool IsTheOneThatIWant => Value.IsTheOneThatIWant;
     public bool IsSymbolic => Value.IsSymbolic;
 
     public TExpression As<TExpression>()
@@ -345,11 +346,6 @@ public sealed class Address : IAddress
         return baseAddress is Address a
             ? new Address(a._offsets.Concat(offsets).ToArray())
             : new Address(new[] { (indexedType, baseAddress) }.Concat(offsets).ToArray());
-    }
-
-    public IAddress? Tail()
-    {
-        return Offsets.Any() ? new Address(Offsets.ToArray()) : null;
     }
 
     public IAddress AddImplicitOffsets(ISpace space)

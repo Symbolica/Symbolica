@@ -1,5 +1,5 @@
-﻿using System.Net.Sockets;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
+using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
@@ -8,10 +8,10 @@ internal sealed class PersistentBlock : IPersistentBlock
 {
     private readonly IExpression _data;
 
-    public PersistentBlock(Section section, IExpression address, IExpression data)
+    public PersistentBlock(Section section, IExpression offset, IExpression data)
     {
         Section = section;
-        Offset = address;
+        Offset = offset;
         _data = data;
     }
 
@@ -19,7 +19,7 @@ internal sealed class PersistentBlock : IPersistentBlock
     public IExpression Offset { get; }
     public Bytes Size => _data.Size.ToBytes();
 
-    internal Section Section { get; }
+    public Section Section { get; }
 
     public IPersistentBlock Move(IExpression address, Bits size)
     {
@@ -31,7 +31,7 @@ internal sealed class PersistentBlock : IPersistentBlock
         return Section == section && IsZeroOffset(space, address);
     }
 
-    public Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value)
+    public Result<IPersistentBlock> TryWrite(ICollectionFactory collectionFactory, ISpace space, IAddress address, IExpression value)
     {
         if (value.Size == _data.Size && IsZeroOffset(space, address))
             return Result<IPersistentBlock>.Success(

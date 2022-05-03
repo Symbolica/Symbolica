@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -71,11 +72,10 @@ internal sealed class ConstantMemory : IPersistentMemory
         while (true)
         {
             var (index, allocation) = Allocation.Get(space, address, _allocations);
-            // if (allocation.Address == (Bytes) 78304)
-            //     Debugger.Break();
 
             var block = AggregateBlock.TryCreate(_collectionFactory, space, address, allocation);
-            var result = block.TryWrite(space, Address.Create(address), value);
+
+            var result = block.TryWrite(_collectionFactory, space, Address.Create(address), value);
 
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryWrite, space);
@@ -98,6 +98,9 @@ internal sealed class ConstantMemory : IPersistentMemory
         {
             var (_, allocation) = Allocation.Get(space, address, _allocations);
             var result = allocation.Block.TryRead(space, Address.Create(address), size);
+
+            if (result.Value.IsTheOneThatIWant)
+                Debugger.Break();
 
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryRead, space);
