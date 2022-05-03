@@ -191,6 +191,11 @@ public sealed class Address : IAddress
         return Value.Or(expression);
     }
 
+    public IExpression PointerToInteger(Bits size)
+    {
+        return Value.PointerToInteger(size);
+    }
+
     public IExpression Read(ISpace space, IExpression offset, Bits size)
     {
         return Value.Read(space, offset, size);

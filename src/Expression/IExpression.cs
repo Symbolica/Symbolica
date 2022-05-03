@@ -41,6 +41,7 @@ public interface IExpression
     IExpression Multiply(IExpression expression);
     IExpression NotEqual(IExpression expression);
     IExpression Or(IExpression expression);
+    IExpression PointerToInteger(Bits size);
     IExpression Read(ISpace space, IExpression offset, Bits size);
     IExpression Select(IExpression trueValue, IExpression falseValue);
     IExpression ShiftLeft(IExpression expression);
