@@ -39,8 +39,6 @@ internal sealed record LogicalAnd : Bool
             ? ShortCircuit(left, r.AsBool())
             : left is IConstantValue l
                 ? ShortCircuit(right, l.AsBool())
-                : left.Equals(right)
-                    ? left
-                    : new LogicalAnd(left, right);
+                : new LogicalAnd(left, right);
     }
 }
