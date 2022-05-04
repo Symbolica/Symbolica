@@ -1,5 +1,4 @@
 ﻿using Symbolica.Abstraction;
-using Symbolica.Collection;
 using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
 
@@ -40,7 +39,7 @@ internal sealed class BlockFactory : IBlockFactory
             return false;
         }
 
-        public Result<IPersistentBlock> TryWrite(ICollectionFactory _, ISpace space, IAddress address, IExpression value)
+        public Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value)
         {
             return Result<IPersistentBlock>.Failure(space);
         }
