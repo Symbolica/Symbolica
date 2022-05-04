@@ -1,4 +1,3 @@
-﻿using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -7,24 +6,21 @@ using Symbolica.Implementation.System;
 
 namespace Symbolica.Implementation;
 
-internal sealed class State : IState, IExecutable
+internal sealed class State : IState, IExecutableState
 {
-    private readonly List<IExecutable> _forks;
-    private readonly IStateAction _initialAction;
     private readonly IMemoryProxy _memory;
     private readonly IModule _module;
     private readonly IStackProxy _stack;
+    private readonly IStatePool _statePool;
     private readonly ISystemProxy _system;
     private IPersistentGlobals _globals;
     private bool _isActive;
 
-    public State(IStateAction initialAction, IModule module, ISpace space,
+    public State(IStatePool statePool, IModule module, ISpace space,
         IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
     {
-        ExecutedInstructions = 0UL;
-        _forks = new List<IExecutable>();
         _isActive = true;
-        _initialAction = initialAction;
+        _statePool = statePool;
         _module = module;
         Space = space;
         _globals = globals;
@@ -33,20 +29,11 @@ internal sealed class State : IState, IExecutable
         _system = system;
     }
 
-    public IEnumerable<IExecutable> Run()
+    public bool TryExecuteNextInstruction()
     {
-        _initialAction.Invoke(this);
-
-        while (_isActive)
-        {
-            _stack.ExecuteNextInstruction(this);
-            ++ExecutedInstructions;
-        }
-
-        return _forks;
+        return _isActive && _stack.ExecuteNextInstruction(this);
     }
 
-    public ulong ExecutedInstructions { get; private set; }
     public ISpace Space { get; }
     public IMemory Memory => _memory;
     public IStack Stack => _stack;
@@ -79,8 +66,8 @@ internal sealed class State : IState, IExecutable
         {
             if (proposition.CanBeTrue())
             {
-                _forks.Add(Clone(proposition.CreateFalseSpace(), falseAction));
-                _forks.Add(Clone(proposition.CreateTrueSpace(), trueAction));
+                _statePool.Add(new ForkedStateFactory(this, proposition.CreateFalseSpace(), falseAction));
+                _statePool.Add(new ForkedStateFactory(this, proposition.CreateTrueSpace(), trueAction));
                 Complete();
             }
             else
@@ -94,13 +81,30 @@ internal sealed class State : IState, IExecutable
         }
     }
 
-    private State Clone(ISpace space, IStateAction initialAction)
+    private sealed class ForkedStateFactory : IStateFactory
     {
-        var memory = _memory.Clone(space);
-        var stack = _stack.Clone(space, memory);
-        var system = _system.Clone(space, memory);
+        private readonly IStateAction _action;
+        private readonly ISpace _space;
+        private readonly State _state;
 
-        return new State(initialAction, _module, space,
-            _globals, memory, stack, system);
+        public ForkedStateFactory(State state, ISpace space, IStateAction action)
+        {
+            _state = state;
+            _space = space;
+            _action = action;
+        }
+
+        public IExecutableState Create(IStatePool statePool)
+        {
+            var memory = _state._memory.Clone(_space);
+            var stack = _state._stack.Clone(_space, memory);
+            var system = _state._system.Clone(_space, memory);
+
+            var state = new State(_state._statePool, _state._module, _space,
+                _state._globals, memory, stack, system);
+
+            _action.Invoke(state);
+            return state;
+        }
     }
 }

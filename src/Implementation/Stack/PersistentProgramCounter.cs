@@ -20,7 +20,6 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
     }
 
     public BasicBlockId PredecessorId => _predecessorId ?? throw new UndefinedPredecessorException();
-
     public IInstruction Instruction => _basicBlock.GetInstruction(_index);
 
     public IPersistentProgramCounter TransferBasicBlock(BasicBlockId id)

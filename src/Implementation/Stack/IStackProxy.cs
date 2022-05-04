@@ -7,5 +7,5 @@ namespace Symbolica.Implementation.Stack;
 internal interface IStackProxy : IStack
 {
     IStackProxy Clone(ISpace space, IMemoryProxy memory);
-    void ExecuteNextInstruction(IState state);
+    bool ExecuteNextInstruction(IState state);
 }

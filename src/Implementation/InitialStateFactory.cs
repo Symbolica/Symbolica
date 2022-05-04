@@ -9,30 +9,34 @@ using Symbolica.Implementation.System;
 
 namespace Symbolica.Implementation;
 
-public sealed class ExecutableFactory
+public sealed class InitialStateFactory : IStateFactory
 {
     private readonly ICollectionFactory _collectionFactory;
     private readonly IFileSystem _fileSystem;
+    private readonly IModule _module;
+    private readonly Options _options;
     private readonly ISpaceFactory _spaceFactory;
 
-    public ExecutableFactory(
+    public InitialStateFactory(IModule module, Options options,
         IFileSystem fileSystem, ISpaceFactory spaceFactory, ICollectionFactory collectionFactory)
     {
+        _module = module;
+        _options = options;
         _fileSystem = fileSystem;
         _spaceFactory = spaceFactory;
         _collectionFactory = collectionFactory;
     }
 
-    public IExecutable CreateInitial(IModule module, Options options)
+    public IExecutableState Create(IStatePool statePool)
     {
-        var space = _spaceFactory.CreateInitial(module.PointerSize, options.UseSymbolicGarbage);
+        var space = _spaceFactory.CreateInitial(_module.PointerSize, _options.UseSymbolicGarbage);
 
-        var globals = PersistentGlobals.Create(module, _collectionFactory);
-        var memory = new MemoryProxy(space, CreateMemory(module, options));
-        var stack = new StackProxy(space, memory, CreateStack(module, options));
-        var system = new SystemProxy(space, memory, CreateSystem(module));
+        var globals = PersistentGlobals.Create(_module, _collectionFactory);
+        var memory = new MemoryProxy(space, CreateMemory(_module, _options));
+        var stack = new StackProxy(space, memory, CreateStack(_module, _options));
+        var system = new SystemProxy(space, memory, CreateSystem(_module));
 
-        return new State(new NoOp(), module, space,
+        return new State(statePool, _module, space,
             globals, memory, stack, system);
     }
 
@@ -70,12 +74,5 @@ public sealed class ExecutableFactory
         var descriptionFactory = new DescriptionFactory(_fileSystem);
 
         return PersistentSystem.Create(module, descriptionFactory, _collectionFactory);
-    }
-
-    private sealed class NoOp : IStateAction
-    {
-        public void Invoke(IState state)
-        {
-        }
     }
 }

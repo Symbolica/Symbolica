@@ -13,8 +13,8 @@ internal static class Program
 {
     public static readonly int DefaultMaxParallelism = 8 * Environment.ProcessorCount;
 
-    private static async Task<int> Handler(IConsole console, DirectoryInfo dir, string optLevel, Options options,
-        int maxParallelism)
+    private static async Task<int> Handler(IConsole console,
+        DirectoryInfo dir, string optLevel, Options options, int maxParallelism)
     {
         var bytes = await Serializer.Serialize(dir, optLevel);
         var executor = new Executor(options, maxParallelism);

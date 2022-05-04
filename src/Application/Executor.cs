@@ -27,10 +27,11 @@ internal sealed class Executor
 
         var collectionFactory = new CollectionFactory();
         var spaceFactory = new SpaceFactory(collectionFactory);
-        var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
+        var stateFactory = new InitialStateFactory(module, _options,
+            CreateFileSystem(), spaceFactory, collectionFactory);
 
         using var statePool = new StatePool(_maxParallelism);
-        statePool.Add(executableFactory.CreateInitial(module, _options));
+        statePool.Add(stateFactory);
 
         return await statePool.Wait();
     }

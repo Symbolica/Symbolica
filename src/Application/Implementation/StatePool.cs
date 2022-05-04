@@ -1,41 +1,44 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Symbolica.Implementation;
 
-namespace Symbolica;
+namespace Symbolica.Implementation;
 
-internal sealed class StatePool : IDisposable
+internal sealed class StatePool : IStatePool, IDisposable
 {
-    private readonly CountdownEvent _countdownEvent;
+    private readonly CountdownEvent _coordinator;
     private readonly SemaphoreSlim _throttler;
     private Exception? _exception;
     private ulong _executedInstructions;
 
     public StatePool(int maxParallelism)
     {
-        _countdownEvent = new CountdownEvent(1);
         _exception = null;
         _executedInstructions = 0UL;
+        _coordinator = new CountdownEvent(1);
         _throttler = new SemaphoreSlim(maxParallelism);
     }
 
     public void Dispose()
     {
-        _countdownEvent.Dispose();
+        _coordinator.Dispose();
+        _throttler.Dispose();
     }
 
-    public void Add(IExecutable executable)
+    public void Add(IStateFactory stateFactory)
     {
-        _countdownEvent.AddCount();
+        _coordinator.AddCount();
+
         Task.Run(async () =>
         {
             await _throttler.WaitAsync();
+
+            var executedInstructions = 0UL;
             try
             {
-                foreach (var child in executable.Run())
-                    if (_exception == null)
-                        Add(child);
+                var state = stateFactory.Create(this);
+                while (_exception == null && state.TryExecuteNextInstruction())
+                    ++executedInstructions;
             }
             catch (Exception exception)
             {
@@ -43,17 +46,17 @@ internal sealed class StatePool : IDisposable
             }
             finally
             {
-                Interlocked.Add(ref _executedInstructions, executable.ExecutedInstructions);
+                Interlocked.Add(ref _executedInstructions, executedInstructions);
                 _throttler.Release();
-                _countdownEvent.Signal();
+                _coordinator.Signal();
             }
         });
     }
 
     public async Task<(ulong, Exception?)> Wait()
     {
-        _countdownEvent.Signal();
-        await Task.Run(() => { _countdownEvent.Wait(); });
+        _coordinator.Signal();
+        await Task.Run(() => { _coordinator.Wait(); });
 
         return (_executedInstructions, _exception);
     }

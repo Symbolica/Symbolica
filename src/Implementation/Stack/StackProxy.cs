@@ -25,10 +25,12 @@ internal sealed class StackProxy : IStackProxy
         return new StackProxy(space, memory, _stack);
     }
 
-    public void ExecuteNextInstruction(IState state)
+    public bool ExecuteNextInstruction(IState state)
     {
         _stack = _stack.MoveNextInstruction();
         _stack.Instruction.Execute(state);
+
+        return true;
     }
 
     public void Wind(ICaller caller, IInvocation invocation)
