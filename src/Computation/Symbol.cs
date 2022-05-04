@@ -30,6 +30,20 @@ internal sealed record Symbol : BitVector
         return Equals(other as Symbol);
     }
 
+    public bool Equals(Symbol? other)
+    {
+        return other is not null && _name.Equals(other._name) && _assertions.SequenceEqual(other._assertions);
+    }
+
+    public override int GetHashCode()
+    {
+        var assertionsHash = new HashCode();
+        foreach (var assertion in _assertions)
+            assertionsHash.Add(assertion);
+
+        return HashCode.Combine(assertionsHash.ToHashCode(), _name);
+    }
+
     public static IValue Create(Bits size, string name, IEnumerable<Func<IValue, IValue>> assertions)
     {
         var unconstrained = new Symbol(size, name, Array.Empty<IValue>());

@@ -55,7 +55,12 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
 
     public override bool Equals(IValue? other)
     {
-        return other is IConstantValue v && Equal(v.AsUnsigned());
+        return Equals(other as IConstantValue);
+    }
+
+    public bool Equals(IConstantValue? other)
+    {
+        return other is not null && Equal(other.AsUnsigned());
     }
 
     public ConstantUnsigned Add(ConstantUnsigned value)

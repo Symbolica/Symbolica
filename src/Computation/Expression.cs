@@ -9,7 +9,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed class Expression : IExpression
+internal sealed class Expression : IExpression, IEquatable<Expression>
 {
     private readonly ICollectionFactory _collectionFactory;
     private readonly IValue _value;
@@ -22,6 +22,36 @@ internal sealed class Expression : IExpression
     }
 
     public Bits Size => _value.Size;
+
+    public static bool operator ==(Expression? left, Expression? right)
+    {
+        return left?.Equals(right) ?? right is null;
+    }
+
+    public static bool operator !=(Expression? left, Expression? right)
+    {
+        return !(left == right);
+    }
+
+    public override bool Equals(object? other)
+    {
+        return Equals(other as Expression);
+    }
+
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
+
+    public bool Equals(Expression? other)
+    {
+        return ReferenceEquals(this, other) || _value.Equals(other?._value);
+    }
+
+    public bool Equals(IExpression? other)
+    {
+        return Equals(other as Expression);
+    }
 
     public BigInteger GetSingleValue(ISpace space)
     {

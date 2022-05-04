@@ -1,8 +1,9 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace Symbolica.Expression;
 
-public interface IExpression
+public interface IExpression : IEquatable<IExpression>
 {
     Bits Size { get; }
 
