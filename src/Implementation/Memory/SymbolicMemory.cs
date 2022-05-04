@@ -63,7 +63,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
         {
-            var result = block.TryWrite(_collectionFactory, space, Address.Create(address), value);
+            var result = block.TryWrite(space, Address.Create(address), value);
 
             if (!result.CanBeSuccess)
                 continue;

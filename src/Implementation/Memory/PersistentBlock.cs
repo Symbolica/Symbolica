@@ -1,5 +1,4 @@
 ﻿using Symbolica.Abstraction;
-using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
@@ -31,7 +30,7 @@ internal sealed class PersistentBlock : IPersistentBlock
         return Section == section && IsZeroOffset(space, address);
     }
 
-    public Result<IPersistentBlock> TryWrite(ICollectionFactory collectionFactory, ISpace space, IAddress address, IExpression value)
+    public Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value)
     {
         if (value.Size == _data.Size && IsZeroOffset(space, address))
             return Result<IPersistentBlock>.Success(

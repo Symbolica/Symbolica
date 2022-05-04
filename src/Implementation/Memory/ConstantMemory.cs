@@ -75,7 +75,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
             var block = AggregateBlock.TryCreate(_collectionFactory, space, address, allocation);
 
-            var result = block.TryWrite(_collectionFactory, space, Address.Create(address), value);
+            var result = block.TryWrite(space, Address.Create(address), value);
 
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryWrite, space);

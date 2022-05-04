@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -36,7 +34,7 @@ internal sealed class AggregateBlock : IPersistentBlock
         return true;
     }
 
-    public Result<IPersistentBlock> TryWrite(ICollectionFactory collectionFactory, ISpace space, IAddress address, IExpression value)
+    public Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value)
     {
         var isBaseAddressFullyInside = IsFullyInside(space, address.BaseAddress, value.Size.ToBytes());
         using var proposition = isBaseAddressFullyInside.GetProposition(space);
@@ -49,7 +47,7 @@ internal sealed class AggregateBlock : IPersistentBlock
             ?? Address.Create(space.CreateZero(space.PointerSize));
 
         var (index, allocation) = Allocation.Get(space, relativeAddress.BaseAddress, _allocations);
-        var result = allocation.Block.TryWrite(collectionFactory, space, relativeAddress, value);
+        var result = allocation.Block.TryWrite(space, relativeAddress, value);
 
         if (!result.CanBeFailure)
             return Result<IPersistentBlock>.Success(
@@ -65,27 +63,13 @@ internal sealed class AggregateBlock : IPersistentBlock
         if (proposition2.CanBeFalse())
             return Result<IPersistentBlock>.Failure(proposition.CreateFalseSpace());
 
+        // Find the indices this write interacts with
+
         var data = value.Size == Size.ToBits()
             ? value
             : Data(space).Write(space, GetOffset(space, relativeAddress), value);
 
-        var allocations = _allocations.Select(
-            a => new Allocation(
-                a.Address,
-                new PersistentBlock(
-                    a.Block.Section,
-                    a.Block.Offset,
-                    data.Read(
-                        space,
-                        GetOffset(space, space.CreateConstant(space.PointerSize, (uint) a.Address)),
-                        a.Block.Size.ToBits()))));
-
-        return Result<IPersistentBlock>.Success(
-            new AggregateBlock(
-                Section,
-                Offset,
-                Size,
-                collectionFactory.CreatePersistentList<Allocation>().AddRange(allocations)));
+        return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, data));
     }
 
     public Result<IExpression> TryRead(ISpace space, IAddress address, Bits size)
