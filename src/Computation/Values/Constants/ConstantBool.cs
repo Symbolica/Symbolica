@@ -50,7 +50,22 @@ internal sealed record ConstantBool : Bool, IConstantValue
 
     public override bool Equals(IValue? other)
     {
+        return Equals(other as IConstantValue);
+    }
+
+    public bool Equals(IConstantValue? other)
+    {
         return AsUnsigned().Equals(other);
+    }
+
+    public bool Equals(ConstantBool? other)
+    {
+        return Equals(other as IConstantValue);
+    }
+
+    public override int GetHashCode()
+    {
+        return AsUnsigned().GetHashCode();
     }
 
     public ConstantBool Not()

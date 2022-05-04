@@ -52,7 +52,22 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
 
     public override bool Equals(IValue? other)
     {
+        return Equals(other as IConstantValue);
+    }
+
+    public bool Equals(IConstantValue? other)
+    {
         return AsUnsigned().Equals(other);
+    }
+
+    public bool Equals(ConstantSigned? other)
+    {
+        return Equals(other as IConstantValue);
+    }
+
+    public override int GetHashCode()
+    {
+        return AsUnsigned().GetHashCode();
     }
 
     public ConstantSigned Divide(ConstantSigned value)
