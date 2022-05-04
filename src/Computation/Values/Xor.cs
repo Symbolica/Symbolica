@@ -52,6 +52,7 @@ internal sealed record Xor : BitVector
         {
             (IConstantValue l, _) => ShortCircuit(right, l.AsUnsigned()),
             (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
+            _ when left.Equals(right) => ConstantUnsigned.CreateZero(left.Size),
             _ => new Xor(left, right)
         };
     }
