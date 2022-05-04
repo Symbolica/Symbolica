@@ -61,35 +61,6 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
     {
         return this as TExpression ?? throw new UnsupportedExpressionTypeException(GetType());
     }
-    public static bool operator ==(Expression? left, Expression? right)
-    {
-        return left?.Equals(right) ?? right is null;
-    }
-
-    public static bool operator !=(Expression? left, Expression? right)
-    {
-        return !(left == right);
-    }
-
-    public override bool Equals(object? other)
-    {
-        return Equals(other as Expression);
-    }
-
-    public override int GetHashCode()
-    {
-        return _value.GetHashCode();
-    }
-
-    public bool Equals(Expression? other)
-    {
-        return ReferenceEquals(this, other) || _value.Equals(other?._value);
-    }
-
-    public bool Equals(IExpression? other)
-    {
-        return Equals(other as Expression);
-    }
 
     public BigInteger GetSingleValue(ISpace space)
     {
