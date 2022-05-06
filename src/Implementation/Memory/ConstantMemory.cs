@@ -73,7 +73,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
             var block = AggregateBlock.TryCreate(_collectionFactory, space, address, allocation);
 
-            var result = block.TryWrite(space, Address.Create(space, address), value);
+            var result = block.TryWrite(space, Address.Create(address), value);
 
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryWrite, space);
@@ -95,7 +95,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         while (true)
         {
             var (_, allocation) = Allocation.Get(space, address, _allocations);
-            var result = allocation.Block.TryRead(space, Address.Create(space, address), size);
+            var result = allocation.Block.TryRead(space, Address.Create(address), size);
 
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryRead, space);

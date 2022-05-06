@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -15,6 +16,12 @@ internal abstract record Integer : IValue
     public abstract BitVecExpr AsBitVector(ISolver solver);
     public abstract BoolExpr AsBool(ISolver solver);
     public abstract bool Equals(IValue? other);
+
+    public virtual bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+    {
+        merged = value;
+        return Equals(value);
+    }
 
     public FPExpr AsFloat(ISolver solver)
     {

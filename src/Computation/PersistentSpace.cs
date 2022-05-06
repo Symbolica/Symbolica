@@ -27,10 +27,21 @@ internal sealed class PersistentSpace : IPersistentSpace
 
     public IPersistentSpace Assert(IValue assertion)
     {
+        IPersistentStack<IValue> Assertions()
+        {
+            var (merged, assertions) = _assertions.Aggregate(
+                (merged: false, assertions: _collectionFactory.CreatePersistentStack<IValue>()),
+                (x, a) =>
+                    !x.merged && a.TryMerge(assertion, out var mergedAssertion)
+                        ? (true, x.assertions.Push(mergedAssertion))
+                        : (x.merged, x.assertions.Push(a)));
+            return merged
+                ? assertions
+                : assertions.Push(assertion);
+        }
         return assertion is IConstantValue
             ? this
-            : new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory,
-                _assertions.Push(assertion));
+            : new PersistentSpace(PointerSize, _useSymbolicGarbage, _collectionFactory, Assertions());
     }
 
     public ISolver CreateSolver()

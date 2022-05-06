@@ -34,6 +34,12 @@ internal abstract record Float : IValue
     public abstract FPExpr AsFloat(ISolver solver);
     public abstract bool Equals(IValue? other);
 
+    public bool TryMerge(IValue value, out IValue merged)
+    {
+        merged = value;
+        return Equals(value);
+    }
+
     private BitVecExpr CreateNan(ISolver solver)
     {
         using var sort = Size.GetSort(solver);

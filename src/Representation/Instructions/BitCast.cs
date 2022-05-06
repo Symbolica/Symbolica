@@ -26,7 +26,7 @@ public sealed class BitCast : IInstruction
             : result is IAddress a
                 ? a.Offsets.Any()
                     ? a
-                    : Address.Create(state.Space, _indexedType, a.BaseAddress, a.Offsets)
-                : Address.Create(state.Space, _indexedType, result, Enumerable.Empty<(IType, IExpression)>()));
+                    : Address.Create(_indexedType, a.BaseAddress, a.Offsets)
+                : Address.Create(_indexedType, result, Enumerable.Empty<(IType, IExpression)>()));
     }
 }

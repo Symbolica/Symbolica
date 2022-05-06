@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Z3;
 
 namespace Symbolica.Computation.Values;
 
@@ -20,6 +21,17 @@ internal sealed record LogicalNot : Bool
     public override bool Equals(IValue? other)
     {
         return Equals(other as LogicalNot);
+    }
+
+    public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+    {
+        if (value is LogicalNot not && _value.TryMerge(not._value, out var mergedLogical))
+        {
+            merged = Create(mergedLogical);
+            return true;
+        }
+        merged = value;
+        return false;
     }
 
     public static IValue Create(IValue value)
@@ -50,6 +62,17 @@ internal sealed record LogicalNot : Bool
         public override bool Equals(IValue? other)
         {
             return Equals(other as Logical);
+        }
+
+        public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+        {
+            if (value is Logical logical && _value.TryMerge(logical._value, out var mergedLogical))
+            {
+                merged = new Logical(mergedLogical);
+                return true;
+            }
+            merged = value;
+            return false;
         }
     }
 }

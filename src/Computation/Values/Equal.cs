@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using Microsoft.Z3;
 
 namespace Symbolica.Computation.Values;
 
@@ -23,6 +25,42 @@ internal sealed record Equal : Bool
     public override bool Equals(IValue? other)
     {
         return Equals(other as Equal);
+    }
+
+    public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+    {
+        merged = value;
+        return value is Equal equal && TryMergeEqual(equal, out merged);
+    }
+
+    private bool TryMergeEqual(Equal equal, [MaybeNullWhen(false)] out IValue merged)
+    {
+        static IValue CreateRange(IValue value, IConstantValue c1, IConstantValue c2)
+        {
+            var (min, max) = (BigInteger) c1.AsUnsigned() < (BigInteger) c2.AsUnsigned()
+                ? (c1, c2)
+                : (c2, c1);
+            return And.Create(
+                UnsignedGreaterOrEqual.Create(value, min),
+                UnsignedLessOrEqual.Create(value, max));
+        }
+
+        static bool CanCreateRange(IValue x, IValue y, IConstantValue c1, IConstantValue c2)
+        {
+            return x.Equals(y) && BigInteger.Abs((BigInteger) c1.AsUnsigned() - (BigInteger) c2.AsUnsigned()) == 1;
+        }
+
+        var (result, value) = (_left, _right, equal._left, equal._right) switch
+        {
+            (IConstantValue c1, var x, IConstantValue c2, var y) when CanCreateRange(x, y, c1, c2) => (true, CreateRange(x, c1, c2)),
+            (IConstantValue c1, var x, var y, IConstantValue c2) when CanCreateRange(x, y, c1, c2) => (true, CreateRange(x, c1, c2)),
+            (var x, IConstantValue c1, IConstantValue c2, var y) when CanCreateRange(x, y, c1, c2) => (true, CreateRange(x, c1, c2)),
+            (var x, IConstantValue c1, var y, IConstantValue c2) when CanCreateRange(x, y, c1, c2) => (true, CreateRange(x, c1, c2)),
+            _ => (false, null)
+        };
+
+        merged = value;
+        return result;
     }
 
     private BoolExpr Logical(ISolver solver)

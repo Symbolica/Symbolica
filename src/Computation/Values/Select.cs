@@ -47,6 +47,12 @@ internal sealed record Select : IValue
         return Equals(other as Select);
     }
 
+    public bool TryMerge(IValue value, out IValue merged)
+    {
+        merged = value;
+        return Equals(value);
+    }
+
     public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
     {
         return (predicate, trueValue, falseValue) switch
