@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
@@ -57,17 +58,20 @@ internal sealed class AggregateBlock : IPersistentBlock
                     Size,
                     _allocations.SetItem(index, new Allocation(allocation.Address, result.Value))));
 
+        // if (value.Size.ToBytes() > allocation.Block.Size)
+        //     Debugger.Break();
         var isWholeAddressFullyInside = IsFullyInside(space, address, value.Size.ToBytes());
         using var proposition2 = isWholeAddressFullyInside.GetProposition(space);
 
         if (proposition2.CanBeFalse())
             return Result<IPersistentBlock>.Failure(proposition.CreateFalseSpace());
 
-        // Find the indices this write interacts with
-
         var data = value.Size == Size.ToBits()
             ? value
             : Data(space).Write(space, GetOffset(space, relativeAddress), value);
+
+        // if (data.IsSymbolic)
+        //     Debugger.Break();
 
         return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, data));
     }
@@ -99,6 +103,9 @@ internal sealed class AggregateBlock : IPersistentBlock
         var value = size == Size.ToBits()
             ? Data(space)
             : Data(space).Read(space, GetOffset(space, relativeAddress), size);
+
+        if (value.IsSymbolic)
+            Debugger.Break();
 
         return Result<IExpression>.Success(value);
     }

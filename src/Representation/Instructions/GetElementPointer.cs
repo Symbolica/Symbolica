@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -23,10 +22,7 @@ public sealed class GetElementPointer : IInstruction
 
     public void Execute(IState state)
     {
-        // if (Id == (InstructionId) 111343) // This geezer creates the block (make sure it's got the correct type information all the way down)
-        //     Debugger.Break();
-
-        static IAddress CombineOffsets(IAddress baseAddress, IEnumerable<(IType, IExpression)> offsets)
+        IAddress CombineOffsets(IAddress baseAddress, IEnumerable<(IType, IExpression)> offsets)
         {
             if (!baseAddress.Offsets.Any())
                 // This filth is to deal with the fact we currently fake BitCasts by creating an address without an offsets

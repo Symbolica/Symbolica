@@ -23,8 +23,10 @@ public sealed class BitCast : IInstruction
         var result = _operands[0].Evaluate(state);
         state.Stack.SetVariable(Id, _indexedType == null
             ? result
-            : result is IAddress a && a.Offsets.Any()
-                ? a
-                : Address.Create(_indexedType, result, Enumerable.Empty<(IType, IExpression)>()));
+            : result is IAddress a
+                ? a.Offsets.Any()
+                    ? a
+                    : Address.Create(state.Space, _indexedType, a.BaseAddress, a.Offsets)
+                : Address.Create(state.Space, _indexedType, result, Enumerable.Empty<(IType, IExpression)>()));
     }
 }
