@@ -29,8 +29,15 @@ internal sealed record Equal : Bool
 
     public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
     {
-        merged = value;
-        return value is Equal equal && TryMergeEqual(equal, out merged);
+        merged = null;
+        return value switch
+        {
+            Equal equal => TryMergeEqual(equal, out merged),
+            InRange inRange =>
+                inRange.TryMerge(new InRange(_left, new Range(_right, _right)), out merged)
+                || inRange.TryMerge(new InRange(_right, new Range(_left, _left)), out merged),
+            _ => false
+        };
     }
 
     private bool TryMergeEqual(Equal equal, [MaybeNullWhen(false)] out IValue merged)
@@ -40,9 +47,7 @@ internal sealed record Equal : Bool
             var (min, max) = (BigInteger) c1.AsUnsigned() < (BigInteger) c2.AsUnsigned()
                 ? (c1, c2)
                 : (c2, c1);
-            return And.Create(
-                UnsignedGreaterOrEqual.Create(value, min),
-                UnsignedLessOrEqual.Create(value, max));
+            return new InRange(value, new Range(min, max));
         }
 
         static bool CanCreateRange(IValue x, IValue y, IConstantValue c1, IConstantValue c2)
