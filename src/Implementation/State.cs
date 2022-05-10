@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -20,12 +17,10 @@ internal sealed class State : IState, IExecutable
     private readonly ISystemProxy _system;
     private IPersistentGlobals _globals;
     private bool _isActive;
-    private Stopwatch _stopwatch;
 
     public State(IStateAction initialAction, IModule module, ISpace space,
         IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
     {
-        ExecutedInstructions = 0UL;
         _forks = new List<IExecutable>();
         _isActive = true;
         _initialAction = initialAction;
@@ -35,24 +30,22 @@ internal sealed class State : IState, IExecutable
         _memory = memory;
         _stack = stack;
         _system = system;
-        _stopwatch = new Stopwatch();
     }
 
-    public IEnumerable<IExecutable> Run()
+    public (ulong, IEnumerable<IExecutable>) Run()
     {
-        _stopwatch.Start();
+        var executedInstructions = 0UL;
         _initialAction.Invoke(this);
 
         while (_isActive)
         {
             _stack.ExecuteNextInstruction(this);
-            ++ExecutedInstructions;
+            ++executedInstructions;
         }
 
-        return _forks;
+        return (executedInstructions, _forks);
     }
 
-    public ulong ExecutedInstructions { get; private set; }
     public ISpace Space { get; }
     public IMemory Memory => _memory;
     public IStack Stack => _stack;
@@ -74,10 +67,7 @@ internal sealed class State : IState, IExecutable
 
     public void Complete()
     {
-        _stopwatch.Stop();
         _isActive = false;
-        // string example = string.Join(", ", Space.GetExample().Select(p => $"{p.Key}={p.Value}"));
-        Console.WriteLine($"{_stopwatch.Elapsed} {ExecutedInstructions}");
     }
 
     public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)

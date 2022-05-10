@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
-using Symbolica.Computation.Values;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
@@ -37,8 +35,6 @@ internal sealed class PersistentSpace : IPersistentSpace
                     !x.merged && a.TryMerge(assertion, out var mergedAssertion)
                         ? (true, x.assertions.Push(mergedAssertion))
                         : (x.merged, x.assertions.Push(a)));
-            // if (merged)
-            //     Debugger.Break();
             return merged
                 ? assertions
                 : assertions.Push(assertion);

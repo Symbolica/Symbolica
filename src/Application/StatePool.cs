@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Symbolica.Implementation;
@@ -34,9 +35,16 @@ internal sealed class StatePool : IDisposable
             await _throttler.WaitAsync();
             try
             {
-                foreach (var child in executable.Run())
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                var (executedInstructions, forks) = executable.Run();
+                Interlocked.Add(ref _executedInstructions, executedInstructions);
+                stopwatch.Stop();
+                Console.WriteLine($"{stopwatch.Elapsed} {executedInstructions} {_executedInstructions}");
+
+                foreach (var fork in forks)
                     if (_exception == null)
-                        Add(child);
+                        Add(fork);
             }
             catch (Exception exception)
             {
@@ -45,7 +53,6 @@ internal sealed class StatePool : IDisposable
             finally
             {
                 Interlocked.Increment(ref _completedStates);
-                Interlocked.Add(ref _executedInstructions, executable.ExecutedInstructions);
                 _throttler.Release();
                 _countdownEvent.Signal();
             }
