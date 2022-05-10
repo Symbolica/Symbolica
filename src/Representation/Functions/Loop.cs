@@ -22,15 +22,15 @@ internal sealed class Loop : IFunction
 
     public void Call(IState state, ICaller caller, IArguments arguments)
     {
-        // var example = string.Join("_", state.Space.GetExample()
-        //     .OrderBy(p => p.Key)
-        //     .Select(p => $"{p.Key}{p.Value}"));
-        // Console.WriteLine(example);
+        var example = string.Join("_", state.Space.GetExample()
+            .OrderBy(p => p.Key)
+            .Select(p => $"{p.Key}{p.Value}"));
+        Console.WriteLine(example);
 
-        // using var stream = File.OpenWrite($"{example}.json");
-        // using var writer = new StreamWriter(stream, Encoding.UTF8);
+        using var stream = File.OpenWrite($"{example}.json");
+        using var writer = new StreamWriter(stream, Encoding.UTF8);
 
-        // Serialize(writer, state);
+        Serialize(writer, state);
 
         state.Stack.SetVariable(caller.Id, state.Space.CreateZero(caller.Size));
     }

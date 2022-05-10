@@ -6,18 +6,19 @@ namespace Symbolica.Computation.Values;
 
 internal sealed record Equal : Bool
 {
-    private readonly IValue _left;
-    private readonly IValue _right;
-
     private Equal(IValue left, IValue right)
     {
-        _left = left;
-        _right = right;
+        Left = left;
+        Right = right;
     }
+
+    internal IValue Left { get; }
+
+    internal IValue Right { get; }
 
     public override BoolExpr AsBool(ISolver solver)
     {
-        return _left is Bool || _right is Bool
+        return Left is Bool || Right is Bool
             ? Logical(solver)
             : Bitwise(solver);
     }
@@ -27,6 +28,13 @@ internal sealed record Equal : Bool
         return Equals(other as Equal);
     }
 
+    public InRange AsRange(bool valueIsLeft)
+    {
+        return valueIsLeft
+            ? new InRange(Left, new Range(Right, Right))
+            : new InRange(Right, new Range(Left, Left));
+    }
+
     public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
     {
         merged = null;
@@ -34,8 +42,8 @@ internal sealed record Equal : Bool
         {
             Equal equal => TryMergeEqual(equal, out merged),
             InRange inRange =>
-                inRange.TryMerge(new InRange(_left, new Range(_right, _right)), out merged)
-                || inRange.TryMerge(new InRange(_right, new Range(_left, _left)), out merged),
+                inRange.TryMerge(new InRange(Left, new Range(Right, Right)), out merged)
+                || inRange.TryMerge(new InRange(Right, new Range(Left, Left)), out merged),
             _ => false
         };
     }
@@ -55,7 +63,7 @@ internal sealed record Equal : Bool
             return x.Equals(y) && BigInteger.Abs((BigInteger) c1.AsUnsigned() - (BigInteger) c2.AsUnsigned()) == 1;
         }
 
-        var (result, value) = (_left, _right, equal._left, equal._right) switch
+        var (result, value) = (Left, Right, equal.Left, equal.Right) switch
         {
             (IConstantValue c1, var x, IConstantValue c2, var y) when CanCreateRange(x, y, c1, c2) => (true, CreateRange(x, c1, c2)),
             (IConstantValue c1, var x, var y, IConstantValue c2) when CanCreateRange(x, y, c1, c2) => (true, CreateRange(x, c1, c2)),
@@ -70,15 +78,15 @@ internal sealed record Equal : Bool
 
     private BoolExpr Logical(ISolver solver)
     {
-        using var left = _left.AsBool(solver);
-        using var right = _right.AsBool(solver);
+        using var left = Left.AsBool(solver);
+        using var right = Right.AsBool(solver);
         return solver.Context.MkEq(left, right);
     }
 
     private BoolExpr Bitwise(ISolver solver)
     {
-        using var left = _left.AsBitVector(solver);
-        using var right = _right.AsBitVector(solver);
+        using var left = Left.AsBitVector(solver);
+        using var right = Right.AsBitVector(solver);
         return solver.Context.MkEq(left, right);
     }
 

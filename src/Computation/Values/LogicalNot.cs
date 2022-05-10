@@ -30,8 +30,23 @@ internal sealed record LogicalNot : Bool
             merged = Create(mergedLogical);
             return true;
         }
-        merged = value;
+        if (_value.Value is Bool assertion && value is Bool given && IsUnsatisfiable(given, assertion))
+        {
+            merged = given;
+            return true;
+        }
+        merged = null;
         return false;
+    }
+
+    private static bool IsUnsatisfiable(Bool given, Bool assertion)
+    {
+        return given switch
+        {
+            Equal equal => equal.AsRange(true).IsUnsatisfiable(assertion) || equal.AsRange(false).IsUnsatisfiable(assertion),
+            InRange inRange => inRange.IsUnsatisfiable(assertion),
+            _ => false
+        };
     }
 
     public static IValue Create(IValue value)
@@ -47,16 +62,16 @@ internal sealed record LogicalNot : Bool
 
     private sealed record Logical : Bool
     {
-        private readonly IValue _value;
-
         public Logical(IValue value)
         {
-            _value = value;
+            Value = value;
         }
+
+        internal IValue Value { get; }
 
         public override BoolExpr AsBool(ISolver solver)
         {
-            return _value.AsBool(solver);
+            return Value.AsBool(solver);
         }
 
         public override bool Equals(IValue? other)
@@ -66,12 +81,12 @@ internal sealed record LogicalNot : Bool
 
         public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
         {
-            if (value is Logical logical && _value.TryMerge(logical._value, out var mergedLogical))
+            if (value is Logical logical && Value.TryMerge(logical.Value, out var mergedLogical))
             {
                 merged = new Logical(mergedLogical);
                 return true;
             }
-            merged = value;
+            merged = null;
             return false;
         }
     }
