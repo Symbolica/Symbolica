@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace Symbolica;
 
 internal sealed class StatePool : IDisposable
 {
+    private readonly ConcurrentBag<IExecutable> _mergingStates;
     private readonly CountdownEvent _countdownEvent;
     private readonly SemaphoreSlim _throttler;
     private Exception? _exception;
@@ -16,6 +18,7 @@ internal sealed class StatePool : IDisposable
 
     public StatePool(int maxParallelism)
     {
+        _mergingStates = new ConcurrentBag<IExecutable>();
         _countdownEvent = new CountdownEvent(1);
         _exception = null;
         _executedInstructions = 0UL;
@@ -37,14 +40,23 @@ internal sealed class StatePool : IDisposable
             {
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                var (executedInstructions, forks) = executable.Run();
+                var (executedInstructions, status, forks) = executable.Run();
                 Interlocked.Add(ref _executedInstructions, executedInstructions);
                 stopwatch.Stop();
                 Console.WriteLine($"{stopwatch.Elapsed} {executedInstructions} {_executedInstructions}");
 
                 foreach (var fork in forks)
                     if (_exception == null)
-                        Add(fork);
+                    {
+                        if (status == IExecutable.Status.Merging)
+                        {
+                            _mergingStates.Add(fork);
+                        }
+                        else
+                        {
+                            Add(fork);
+                        }
+                    }
             }
             catch (Exception exception)
             {

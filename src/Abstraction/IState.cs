@@ -13,4 +13,5 @@ public interface IState
     IExpression GetGlobalAddress(GlobalId id);
     void Complete();
     void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction);
+    void Merge();
 }

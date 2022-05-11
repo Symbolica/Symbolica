@@ -4,5 +4,7 @@ namespace Symbolica.Implementation;
 
 public interface IExecutable
 {
-    (ulong ExecutedInstructions, IEnumerable<IExecutable> Forks) Run();
+    public enum Status { Active, Merging, Complete }
+
+    (ulong ExecutedInstructions, Status Status, IEnumerable<IExecutable> Forks) Run();
 }

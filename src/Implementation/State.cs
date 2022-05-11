@@ -16,13 +16,13 @@ internal sealed class State : IState, IExecutable
     private readonly IStackProxy _stack;
     private readonly ISystemProxy _system;
     private IPersistentGlobals _globals;
-    private bool _isActive;
+    private IExecutable.Status _status;
 
     public State(IStateAction initialAction, IModule module, ISpace space,
         IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
     {
         _forks = new List<IExecutable>();
-        _isActive = true;
+        _status = IExecutable.Status.Active;
         _initialAction = initialAction;
         _module = module;
         Space = space;
@@ -32,18 +32,22 @@ internal sealed class State : IState, IExecutable
         _system = system;
     }
 
-    public (ulong, IEnumerable<IExecutable>) Run()
+    public (ulong, IExecutable.Status, IEnumerable<IExecutable>) Run()
     {
         var executedInstructions = 0UL;
         _initialAction.Invoke(this);
 
-        while (_isActive)
+        while (_status == IExecutable.Status.Active)
         {
             _stack.ExecuteNextInstruction(this);
             ++executedInstructions;
         }
 
-        return (executedInstructions, _forks);
+        return (executedInstructions,
+            _status,
+            _status == IExecutable.Status.Merging
+                ? new[] { this }
+                : _forks);
     }
 
     public ISpace Space { get; }
@@ -67,7 +71,7 @@ internal sealed class State : IState, IExecutable
 
     public void Complete()
     {
-        _isActive = false;
+        _status = IExecutable.Status.Complete;
     }
 
     public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
@@ -91,6 +95,11 @@ internal sealed class State : IState, IExecutable
         {
             trueAction.Invoke(this);
         }
+    }
+
+    public void Merge()
+    {
+        _status = IExecutable.Status.Merging;
     }
 
     private State Clone(ISpace space, IStateAction initialAction)

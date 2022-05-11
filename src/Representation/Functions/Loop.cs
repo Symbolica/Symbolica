@@ -32,6 +32,7 @@ internal sealed class Loop : IFunction
         using var writer = new StreamWriter(stream, Encoding.UTF8);
 
         Serialize(writer, state);
+        state.Merge();
 
         state.Stack.SetVariable(caller.Id, exprFactory.CreateZero(caller.Size));
     }
