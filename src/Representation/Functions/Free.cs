@@ -34,7 +34,7 @@ internal sealed class Free : IFunction
 
         public void Invoke(IState state)
         {
-            state.Memory.Free(_address);
+            state.Memory.Free(state.Space, _address);
         }
     }
 

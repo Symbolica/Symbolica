@@ -20,6 +20,6 @@ internal sealed class VariadicEnd : IFunction
 
         var size = state.Stack.GetInitializedVaList().Size;
 
-        state.Memory.Write(address, exprFactory.CreateGarbage(size));
+        state.Memory.Write(state.Space, address, exprFactory.CreateGarbage(size));
     }
 }

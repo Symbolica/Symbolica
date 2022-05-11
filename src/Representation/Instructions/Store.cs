@@ -20,6 +20,6 @@ public sealed class Store : IInstruction
         var value = _operands[0].Evaluate(exprFactory, state);
         var address = _operands[1].Evaluate(exprFactory, state);
 
-        state.Memory.Write(address, value);
+        state.Memory.Write(state.Space, address, value);
     }
 }

@@ -3,7 +3,6 @@ using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Collection;
 using Symbolica.Expression;
-using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.System;
 
@@ -84,13 +83,13 @@ internal sealed class PersistentSystem : IPersistentSystem
         var streamType = _module.DirectoryStreamType;
         var entryType = _module.DirectoryEntryType;
 
-        var stream = streamType.CreateStruct(_exprFactory, s => memory.Read(address, s));
+        var stream = streamType.CreateStruct(_exprFactory, s => memory.Read(space, address, s));
 
         var tell = (int) stream.Read(space, 0).GetSingleValue(space);
         var descriptor = (int) stream.Read(space, 1).GetSingleValue(space);
         var buffer = address.Add(streamType.GetOffsetBytes(_exprFactory, space, _exprFactory.CreateConstant((Bits) 32U, 5U)));
 
-        memory.Write(address, stream
+        memory.Write(space, address, stream
             .Write(space, 0, tell + 1)
             .Expression);
 
@@ -120,13 +119,13 @@ internal sealed class PersistentSystem : IPersistentSystem
         var locale = localeType.CreateStruct(_exprFactory, _exprFactory.CreateGarbage);
 
         var localeAddress = memory.Allocate(Section.Global, locale.Expression.Size);
-        memory.Write(localeAddress, locale.Expression);
+        memory.Write(space, localeAddress, locale.Expression);
 
         var thread = threadType.CreateStruct(_exprFactory, _exprFactory.CreateGarbage)
             .Write(space, 24, localeAddress);
 
         var threadAddress = memory.Allocate(Section.Global, thread.Expression.Size);
-        memory.Write(threadAddress, thread.Expression);
+        memory.Write(space, threadAddress, thread.Expression);
 
         return (threadAddress, new PersistentSystem(_module, _descriptionFactory,
             _exprFactory, threadAddress, _indices, _handles));

@@ -17,7 +17,7 @@ internal static class StateExtensions
     {
         while (true)
         {
-            var character = (char) state.Memory.Read(address, Bytes.One.ToBits()).GetSingleValue(state.Space);
+            var character = (char) state.Memory.Read(state.Space, address, Bytes.One.ToBits()).GetSingleValue(state.Space);
             if (character == default)
                 yield break;
 

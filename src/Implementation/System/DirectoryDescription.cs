@@ -39,7 +39,7 @@ internal sealed class DirectoryDescription : IPersistentDescription
         var type = Convert.ToInt32("0040000", 8);
         var mode = Convert.ToInt32("00444", 8);
 
-        memory.Write(address, stat
+        memory.Write(space, address, stat
             .Write(space, 3, type | mode)
             .Write(space, 8, 0L)
             .Write(space, 11, _directory.LastAccessTime)
@@ -52,7 +52,7 @@ internal sealed class DirectoryDescription : IPersistentDescription
 
     private static IExpression Read(ISpace space, IMemory memory, IStruct entry, IExpression address, string name)
     {
-        memory.Write(address, entry
+        memory.Write(space, address, entry
             .Write(space, 4, new BigInteger(Encoding.UTF8.GetBytes(name), true))
             .Expression);
 

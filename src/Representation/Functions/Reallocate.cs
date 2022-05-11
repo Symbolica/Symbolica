@@ -48,7 +48,7 @@ internal sealed class Reallocate : IFunction
 
         private void Free(IState state, ICaller caller, IExpression address)
         {
-            state.Memory.Free(address);
+            state.Memory.Free(state.Space, address);
             state.Stack.SetVariable(caller.Id, _exprFactory.CreateZero(address.Size));
         }
 
@@ -75,7 +75,7 @@ internal sealed class Reallocate : IFunction
 
         public void Invoke(IState state)
         {
-            state.Stack.SetVariable(_caller.Id, state.Memory.Move(_address, _size));
+            state.Stack.SetVariable(_caller.Id, state.Memory.Move(state.Space, _address, _size));
         }
     }
 

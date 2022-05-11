@@ -20,7 +20,7 @@ internal sealed class GetRandom : IFunction
         var length = arguments.Get(1).GetSingleValue(state.Space);
         var size = (Bytes) (uint) length;
 
-        state.Memory.Write(address, exprFactory.CreateGarbage(size.ToBits()));
+        state.Memory.Write(state.Space, address, exprFactory.CreateGarbage(size.ToBits()));
         state.Stack.SetVariable(caller.Id, exprFactory.CreateConstant(caller.Size, length));
     }
 }

@@ -38,9 +38,9 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames.Push(_currentFrame), _frameFactory.Create(space, memory, caller, invocation));
     }
 
-    public (ICaller, IPersistentStack) Unwind(IMemoryProxy memory)
+    public (ICaller, IPersistentStack) Unwind(ISpace space, IMemoryProxy memory)
     {
-        return (_currentFrame.Caller, Pop(memory));
+        return (_currentFrame.Caller, Pop(space, memory));
     }
 
     public IPersistentStack Save(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer)
@@ -48,7 +48,7 @@ internal sealed class PersistentStack : IPersistentStack
         var size = GetContinuationSize(useJumpBuffer);
         var (continuation, continuationFactory) = _continuationFactory.Create(size);
 
-        memory.Write(address, continuation);
+        memory.Write(space, address, continuation);
 
         return new PersistentStack(_module, _frameFactory,
             continuationFactory,
@@ -58,7 +58,7 @@ internal sealed class PersistentStack : IPersistentStack
     public IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression address, bool useJumpBuffer)
     {
         var size = GetContinuationSize(useJumpBuffer);
-        var continuation = memory.Read(address, size);
+        var continuation = memory.Read(space, address, size);
 
         var stack = this;
 
@@ -70,7 +70,7 @@ internal sealed class PersistentStack : IPersistentStack
             {
                 var currentFrame = result.Value;
 
-                Free(memory, stack._currentFrame.GetAllocations()
+                Free(space, memory, stack._currentFrame.GetAllocations()
                     .SkipLast(currentFrame.GetAllocations().Count()));
 
                 return new PersistentStack(_module, _frameFactory,
@@ -81,7 +81,7 @@ internal sealed class PersistentStack : IPersistentStack
             if (stack.IsInitialFrame)
                 throw new StateException(StateError.InvalidJump, space);
 
-            stack = stack.Pop(memory);
+            stack = stack.Pop(space, memory);
         }
     }
 
@@ -130,9 +130,9 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.AddAllocation(address)));
     }
 
-    private PersistentStack Pop(IMemoryProxy memory)
+    private PersistentStack Pop(ISpace space, IMemoryProxy memory)
     {
-        Free(memory, _currentFrame.GetAllocations());
+        Free(space, memory, _currentFrame.GetAllocations());
 
         return new PersistentStack(_module, _frameFactory,
             _continuationFactory,
@@ -146,10 +146,10 @@ internal sealed class PersistentStack : IPersistentStack
             : Bytes.One.ToBits();
     }
 
-    private static void Free(IMemoryProxy memory, IEnumerable<IExpression> allocations)
+    private static void Free(ISpace space, IMemoryProxy memory, IEnumerable<IExpression> allocations)
     {
         foreach (var allocation in allocations)
-            memory.Free(Section.Stack, allocation);
+            memory.Free(space, Section.Stack, allocation);
     }
 
     public static IPersistentStack Create(IModule module, IFrameFactory frameFactory,

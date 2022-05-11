@@ -40,6 +40,6 @@ internal sealed class Symbolize : IFunction
             }
             : address;
 
-        state.Memory.Write(address, exprFactory.CreateSymbolic(size.ToBits(), name));
+        state.Memory.Write(state.Space, address, exprFactory.CreateSymbolic(size.ToBits(), name));
     }
 }

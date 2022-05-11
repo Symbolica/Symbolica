@@ -21,6 +21,6 @@ public sealed class Global : IGlobal
     {
         var value = _initializer.Evaluate(exprFactory, state);
 
-        state.Memory.Write(address, value);
+        state.Memory.Write(state.Space, address, value);
     }
 }

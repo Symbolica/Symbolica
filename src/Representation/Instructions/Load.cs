@@ -20,7 +20,7 @@ public sealed class Load : IInstruction
     public void Execute(IExpressionFactory exprFactory, IState state)
     {
         var address = _operands[0].Evaluate(exprFactory, state);
-        var value = state.Memory.Read(address, _size);
+        var value = state.Memory.Read(state.Space, address, _size);
 
         state.Stack.SetVariable(Id, value);
     }

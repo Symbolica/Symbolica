@@ -44,7 +44,7 @@ internal sealed class MemorySet : IFunction
             foreach (var offset in Enumerable.Range(0, (int) value))
             {
                 var address = destination.Add(_exprFactory.CreateConstant(_destination.Size, offset));
-                state.Memory.Write(address, _value);
+                state.Memory.Write(state.Space, address, _value);
             }
         }
     }

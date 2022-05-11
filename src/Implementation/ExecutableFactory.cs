@@ -30,7 +30,7 @@ public sealed class ExecutableFactory
         var space = _spaceFactory.CreateInitial();
 
         var globals = PersistentGlobals.Create(module, _collectionFactory, _exprFactory);
-        var memory = new MemoryProxy(space, CreateMemory(module, options));
+        var memory = new MemoryProxy(CreateMemory(module, options));
         var stack = new StackProxy(_exprFactory, space, memory, CreateStack(module, options));
         var system = new SystemProxy(CreateSystem(module));
 

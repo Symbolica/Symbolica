@@ -38,9 +38,9 @@ internal sealed class StackProxy : IStackProxy
         _stack = _stack.Wind(_space, _memory, caller, invocation);
     }
 
-    public ICaller Unwind()
+    public ICaller Unwind(ISpace space)
     {
-        var (caller, stack) = _stack.Unwind(_memory);
+        var (caller, stack) = _stack.Unwind(space, _memory);
         _stack = stack;
 
         return caller;

@@ -42,7 +42,10 @@ internal sealed class MemoryMove : IFunction
             var length = (Bytes) (uint) value;
 
             if (length != Bytes.Zero)
-                state.Memory.Write(destination, state.Memory.Read(source, length.ToBits()));
+                state.Memory.Write(
+                    state.Space,
+                    destination,
+                    state.Memory.Read(state.Space, source, length.ToBits()));
         }
     }
 }

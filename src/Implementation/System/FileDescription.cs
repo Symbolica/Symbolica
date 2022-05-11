@@ -39,7 +39,7 @@ internal sealed class FileDescription : IPersistentDescription
         var size = ((Bytes) (uint) result).ToBits();
 
         if (size != Bits.Zero)
-            memory.Write(address, _exprFactory.CreateConstant(size, new BigInteger(bytes, true)));
+            memory.Write(space, address, _exprFactory.CreateConstant(size, new BigInteger(bytes, true)));
 
         return result;
     }
@@ -54,7 +54,7 @@ internal sealed class FileDescription : IPersistentDescription
         var type = Convert.ToInt32("0100000", 8);
         var mode = Convert.ToInt32("00444", 8);
 
-        memory.Write(address, stat
+        memory.Write(space, address, stat
             .Write(space, 3, type | mode)
             .Write(space, 8, _file.Size)
             .Write(space, 11, _file.LastAccessTime)

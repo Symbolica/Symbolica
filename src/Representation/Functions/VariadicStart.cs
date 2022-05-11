@@ -18,6 +18,6 @@ internal sealed class VariadicStart : IFunction
     {
         var address = arguments.Get(0);
 
-        state.Memory.Write(address, state.Stack.GetInitializedVaList());
+        state.Memory.Write(state.Space, address, state.Stack.GetInitializedVaList());
     }
 }

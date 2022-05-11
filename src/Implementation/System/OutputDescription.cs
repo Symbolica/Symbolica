@@ -33,7 +33,7 @@ internal sealed class OutputDescription : IPersistentDescription
         var type = Convert.ToInt32("0010000", 8);
         var mode = Convert.ToInt32("00222", 8);
 
-        memory.Write(address, stat
+        memory.Write(space, address, stat
             .Write(space, 3, type | mode)
             .Write(space, 8, 0L)
             .Expression);

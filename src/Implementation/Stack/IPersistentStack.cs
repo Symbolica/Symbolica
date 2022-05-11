@@ -11,7 +11,7 @@ internal interface IPersistentStack
     IInstruction Instruction { get; }
 
     IPersistentStack Wind(ISpace space, IMemoryProxy memory, ICaller caller, IInvocation invocation);
-    (ICaller, IPersistentStack) Unwind(IMemoryProxy memory);
+    (ICaller, IPersistentStack) Unwind(ISpace space, IMemoryProxy memory);
     IPersistentStack Save(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer);
     IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression address, bool useJumpBuffer);
     IPersistentStack TransferBasicBlock(BasicBlockId id);

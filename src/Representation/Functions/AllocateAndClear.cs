@@ -47,7 +47,7 @@ internal sealed class AllocateAndClear : IFunction
         private IExpression Allocate(IState state, Bits size)
         {
             var address = state.Memory.Allocate(size);
-            state.Memory.Write(address, _exprFactory.CreateZero(size));
+            state.Memory.Write(state.Space, address, _exprFactory.CreateZero(size));
 
             return address;
         }

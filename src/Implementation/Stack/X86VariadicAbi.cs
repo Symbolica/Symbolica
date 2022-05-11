@@ -35,7 +35,7 @@ internal sealed class X86VariadicAbi : IVariadicAbi
             value = value.Write(space, _exprFactory.CreateConstant(value.Size, (uint) offset), argument);
 
         var address = memory.Allocate(Section.Stack, value.Size);
-        memory.Write(address, value);
+        memory.Write(space, address, value);
 
         return new VaList(_exprFactory, address);
     }
