@@ -43,7 +43,7 @@ public sealed class Definition : IDefinition
 
     public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
-        state.Stack.Wind(caller, _isVariadic
+        state.Stack.Wind(state.Space, state.Memory, caller, _isVariadic
             ? new Invocation(this,
                 new Arguments(arguments.Take(Parameters.Count).ToArray()),
                 new Arguments(arguments.Skip(Parameters.Count).ToArray()))

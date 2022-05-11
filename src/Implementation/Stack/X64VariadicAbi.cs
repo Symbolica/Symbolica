@@ -3,7 +3,6 @@ using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
-using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack;
 
@@ -18,7 +17,7 @@ internal sealed class X64VariadicAbi : IVariadicAbi
 
     public IVaList DefaultVaList => new VaList(_exprFactory, null);
 
-    public IVaList PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs)
+    public IVaList PassOnStack(ISpace space, IMemory memory, IArguments varargs)
     {
         var offsets = new List<Bits>();
         var bytes = Bytes.Zero;

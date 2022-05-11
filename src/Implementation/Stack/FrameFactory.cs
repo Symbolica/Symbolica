@@ -5,7 +5,6 @@ using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
-using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack;
 
@@ -20,7 +19,7 @@ internal sealed class FrameFactory : IFrameFactory
         _collectionFactory = collectionFactory;
     }
 
-    public IPersistentFrame Create(ISpace space, IMemoryProxy memory, ICaller caller, IInvocation invocation)
+    public IPersistentFrame Create(ISpace space, IMemory memory, ICaller caller, IInvocation invocation)
     {
         var vaList = invocation.Varargs.Any()
             ? _variadicAbi.PassOnStack(space, memory, invocation.Varargs)

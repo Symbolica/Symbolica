@@ -18,7 +18,7 @@ internal sealed class SetupJump : IFunction
     {
         var address = arguments.Get(0);
 
-        state.Stack.Save(address, true);
+        state.Stack.Save(state.Space, state.Memory, address, true);
 
         state.Stack.SetVariable(caller.Id, exprFactory.CreateZero(caller.Size));
     }

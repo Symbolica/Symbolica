@@ -19,7 +19,7 @@ internal sealed class VariadicCopy : IFunction
         var destination = arguments.Get(0);
         var source = arguments.Get(1);
 
-        var size = state.Stack.GetInitializedVaList().Size;
+        var size = state.Stack.GetInitializedVaList(state.Space).Size;
 
         state.Memory.Write(state.Space, destination, state.Memory.Read(state.Space, source, size));
     }

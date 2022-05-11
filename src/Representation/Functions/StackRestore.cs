@@ -18,6 +18,6 @@ internal sealed class StackRestore : IFunction
     {
         var address = arguments.Get(0);
 
-        state.Stack.Restore(address, false);
+        state.Stack.Restore(state.Space, state.Memory, address, false);
     }
 }

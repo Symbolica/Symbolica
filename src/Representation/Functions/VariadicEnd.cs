@@ -18,7 +18,7 @@ internal sealed class VariadicEnd : IFunction
     {
         var address = arguments.Get(0);
 
-        var size = state.Stack.GetInitializedVaList().Size;
+        var size = state.Stack.GetInitializedVaList(state.Space).Size;
 
         state.Memory.Write(state.Space, address, exprFactory.CreateGarbage(size));
     }

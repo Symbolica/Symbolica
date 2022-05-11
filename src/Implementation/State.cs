@@ -95,11 +95,13 @@ internal sealed class State : IState, IExecutable
 
     private State Clone(ISpace space, IStateAction initialAction)
     {
-        var memory = _memory.Clone();
-        var stack = _stack.Clone(space, memory);
-        var system = _system.Clone();
-
-        return new State(initialAction, _module, space,
-            _globals, memory, stack, system);
+        return new State(
+            initialAction,
+            _module,
+            space,
+            _globals,
+            _memory.Clone(),
+            _stack.Clone(),
+            _system.Clone());
     }
 }

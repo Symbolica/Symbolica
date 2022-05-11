@@ -1,30 +1,25 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
-using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack;
 
 internal sealed class StackProxy : IStackProxy
 {
-    private readonly IMemoryProxy _memory;
     private readonly IExpressionFactory _exprFactory;
-    private readonly ISpace _space;
     private IPersistentStack _stack;
 
-    public StackProxy(IExpressionFactory exprFactory, ISpace space, IMemoryProxy memory, IPersistentStack stack)
+    public StackProxy(IExpressionFactory exprFactory, IPersistentStack stack)
     {
         _exprFactory = exprFactory;
-        _space = space;
-        _memory = memory;
         _stack = stack;
     }
 
     public bool IsInitialFrame => _stack.IsInitialFrame;
     public BasicBlockId PredecessorId => _stack.PredecessorId;
 
-    public IStackProxy Clone(ISpace space, IMemoryProxy memory)
+    public IStackProxy Clone()
     {
-        return new StackProxy(_exprFactory, space, memory, _stack);
+        return new StackProxy(_exprFactory, _stack);
     }
 
     public void ExecuteNextInstruction(IState state)
@@ -33,27 +28,27 @@ internal sealed class StackProxy : IStackProxy
         _stack.Instruction.Execute(_exprFactory, state);
     }
 
-    public void Wind(ICaller caller, IInvocation invocation)
+    public void Wind(ISpace space, IMemory memory, ICaller caller, IInvocation invocation)
     {
-        _stack = _stack.Wind(_space, _memory, caller, invocation);
+        _stack = _stack.Wind(space, memory, caller, invocation);
     }
 
-    public ICaller Unwind(ISpace space)
+    public ICaller Unwind(ISpace space, IMemory memory)
     {
-        var (caller, stack) = _stack.Unwind(space, _memory);
+        var (caller, stack) = _stack.Unwind(space, memory);
         _stack = stack;
 
         return caller;
     }
 
-    public void Save(IExpression address, bool useJumpBuffer)
+    public void Save(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer)
     {
-        _stack = _stack.Save(_space, _memory, address, useJumpBuffer);
+        _stack = _stack.Save(space, memory, address, useJumpBuffer);
     }
 
-    public InstructionId Restore(IExpression address, bool useJumpBuffer)
+    public InstructionId Restore(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer)
     {
-        _stack = _stack.Restore(_space, _memory, address, useJumpBuffer);
+        _stack = _stack.Restore(space, memory, address, useJumpBuffer);
 
         return _stack.Instruction.Id;
     }
@@ -68,9 +63,9 @@ internal sealed class StackProxy : IStackProxy
         return _stack.GetFormal(index);
     }
 
-    public IExpression GetInitializedVaList()
+    public IExpression GetInitializedVaList(ISpace space)
     {
-        return _stack.GetInitializedVaList(_space);
+        return _stack.GetInitializedVaList(space);
     }
 
     public IExpression GetVariable(InstructionId id, bool useIncomingValue)
@@ -83,9 +78,9 @@ internal sealed class StackProxy : IStackProxy
         _stack = _stack.SetVariable(id, variable);
     }
 
-    public IExpression Allocate(Bits size)
+    public IExpression Allocate(IMemory memory, Bits size)
     {
-        var (address, stack) = _stack.Allocate(_memory, size);
+        var (address, stack) = _stack.Allocate(memory, size);
         _stack = stack;
 
         return address;

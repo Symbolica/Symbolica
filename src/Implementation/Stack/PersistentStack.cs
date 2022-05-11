@@ -4,7 +4,6 @@ using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Collection;
 using Symbolica.Expression;
-using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.Stack;
 
@@ -31,14 +30,14 @@ internal sealed class PersistentStack : IPersistentStack
     public BasicBlockId PredecessorId => _currentFrame.PredecessorId;
     public IInstruction Instruction => _currentFrame.Instruction;
 
-    public IPersistentStack Wind(ISpace space, IMemoryProxy memory, ICaller caller, IInvocation invocation)
+    public IPersistentStack Wind(ISpace space, IMemory memory, ICaller caller, IInvocation invocation)
     {
         return new PersistentStack(_module, _frameFactory,
             _continuationFactory,
             _pushedFrames.Push(_currentFrame), _frameFactory.Create(space, memory, caller, invocation));
     }
 
-    public (ICaller, IPersistentStack) Unwind(ISpace space, IMemoryProxy memory)
+    public (ICaller, IPersistentStack) Unwind(ISpace space, IMemory memory)
     {
         return (_currentFrame.Caller, Pop(space, memory));
     }
@@ -55,7 +54,7 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.Save(continuation, useJumpBuffer));
     }
 
-    public IPersistentStack Restore(ISpace space, IMemoryProxy memory, IExpression address, bool useJumpBuffer)
+    public IPersistentStack Restore(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer)
     {
         var size = GetContinuationSize(useJumpBuffer);
         var continuation = memory.Read(space, address, size);
@@ -121,7 +120,7 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.SetVariable(id, variable));
     }
 
-    public (IExpression, IPersistentStack) Allocate(IMemoryProxy memory, Bits size)
+    public (IExpression, IPersistentStack) Allocate(IMemory memory, Bits size)
     {
         var address = memory.Allocate(Section.Stack, size);
 
@@ -130,7 +129,7 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.AddAllocation(address)));
     }
 
-    private PersistentStack Pop(ISpace space, IMemoryProxy memory)
+    private PersistentStack Pop(ISpace space, IMemory memory)
     {
         Free(space, memory, _currentFrame.GetAllocations());
 
@@ -146,7 +145,7 @@ internal sealed class PersistentStack : IPersistentStack
             : Bytes.One.ToBits();
     }
 
-    private static void Free(ISpace space, IMemoryProxy memory, IEnumerable<IExpression> allocations)
+    private static void Free(ISpace space, IMemory memory, IEnumerable<IExpression> allocations)
     {
         foreach (var allocation in allocations)
             memory.Free(space, Section.Stack, allocation);

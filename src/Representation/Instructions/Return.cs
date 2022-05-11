@@ -44,14 +44,14 @@ public sealed class Return : IInstruction
 
     private static ICaller ReturnFromVoid(IState state)
     {
-        return state.Stack.Unwind(state.Space);
+        return state.Stack.Unwind(state.Space, state.Memory);
     }
 
     private ICaller ReturnFromNonVoid(IExpressionFactory exprFactory, IState state)
     {
         var result = _operands[0].Evaluate(exprFactory, state);
 
-        var caller = state.Stack.Unwind(state.Space);
+        var caller = state.Stack.Unwind(state.Space, state.Memory);
         state.Stack.SetVariable(caller.Id, Coerce(result, caller));
 
         return caller;

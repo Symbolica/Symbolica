@@ -20,7 +20,7 @@ internal sealed class LongJump : IFunction
         var address = arguments.Get(0);
         var value = arguments.Get(1);
 
-        var instructionId = state.Stack.Restore(address, true);
+        var instructionId = state.Stack.Restore(state.Space, state.Memory, address, true);
         var result = value.Equal(exprFactory.CreateZero(value.Size))
             .Select(exprFactory.CreateConstant(value.Size, BigInteger.One), value);
 

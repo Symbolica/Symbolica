@@ -16,9 +16,9 @@ internal sealed class StackSave : IFunction
 
     public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
-        var address = state.Stack.Allocate(Bytes.One.ToBits());
+        var address = state.Stack.Allocate(state.Memory, Bytes.One.ToBits());
 
-        state.Stack.Save(address, false);
+        state.Stack.Save(state.Space, state.Memory, address, false);
 
         state.Stack.SetVariable(caller.Id, address);
     }
