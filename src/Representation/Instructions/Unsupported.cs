@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Instructions;
@@ -15,7 +16,7 @@ public sealed class Unsupported : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
         throw new UnsupportedInstructionException(_type);
     }

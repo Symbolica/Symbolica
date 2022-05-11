@@ -6,6 +6,13 @@ namespace Symbolica.Implementation.System;
 
 internal sealed class OutputDescription : IPersistentDescription
 {
+    private readonly IExpressionFactory _exprFactory;
+
+    public OutputDescription(IExpressionFactory exprFactory)
+    {
+        _exprFactory = exprFactory;
+    }
+
     public (long, IPersistentDescription) Seek(long offset, uint whence)
     {
         return (-1L, this);
@@ -18,7 +25,7 @@ internal sealed class OutputDescription : IPersistentDescription
 
     public IExpression ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression address, int tell)
     {
-        return space.CreateZero(space.PointerSize);
+        return _exprFactory.CreateZero(_exprFactory.PointerSize);
     }
 
     public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression address)

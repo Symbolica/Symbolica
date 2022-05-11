@@ -7,11 +7,13 @@ namespace Symbolica.Implementation.System;
 
 internal sealed class FileDescription : IPersistentDescription
 {
+    private readonly IExpressionFactory _exprFactory;
     private readonly IFile _file;
     private readonly long _offset;
 
-    private FileDescription(IFile file, long offset)
+    private FileDescription(IExpressionFactory exprFactory, IFile file, long offset)
     {
+        _exprFactory = exprFactory;
         _file = file;
         _offset = offset;
     }
@@ -26,7 +28,7 @@ internal sealed class FileDescription : IPersistentDescription
             _ => -1L
         };
 
-        return (result, new FileDescription(_file, result));
+        return (result, new FileDescription(_exprFactory, _file, result));
     }
 
     public int Read(ISpace space, IMemory memory, IExpression address, int count)
@@ -37,14 +39,14 @@ internal sealed class FileDescription : IPersistentDescription
         var size = ((Bytes) (uint) result).ToBits();
 
         if (size != Bits.Zero)
-            memory.Write(address, space.CreateConstant(size, new BigInteger(bytes, true)));
+            memory.Write(address, _exprFactory.CreateConstant(size, new BigInteger(bytes, true)));
 
         return result;
     }
 
     public IExpression ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression address, int tell)
     {
-        return space.CreateZero(space.PointerSize);
+        return _exprFactory.CreateZero(_exprFactory.PointerSize);
     }
 
     public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression address)
@@ -63,8 +65,8 @@ internal sealed class FileDescription : IPersistentDescription
         return 0;
     }
 
-    public static IPersistentDescription Create(IFile file)
+    public static IPersistentDescription Create(IExpressionFactory exprFactory, IFile file)
     {
-        return new FileDescription(file, 0L);
+        return new FileDescription(exprFactory, file, 0L);
     }
 }

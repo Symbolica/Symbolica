@@ -9,6 +9,6 @@ public interface IAddress : IExpression
     IExpression BaseAddress { get; }
     IEnumerable<(IType, IExpression)> Offsets { get; }
 
-    IAddress AddImplicitOffsets(ISpace space);
+    IAddress AddImplicitOffsets();
     IAddress? SubtractBase(ISpace space, IExpression baseAddress);
 }

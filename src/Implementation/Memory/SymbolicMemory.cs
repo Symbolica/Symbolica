@@ -12,24 +12,26 @@ internal sealed class SymbolicMemory : IPersistentMemory
     private readonly Bytes _alignment;
     private readonly ICollectionFactory _collectionFactory;
     private readonly IBlockFactory _blockFactory;
+    private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<IPersistentBlock> _blocks;
 
     private SymbolicMemory(Bytes alignment, ICollectionFactory collectionFactory, IBlockFactory blockFactory,
-        IPersistentList<IPersistentBlock> blocks)
+        IExpressionFactory exprFactory, IPersistentList<IPersistentBlock> blocks)
     {
         _alignment = alignment;
         _collectionFactory = collectionFactory;
         _blockFactory = blockFactory;
+        _exprFactory = exprFactory;
         _blocks = blocks;
     }
 
-    public (IExpression, IPersistentMemory) Allocate(ISpace space, Section section, Bits size)
+    public (IExpression, IPersistentMemory) Allocate(Section section, Bits size)
     {
-        var address = CreateAddress(space, size.ToBytes());
-        var block = _blockFactory.Create(space, section, address, size);
+        var address = CreateAddress(size.ToBytes());
+        var block = _blockFactory.Create(section, address, size);
 
         return (address, new SymbolicMemory(_alignment, _collectionFactory, _blockFactory,
-            _blocks.Add(block)));
+            _exprFactory, _blocks.Add(block)));
     }
 
     public (IExpression, IPersistentMemory) Move(ISpace space, Section section, IExpression address, Bits size)
@@ -37,11 +39,11 @@ internal sealed class SymbolicMemory : IPersistentMemory
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
             if (block.CanFree(space, section, address))
             {
-                var newAddress = CreateAddress(space, size.ToBytes());
+                var newAddress = CreateAddress(size.ToBytes());
                 var newBlock = block.Move(newAddress, size);
 
                 return (newAddress, new SymbolicMemory(_alignment, _collectionFactory, _blockFactory,
-                    _blocks.SetItem(index, newBlock)));
+                    _exprFactory, _blocks.SetItem(index, newBlock)));
             }
 
         throw new StateException(StateError.InvalidMemoryMove, space);
@@ -52,7 +54,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
             if (block.CanFree(space, section, address))
                 return new SymbolicMemory(_alignment, _collectionFactory, _blockFactory,
-                    _blocks.SetItem(index, _blockFactory.CreateInvalid()));
+                    _exprFactory, _blocks.SetItem(index, _blockFactory.CreateInvalid()));
 
         throw new StateException(StateError.InvalidMemoryFree, space);
     }
@@ -63,7 +65,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
         foreach (var (block, index) in _blocks.Select((b, i) => (b, i)))
         {
-            var result = block.TryWrite(space, Address.Create(address), value);
+            var result = block.TryWrite(space, Address.Create(_exprFactory, address), value);
 
             if (!result.CanBeSuccess)
                 continue;
@@ -72,7 +74,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
             if (!result.CanBeFailure)
                 return new SymbolicMemory(_alignment, _collectionFactory, _blockFactory,
-                    _blocks.SetItems(newBlocks));
+                    _exprFactory, _blocks.SetItems(newBlocks));
 
             space = result.FailureSpace;
         }
@@ -82,11 +84,11 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
     public IExpression Read(ISpace space, IExpression address, Bits size)
     {
-        var expression = space.CreateZero(size);
+        var expression = _exprFactory.CreateZero(size);
 
         foreach (var block in _blocks)
         {
-            var result = block.TryRead(space, Address.Create(address), size);
+            var result = block.TryRead(space, Address.Create(_exprFactory, address), size);
 
             if (!result.CanBeSuccess)
                 continue;
@@ -102,36 +104,34 @@ internal sealed class SymbolicMemory : IPersistentMemory
         throw new StateException(StateError.InvalidMemoryRead, space);
     }
 
-    private IExpression CreateAddress(ISpace space, Bytes size)
+    private IExpression CreateAddress(Bytes size)
     {
-        return space.CreateSymbolic(space.PointerSize, null,
+        return _exprFactory.CreateSymbolic(_exprFactory.PointerSize, null,
             _blocks
                 .Where(b => b.IsValid)
-                .Select(b => new Func<IExpression, IExpression>(a => IsFullyOutside(space, b, a, size)))
+                .Select(b => new Func<IExpression, IExpression>(a => IsFullyOutside(b, a, size)))
+                .Append(a => a.NotEqual(_exprFactory.CreateZero(a.Size)))
+                .Append(a => a.UnsignedLessOrEqual(GetBound(a, size)))
                 .Append(a => a
-                    .NotEqual(space.CreateZero(a.Size)))
-                .Append(a => a
-                    .UnsignedLessOrEqual(GetBound(space, a, size)))
-                .Append(a => a
-                    .UnsignedRemainder(space.CreateConstant(a.Size, (uint) _alignment))
-                    .Equal(space.CreateZero(a.Size))));
+                    .UnsignedRemainder(_exprFactory.CreateConstant(a.Size, (uint) _alignment))
+                    .Equal(_exprFactory.CreateZero(a.Size))));
     }
 
-    private static IExpression IsFullyOutside(ISpace space, IPersistentBlock block, IExpression address, Bytes size)
+    private IExpression IsFullyOutside(IPersistentBlock block, IExpression address, Bytes size)
     {
-        return GetBound(space, address, size).UnsignedLessOrEqual(block.Offset)
-            .Or(address.UnsignedGreaterOrEqual(GetBound(space, block.Offset, block.Size)));
+        return GetBound(address, size).UnsignedLessOrEqual(block.Offset)
+            .Or(address.UnsignedGreaterOrEqual(GetBound(block.Offset, block.Size)));
     }
 
-    private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
+    private IExpression GetBound(IExpression address, Bytes size)
     {
-        return address.Add(space.CreateConstant(address.Size, (uint) size));
+        return address.Add(_exprFactory.CreateConstant(address.Size, (uint) size));
     }
 
     public static IPersistentMemory Create(Bytes alignment,
-        IBlockFactory blockFactory, ICollectionFactory collectionFactory)
+        IBlockFactory blockFactory, ICollectionFactory collectionFactory, IExpressionFactory exprFactory)
     {
         return new SymbolicMemory(alignment, collectionFactory, blockFactory,
-            collectionFactory.CreatePersistentList<IPersistentBlock>());
+            exprFactory, collectionFactory.CreatePersistentList<IPersistentBlock>());
     }
 }

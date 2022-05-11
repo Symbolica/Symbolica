@@ -15,21 +15,23 @@ internal sealed class Reallocate : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var address = arguments.Get(0);
         var size = arguments.Get(1);
 
-        state.ForkAll(size, new ReallocateMemory(caller, address));
+        state.ForkAll(exprFactory, size, new ReallocateMemory(exprFactory, caller, address));
     }
 
     private sealed class ReallocateMemory : IParameterizedStateAction
     {
         private readonly IExpression _address;
+        private readonly IExpressionFactory _exprFactory;
         private readonly ICaller _caller;
 
-        public ReallocateMemory(ICaller caller, IExpression address)
+        public ReallocateMemory(IExpressionFactory exprFactory, ICaller caller, IExpression address)
         {
+            _exprFactory = exprFactory;
             _caller = caller;
             _address = address;
         }
@@ -44,10 +46,10 @@ internal sealed class Reallocate : IFunction
                 Allocate(state, _caller, _address, size.ToBits());
         }
 
-        private static void Free(IState state, ICaller caller, IExpression address)
+        private void Free(IState state, ICaller caller, IExpression address)
         {
             state.Memory.Free(address);
-            state.Stack.SetVariable(caller.Id, state.Space.CreateZero(address.Size));
+            state.Stack.SetVariable(caller.Id, _exprFactory.CreateZero(address.Size));
         }
 
         private static void Allocate(IState state, ICaller caller, IExpression address, Bits size)

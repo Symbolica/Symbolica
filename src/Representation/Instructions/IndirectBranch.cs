@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -15,11 +16,11 @@ public sealed class IndirectBranch : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var successorId = _operands[0].Evaluate(state);
+        var successorId = _operands[0].Evaluate(exprFactory, state);
 
-        state.ForkAll(successorId, new TransferBasicBlock());
+        state.ForkAll(exprFactory, successorId, new TransferBasicBlock());
     }
 
     private sealed class TransferBasicBlock : IParameterizedStateAction

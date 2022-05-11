@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions;
 
@@ -13,12 +14,12 @@ internal sealed class Open : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
-        var path = state.ReadString(arguments.Get(0));
+        var path = state.ReadString(exprFactory, arguments.Get(0));
 
         var descriptor = state.System.Open(path);
 
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, descriptor));
+        state.Stack.SetVariable(caller.Id, exprFactory.CreateConstant(caller.Size, descriptor));
     }
 }

@@ -8,12 +8,12 @@ namespace Symbolica.Representation;
 
 internal static class StateExtensions
 {
-    public static string ReadString(this IState self, IExpression address)
+    public static string ReadString(this IState self, IExpressionFactory exprFactory, IExpression address)
     {
-        return new string(ReadCharacters(self, address).ToArray());
+        return new string(ReadCharacters(self, exprFactory, address).ToArray());
     }
 
-    private static IEnumerable<char> ReadCharacters(IState state, IExpression address)
+    private static IEnumerable<char> ReadCharacters(IState state, IExpressionFactory exprFactory, IExpression address)
     {
         while (true)
         {
@@ -22,18 +22,18 @@ internal static class StateExtensions
                 yield break;
 
             yield return character;
-            address = address.Add(state.Space.CreateConstant(address.Size, (uint) Bytes.One));
+            address = address.Add(exprFactory.CreateConstant(address.Size, (uint) Bytes.One));
         }
     }
 
-    public static void ForkAll(this IState self, IExpression expression, IParameterizedStateAction action)
+    public static void ForkAll(this IState self, IExpressionFactory exprFactory, IExpression expression, IParameterizedStateAction action)
     {
         var value = expression.GetExampleValue(self.Space);
-        var isEqual = expression.Equal(self.Space.CreateConstant(expression.Size, value));
+        var isEqual = expression.Equal(exprFactory.CreateConstant(expression.Size, value));
 
         self.Fork(isEqual,
             new Action(action, value),
-            new Fork(action, expression));
+            new Fork(exprFactory, action, expression));
     }
 
     private sealed class Action : IStateAction
@@ -55,18 +55,20 @@ internal static class StateExtensions
 
     private sealed class Fork : IStateAction
     {
+        private readonly IExpressionFactory _exprFactory;
         private readonly IParameterizedStateAction _action;
         private readonly IExpression _expression;
 
-        public Fork(IParameterizedStateAction action, IExpression expression)
+        public Fork(IExpressionFactory exprFactory, IParameterizedStateAction action, IExpression expression)
         {
+            _exprFactory = exprFactory;
             _action = action;
             _expression = expression;
         }
 
         public void Invoke(IState state)
         {
-            state.ForkAll(_expression, _action);
+            state.ForkAll(_exprFactory, _expression, _action);
         }
     }
 }

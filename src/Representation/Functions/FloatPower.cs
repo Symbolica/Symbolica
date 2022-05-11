@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions;
 
@@ -13,7 +14,7 @@ internal sealed class FloatPower : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var left = arguments.Get(0);
         var right = arguments.Get(1);

@@ -12,8 +12,8 @@ public sealed class ConstantZero : IOperand
         _size = size;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        return state.Space.CreateZero(_size);
+        return exprFactory.CreateZero(_size);
     }
 }

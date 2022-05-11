@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 using Symbolica.Representation.Exceptions;
 
 namespace Symbolica.Representation.Functions;
@@ -17,7 +18,7 @@ internal sealed class Unsupported : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         throw new UnsupportedFunctionException(_name);
     }

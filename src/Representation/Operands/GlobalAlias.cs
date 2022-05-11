@@ -12,8 +12,8 @@ public sealed class GlobalAlias : IOperand
         _operand = operand;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        return _operand.Evaluate(state);
+        return _operand.Evaluate(exprFactory, state);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -14,26 +15,26 @@ public sealed class Branch : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
         if (_operands.Length == 1)
-            BranchUnconditional(state);
+            BranchUnconditional(exprFactory, state);
         else
-            BranchConditional(state);
+            BranchConditional(exprFactory, state);
     }
 
-    private void BranchUnconditional(IState state)
+    private void BranchUnconditional(IExpressionFactory exprFactory, IState state)
     {
-        var successorId = (BasicBlockId) (ulong) _operands[0].Evaluate(state).GetSingleValue(state.Space);
+        var successorId = (BasicBlockId) (ulong) _operands[0].Evaluate(exprFactory, state).GetSingleValue(state.Space);
 
         state.Stack.TransferBasicBlock(successorId);
     }
 
-    private void BranchConditional(IState state)
+    private void BranchConditional(IExpressionFactory exprFactory, IState state)
     {
-        var condition = _operands[0].Evaluate(state);
-        var falseSuccessorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).GetSingleValue(state.Space);
-        var trueSuccessorId = (BasicBlockId) (ulong) _operands[2].Evaluate(state).GetSingleValue(state.Space);
+        var condition = _operands[0].Evaluate(exprFactory, state);
+        var falseSuccessorId = (BasicBlockId) (ulong) _operands[1].Evaluate(exprFactory, state).GetSingleValue(state.Space);
+        var trueSuccessorId = (BasicBlockId) (ulong) _operands[2].Evaluate(exprFactory, state).GetSingleValue(state.Space);
 
         state.Fork(condition,
             new TransferBasicBlock(trueSuccessorId),

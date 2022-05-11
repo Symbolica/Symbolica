@@ -15,12 +15,12 @@ public sealed class ConstantStruct : IOperand
         _elements = elements;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
         return _elements
             .Select((o, i) => (o, i))
-            .Aggregate(_structType.CreateStruct(state.Space.CreateGarbage), (s, e) =>
-                s.Write(state.Space, e.i, e.o.Evaluate(state)))
+            .Aggregate(_structType.CreateStruct(exprFactory, exprFactory.CreateGarbage), (s, e) =>
+                s.Write(state.Space, e.i, e.o.Evaluate(exprFactory, state)))
             .Expression;
     }
 }

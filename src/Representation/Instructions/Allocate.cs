@@ -17,9 +17,9 @@ public sealed class Allocate : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var size = _elementSize * (uint) _operands[0].Evaluate(state).GetSingleValue(state.Space);
+        var size = _elementSize * (uint) _operands[0].Evaluate(exprFactory, state).GetSingleValue(state.Space);
         var address = state.Stack.Allocate(size.ToBits());
 
         state.Stack.SetVariable(Id, address);

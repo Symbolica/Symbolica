@@ -14,15 +14,15 @@ public sealed class ConstantSequence : IOperand
         _elements = elements;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        var sequence = state.Space.CreateZero(_size);
+        var sequence = exprFactory.CreateZero(_size);
         var offset = Bits.Zero;
 
         foreach (var element in _elements)
         {
-            var value = element.Evaluate(state);
-            sequence = sequence.Write(state.Space, state.Space.CreateConstant(_size, (uint) offset), value);
+            var value = element.Evaluate(exprFactory, state);
+            sequence = sequence.Write(state.Space, exprFactory.CreateConstant(_size, (uint) offset), value);
             offset += value.Size;
         }
 

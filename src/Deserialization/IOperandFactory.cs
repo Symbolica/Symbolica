@@ -1,5 +1,6 @@
 ﻿using LLVMSharp.Interop;
 using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Deserialization;
 

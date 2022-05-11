@@ -8,7 +8,14 @@ namespace Symbolica.Implementation.Stack;
 
 internal sealed class X86VariadicAbi : IVariadicAbi
 {
-    public IVaList DefaultVaList => new VaList(null);
+    private readonly IExpressionFactory _exprFactory;
+
+    public X86VariadicAbi(IExpressionFactory exprFactory)
+    {
+        _exprFactory = exprFactory;
+    }
+
+    public IVaList DefaultVaList => new VaList(_exprFactory, null);
 
     public IVaList PassOnStack(ISpace space, IMemoryProxy memory, IArguments varargs)
     {
@@ -21,30 +28,32 @@ internal sealed class X86VariadicAbi : IVariadicAbi
             bytes = (bytes + argument.Size.ToBytes()).AlignTo(Bytes.One);
         }
 
-        var value = space.CreateZero(bytes.ToBits());
+        var value = _exprFactory.CreateZero(bytes.ToBits());
 
         foreach (var (argument, offset) in varargs.Zip(offsets, (a, o) => (a, o)))
-            value = value.Write(space, space.CreateConstant(value.Size, (uint) offset), argument);
+            value = value.Write(space, _exprFactory.CreateConstant(value.Size, (uint) offset), argument);
 
         var address = memory.Allocate(Section.Stack, value.Size);
         memory.Write(address, value);
 
-        return new VaList(address);
+        return new VaList(_exprFactory, address);
     }
 
     private sealed class VaList : IVaList
     {
+        private readonly IExpressionFactory _exprFactory;
         private readonly IExpression? _address;
 
-        public VaList(IExpression? address)
+        public VaList(IExpressionFactory exprFactory, IExpression? address)
         {
+            _exprFactory = exprFactory;
             _address = address;
         }
 
         public IExpression Initialize(ISpace space, IStructType vaListType)
         {
-            return vaListType.CreateStruct(space.CreateZero)
-                .Write(space, 0, _address ?? space.CreateZero(space.PointerSize))
+            return vaListType.CreateStruct(_exprFactory, _exprFactory.CreateZero)
+                .Write(space, 0, _address ?? _exprFactory.CreateZero(_exprFactory.PointerSize))
                 .Expression;
         }
     }

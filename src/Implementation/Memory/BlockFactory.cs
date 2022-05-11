@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
 
@@ -6,9 +7,16 @@ namespace Symbolica.Implementation.Memory;
 
 internal sealed class BlockFactory : IBlockFactory
 {
-    public IPersistentBlock Create(ISpace space, Section section, IExpression address, Bits size)
+    private readonly IExpressionFactory _exprFactory;
+
+    public BlockFactory(IExpressionFactory exprFactory)
     {
-        return new PersistentBlock(section, address, space.CreateGarbage(size));
+        _exprFactory = exprFactory;
+    }
+
+    public IPersistentBlock Create(Section section, IExpression address, Bits size)
+    {
+        return new PersistentBlock(_exprFactory, section, address, _exprFactory.CreateGarbage(size));
     }
 
     public IPersistentBlock CreateInvalid()
@@ -49,9 +57,9 @@ internal sealed class BlockFactory : IBlockFactory
             return Result<IExpression>.Failure(space);
         }
 
-        public IExpression Data(ISpace space)
+        public IExpression Data()
         {
-            throw new global::System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

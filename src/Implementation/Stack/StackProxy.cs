@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
 
@@ -8,11 +7,13 @@ namespace Symbolica.Implementation.Stack;
 internal sealed class StackProxy : IStackProxy
 {
     private readonly IMemoryProxy _memory;
+    private readonly IExpressionFactory _exprFactory;
     private readonly ISpace _space;
     private IPersistentStack _stack;
 
-    public StackProxy(ISpace space, IMemoryProxy memory, IPersistentStack stack)
+    public StackProxy(IExpressionFactory exprFactory, ISpace space, IMemoryProxy memory, IPersistentStack stack)
     {
+        _exprFactory = exprFactory;
         _space = space;
         _memory = memory;
         _stack = stack;
@@ -23,13 +24,13 @@ internal sealed class StackProxy : IStackProxy
 
     public IStackProxy Clone(ISpace space, IMemoryProxy memory)
     {
-        return new StackProxy(space, memory, _stack);
+        return new StackProxy(_exprFactory, space, memory, _stack);
     }
 
     public void ExecuteNextInstruction(IState state)
     {
         _stack = _stack.MoveNextInstruction();
-        _stack.Instruction.Execute(state);
+        _stack.Instruction.Execute(_exprFactory, state);
     }
 
     public void Wind(ICaller caller, IInvocation invocation)

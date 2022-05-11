@@ -10,7 +10,7 @@ internal interface IPersistentBlock
     Bytes Size { get; }
     Section Section { get; }
 
-    IExpression Data(ISpace space);
+    IExpression Data();
 
     IPersistentBlock Move(IExpression address, Bits size);
     bool CanFree(ISpace space, Section section, IExpression address);

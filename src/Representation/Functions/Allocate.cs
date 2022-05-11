@@ -15,19 +15,21 @@ internal sealed class Allocate : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var size = arguments.Get(0);
 
-        state.ForkAll(size, new AllocateMemory(caller));
+        state.ForkAll(exprFactory, size, new AllocateMemory(exprFactory, caller));
     }
 
     private sealed class AllocateMemory : IParameterizedStateAction
     {
+        private readonly IExpressionFactory _exprFactory;
         private readonly ICaller _caller;
 
-        public AllocateMemory(ICaller caller)
+        public AllocateMemory(IExpressionFactory exprFactory, ICaller caller)
         {
+            _exprFactory = exprFactory;
             _caller = caller;
         }
 
@@ -36,7 +38,7 @@ internal sealed class Allocate : IFunction
             var size = (Bytes) (uint) value;
 
             var address = size == Bytes.Zero
-                ? state.Space.CreateZero(state.Space.PointerSize)
+                ? _exprFactory.CreateZero(_exprFactory.PointerSize)
                 : state.Memory.Allocate(size.ToBits());
 
             state.Stack.SetVariable(_caller.Id, address);

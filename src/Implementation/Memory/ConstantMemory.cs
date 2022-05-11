@@ -11,26 +11,28 @@ internal sealed class ConstantMemory : IPersistentMemory
     private readonly IPersistentList<Allocation> _allocations;
     private readonly IBlockFactory _blockFactory;
     private readonly ICollectionFactory _collectionFactory;
+    private readonly IExpressionFactory _exprFactory;
     private readonly Bytes _nextAddress;
 
     private ConstantMemory(Bytes alignment, IBlockFactory blockFactory, ICollectionFactory collectionFactory,
-        Bytes nextAddress, IPersistentList<Allocation> allocations)
+        IExpressionFactory exprFactory, Bytes nextAddress, IPersistentList<Allocation> allocations)
     {
         _alignment = alignment;
         _blockFactory = blockFactory;
         _collectionFactory = collectionFactory;
+        _exprFactory = exprFactory;
         _nextAddress = nextAddress;
         _allocations = allocations;
     }
 
-    public (IExpression, IPersistentMemory) Allocate(ISpace space, Section section, Bits size)
+    public (IExpression, IPersistentMemory) Allocate(Section section, Bits size)
     {
-        var address = CreateAddress(space);
-        var block = _blockFactory.Create(space, section, address, size);
+        var address = CreateAddress();
+        var block = _blockFactory.Create(section, address, size);
         var allocation = new Allocation(_nextAddress, block);
 
         return (address, new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
-            GetNextAddress(size), _allocations.Add(allocation)));
+            _exprFactory, GetNextAddress(size), _allocations.Add(allocation)));
     }
 
     public (IExpression, IPersistentMemory) Move(ISpace space, Section section, IExpression address, Bits size)
@@ -42,12 +44,12 @@ internal sealed class ConstantMemory : IPersistentMemory
 
         var freedAllocation = new Allocation(allocation.Address, _blockFactory.CreateInvalid());
 
-        var newAddress = CreateAddress(space);
+        var newAddress = CreateAddress();
         var newBlock = allocation.Block.Move(newAddress, size);
         var newAllocation = new Allocation(_nextAddress, newBlock);
 
         return (newAddress, new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
-            GetNextAddress(size), _allocations.SetItem(index, freedAllocation).Add(newAllocation)));
+            _exprFactory, GetNextAddress(size), _allocations.SetItem(index, freedAllocation).Add(newAllocation)));
     }
 
     public IPersistentMemory Free(ISpace space, Section section, IExpression address)
@@ -60,7 +62,7 @@ internal sealed class ConstantMemory : IPersistentMemory
         var freedAllocation = new Allocation(allocation.Address, _blockFactory.CreateInvalid());
 
         return new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
-            _nextAddress, _allocations.SetItem(index, freedAllocation));
+            _exprFactory, _nextAddress, _allocations.SetItem(index, freedAllocation));
     }
 
     public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
@@ -71,9 +73,9 @@ internal sealed class ConstantMemory : IPersistentMemory
         {
             var (index, allocation) = Allocation.Get(space, address, _allocations);
 
-            var block = AggregateBlock.TryCreate(_collectionFactory, space, address, allocation);
+            var block = AggregateBlock.TryCreate(_collectionFactory, _exprFactory, space, address, allocation);
 
-            var result = block.TryWrite(space, Address.Create(address), value);
+            var result = block.TryWrite(space, Address.Create(_exprFactory, address), value);
 
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryWrite, space);
@@ -82,7 +84,7 @@ internal sealed class ConstantMemory : IPersistentMemory
 
             if (!result.CanBeFailure)
                 return new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
-                    _nextAddress, _allocations.SetItems(newAllocations));
+                    _exprFactory, _nextAddress, _allocations.SetItems(newAllocations));
 
             space = result.FailureSpace;
         }
@@ -90,12 +92,12 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     public IExpression Read(ISpace space, IExpression address, Bits size)
     {
-        var expression = space.CreateZero(size);
+        var expression = _exprFactory.CreateZero(size);
 
         while (true)
         {
             var (_, allocation) = Allocation.Get(space, address, _allocations);
-            var result = allocation.Block.TryRead(space, Address.Create(address), size);
+            var result = allocation.Block.TryRead(space, Address.Create(_exprFactory, address), size);
 
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryRead, space);
@@ -109,9 +111,9 @@ internal sealed class ConstantMemory : IPersistentMemory
         }
     }
 
-    private IExpression CreateAddress(ISpace space)
+    private IExpression CreateAddress()
     {
-        return space.CreateConstant(space.PointerSize, (uint) _nextAddress);
+        return _exprFactory.CreateConstant(_exprFactory.PointerSize, (uint) _nextAddress);
     }
 
     private Bytes GetNextAddress(Bits size)
@@ -122,11 +124,11 @@ internal sealed class ConstantMemory : IPersistentMemory
     }
 
     public static IPersistentMemory Create(Bytes alignment,
-        IBlockFactory blockFactory, ICollectionFactory collectionFactory)
+        IBlockFactory blockFactory, ICollectionFactory collectionFactory, IExpressionFactory exprFactory)
     {
         var nullAllocation = new Allocation(Bytes.Zero, blockFactory.CreateInvalid());
 
         return new ConstantMemory(alignment, blockFactory, collectionFactory,
-            alignment, collectionFactory.CreatePersistentList<Allocation>().Add(nullAllocation));
+            exprFactory, alignment, collectionFactory.CreatePersistentList<Allocation>().Add(nullAllocation));
     }
 }

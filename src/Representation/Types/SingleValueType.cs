@@ -22,12 +22,12 @@ public sealed class SingleValueType : IType
         throw new InvalidIndexException();
     }
 
-    public IExpression GetOffsetBits(ISpace space, IExpression index)
+    public IExpression GetOffsetBits(IExpressionFactory expressionFactory, ISpace space, IExpression index)
     {
         throw new InvalidIndexException();
     }
 
-    public IExpression GetOffsetBytes(ISpace space, IExpression index)
+    public IExpression GetOffsetBytes(IExpressionFactory expressionFactory, ISpace space, IExpression index)
     {
         throw new InvalidIndexException();
     }

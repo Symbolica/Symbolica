@@ -8,11 +8,13 @@ namespace Symbolica.Abstraction;
 
 public sealed class Address : IAddress
 {
+    private readonly IExpressionFactory _exprFactory;
     private readonly (IType, IExpression)[] _offsets;
     private IExpression Value => _offsets.Select(o => o.Item2).Aggregate((a, o) => a.Add(o));
 
-    private Address((IType, IExpression)[] offsets)
+    private Address(IExpressionFactory exprFactory, (IType, IExpression)[] offsets)
     {
+        _exprFactory = exprFactory;
         _offsets = offsets;
     }
 
@@ -81,6 +83,7 @@ public sealed class Address : IAddress
         return expression is IAddress // a && a.IndexedType.Size > IndexedType.Size
             ? throw new Exception("add") // expression.Add(this)
             : new Address(
+                _exprFactory,
                 _offsets
                     .SkipLast(1)
                     .Append((_offsets.Last().Item1, _offsets.Last().Item2.Add(expression)))
@@ -289,6 +292,7 @@ public sealed class Address : IAddress
         return expression is Address a
             ? Value.Subtract(a.Value)
             : new Address(
+                _exprFactory,
                 _offsets.SkipLast(1)
                 .Append((_offsets.Last().Item1, _offsets.Last().Item2.Subtract(expression)))
                 .ToArray());
@@ -300,11 +304,11 @@ public sealed class Address : IAddress
             throw new Exception("base");
 
         IExpression baseAddress = BaseAddress.Subtract(expression);
-        var isZero = baseAddress.Equal(space.CreateZero(baseAddress.Size));
+        var isZero = baseAddress.Equal(_exprFactory.CreateZero(baseAddress.Size));
         using var proposition = isZero.GetProposition(space);
 
         var offsets = (proposition.CanBeFalse() ? new[] { (IndexedType, baseAddress) } : Enumerable.Empty<(IType, IExpression)>()).Concat(Offsets);
-        return offsets.Any() ? new Address(offsets.ToArray()) : null;
+        return offsets.Any() ? new Address(_exprFactory, offsets.ToArray()) : null;
     }
 
     public IExpression Truncate(Bits size)
@@ -366,19 +370,7 @@ public sealed class Address : IAddress
             : throw new Exception("zext");
     }
 
-    public static Address Create(IExpression baseAddress)
-    {
-        return Create(null!, baseAddress, Enumerable.Empty<(IType, IExpression)>());
-    }
-
-    public static Address Create(IType indexedType, IExpression baseAddress, IEnumerable<(IType, IExpression)> offsets)
-    {
-        return baseAddress is Address a
-            ? new Address(a._offsets.Concat(offsets).ToArray())
-            : new Address(new[] { (indexedType, baseAddress) }.Concat(offsets).ToArray());
-    }
-
-    public IAddress AddImplicitOffsets(ISpace space)
+    public IAddress AddImplicitOffsets()
     {
         static IEnumerable<IType> GetImplicitTypes(IType type)
         {
@@ -391,7 +383,20 @@ public sealed class Address : IAddress
         }
 
         var lastOffset = _offsets.Last();
-        var newOffsets = GetImplicitTypes(lastOffset.Item1).Select(t => (t, space.CreateZero(space.PointerSize)));
-        return new Address(_offsets.Concat(newOffsets).ToArray());
+        var newOffsets = GetImplicitTypes(lastOffset.Item1).Select(t => (t, _exprFactory.CreateZero(_exprFactory.PointerSize)));
+        return new Address(_exprFactory, _offsets.Concat(newOffsets).ToArray());
+    }
+
+    public static Address Create(IExpressionFactory exprFactory, IExpression baseAddress)
+    {
+        return Create(exprFactory, null!, baseAddress, Enumerable.Empty<(IType, IExpression)>());
+    }
+
+    public static Address Create(IExpressionFactory exprFactory, IType indexedType,
+        IExpression baseAddress, IEnumerable<(IType, IExpression)> offsets)
+    {
+        return baseAddress is Address a
+            ? new Address(exprFactory, a._offsets.Concat(offsets).ToArray())
+            : new Address(exprFactory, new[] { (indexedType, baseAddress) }.Concat(offsets).ToArray());
     }
 }

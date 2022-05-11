@@ -5,8 +5,8 @@ namespace Symbolica.Representation.Operands;
 
 public sealed class ConstantNull : IOperand
 {
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        return state.Space.CreateZero(state.Space.PointerSize);
+        return exprFactory.CreateZero(exprFactory.PointerSize);
     }
 }

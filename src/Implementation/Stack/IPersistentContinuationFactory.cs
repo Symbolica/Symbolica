@@ -4,5 +4,5 @@ namespace Symbolica.Implementation.Stack;
 
 internal interface IPersistentContinuationFactory
 {
-    (IExpression, IPersistentContinuationFactory) Create(ISpace space, Bits size);
+    (IExpression, IPersistentContinuationFactory) Create(Bits size);
 }

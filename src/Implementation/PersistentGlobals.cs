@@ -10,11 +10,13 @@ internal sealed class PersistentGlobals : IPersistentGlobals
 {
     private readonly IPersistentDictionary<GlobalId, IExpression> _addresses;
     private readonly IModule _module;
+    private readonly IExpressionFactory _exprFactory;
 
-    private PersistentGlobals(IModule module,
+    private PersistentGlobals(IModule module, IExpressionFactory exprFactory,
         IPersistentDictionary<GlobalId, IExpression> addresses)
     {
         _module = module;
+        _exprFactory = exprFactory;
         _addresses = addresses;
     }
 
@@ -29,13 +31,14 @@ internal sealed class PersistentGlobals : IPersistentGlobals
     {
         var address = memory.Allocate(Section.Global, global.Size);
 
-        return (address, s => global.Initialize(s, address), new PersistentGlobals(_module,
-            _addresses.SetItem(global.Id, address)));
+        return (address,
+            s => global.Initialize(_exprFactory, s, address),
+            new PersistentGlobals(_module, _exprFactory, _addresses.SetItem(global.Id, address)));
     }
 
-    public static IPersistentGlobals Create(IModule module, ICollectionFactory collectionFactory)
+    public static IPersistentGlobals Create(IModule module, ICollectionFactory collectionFactory, IExpressionFactory exprFactory)
     {
-        return new PersistentGlobals(module,
+        return new PersistentGlobals(module, exprFactory,
             collectionFactory.CreatePersistentDictionary<GlobalId, IExpression>());
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -14,12 +15,12 @@ public sealed class LogicalShiftRight : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var left = _operands[0].Evaluate(state);
-        var right = _operands[1].Evaluate(state);
+        var left = _operands[0].Evaluate(exprFactory, state);
+        var right = _operands[1].Evaluate(exprFactory, state);
 
-        var isUndefined = right.UnsignedGreaterOrEqual(state.Space.CreateConstant(right.Size, (uint) left.Size));
+        var isUndefined = right.UnsignedGreaterOrEqual(exprFactory.CreateConstant(right.Size, (uint) left.Size));
         using var proposition = isUndefined.GetProposition(state.Space);
 
         if (proposition.CanBeTrue())

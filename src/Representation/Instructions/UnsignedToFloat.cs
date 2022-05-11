@@ -17,9 +17,9 @@ public sealed class UnsignedToFloat : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var expression = _operands[0].Evaluate(state);
+        var expression = _operands[0].Evaluate(exprFactory, state);
         var result = expression.UnsignedToFloat(_size);
 
         state.Stack.SetVariable(Id, result);

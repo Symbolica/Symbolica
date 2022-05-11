@@ -15,25 +15,25 @@ public sealed class Return : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
         if (state.Stack.IsInitialFrame)
         {
-            ReturnFromInitialFrame(state);
+            ReturnFromInitialFrame(exprFactory, state);
         }
         else
         {
             var caller = _operands.Length == 0
                 ? ReturnFromVoid(state)
-                : ReturnFromNonVoid(state);
+                : ReturnFromNonVoid(exprFactory, state);
 
             caller.Return(state);
         }
     }
 
-    private void ReturnFromInitialFrame(IState state)
+    private void ReturnFromInitialFrame(IExpressionFactory exprFactory, IState state)
     {
-        var result = _operands[0].Evaluate(state);
+        var result = _operands[0].Evaluate(exprFactory, state);
         using var proposition = result.GetProposition(state.Space);
 
         if (proposition.CanBeTrue())
@@ -47,9 +47,9 @@ public sealed class Return : IInstruction
         return state.Stack.Unwind();
     }
 
-    private ICaller ReturnFromNonVoid(IState state)
+    private ICaller ReturnFromNonVoid(IExpressionFactory exprFactory, IState state)
     {
-        var result = _operands[0].Evaluate(state);
+        var result = _operands[0].Evaluate(exprFactory, state);
 
         var caller = state.Stack.Unwind();
         state.Stack.SetVariable(caller.Id, Coerce(result, caller));

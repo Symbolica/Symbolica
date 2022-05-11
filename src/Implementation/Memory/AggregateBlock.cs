@@ -9,10 +9,13 @@ namespace Symbolica.Implementation.Memory;
 
 internal sealed class AggregateBlock : IPersistentBlock
 {
+    private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<Allocation> _allocations;
 
-    private AggregateBlock(Section section, IExpression offset, Bytes size, IPersistentList<Allocation> allocations)
+    private AggregateBlock(IExpressionFactory exprFactory, Section section,
+        IExpression offset, Bytes size, IPersistentList<Allocation> allocations)
     {
+        _exprFactory = exprFactory;
         Section = section;
         Offset = offset;
         Size = size;
@@ -37,7 +40,7 @@ internal sealed class AggregateBlock : IPersistentBlock
 
     public Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value)
     {
-        var isBaseAddressFullyInside = IsFullyInside(space, address.BaseAddress, value.Size.ToBytes());
+        var isBaseAddressFullyInside = IsFullyInside(address.BaseAddress, value.Size.ToBytes());
         using var proposition = isBaseAddressFullyInside.GetProposition(space);
 
         if (proposition.CanBeFalse())
@@ -45,7 +48,7 @@ internal sealed class AggregateBlock : IPersistentBlock
             return Result<IPersistentBlock>.Failure(proposition.CreateFalseSpace());
 
         var relativeAddress = address.SubtractBase(space, Offset)
-            ?? Address.Create(space.CreateZero(space.PointerSize));
+            ?? Address.Create(_exprFactory, _exprFactory.CreateZero(_exprFactory.PointerSize));
 
         var (index, allocation) = Allocation.Get(space, relativeAddress.BaseAddress, _allocations);
         var result = allocation.Block.TryWrite(space, relativeAddress, value);
@@ -53,6 +56,7 @@ internal sealed class AggregateBlock : IPersistentBlock
         if (!result.CanBeFailure)
             return Result<IPersistentBlock>.Success(
                 new AggregateBlock(
+                    _exprFactory,
                     Section,
                     Offset,
                     Size,
@@ -60,7 +64,7 @@ internal sealed class AggregateBlock : IPersistentBlock
 
         // if (value.Size.ToBytes() > allocation.Block.Size)
         //     Debugger.Break();
-        var isWholeAddressFullyInside = IsFullyInside(space, address, value.Size.ToBytes());
+        var isWholeAddressFullyInside = IsFullyInside(address, value.Size.ToBytes());
         using var proposition2 = isWholeAddressFullyInside.GetProposition(space);
 
         if (proposition2.CanBeFalse())
@@ -68,17 +72,17 @@ internal sealed class AggregateBlock : IPersistentBlock
 
         var data = value.Size == Size.ToBits()
             ? value
-            : Data(space).Write(space, GetOffset(space, relativeAddress), value);
+            : Data().Write(space, GetOffset(relativeAddress), value);
 
         // if (data.IsSymbolic)
         //     Debugger.Break();
 
-        return Result<IPersistentBlock>.Success(new PersistentBlock(Section, Offset, data));
+        return Result<IPersistentBlock>.Success(new PersistentBlock(_exprFactory, Section, Offset, data));
     }
 
     public Result<IExpression> TryRead(ISpace space, IAddress address, Bits size)
     {
-        var isBaseAddressFullyInside = IsFullyInside(space, address.BaseAddress, size.ToBytes());
+        var isBaseAddressFullyInside = IsFullyInside(address.BaseAddress, size.ToBytes());
         using var proposition = isBaseAddressFullyInside.GetProposition(space);
 
         if (proposition.CanBeFalse())
@@ -86,7 +90,7 @@ internal sealed class AggregateBlock : IPersistentBlock
             return Result<IExpression>.Failure(proposition.CreateFalseSpace());
 
         var relativeAddress = address.SubtractBase(space, Offset)
-            ?? Address.Create(space.CreateZero(space.PointerSize));
+            ?? Address.Create(_exprFactory, _exprFactory.CreateZero(_exprFactory.PointerSize));
 
         var (_, allocation) = Allocation.Get(space, relativeAddress, _allocations);
         var result = allocation.Block.TryRead(space, relativeAddress, size);
@@ -94,15 +98,15 @@ internal sealed class AggregateBlock : IPersistentBlock
         if (!result.CanBeFailure)
             return result;
 
-        var isWholeAddressFullyInside = IsFullyInside(space, address, size.ToBytes());
+        var isWholeAddressFullyInside = IsFullyInside(address, size.ToBytes());
         using var proposition2 = isWholeAddressFullyInside.GetProposition(space);
 
         if (proposition2.CanBeFalse())
             return Result<IExpression>.Failure(proposition.CreateFalseSpace());
 
         var value = size == Size.ToBits()
-            ? Data(space)
-            : Data(space).Read(space, GetOffset(space, relativeAddress), size);
+            ? Data()
+            : Data().Read(space, GetOffset(relativeAddress), size);
 
         if (value.IsSymbolic)
             Debugger.Break();
@@ -110,39 +114,39 @@ internal sealed class AggregateBlock : IPersistentBlock
         return Result<IExpression>.Success(value);
     }
 
-    public IExpression Data(ISpace space)
+    public IExpression Data()
     {
         return _allocations.Aggregate(
-            space.CreateZero(Size.ToBits()),
+            _exprFactory.CreateZero(Size.ToBits()),
             (buffer, alloc) =>
                 buffer.Or(
-                    alloc.Block.Data(space)
+                    alloc.Block.Data()
                         // Something in SQLite does a symbolic read from a buffer of addresses
                         // This "works", but then leads to dumb read on a mega struct
                         .ZeroExtend(Size.ToBits())
-                        .ShiftLeft(GetOffset(space, alloc.Block.Offset))));
+                        .ShiftLeft(GetOffset(alloc.Block.Offset))));
     }
 
-    private IExpression IsFullyInside(ISpace space, IExpression address, Bytes size)
+    private IExpression IsFullyInside(IExpression address, Bytes size)
     {
         return address.UnsignedGreaterOrEqual(Offset)
-            .And(GetBound(space, address, size).UnsignedLessOrEqual(GetBound(space, Offset, Size)));
+            .And(GetBound(address, size).UnsignedLessOrEqual(GetBound(Offset, Size)));
     }
 
-    private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
+    private IExpression GetBound(IExpression address, Bytes size)
     {
-        return address.Add(space.CreateConstant(address.Size, (uint) size));
+        return address.Add(_exprFactory.CreateConstant(address.Size, (uint) size));
     }
 
-    private IExpression GetOffset(ISpace space, IExpression address)
+    private IExpression GetOffset(IExpression address)
     {
-        return space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
+        return _exprFactory.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
             .Multiply(address)
             .ZeroExtend(Size.ToBits())
             .Truncate(Size.ToBits());
     }
 
-    private static IPersistentBlock SplitIndexedType(ICollectionFactory collectionFactory,
+    private static IPersistentBlock SplitIndexedType(ICollectionFactory collectionFactory, IExpressionFactory exprFactory,
         ISpace space, Bytes address, IType indexedType, PersistentBlock block)
     {
         IType type = indexedType switch
@@ -150,32 +154,35 @@ internal sealed class AggregateBlock : IPersistentBlock
             IArrayType a => a.Resize(block.Size),
             _ => throw new Exception("Cant split a non address type.")
         };
-        return Split(collectionFactory, space, address, type, block);
+        return Split(collectionFactory, exprFactory, space, address, type, block);
     }
 
-    private static IPersistentBlock Split(ICollectionFactory collectionFactory,
+    private static IPersistentBlock Split(ICollectionFactory collectionFactory, IExpressionFactory exprFactory,
         ISpace space, Bytes address, IType type, PersistentBlock block)
     {
         return type.Types.Any()
             ? new AggregateBlock(
+                exprFactory,
                 block.Section,
-                space.CreateConstant(space.PointerSize, (uint) address),
+                exprFactory.CreateConstant(exprFactory.PointerSize, (uint) address),
                 type.Size,
                 collectionFactory.CreatePersistentList<Allocation>()
                     .AddRange(type.Offsets
                         .Zip(type.Types, (o, t) =>
-                            new Allocation(o, Split(collectionFactory, space, o, t, block.Read(space, o + address, t.Size))))))
+                            new Allocation(
+                                o,
+                                Split(collectionFactory, exprFactory, space, o, t, block.Read(space, o + address, t.Size))))))
             : block;
     }
 
     public static IPersistentBlock TryCreate(ICollectionFactory collectionFactory,
-        ISpace space, IExpression address, Allocation allocation)
+        IExpressionFactory exprFactory, ISpace space, IExpression address, Allocation allocation)
     {
         return address is IAddress a &&
                allocation.Block is PersistentBlock b &&
                allocation.Block.IsValid &&
                allocation.Address == (Bytes) (uint) a.BaseAddress.GetSingleValue(space)
-            ? SplitIndexedType(collectionFactory, space, allocation.Address, a.IndexedType, b)
+            ? SplitIndexedType(collectionFactory, exprFactory, space, allocation.Address, a.IndexedType, b)
             : allocation.Block;
     }
 }

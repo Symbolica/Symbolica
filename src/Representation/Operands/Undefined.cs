@@ -12,8 +12,8 @@ public sealed class Undefined : IOperand
         _size = size;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        return state.Space.CreateGarbage(_size);
+        return exprFactory.CreateGarbage(_size);
     }
 }

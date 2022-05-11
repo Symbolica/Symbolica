@@ -12,8 +12,8 @@ public sealed class Function : IOperand
         _id = id;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        return state.Space.CreateConstant(state.Space.PointerSize, (ulong) _id);
+        return exprFactory.CreateConstant(exprFactory.PointerSize, (ulong) _id);
     }
 }

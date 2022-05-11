@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions;
 
@@ -13,12 +14,12 @@ internal sealed class VariadicEnd : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var address = arguments.Get(0);
 
         var size = state.Stack.GetInitializedVaList().Size;
 
-        state.Memory.Write(address, state.Space.CreateGarbage(size));
+        state.Memory.Write(address, exprFactory.CreateGarbage(size));
     }
 }

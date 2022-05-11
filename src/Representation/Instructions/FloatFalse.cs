@@ -12,9 +12,9 @@ public sealed class FloatFalse : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var result = state.Space.CreateZero(Bits.One);
+        var result = exprFactory.CreateZero(Bits.One);
 
         state.Stack.SetVariable(Id, result);
     }

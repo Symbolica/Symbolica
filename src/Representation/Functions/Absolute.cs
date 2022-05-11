@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions;
 
@@ -13,11 +14,11 @@ internal sealed class Absolute : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var value = arguments.Get(0);
 
-        var mask = value.ArithmeticShiftRight(state.Space.CreateConstant(value.Size, (uint) value.Size - 1U));
+        var mask = value.ArithmeticShiftRight(exprFactory.CreateConstant(value.Size, (uint) value.Size - 1U));
         var result = value.Add(mask).Xor(mask);
 
         state.Stack.SetVariable(caller.Id, result);

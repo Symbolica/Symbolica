@@ -14,8 +14,8 @@ public sealed class ConstantFloat : IOperand
         _value = value;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        return state.Space.CreateConstantFloat(_size, _value);
+        return exprFactory.CreateConstantFloat(_size, _value);
     }
 }

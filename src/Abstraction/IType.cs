@@ -10,6 +10,6 @@ public interface IType
     IEnumerable<Bytes> Offsets { get; }
 
     IType GetType(ISpace space, IExpression index);
-    IExpression GetOffsetBits(ISpace space, IExpression index);
-    IExpression GetOffsetBytes(ISpace space, IExpression index);
+    IExpression GetOffsetBits(IExpressionFactory exprFactory, ISpace space, IExpression index);
+    IExpression GetOffsetBytes(IExpressionFactory exprFactory, ISpace space, IExpression index);
 }

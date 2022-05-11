@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -14,11 +15,11 @@ public sealed class Select : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var predicate = _operands[0].Evaluate(state);
-        var trueValue = _operands[1].Evaluate(state);
-        var falseValue = _operands[2].Evaluate(state);
+        var predicate = _operands[0].Evaluate(exprFactory, state);
+        var trueValue = _operands[1].Evaluate(exprFactory, state);
+        var falseValue = _operands[2].Evaluate(exprFactory, state);
         var result = predicate.Select(trueValue, falseValue);
 
         state.Stack.SetVariable(Id, result);

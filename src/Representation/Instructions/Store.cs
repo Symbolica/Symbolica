@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -14,10 +15,10 @@ public sealed class Store : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var value = _operands[0].Evaluate(state);
-        var address = _operands[1].Evaluate(state);
+        var value = _operands[0].Evaluate(exprFactory, state);
+        var address = _operands[1].Evaluate(exprFactory, state);
 
         state.Memory.Write(address, value);
     }

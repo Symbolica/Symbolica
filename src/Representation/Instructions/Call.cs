@@ -33,21 +33,23 @@ public sealed class Call : IInstruction, ICaller
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var arguments = _operands.SkipLast(1).Select(o => o.Evaluate(state)).ToArray();
-        var target = _operands.Last().Evaluate(state);
+        var arguments = _operands.SkipLast(1).Select(o => o.Evaluate(exprFactory, state)).ToArray();
+        var target = _operands.Last().Evaluate(exprFactory, state);
 
-        state.ForkAll(target, new Dispatch(this, arguments));
+        state.ForkAll(exprFactory, target, new Dispatch(exprFactory, this, arguments));
     }
 
     private sealed class Dispatch : IParameterizedStateAction
     {
         private readonly IExpression[] _arguments;
+        private readonly IExpressionFactory _exprFactory;
         private readonly Call _call;
 
-        public Dispatch(Call call, IExpression[] arguments)
+        public Dispatch(IExpressionFactory exprFactory, Call call, IExpression[] arguments)
         {
+            _exprFactory = exprFactory;
             _call = call;
             _arguments = arguments;
         }
@@ -56,7 +58,7 @@ public sealed class Call : IInstruction, ICaller
         {
             var function = state.GetFunction((FunctionId) (ulong) value);
 
-            function.Call(state, _call, Coerce(function));
+            function.Call(_exprFactory, state, _call, Coerce(function));
         }
 
         private Arguments Coerce(IFunction function)

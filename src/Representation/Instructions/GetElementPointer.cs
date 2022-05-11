@@ -20,7 +20,7 @@ public sealed class GetElementPointer : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
         IAddress CombineOffsets(IAddress baseAddress, IEnumerable<(IType, IExpression)> offsets)
         {
@@ -28,7 +28,7 @@ public sealed class GetElementPointer : IInstruction
                 // This filth is to deal with the fact we currently fake BitCasts by creating an address without an offsets
                 // If every expression had a type then BitCasting would just change that type.
                 // Then when this GEP instruction was called it would just be a regular baseAddress expression of the correct pointer type.
-                return Address.Create(baseAddress.IndexedType, baseAddress.BaseAddress, offsets);
+                return Address.Create(exprFactory, baseAddress.IndexedType, baseAddress.BaseAddress, offsets);
 
             var lastRight = baseAddress.Offsets.Last();
             var firstLeft = offsets.First();
@@ -39,27 +39,27 @@ public sealed class GetElementPointer : IInstruction
                 .SkipLast(1)
                 .Append((lastRight.Item1, lastRight.Item2.Add(firstLeft.Item2)))
                 .Concat(offsets.Skip(1));
-            return Address.Create(baseAddress.IndexedType, baseAddress.BaseAddress, combinedOffsets);
+            return Address.Create(exprFactory, baseAddress.IndexedType, baseAddress.BaseAddress, combinedOffsets);
         }
 
-        IExpression baseAddress = _operands[0].Evaluate(state);
-        IEnumerable<(IType, IExpression)> offsets = GetOffsets(state);
+        IExpression baseAddress = _operands[0].Evaluate(exprFactory, state);
+        IEnumerable<(IType, IExpression)> offsets = GetOffsets(exprFactory, state);
         state.Stack.SetVariable(
             Id,
             baseAddress is IAddress a
                 ? CombineOffsets(a, offsets)
-                : Address.Create(_indexedType, baseAddress, offsets));
+                : Address.Create(exprFactory, _indexedType, baseAddress, offsets));
     }
 
-    private IEnumerable<(IType, IExpression)> GetOffsets(IState state)
+    private IEnumerable<(IType, IExpression)> GetOffsets(IExpressionFactory exprFactory, IState state)
     {
         var indexedType = _indexedType;
 
         foreach (var operand in _operands.Skip(1))
         {
-            var index = operand.Evaluate(state);
+            var index = operand.Evaluate(exprFactory, state);
             var elementType = indexedType.GetType(state.Space, index);
-            yield return (elementType, indexedType.GetOffsetBytes(state.Space, index));
+            yield return (elementType, indexedType.GetOffsetBytes(exprFactory, state.Space, index));
             indexedType = elementType;
         }
     }

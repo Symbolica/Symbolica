@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Representation.Types;
 
@@ -16,16 +15,20 @@ internal sealed class Symbolize : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
-        static Address BitCastAddress(IAddress address, Bytes size)
+        Address BitCastAddress(IAddress address, Bytes size)
         {
-            return Address.Create(new ArrayType(1U, new SingleValueType(size)), address.BaseAddress, address.Offsets);
+            return Address.Create(
+                exprFactory,
+                new ArrayType(1U, new SingleValueType(size)),
+                address.BaseAddress,
+                address.Offsets);
         }
 
         var address = arguments.Get(0);
         var size = (Bytes) (uint) arguments.Get(1).GetSingleValue(state.Space);
-        var name = state.ReadString(arguments.Get(2));
+        var name = state.ReadString(exprFactory, arguments.Get(2));
         address = address is IAddress a
             ? name switch
             {
@@ -37,6 +40,6 @@ internal sealed class Symbolize : IFunction
             }
             : address;
 
-        state.Memory.Write(address, state.Space.CreateSymbolic(size.ToBits(), name));
+        state.Memory.Write(address, exprFactory.CreateSymbolic(size.ToBits(), name));
     }
 }

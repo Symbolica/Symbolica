@@ -28,14 +28,14 @@ public sealed class ArrayType : IArrayType
         return ElementType;
     }
 
-    public IExpression GetOffsetBits(ISpace space, IExpression index)
+    public IExpression GetOffsetBits(IExpressionFactory exprFactory, ISpace space, IExpression index)
     {
-        return GetOffset(space, index, (uint) ElementType.Size.ToBits());
+        return GetOffset(exprFactory, index, (uint) ElementType.Size.ToBits());
     }
 
-    public IExpression GetOffsetBytes(ISpace space, IExpression index)
+    public IExpression GetOffsetBytes(IExpressionFactory exprFactory, ISpace space, IExpression index)
     {
-        return GetOffset(space, index, (uint) ElementType.Size);
+        return GetOffset(exprFactory, index, (uint) ElementType.Size);
     }
 
     public IType Resize(Bytes allocatedSize)
@@ -48,8 +48,8 @@ public sealed class ArrayType : IArrayType
         return new ArrayType(elements, ElementType);
     }
 
-    private static IExpression GetOffset(ISpace space, IExpression index, BigInteger elementSize)
+    private static IExpression GetOffset(IExpressionFactory exprFactory, IExpression index, BigInteger elementSize)
     {
-        return space.CreateConstant(space.PointerSize, elementSize).Multiply(index.SignExtend(space.PointerSize));
+        return exprFactory.CreateConstant(exprFactory.PointerSize, elementSize).Multiply(index.SignExtend(exprFactory.PointerSize));
     }
 }

@@ -20,7 +20,7 @@ internal sealed class MemoryProxy : IMemoryProxy
 
     public IExpression Allocate(Section section, Bits size)
     {
-        var (address, memory) = _memory.Allocate(_space, section, size);
+        var (address, memory) = _memory.Allocate(section, size);
         _memory = memory;
 
         return address;

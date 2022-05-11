@@ -23,11 +23,12 @@ internal sealed class Executor
 
     public async Task<(ulong, ulong, Exception?)> Run(byte[] bytes)
     {
-        var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
-
         var collectionFactory = new CollectionFactory();
+        var module = DeserializerFactory.Create(new DeclarationFactory()).DeserializeModule(bytes);
+        var exprFactory = new ExpressionFactory(module.PointerSize, _options.UseSymbolicGarbage, collectionFactory);
+
         var spaceFactory = new SpaceFactory(collectionFactory);
-        var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory);
+        var executableFactory = new ExecutableFactory(CreateFileSystem(), spaceFactory, collectionFactory, exprFactory);
 
         using var statePool = new StatePool(_maxParallelism);
         statePool.Add(executableFactory.CreateInitial(module, _options));

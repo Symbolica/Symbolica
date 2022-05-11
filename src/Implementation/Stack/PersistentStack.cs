@@ -45,7 +45,7 @@ internal sealed class PersistentStack : IPersistentStack
     public IPersistentStack Save(ISpace space, IMemory memory, IExpression address, bool useJumpBuffer)
     {
         var size = GetContinuationSize(useJumpBuffer);
-        var (continuation, continuationFactory) = _continuationFactory.Create(space, size);
+        var (continuation, continuationFactory) = _continuationFactory.Create(size);
 
         memory.Write(address, continuation);
 

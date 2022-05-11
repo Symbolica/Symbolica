@@ -24,8 +24,8 @@ public sealed class Invoke : IInstruction, ICaller
 
     public InstructionId Id => _call.Id;
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        _call.Execute(state);
+        _call.Execute(exprFactory, state);
     }
 }

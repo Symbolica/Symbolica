@@ -13,9 +13,9 @@ public sealed class FloatTrue : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var result = state.Space.CreateConstant(Bits.One, BigInteger.One);
+        var result = exprFactory.CreateConstant(Bits.One, BigInteger.One);
 
         state.Stack.SetVariable(Id, result);
     }

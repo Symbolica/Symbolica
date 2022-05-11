@@ -17,9 +17,9 @@ public sealed class Global : IGlobal
     public GlobalId Id { get; }
     public Bits Size { get; }
 
-    public void Initialize(IState state, IExpression address)
+    public void Initialize(IExpressionFactory exprFactory, IState state, IExpression address)
     {
-        var value = _initializer.Evaluate(state);
+        var value = _initializer.Evaluate(exprFactory, state);
 
         state.Memory.Write(address, value);
     }

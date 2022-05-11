@@ -9,16 +9,19 @@ namespace Symbolica.Implementation.System;
 internal sealed class PersistentSystem : IPersistentSystem
 {
     private readonly IDescriptionFactory _descriptionFactory;
+    private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<Handle> _handles;
     private readonly IPersistentList<int> _indices;
     private readonly IModule _module;
     private readonly IExpression? _threadAddress;
 
     private PersistentSystem(IModule module, IDescriptionFactory descriptionFactory,
-        IExpression? threadAddress, IPersistentList<int> indices, IPersistentList<Handle> handles)
+        IExpressionFactory exprFactory, IExpression? threadAddress,
+        IPersistentList<int> indices, IPersistentList<Handle> handles)
     {
         _module = module;
         _descriptionFactory = descriptionFactory;
+        _exprFactory = exprFactory;
         _threadAddress = threadAddress;
         _indices = indices;
         _handles = handles;
@@ -65,7 +68,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         var (result, description) = handle.Description.Seek(offset, whence);
 
         return (result, new PersistentSystem(_module, _descriptionFactory,
-            _threadAddress, _indices, _handles.SetItem(index, new Handle(handle.References, description))));
+            _exprFactory, _threadAddress, _indices, _handles.SetItem(index, new Handle(handle.References, description))));
     }
 
     public int Read(ISpace space, IMemory memory, int descriptor, IExpression address, int count)
@@ -80,17 +83,17 @@ internal sealed class PersistentSystem : IPersistentSystem
         var streamType = _module.DirectoryStreamType;
         var entryType = _module.DirectoryEntryType;
 
-        var stream = streamType.CreateStruct(s => memory.Read(address, s));
+        var stream = streamType.CreateStruct(_exprFactory, s => memory.Read(address, s));
 
         var tell = (int) stream.Read(space, 0).GetSingleValue(space);
         var descriptor = (int) stream.Read(space, 1).GetSingleValue(space);
-        var buffer = address.Add(streamType.GetOffsetBytes(space, space.CreateConstant((Bits) 32U, 5U)));
+        var buffer = address.Add(streamType.GetOffsetBytes(_exprFactory, space, _exprFactory.CreateConstant((Bits) 32U, 5U)));
 
         memory.Write(address, stream
             .Write(space, 0, tell + 1)
             .Expression);
 
-        var entry = entryType.CreateStruct(space.CreateGarbage);
+        var entry = entryType.CreateStruct(_exprFactory, _exprFactory.CreateGarbage);
 
         var (_, handle) = Get(descriptor);
 
@@ -101,7 +104,7 @@ internal sealed class PersistentSystem : IPersistentSystem
     {
         var statType = _module.StatType;
 
-        var stat = statType.CreateStruct(space.CreateGarbage);
+        var stat = statType.CreateStruct(_exprFactory, _exprFactory.CreateGarbage);
 
         var (_, handle) = Get(descriptor);
 
@@ -113,19 +116,19 @@ internal sealed class PersistentSystem : IPersistentSystem
         var localeType = _module.LocaleType;
         var threadType = _module.ThreadType;
 
-        var locale = localeType.CreateStruct(space.CreateGarbage);
+        var locale = localeType.CreateStruct(_exprFactory, _exprFactory.CreateGarbage);
 
         var localeAddress = memory.Allocate(Section.Global, locale.Expression.Size);
         memory.Write(localeAddress, locale.Expression);
 
-        var thread = threadType.CreateStruct(space.CreateGarbage)
+        var thread = threadType.CreateStruct(_exprFactory, _exprFactory.CreateGarbage)
             .Write(space, 24, localeAddress);
 
         var threadAddress = memory.Allocate(Section.Global, thread.Expression.Size);
         memory.Write(threadAddress, thread.Expression);
 
         return (threadAddress, new PersistentSystem(_module, _descriptionFactory,
-            threadAddress, _indices, _handles));
+            _exprFactory, threadAddress, _indices, _handles));
     }
 
     private (int, Handle) Get(int descriptor)
@@ -144,10 +147,10 @@ internal sealed class PersistentSystem : IPersistentSystem
         foreach (var (value, descriptor) in _indices.Select((v, d) => (v, d)))
             if (value == 0)
                 return (descriptor, new PersistentSystem(_module, _descriptionFactory,
-                    _threadAddress, _indices.SetItem(descriptor, _handles.Count), _handles.Add(handle)));
+                    _exprFactory, _threadAddress, _indices.SetItem(descriptor, _handles.Count), _handles.Add(handle)));
 
         return (_indices.Count, new PersistentSystem(_module, _descriptionFactory,
-            _threadAddress, _indices.Add(_handles.Count), _handles.Add(handle)));
+            _exprFactory, _threadAddress, _indices.Add(_handles.Count), _handles.Add(handle)));
     }
 
     private (int, IPersistentSystem) Duplicate(int index, uint references, IPersistentDescription description)
@@ -157,10 +160,10 @@ internal sealed class PersistentSystem : IPersistentSystem
         foreach (var (value, descriptor) in _indices.Select((v, d) => (v, d)))
             if (value == 0)
                 return (descriptor, new PersistentSystem(_module, _descriptionFactory,
-                    _threadAddress, _indices.SetItem(descriptor, index), _handles.SetItem(index, handle)));
+                    _exprFactory, _threadAddress, _indices.SetItem(descriptor, index), _handles.SetItem(index, handle)));
 
         return (_indices.Count, new PersistentSystem(_module, _descriptionFactory,
-            _threadAddress, _indices.Add(index), _handles.SetItem(index, handle)));
+            _exprFactory, _threadAddress, _indices.Add(index), _handles.SetItem(index, handle)));
     }
 
     private IPersistentSystem Close(int descriptor, int index, uint references, IPersistentDescription description)
@@ -170,7 +173,7 @@ internal sealed class PersistentSystem : IPersistentSystem
             : description);
 
         return new PersistentSystem(_module, _descriptionFactory,
-            _threadAddress, _indices.SetItem(descriptor, 0), _handles.SetItem(index, handle));
+            _exprFactory, _threadAddress, _indices.SetItem(descriptor, 0), _handles.SetItem(index, handle));
     }
 
     private PersistentSystem Add(IPersistentDescription description)
@@ -181,11 +184,12 @@ internal sealed class PersistentSystem : IPersistentSystem
     }
 
     public static IPersistentSystem Create(IModule module, IDescriptionFactory descriptionFactory,
-        ICollectionFactory collectionFactory)
+        ICollectionFactory collectionFactory, IExpressionFactory exprFactory)
     {
         var invalidHandle = new Handle(0U, descriptionFactory.CreateInvalid());
 
         var system = new PersistentSystem(module, descriptionFactory,
+            exprFactory,
             null,
             collectionFactory.CreatePersistentList<int>(),
             collectionFactory.CreatePersistentList<Handle>().Add(invalidHandle));

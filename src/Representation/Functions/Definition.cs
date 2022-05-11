@@ -41,7 +41,7 @@ public sealed class Definition : IDefinition
             : throw new MissingBasicBlockException(id);
     }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         state.Stack.Wind(caller, _isVariadic
             ? new Invocation(this,

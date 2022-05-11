@@ -8,10 +8,12 @@ namespace Symbolica.Implementation.System;
 
 internal sealed class DirectoryDescription : IPersistentDescription
 {
+    private readonly IExpressionFactory _exprFactory;
     private readonly IDirectory _directory;
 
-    public DirectoryDescription(IDirectory directory)
+    public DirectoryDescription(IExpressionFactory exprFactory, IDirectory directory)
     {
+        _exprFactory = exprFactory;
         _directory = directory;
     }
 
@@ -29,7 +31,7 @@ internal sealed class DirectoryDescription : IPersistentDescription
     {
         return tell >= 0 && tell < _directory.Names.Length
             ? Read(space, memory, entry, address, _directory.Names[tell])
-            : space.CreateZero(space.PointerSize);
+            : _exprFactory.CreateZero(_exprFactory.PointerSize);
     }
 
     public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression address)

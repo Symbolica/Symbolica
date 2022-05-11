@@ -27,17 +27,17 @@ public sealed class StructType : IStructType
         return _types[(int) index.GetSingleValue(space)];
     }
 
-    public IExpression GetOffsetBits(ISpace space, IExpression index)
+    public IExpression GetOffsetBits(IExpressionFactory exprFactory, ISpace space, IExpression index)
     {
-        return space.CreateConstant(space.PointerSize, (uint) _offsets[(int) index.GetSingleValue(space)].ToBits());
+        return exprFactory.CreateConstant(exprFactory.PointerSize, (uint) _offsets[(int) index.GetSingleValue(space)].ToBits());
     }
 
-    public IExpression GetOffsetBytes(ISpace space, IExpression index)
+    public IExpression GetOffsetBytes(IExpressionFactory exprFactory, ISpace space, IExpression index)
     {
-        return space.CreateConstant(space.PointerSize, (uint) _offsets[(int) index.GetSingleValue(space)]);
+        return exprFactory.CreateConstant(exprFactory.PointerSize, (uint) _offsets[(int) index.GetSingleValue(space)]);
     }
 
-    public IStruct CreateStruct(Func<Bits, IExpression> initializer)
+    public IStruct CreateStruct(IExpressionFactory exprFactory, Func<Bits, IExpression> initializer)
     {
         var size = Size.ToBits();
         var offsets = _offsets.Select(o => o.ToBits()).ToArray();
@@ -48,7 +48,7 @@ public sealed class StructType : IStructType
             .Zip(offsets, (h, l) => h - l)
             .ToArray();
 
-        return new Struct(offsets, sizes,
+        return new Struct(exprFactory, offsets, sizes,
             initializer(size));
     }
 }

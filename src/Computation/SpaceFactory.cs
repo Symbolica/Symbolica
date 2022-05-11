@@ -12,8 +12,8 @@ public sealed class SpaceFactory : ISpaceFactory
         _collectionFactory = collectionFactory;
     }
 
-    public ISpace CreateInitial(Bits pointerSize, bool useSymbolicGarbage)
+    public ISpace CreateInitial()
     {
-        return PersistentSpace.Create(pointerSize, useSymbolicGarbage, _collectionFactory);
+        return PersistentSpace.Create(_collectionFactory);
     }
 }

@@ -15,8 +15,8 @@ public sealed class ConstantInteger : IOperand
         _value = value;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        return state.Space.CreateConstant(_size, _value);
+        return exprFactory.CreateConstant(_size, _value);
     }
 }

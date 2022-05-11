@@ -1,14 +1,17 @@
-﻿using Symbolica.Abstraction;
+﻿using System;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
 internal sealed class DescriptionFactory : IDescriptionFactory
 {
+    private readonly IExpressionFactory _exprFactory;
     private readonly IFileSystem _fileSystem;
 
-    public DescriptionFactory(IFileSystem fileSystem)
+    public DescriptionFactory(IExpressionFactory exprFactory, IFileSystem fileSystem)
     {
+        _exprFactory = exprFactory;
         _fileSystem = fileSystem;
     }
 
@@ -20,17 +23,17 @@ internal sealed class DescriptionFactory : IDescriptionFactory
 
     public IPersistentDescription CreateInput()
     {
-        return new InputDescription();
+        return new InputDescription(_exprFactory);
     }
 
     public IPersistentDescription CreateOutput()
     {
-        return new OutputDescription();
+        return new OutputDescription(_exprFactory);
     }
 
     public IPersistentDescription CreateInvalid()
     {
-        return InvalidDescription.Instance;
+        return InvalidDescription.Instance(_exprFactory);
     }
 
     private IPersistentDescription? CreateFile(string path)
@@ -39,7 +42,7 @@ internal sealed class DescriptionFactory : IDescriptionFactory
 
         return file == null
             ? null
-            : FileDescription.Create(file);
+            : FileDescription.Create(_exprFactory, file);
     }
 
     private IPersistentDescription? CreateDirectory(string path)
@@ -48,16 +51,20 @@ internal sealed class DescriptionFactory : IDescriptionFactory
 
         return directory == null
             ? null
-            : new DirectoryDescription(directory);
+            : new DirectoryDescription(_exprFactory, directory);
     }
 
     private sealed class InvalidDescription : IPersistentDescription
     {
-        private InvalidDescription()
+        private readonly IExpressionFactory _exprFactory;
+
+        private InvalidDescription(IExpressionFactory exprFactory)
         {
+            _exprFactory = exprFactory;
         }
 
-        public static IPersistentDescription Instance => new InvalidDescription();
+        public static IPersistentDescription Instance(IExpressionFactory exprFactory) =>
+            new Lazy<InvalidDescription>(() => new(exprFactory)).Value;
 
         public (long, IPersistentDescription) Seek(long offset, uint whence)
         {
@@ -71,7 +78,7 @@ internal sealed class DescriptionFactory : IDescriptionFactory
 
         public IExpression ReadDirectory(ISpace space, IMemory memory, IStruct entry, IExpression address, int tell)
         {
-            return space.CreateZero(space.PointerSize);
+            return _exprFactory.CreateZero(_exprFactory.PointerSize);
         }
 
         public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression address)

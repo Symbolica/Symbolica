@@ -21,22 +21,22 @@ public sealed class Phi : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
         var index = _indices.TryGetValue(state.Stack.PredecessorId, out var value)
             ? value
             : throw new MissingBasicBlockException(state.Stack.PredecessorId);
 
-        var result = Evaluate(state, _operands[index]);
+        var result = Evaluate(exprFactory, state, _operands[index]);
 
         state.Stack.SetVariable(Id, result);
     }
 
-    private static IExpression Evaluate(IState state, IOperand operand)
+    private static IExpression Evaluate(IExpressionFactory exprFactory, IState state, IOperand operand)
     {
         return operand is Variable variable
             ? variable.Evaluate(state, true)
-            : operand.Evaluate(state);
+            : operand.Evaluate(exprFactory, state);
     }
 
     public static IInstruction Create(InstructionId id, IOperand[] operands, IEnumerable<BasicBlockId> predecessors)

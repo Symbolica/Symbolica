@@ -15,13 +15,13 @@ internal sealed class MemoryMove : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var destination = arguments.Get(0);
         var source = arguments.Get(1);
         var length = arguments.Get(2);
 
-        state.ForkAll(length, new MoveMemory(destination, source));
+        state.ForkAll(exprFactory, length, new MoveMemory(destination, source));
     }
 
     private sealed class MoveMemory : IParameterizedStateAction
@@ -37,8 +37,8 @@ internal sealed class MemoryMove : IFunction
 
         public void Invoke(IState state, BigInteger value)
         {
-            var destination = _destination is IAddress d ? d.AddImplicitOffsets(state.Space) : _destination;
-            var source = _source is IAddress s ? s.AddImplicitOffsets(state.Space) : _source;
+            var destination = _destination is IAddress d ? d.AddImplicitOffsets() : _destination;
+            var source = _source is IAddress s ? s.AddImplicitOffsets() : _source;
             var length = (Bytes) (uint) value;
 
             if (length != Bytes.Zero)

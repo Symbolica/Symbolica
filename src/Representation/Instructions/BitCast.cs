@@ -18,15 +18,15 @@ public sealed class BitCast : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var result = _operands[0].Evaluate(state);
+        var result = _operands[0].Evaluate(exprFactory, state);
         state.Stack.SetVariable(Id, _indexedType == null
             ? result
             : result is IAddress a
                 ? a.Offsets.Any()
                     ? a
-                    : Address.Create(_indexedType, a.BaseAddress, a.Offsets)
-                : Address.Create(_indexedType, result, Enumerable.Empty<(IType, IExpression)>()));
+                    : Address.Create(exprFactory, _indexedType, a.BaseAddress, a.Offsets)
+                : Address.Create(exprFactory, _indexedType, result, Enumerable.Empty<(IType, IExpression)>()));
     }
 }

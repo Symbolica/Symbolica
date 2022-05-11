@@ -12,9 +12,9 @@ public sealed class ConstantExpression : IOperand
         _instruction = instruction;
     }
 
-    public IExpression Evaluate(IState state)
+    public IExpression Evaluate(IExpressionFactory exprFactory, IState state)
     {
-        _instruction.Execute(state);
+        _instruction.Execute(exprFactory, state);
 
         return state.Stack.GetVariable(_instruction.Id, false);
     }

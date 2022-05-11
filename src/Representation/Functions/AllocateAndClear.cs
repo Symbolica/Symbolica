@@ -15,19 +15,21 @@ internal sealed class AllocateAndClear : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var size = arguments.Get(0).Multiply(arguments.Get(1));
 
-        state.ForkAll(size, new AllocateAndClearMemory(caller));
+        state.ForkAll(exprFactory, size, new AllocateAndClearMemory(exprFactory, caller));
     }
 
     private sealed class AllocateAndClearMemory : IParameterizedStateAction
     {
+        private readonly IExpressionFactory _exprFactory;
         private readonly ICaller _caller;
 
-        public AllocateAndClearMemory(ICaller caller)
+        public AllocateAndClearMemory(IExpressionFactory exprFactory, ICaller caller)
         {
+            _exprFactory = exprFactory;
             _caller = caller;
         }
 
@@ -36,16 +38,16 @@ internal sealed class AllocateAndClear : IFunction
             var size = (Bytes) (uint) value;
 
             var address = size == Bytes.Zero
-                ? state.Space.CreateZero(state.Space.PointerSize)
+                ? _exprFactory.CreateZero(_exprFactory.PointerSize)
                 : Allocate(state, size.ToBits());
 
             state.Stack.SetVariable(_caller.Id, address);
         }
 
-        private static IExpression Allocate(IState state, Bits size)
+        private IExpression Allocate(IState state, Bits size)
         {
             var address = state.Memory.Allocate(size);
-            state.Memory.Write(address, state.Space.CreateZero(size));
+            state.Memory.Write(address, _exprFactory.CreateZero(size));
 
             return address;
         }

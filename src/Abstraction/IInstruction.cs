@@ -1,8 +1,10 @@
-﻿namespace Symbolica.Abstraction;
+﻿using Symbolica.Expression;
+
+namespace Symbolica.Abstraction;
 
 public interface IInstruction
 {
     InstructionId Id { get; }
 
-    void Execute(IState state);
+    void Execute(IExpressionFactory exprFactory, IState state);
 }

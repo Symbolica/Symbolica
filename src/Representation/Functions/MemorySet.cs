@@ -16,32 +16,34 @@ internal sealed class MemorySet : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var destination = arguments.Get(0);
         var value = arguments.Get(1);
         var length = arguments.Get(2);
 
-        state.ForkAll(length, new SetMemory(destination, value));
+        state.ForkAll(exprFactory, length, new SetMemory(exprFactory, destination, value));
     }
 
     private sealed class SetMemory : IParameterizedStateAction
     {
+        private readonly IExpressionFactory _exprFactory;
         private readonly IExpression _destination;
         private readonly IExpression _value;
 
-        public SetMemory(IExpression destination, IExpression value)
+        public SetMemory(IExpressionFactory exprFactory, IExpression destination, IExpression value)
         {
+            _exprFactory = exprFactory;
             _destination = destination;
             _value = value;
         }
 
         public void Invoke(IState state, BigInteger value)
         {
-            var destination = _destination is IAddress d ? d.AddImplicitOffsets(state.Space) : _destination;
+            var destination = _destination is IAddress d ? d.AddImplicitOffsets() : _destination;
             foreach (var offset in Enumerable.Range(0, (int) value))
             {
-                var address = destination.Add(state.Space.CreateConstant(_destination.Size, offset));
+                var address = destination.Add(_exprFactory.CreateConstant(_destination.Size, offset));
                 state.Memory.Write(address, _value);
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Instructions;
 
@@ -17,16 +18,16 @@ public sealed class ExtractValue : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var aggregate = _operands[0].Evaluate(state);
-        var offset = state.Space.CreateZero(state.Space.PointerSize);
+        var aggregate = _operands[0].Evaluate(exprFactory, state);
+        var offset = exprFactory.CreateZero(exprFactory.PointerSize);
         var indexedType = _indexedType;
 
         foreach (var operand in _operands.Skip(1))
         {
-            var index = operand.Evaluate(state);
-            offset = offset.Add(indexedType.GetOffsetBits(state.Space, index));
+            var index = operand.Evaluate(exprFactory, state);
+            offset = offset.Add(indexedType.GetOffsetBits(exprFactory, state.Space, index));
             indexedType = indexedType.GetType(state.Space, index);
         }
 

@@ -15,22 +15,24 @@ public sealed class Switch : IInstruction
 
     public InstructionId Id { get; }
 
-    public void Execute(IState state)
+    public void Execute(IExpressionFactory exprFactory, IState state)
     {
-        var expression = _operands[0].Evaluate(state);
+        var expression = _operands[0].Evaluate(exprFactory, state);
 
-        var action = new Transfer(expression, 2, _operands);
+        var action = new Transfer(exprFactory, expression, 2, _operands);
         action.Invoke(state);
     }
 
     private sealed class Transfer : IStateAction
     {
+        private readonly IExpressionFactory _exprFactory;
         private readonly IExpression _expression;
         private readonly int _index;
         private readonly IOperand[] _operands;
 
-        public Transfer(IExpression expression, int index, IOperand[] operands)
+        public Transfer(IExpressionFactory exprFactory, IExpression expression, int index, IOperand[] operands)
         {
+            _exprFactory = exprFactory;
             _expression = expression;
             _index = index;
             _operands = operands;
@@ -46,19 +48,19 @@ public sealed class Switch : IInstruction
 
         private void TransferCase(IState state, IExpression expression, int index)
         {
-            var value = _operands[index].Evaluate(state);
-            var successorId = (BasicBlockId) (ulong) _operands[index + 1].Evaluate(state).GetSingleValue(state.Space);
+            var value = _operands[index].Evaluate(_exprFactory, state);
+            var successorId = (BasicBlockId) (ulong) _operands[index + 1].Evaluate(_exprFactory, state).GetSingleValue(state.Space);
 
             var isEqual = expression.Equal(value);
 
             state.Fork(isEqual,
                 new TransferBasicBlock(successorId),
-                new Transfer(expression, index + 2, _operands));
+                new Transfer(_exprFactory, expression, index + 2, _operands));
         }
 
         private void TransferDefault(IState state)
         {
-            var successorId = (BasicBlockId) (ulong) _operands[1].Evaluate(state).GetSingleValue(state.Space);
+            var successorId = (BasicBlockId) (ulong) _operands[1].Evaluate(_exprFactory, state).GetSingleValue(state.Space);
 
             state.Stack.TransferBasicBlock(successorId);
         }

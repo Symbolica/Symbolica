@@ -1,4 +1,5 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions;
 
@@ -13,7 +14,7 @@ internal sealed class Read : IFunction
     public FunctionId Id { get; }
     public IParameters Parameters { get; }
 
-    public void Call(IState state, ICaller caller, IArguments arguments)
+    public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
         var descriptor = (int) arguments.Get(0).GetSingleValue(state.Space);
         var address = arguments.Get(1);
@@ -21,6 +22,6 @@ internal sealed class Read : IFunction
 
         var result = state.System.Read(descriptor, address, count);
 
-        state.Stack.SetVariable(caller.Id, state.Space.CreateConstant(caller.Size, result));
+        state.Stack.SetVariable(caller.Id, exprFactory.CreateConstant(caller.Size, result));
     }
 }
