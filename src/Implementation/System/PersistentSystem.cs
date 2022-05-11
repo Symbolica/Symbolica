@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Symbolica.Abstraction;
+using Symbolica.Abstraction.Memory;
 using Symbolica.Collection;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -27,7 +28,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         _handles = handles;
     }
 
-    public (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemoryProxy memory)
+    public (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemory memory)
     {
         return _threadAddress == null
             ? AllocateThread(space, memory)
@@ -111,7 +112,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         return handle.Description.GetStatus(space, memory, stat, address);
     }
 
-    private (IExpression, IPersistentSystem) AllocateThread(ISpace space, IMemoryProxy memory)
+    private (IExpression, IPersistentSystem) AllocateThread(ISpace space, IMemory memory)
     {
         var localeType = _module.LocaleType;
         var threadType = _module.ThreadType;

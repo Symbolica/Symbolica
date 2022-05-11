@@ -20,7 +20,7 @@ internal sealed class Read : IFunction
         var address = arguments.Get(1);
         var count = (int) arguments.Get(2).GetSingleValue(state.Space);
 
-        var result = state.System.Read(descriptor, address, count);
+        var result = state.System.Read(state.Space, state.Memory, descriptor, address, count);
 
         state.Stack.SetVariable(caller.Id, exprFactory.CreateConstant(caller.Size, result));
     }

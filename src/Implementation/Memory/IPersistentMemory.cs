@@ -1,4 +1,5 @@
-﻿using Symbolica.Expression;
+﻿using Symbolica.Abstraction.Memory;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
 

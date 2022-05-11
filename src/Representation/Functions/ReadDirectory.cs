@@ -18,7 +18,7 @@ internal sealed class ReadDirectory : IFunction
     {
         var address = arguments.Get(0);
 
-        var result = state.System.ReadDirectory(address);
+        var result = state.System.ReadDirectory(state.Space, state.Memory, address);
 
         state.Stack.SetVariable(caller.Id, result);
     }

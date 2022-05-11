@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Symbolica.Abstraction;
+using Symbolica.Abstraction.Memory;
 using Symbolica.Collection;
 using Symbolica.Expression;
 

@@ -1,12 +1,11 @@
 ﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
-using Symbolica.Implementation.Memory;
 
 namespace Symbolica.Implementation.System;
 
 internal interface IPersistentSystem
 {
-    (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemoryProxy memory);
+    (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemory memory);
     (int, IPersistentSystem) Open(string path);
     (int, IPersistentSystem) Duplicate(int descriptor);
     (int, IPersistentSystem) Close(int descriptor);

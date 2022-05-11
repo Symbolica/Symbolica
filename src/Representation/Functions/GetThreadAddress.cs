@@ -16,6 +16,6 @@ internal sealed class GetThreadAddress : IFunction
 
     public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
-        state.Stack.SetVariable(caller.Id, state.System.GetThreadAddress());
+        state.Stack.SetVariable(caller.Id, state.System.GetThreadAddress(state.Space, state.Memory));
     }
 }

@@ -1,29 +1,25 @@
-﻿using Symbolica.Expression;
-using Symbolica.Implementation.Memory;
+﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
 internal sealed class SystemProxy : ISystemProxy
 {
-    private readonly IMemoryProxy _memory;
-    private readonly ISpace _space;
     private IPersistentSystem _system;
 
-    public SystemProxy(ISpace space, IMemoryProxy memory, IPersistentSystem system)
+    public SystemProxy(IPersistentSystem system)
     {
-        _space = space;
-        _memory = memory;
         _system = system;
     }
 
-    public ISystemProxy Clone(ISpace space, IMemoryProxy memory)
+    public ISystemProxy Clone()
     {
-        return new SystemProxy(space, memory, _system);
+        return new SystemProxy(_system);
     }
 
-    public IExpression GetThreadAddress()
+    public IExpression GetThreadAddress(ISpace space, IMemory memory)
     {
-        var (address, system) = _system.GetThreadAddress(_space, _memory);
+        var (address, system) = _system.GetThreadAddress(space, memory);
         _system = system;
 
         return address;
@@ -61,9 +57,9 @@ internal sealed class SystemProxy : ISystemProxy
         return result;
     }
 
-    public int Read(int descriptor, IExpression address, int count)
+    public int Read(ISpace space, IMemory memory, int descriptor, IExpression address, int count)
     {
-        var result = _system.Read(_space, _memory, descriptor, address, count);
+        var result = _system.Read(space, memory, descriptor, address, count);
 
         if (result > 0)
             (_, _system) = _system.Seek(descriptor, result, 1U);
@@ -71,13 +67,13 @@ internal sealed class SystemProxy : ISystemProxy
         return result;
     }
 
-    public IExpression ReadDirectory(IExpression address)
+    public IExpression ReadDirectory(ISpace space, IMemory memory, IExpression address)
     {
-        return _system.ReadDirectory(_space, _memory, address);
+        return _system.ReadDirectory(space, memory, address);
     }
 
-    public int GetStatus(int descriptor, IExpression address)
+    public int GetStatus(ISpace space, IMemory memory, int descriptor, IExpression address)
     {
-        return _system.GetStatus(_space, _memory, descriptor, address);
+        return _system.GetStatus(space, memory, descriptor, address);
     }
 }

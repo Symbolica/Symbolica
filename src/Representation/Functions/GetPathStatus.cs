@@ -20,7 +20,7 @@ internal sealed class GetPathStatus : IFunction
         var address = arguments.Get(1);
 
         var descriptor = state.System.Open(path);
-        var result = state.System.GetStatus(descriptor, address);
+        var result = state.System.GetStatus(state.Space, state.Memory, descriptor, address);
         state.System.Close(descriptor);
 
         state.Stack.SetVariable(caller.Id, exprFactory.CreateConstant(caller.Size, result));

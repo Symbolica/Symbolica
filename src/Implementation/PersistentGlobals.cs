@@ -1,5 +1,6 @@
 ﻿using System;
 using Symbolica.Abstraction;
+using Symbolica.Abstraction.Memory;
 using Symbolica.Collection;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;

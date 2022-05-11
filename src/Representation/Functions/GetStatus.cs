@@ -19,7 +19,7 @@ internal sealed class GetStatus : IFunction
         var descriptor = (int) arguments.Get(0).GetSingleValue(state.Space);
         var address = arguments.Get(1);
 
-        var result = state.System.GetStatus(descriptor, address);
+        var result = state.System.GetStatus(state.Space, state.Memory, descriptor, address);
 
         state.Stack.SetVariable(caller.Id, exprFactory.CreateConstant(caller.Size, result));
     }
