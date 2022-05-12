@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Symbolica.Implementation;
@@ -9,30 +9,33 @@ namespace Symbolica;
 
 internal sealed class StatePool : IDisposable
 {
-    private readonly ConcurrentBag<IExecutable> _mergingStates;
-    private readonly CountdownEvent _countdownEvent;
+    private readonly TaskCompletionSource _completed;
     private readonly SemaphoreSlim _throttler;
+
+    private StateMerger _merger;
     private Exception? _exception;
+    private ulong _statesToProcess;
     private ulong _executedInstructions;
     private ulong _completedStates;
 
     public StatePool(int maxParallelism)
     {
-        _mergingStates = new ConcurrentBag<IExecutable>();
-        _countdownEvent = new CountdownEvent(1);
+        _merger = new();
+        _completed = new();
         _exception = null;
+        _statesToProcess = 0UL;
         _executedInstructions = 0UL;
         _throttler = new SemaphoreSlim(maxParallelism);
     }
 
     public void Dispose()
     {
-        _countdownEvent.Dispose();
+        _throttler.Dispose();
     }
 
     public void Add(IExecutable executable)
     {
-        _countdownEvent.AddCount();
+        Interlocked.Increment(ref _statesToProcess);
         Task.Run(async () =>
         {
             await _throttler.WaitAsync();
@@ -50,7 +53,7 @@ internal sealed class StatePool : IDisposable
                     {
                         if (status == IExecutable.Status.Merging)
                         {
-                            _mergingStates.Add(fork);
+                            _merger.Merge(fork);
                         }
                         else
                         {
@@ -65,16 +68,29 @@ internal sealed class StatePool : IDisposable
             finally
             {
                 Interlocked.Increment(ref _completedStates);
+                Interlocked.Decrement(ref _statesToProcess);
+                if (_statesToProcess == 0UL)
+                    await Merge();
                 _throttler.Release();
-                _countdownEvent.Signal();
             }
         });
     }
 
+    private async Task Merge()
+    {
+        _merger.Complete();
+        var merged = await _merger.GetMerged();
+        foreach (var state in merged)
+            Add(state);
+        if (!merged.Any())
+            _completed.SetResult();
+        else
+            _merger = new();
+    }
+
     public async Task<(ulong, ulong, Exception?)> Wait()
     {
-        _countdownEvent.Signal();
-        await Task.Run(() => { _countdownEvent.Wait(); });
+        await _completed.Task;
 
         return (_completedStates, _executedInstructions, _exception);
     }

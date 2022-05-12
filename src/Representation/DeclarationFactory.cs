@@ -95,7 +95,7 @@ public sealed class DeclarationFactory : IDeclarationFactory
             { "localtime_r", (id, parameters) => new GetLocalTime(id, parameters) },
             { "_longjmp", (id, parameters) => new LongJump(id, parameters) },
             { "longjmp", (id, parameters) => new LongJump(id, parameters) },
-            { "loop", (id, parameters) => new Loop(id, parameters) },
+            { "merge", (id, parameters) => new Merge(id, parameters) },
             { "__lseek", (id, parameters) => new Seek(id, parameters) },
             { "lseek", (id, parameters) => new Seek(id, parameters) },
             { "lseek64", (id, parameters) => new Seek(id, parameters) },

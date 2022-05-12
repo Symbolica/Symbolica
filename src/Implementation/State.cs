@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -22,7 +24,7 @@ internal sealed class State : IState, IExecutable
         IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
     {
         _forks = new List<IExecutable>();
-        _status = IExecutable.Status.Active;
+        _status = IExecutable.Status.NotStarted;
         _initialAction = initialAction;
         _module = module;
         Space = space;
@@ -34,10 +36,13 @@ internal sealed class State : IState, IExecutable
 
     public (ulong, IExecutable.Status, IEnumerable<IExecutable>) Run()
     {
-        var executedInstructions = 0UL;
-        _initialAction.Invoke(this);
+        if (_status == IExecutable.Status.NotStarted)
+            _initialAction.Invoke(this);
 
-        while (_status == IExecutable.Status.Active)
+        _status = IExecutable.Status.Running;
+
+        var executedInstructions = 0UL;
+        while (_status == IExecutable.Status.Running)
         {
             _stack.ExecuteNextInstruction(this);
             ++executedInstructions;
@@ -72,6 +77,13 @@ internal sealed class State : IState, IExecutable
     public void Complete()
     {
         _status = IExecutable.Status.Complete;
+        if (!_forks.Any())
+        {
+            var example = string.Join(", ", Space.GetExample()
+                .OrderBy(p => p.Key)
+                .Select(p => $"{p.Key}={p.Value}"));
+            Console.WriteLine(example);
+        }
     }
 
     public void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction)
