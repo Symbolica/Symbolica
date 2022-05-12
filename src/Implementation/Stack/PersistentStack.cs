@@ -63,12 +63,10 @@ internal sealed class PersistentStack : IPersistentStack
 
         while (true)
         {
-            var result = stack._currentFrame.TryRestore(space, continuation, useJumpBuffer);
+            var currentFrame = stack._currentFrame.TryRestore(space, continuation, useJumpBuffer);
 
-            if (result.IsSuccess)
+            if (currentFrame != null)
             {
-                var currentFrame = result.Value;
-
                 Free(memory, stack._currentFrame.GetAllocations()
                     .SkipLast(currentFrame.GetAllocations().Count()));
 

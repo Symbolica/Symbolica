@@ -1,4 +1,5 @@
-﻿using Symbolica.Collection;
+﻿using System.Linq;
+using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack;
@@ -17,13 +18,12 @@ internal sealed class PersistentJumps : IPersistentJumps
         return new PersistentJumps(_points.Push(new Point(continuation, useJumpBuffer, frame)));
     }
 
-    public Result<ISavedFrame> TryGet(ISpace space, IExpression continuation, bool useJumpBuffer)
+    public ISavedFrame? TryGet(ISpace space, IExpression continuation, bool useJumpBuffer)
     {
-        foreach (var point in _points)
-            if (point.IsMatch(space, continuation, useJumpBuffer))
-                return Result<ISavedFrame>.Success(point.Frame);
-
-        return Result<ISavedFrame>.Failure();
+        return _points
+            .Where(p => p.IsMatch(space, continuation, useJumpBuffer))
+            .Select(p => p.Frame)
+            .FirstOrDefault();
     }
 
     public static IPersistentJumps Create(ICollectionFactory collectionFactory)
