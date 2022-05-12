@@ -3,35 +3,34 @@ using Symbolica.Implementation.Exceptions;
 
 namespace Symbolica.Implementation.Memory;
 
-internal sealed class Result<TValue>
-    where TValue : class
+internal sealed class Result
 {
+    private readonly IPersistentBlock? _block;
     private readonly ISpace? _failureSpace;
-    private readonly TValue? _value;
 
-    private Result(ISpace? failureSpace, TValue? value)
+    private Result(ISpace? failureSpace, IPersistentBlock? block)
     {
         _failureSpace = failureSpace;
-        _value = value;
+        _block = block;
     }
 
     public ISpace FailureSpace => _failureSpace ?? throw new ImplementationException("Success has no space.");
     public bool CanBeFailure => _failureSpace != null;
-    public bool CanBeSuccess => _value != null;
-    public TValue Value => _value ?? throw new ImplementationException("Failure has no value.");
+    public bool CanBeSuccess => _block != null;
+    public IPersistentBlock Block => _block ?? throw new ImplementationException("Failure has no block.");
 
-    public static Result<TValue> Failure(ISpace failureSpace)
+    public static Result Failure(ISpace failureSpace)
     {
-        return new Result<TValue>(failureSpace, null);
+        return new Result(failureSpace, null);
     }
 
-    public static Result<TValue> Both(ISpace failureSpace, TValue value)
+    public static Result Both(ISpace failureSpace, IPersistentBlock block)
     {
-        return new Result<TValue>(failureSpace, value);
+        return new Result(failureSpace, block);
     }
 
-    public static Result<TValue> Success(TValue value)
+    public static Result Success(IPersistentBlock block)
     {
-        return new Result<TValue>(null, value);
+        return new Result(null, block);
     }
 }

@@ -66,7 +66,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 continue;
 
-            newBlocks.Add(KeyValuePair.Create(index, result.Value));
+            newBlocks.Add(KeyValuePair.Create(index, result.Block));
 
             if (!result.CanBeFailure)
                 return new SymbolicMemory(_alignment, _blockFactory,
@@ -89,7 +89,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 continue;
 
-            expression = expression.Or(result.Value);
+            expression = expression.Or(result.Block.Data);
 
             if (!result.CanBeFailure)
                 return expression;
@@ -118,7 +118,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
     private static IExpression IsFullyOutside(ISpace space, IPersistentBlock block, IExpression address, Bytes size)
     {
         return GetBound(space, address, size).UnsignedLessOrEqual(block.Address)
-            .Or(address.UnsignedGreaterOrEqual(GetBound(space, block.Address, block.Size)));
+            .Or(address.UnsignedGreaterOrEqual(GetBound(space, block.Address, block.Data.Size.ToBytes())));
     }
 
     private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
