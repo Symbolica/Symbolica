@@ -40,31 +40,31 @@ internal sealed class PersistentBlock : IPersistentBlock
             ? proposition.CanBeTrue()
                 ? Result<IPersistentBlock>.Both(
                     proposition.CreateFalseSpace(),
-                    Write(GetOffset(space, address, isFullyInside), value))
+                    new PersistentBlock(_section, Address, Data.Write(GetOffset(space, address, isFullyInside), value)))
                 : Result<IPersistentBlock>.Failure(
                     proposition.CreateFalseSpace())
             : Result<IPersistentBlock>.Success(
-                Write(GetOffset(space, address), value));
+                new PersistentBlock(_section, Address, Data.Write(GetOffset(space, address), value)));
     }
 
-    public Result<IExpression> TryRead(ISpace space, IExpression address, Bits size)
+    public Result<IPersistentBlock> TryRead(ISpace space, IExpression address, Bits size)
     {
         if (size == Data.Size && IsZeroOffset(space, address))
-            return Result<IExpression>.Success(
-                Data);
+            return Result<IPersistentBlock>.Success(
+                this);
 
         var isFullyInside = IsFullyInside(space, address, size.ToBytes());
         using var proposition = isFullyInside.GetProposition(space);
 
         return proposition.CanBeFalse()
             ? proposition.CanBeTrue()
-                ? Result<IExpression>.Both(
+                ? Result<IPersistentBlock>.Both(
                     proposition.CreateFalseSpace(),
-                    Read(GetOffset(space, address, isFullyInside), size))
-                : Result<IExpression>.Failure(
+                    new PersistentBlock(_section, address, Data.Read(GetOffset(space, address, isFullyInside), size)))
+                : Result<IPersistentBlock>.Failure(
                     proposition.CreateFalseSpace())
-            : Result<IExpression>.Success(
-                Read(GetOffset(space, address), size));
+            : Result<IPersistentBlock>.Success(
+                new PersistentBlock(_section, address, Data.Read(GetOffset(space, address), size)));
     }
 
     private bool IsZeroOffset(ISpace space, IExpression address)
@@ -100,15 +100,5 @@ internal sealed class PersistentBlock : IPersistentBlock
             .Select(
                 GetOffset(space, address),
                 space.CreateConstant(Data.Size, (uint) Data.Size));
-    }
-
-    private IPersistentBlock Write(IExpression offset, IExpression value)
-    {
-        return new PersistentBlock(_section, Address, Data.Write(offset, value));
-    }
-
-    private IExpression Read(IExpression offset, Bits size)
-    {
-        return Data.Read(offset, size);
     }
 }

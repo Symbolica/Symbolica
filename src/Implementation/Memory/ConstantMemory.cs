@@ -96,7 +96,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryRead, space);
 
-            expression = expression.Or(result.Value);
+            expression = expression.Or(result.Value.Data);
 
             if (!result.CanBeFailure)
                 return expression;

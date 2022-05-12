@@ -42,9 +42,9 @@ internal sealed class BlockFactory : IBlockFactory
             return Result<IPersistentBlock>.Failure(space);
         }
 
-        public Result<IExpression> TryRead(ISpace space, IExpression address, Bits size)
+        public Result<IPersistentBlock> TryRead(ISpace space, IExpression address, Bits size)
         {
-            return Result<IExpression>.Failure(space);
+            return Result<IPersistentBlock>.Failure(space);
         }
     }
 }

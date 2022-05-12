@@ -11,5 +11,5 @@ internal interface IPersistentBlock
     IPersistentBlock Move(IExpression address, Bits size);
     bool CanFree(ISpace space, Section section, IExpression address);
     Result<IPersistentBlock> TryWrite(ISpace space, IExpression address, IExpression value);
-    Result<IExpression> TryRead(ISpace space, IExpression address, Bits size);
+    Result<IPersistentBlock> TryRead(ISpace space, IExpression address, Bits size);
 }

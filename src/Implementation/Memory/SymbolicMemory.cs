@@ -89,7 +89,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 continue;
 
-            expression = expression.Or(result.Value);
+            expression = expression.Or(result.Value.Data);
 
             if (!result.CanBeFailure)
                 return expression;
