@@ -10,7 +10,7 @@ internal interface IPersistentFrame
     IInstruction Instruction { get; }
 
     IPersistentFrame Save(IExpression continuation, bool useJumpBuffer);
-    Result<IPersistentFrame> TryRestore(ISpace space, IExpression continuation, bool useJumpBuffer);
+    IPersistentFrame? TryRestore(ISpace space, IExpression continuation, bool useJumpBuffer);
     IPersistentFrame TransferBasicBlock(BasicBlockId id);
     IPersistentFrame MoveNextInstruction();
     IExpression GetFormal(int index);

@@ -36,15 +36,11 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
             _variables, _allocations);
     }
 
-    public Result<IPersistentFrame> TryRestore(ISpace space, IExpression continuation, bool useJumpBuffer)
+    public IPersistentFrame? TryRestore(ISpace space, IExpression continuation, bool useJumpBuffer)
     {
-        var result = _jumps.TryGet(space, continuation, useJumpBuffer);
-
-        return result.IsSuccess
-            ? Result<IPersistentFrame>.Success(
-                result.Value.Restore(useJumpBuffer,
-                    _jumps, _programCounter, _variables))
-            : Result<IPersistentFrame>.Failure();
+        return _jumps
+            .TryGet(space, continuation, useJumpBuffer)
+            ?.Restore(useJumpBuffer, _jumps, _programCounter, _variables);
     }
 
     public IPersistentFrame TransferBasicBlock(BasicBlockId id)
