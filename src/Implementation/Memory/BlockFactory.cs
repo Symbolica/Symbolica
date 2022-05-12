@@ -25,7 +25,7 @@ internal sealed class BlockFactory : IBlockFactory
 
         public bool IsValid => false;
         public IExpression Address => throw new ImplementationException("Invalid block has no address.");
-        public Bytes Size => throw new ImplementationException("Invalid block has no size.");
+        public IExpression Data => throw new ImplementationException("Invalid block has no data.");
 
         public IPersistentBlock Move(IExpression address, Bits size)
         {

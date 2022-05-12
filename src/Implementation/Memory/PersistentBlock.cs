@@ -4,23 +4,22 @@ namespace Symbolica.Implementation.Memory;
 
 internal sealed class PersistentBlock : IPersistentBlock
 {
-    private readonly IExpression _data;
     private readonly Section _section;
 
     public PersistentBlock(Section section, IExpression address, IExpression data)
     {
         _section = section;
         Address = address;
-        _data = data;
+        Data = data;
     }
 
     public bool IsValid => true;
     public IExpression Address { get; }
-    public Bytes Size => _data.Size.ToBytes();
+    public IExpression Data { get; }
 
     public IPersistentBlock Move(IExpression address, Bits size)
     {
-        return new PersistentBlock(_section, address, _data.ZeroExtend(size).Truncate(size));
+        return new PersistentBlock(_section, address, Data.ZeroExtend(size).Truncate(size));
     }
 
     public bool CanFree(ISpace space, Section section, IExpression address)
@@ -30,7 +29,7 @@ internal sealed class PersistentBlock : IPersistentBlock
 
     public Result<IPersistentBlock> TryWrite(ISpace space, IExpression address, IExpression value)
     {
-        if (value.Size == _data.Size && IsZeroOffset(space, address))
+        if (value.Size == Data.Size && IsZeroOffset(space, address))
             return Result<IPersistentBlock>.Success(
                 new PersistentBlock(_section, Address, value));
 
@@ -50,9 +49,9 @@ internal sealed class PersistentBlock : IPersistentBlock
 
     public Result<IExpression> TryRead(ISpace space, IExpression address, Bits size)
     {
-        if (size == _data.Size && IsZeroOffset(space, address))
+        if (size == Data.Size && IsZeroOffset(space, address))
             return Result<IExpression>.Success(
-                _data);
+                Data);
 
         var isFullyInside = IsFullyInside(space, address, size.ToBytes());
         using var proposition = isFullyInside.GetProposition(space);
@@ -79,7 +78,7 @@ internal sealed class PersistentBlock : IPersistentBlock
     private IExpression IsFullyInside(ISpace space, IExpression address, Bytes size)
     {
         return address.UnsignedGreaterOrEqual(Address)
-            .And(GetBound(space, address, size).UnsignedLessOrEqual(GetBound(space, Address, Size)));
+            .And(GetBound(space, address, size).UnsignedLessOrEqual(GetBound(space, Address, Data.Size.ToBytes())));
     }
 
     private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
@@ -92,7 +91,7 @@ internal sealed class PersistentBlock : IPersistentBlock
         var offset = space.CreateConstant(address.Size, (uint) Bytes.One.ToBits())
             .Multiply(address.Subtract(Address));
 
-        return offset.ZeroExtend(_data.Size).Truncate(_data.Size);
+        return offset.ZeroExtend(Data.Size).Truncate(Data.Size);
     }
 
     private IExpression GetOffset(ISpace space, IExpression address, IExpression isFullyInside)
@@ -100,16 +99,16 @@ internal sealed class PersistentBlock : IPersistentBlock
         return isFullyInside
             .Select(
                 GetOffset(space, address),
-                space.CreateConstant(_data.Size, (uint) _data.Size));
+                space.CreateConstant(Data.Size, (uint) Data.Size));
     }
 
     private IPersistentBlock Write(IExpression offset, IExpression value)
     {
-        return new PersistentBlock(_section, Address, _data.Write(offset, value));
+        return new PersistentBlock(_section, Address, Data.Write(offset, value));
     }
 
     private IExpression Read(IExpression offset, Bits size)
     {
-        return _data.Read(offset, size);
+        return Data.Read(offset, size);
     }
 }

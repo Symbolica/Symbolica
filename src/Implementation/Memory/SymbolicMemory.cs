@@ -118,7 +118,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
     private static IExpression IsFullyOutside(ISpace space, IPersistentBlock block, IExpression address, Bytes size)
     {
         return GetBound(space, address, size).UnsignedLessOrEqual(block.Address)
-            .Or(address.UnsignedGreaterOrEqual(GetBound(space, block.Address, block.Size)));
+            .Or(address.UnsignedGreaterOrEqual(GetBound(space, block.Address, block.Data.Size.ToBytes())));
     }
 
     private static IExpression GetBound(ISpace space, IExpression address, Bytes size)
