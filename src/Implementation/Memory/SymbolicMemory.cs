@@ -66,7 +66,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 continue;
 
-            newBlocks.Add(KeyValuePair.Create(index, result.Value));
+            newBlocks.Add(KeyValuePair.Create(index, result.Block));
 
             if (!result.CanBeFailure)
                 return new SymbolicMemory(_alignment, _blockFactory,
@@ -89,7 +89,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 continue;
 
-            expression = expression.Or(result.Value.Data);
+            expression = expression.Or(result.Block.Data);
 
             if (!result.CanBeFailure)
                 return expression;

@@ -27,10 +27,10 @@ internal sealed class PersistentBlock : IPersistentBlock
         return _section == section && IsZeroOffset(space, address);
     }
 
-    public Result<IPersistentBlock> TryWrite(ISpace space, IExpression address, IExpression value)
+    public Result TryWrite(ISpace space, IExpression address, IExpression value)
     {
         if (value.Size == Data.Size && IsZeroOffset(space, address))
-            return Result<IPersistentBlock>.Success(
+            return Result.Success(
                 new PersistentBlock(_section, Address, value));
 
         var isFullyInside = IsFullyInside(space, address, value.Size.ToBytes());
@@ -38,19 +38,19 @@ internal sealed class PersistentBlock : IPersistentBlock
 
         return proposition.CanBeFalse()
             ? proposition.CanBeTrue()
-                ? Result<IPersistentBlock>.Both(
+                ? Result.Both(
                     proposition.CreateFalseSpace(),
                     new PersistentBlock(_section, Address, Data.Write(GetOffset(space, address, isFullyInside), value)))
-                : Result<IPersistentBlock>.Failure(
+                : Result.Failure(
                     proposition.CreateFalseSpace())
-            : Result<IPersistentBlock>.Success(
+            : Result.Success(
                 new PersistentBlock(_section, Address, Data.Write(GetOffset(space, address), value)));
     }
 
-    public Result<IPersistentBlock> TryRead(ISpace space, IExpression address, Bits size)
+    public Result TryRead(ISpace space, IExpression address, Bits size)
     {
         if (size == Data.Size && IsZeroOffset(space, address))
-            return Result<IPersistentBlock>.Success(
+            return Result.Success(
                 this);
 
         var isFullyInside = IsFullyInside(space, address, size.ToBytes());
@@ -58,12 +58,12 @@ internal sealed class PersistentBlock : IPersistentBlock
 
         return proposition.CanBeFalse()
             ? proposition.CanBeTrue()
-                ? Result<IPersistentBlock>.Both(
+                ? Result.Both(
                     proposition.CreateFalseSpace(),
                     new PersistentBlock(_section, address, Data.Read(GetOffset(space, address, isFullyInside), size)))
-                : Result<IPersistentBlock>.Failure(
+                : Result.Failure(
                     proposition.CreateFalseSpace())
-            : Result<IPersistentBlock>.Success(
+            : Result.Success(
                 new PersistentBlock(_section, address, Data.Read(GetOffset(space, address), size)));
     }
 

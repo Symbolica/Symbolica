@@ -74,7 +74,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryWrite, space);
 
-            newAllocations.Add(KeyValuePair.Create(index, new Allocation(allocation.Address, result.Value)));
+            newAllocations.Add(KeyValuePair.Create(index, new Allocation(allocation.Address, result.Block)));
 
             if (!result.CanBeFailure)
                 return new ConstantMemory(_alignment, _blockFactory,
@@ -96,7 +96,7 @@ internal sealed class ConstantMemory : IPersistentMemory
             if (!result.CanBeSuccess)
                 throw new StateException(StateError.InvalidMemoryRead, space);
 
-            expression = expression.Or(result.Value.Data);
+            expression = expression.Or(result.Block.Data);
 
             if (!result.CanBeFailure)
                 return expression;

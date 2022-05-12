@@ -37,14 +37,14 @@ internal sealed class BlockFactory : IBlockFactory
             return false;
         }
 
-        public Result<IPersistentBlock> TryWrite(ISpace space, IExpression address, IExpression value)
+        public Result TryWrite(ISpace space, IExpression address, IExpression value)
         {
-            return Result<IPersistentBlock>.Failure(space);
+            return Result.Failure(space);
         }
 
-        public Result<IPersistentBlock> TryRead(ISpace space, IExpression address, Bits size)
+        public Result TryRead(ISpace space, IExpression address, Bits size)
         {
-            return Result<IPersistentBlock>.Failure(space);
+            return Result.Failure(space);
         }
     }
 }
