@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Collection;
@@ -60,10 +61,14 @@ internal sealed class ConstantMemory : IPersistentMemory
         if (!allocation.Block.CanFree(space, section, address))
             throw new StateException(StateError.InvalidMemoryFree, space);
 
-        var freedAllocation = new Allocation(allocation.Address, _blockFactory.CreateInvalid());
+        var allocations = _allocations.SetItem(index, new Allocation(allocation.Address, _blockFactory.CreateInvalid()));
+        var invalidTail = allocations.Reverse().TakeWhile(a => !a.Block.IsValid).Reverse();
 
-        return new ConstantMemory(_alignment, _blockFactory, _collectionFactory,
-            _exprFactory, _nextAddress, _allocations.SetItem(index, freedAllocation));
+        var (prunedAllocations, nextAddress) = invalidTail.Any()
+            ? (_collectionFactory.CreatePersistentList<Allocation>().AddRange(allocations.SkipLast(invalidTail.Count())), invalidTail.First().Address)
+            : (allocations, _nextAddress);
+
+        return new ConstantMemory(_alignment, _blockFactory, _collectionFactory, _exprFactory, nextAddress, prunedAllocations);
     }
 
     public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
