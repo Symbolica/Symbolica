@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using Symbolica.Abstraction;
+using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Representation.Functions;
@@ -23,15 +24,15 @@ internal sealed class Merge : IFunction
 
     public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
-        // var example = string.Join("_", state.Space.GetExample()
-        //     .OrderBy(p => p.Key)
-        //     .Select(p => $"{p.Key}{p.Value}"));
-        // Console.WriteLine(example);
+        var example = string.Join("_", state.Space.GetExample()
+            .OrderBy(p => p.Key)
+            .Select(p => $"{p.Key}{p.Value}"));
+        Console.WriteLine(example);
 
-        // using var stream = File.OpenWrite($"{example}.json");
-        // using var writer = new StreamWriter(stream, Encoding.UTF8);
+        using var stream = File.OpenWrite($"{example}.json");
+        using var writer = new StreamWriter(stream, Encoding.UTF8);
+        Serialize(writer, state);
 
-        // Serialize(writer, state);
         state.Merge();
     }
 
@@ -48,9 +49,9 @@ internal sealed class Merge : IFunction
         var nullableType = obj.GetType();
         var type = Nullable.GetUnderlyingType(nullableType) ?? nullableType;
 
-        if (obj is IDisposable or IModule)
+        if (obj is IDisposable or IModule or IExpressionFactory or ICollectionFactory)
         {
-            writer.Write($"\"{type}\"");
+            writer.Write(type);
         }
         else if (obj is string || type.IsEnum)
         {
@@ -86,7 +87,8 @@ internal sealed class Merge : IFunction
             SerializeNullable(writer, type.Name);
 
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                         .OrderBy(f => f.Name))
+                         .OrderBy(f => f.Name)
+                         .Where(f => !(f.GetValue(obj) is IDisposable or IModule or IExpressionFactory or ICollectionFactory)))
             {
                 writer.Write(",");
                 Serialize(writer, field.Name);

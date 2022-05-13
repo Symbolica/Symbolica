@@ -80,9 +80,10 @@ internal sealed class StatePool : IDisposable
     {
         _merger.Complete();
         var merged = await _merger.GetMerged();
-        foreach (var state in merged)
+        var states = merged.Where(s => s.Generation < 3);
+        foreach (var state in states)
             Add(state);
-        if (!merged.Any())
+        if (!states.Any())
             _completed.SetResult();
         else
             _merger = new();

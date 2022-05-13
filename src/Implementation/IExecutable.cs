@@ -6,5 +6,7 @@ public interface IExecutable
 {
     public enum Status { NotStarted, Running, Merging, Complete }
 
+    public int Generation { get; }
+
     (ulong ExecutedInstructions, Status Status, IEnumerable<IExecutable> Forks) Run();
 }

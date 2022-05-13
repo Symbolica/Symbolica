@@ -32,12 +32,15 @@ internal sealed class State : IState, IExecutable
         _memory = memory;
         _stack = stack;
         _system = system;
+        Generation = 0;
     }
 
     public (ulong, IExecutable.Status, IEnumerable<IExecutable>) Run()
     {
         if (_status == IExecutable.Status.NotStarted)
             _initialAction.Invoke(this);
+        else
+            Generation++;
 
         _status = IExecutable.Status.Running;
 
@@ -55,6 +58,7 @@ internal sealed class State : IState, IExecutable
                 : _forks);
     }
 
+    public int Generation { get; private set; }
     public ISpace Space { get; }
     public IMemory Memory => _memory;
     public IStack Stack => _stack;

@@ -4,6 +4,7 @@ namespace Symbolica.Abstraction;
 
 public interface IState
 {
+    int Generation { get; }
     ISpace Space { get; }
     IMemory Memory { get; }
     IStack Stack { get; }
