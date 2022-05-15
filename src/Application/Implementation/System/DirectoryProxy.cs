@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
@@ -18,6 +20,14 @@ internal sealed class DirectoryProxy : IDirectory
     public long LastAccessTime => new DateTimeOffset(_directory.LastAccessTimeUtc).ToUnixTimeSeconds();
     public long LastModifiedTime => new DateTimeOffset(_directory.LastWriteTimeUtc).ToUnixTimeSeconds();
     public string[] Names => _names.Value;
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IDirectory other)
+    {
+        return (new(),
+            other is DirectoryProxy dp
+            && _directory.Equals(dp._directory)
+            && _names.Value.SequenceEqual(dp._names.Value));
+    }
 
     private string[] GetNames()
     {

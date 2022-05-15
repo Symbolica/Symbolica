@@ -52,4 +52,11 @@ internal sealed record Symbol : BitVector
             .Select(a => a(unconstrained))
             .ToArray());
     }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is Symbol s
+            ? (_name == s._name ? new() : new(new List<(IValue, IValue)> { (this, s) }), true)
+            : (new(), false);
+    }
 }

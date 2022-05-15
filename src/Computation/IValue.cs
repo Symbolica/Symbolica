@@ -5,7 +5,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal interface IValue : IEquatable<IValue>
+internal interface IValue : IEquatable<IValue>, IMergeable<IValue, IValue>
 {
     Bits Size { get; }
 

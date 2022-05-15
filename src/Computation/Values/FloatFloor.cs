@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -32,5 +34,12 @@ internal sealed record FloatFloor : Float
             v => new ConstantSingle(MathF.Floor(v)),
             v => new ConstantDouble(Math.Floor(v)),
             v => new FloatFloor(v));
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is FloatFloor v
+            ? _value.IsEquivalentTo(v._value)
+            : (new(), false);
     }
 }

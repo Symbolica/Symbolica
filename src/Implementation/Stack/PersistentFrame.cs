@@ -1,4 +1,6 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack;
@@ -105,5 +107,28 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
             : new PersistentFrame(Caller, _formals, _vaList,
                 jumps, programCounter,
                 variables, _allocations);
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentFrame other)
+    {
+        return other is PersistentFrame pf
+            ? IsEquivalentTo(pf)
+            : (new(), false);
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(ISavedFrame other)
+    {
+        return other is PersistentFrame pf
+            ? IsEquivalentTo(pf)
+            : (new(), false);
+    }
+
+    private (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(PersistentFrame other)
+    {
+        return _allocations.Concat(_formals).IsSequenceEquivalentTo<IExpression, IExpression>(other._allocations.Concat(other._formals))
+            .And(_jumps.IsEquivalentTo(other._jumps))
+            .And(_programCounter.IsEquivalentTo(other._programCounter))
+            .And(_vaList.IsEquivalentTo(other._vaList))
+            .And(_variables.IsEquivalentTo(other._variables));
     }
 }

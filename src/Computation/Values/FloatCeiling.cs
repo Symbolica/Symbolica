@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 
@@ -32,5 +33,12 @@ internal sealed record FloatCeiling : Float
             v => new ConstantSingle(MathF.Ceiling(v)),
             v => new ConstantDouble(Math.Ceiling(v)),
             v => new FloatCeiling(v));
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is FloatCeiling v
+            ? _value.IsEquivalentTo(v._value)
+            : (new(), false);
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -31,5 +33,12 @@ internal sealed record Not : BitVector
             Not v => v._value,
             _ => new Not(value)
         };
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is Not v
+            ? _value.IsEquivalentTo(v._value)
+            : (new(), false);
     }
 }

@@ -1,5 +1,7 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -55,5 +57,13 @@ internal sealed record And : BitVector
             _ when left.Equals(right) => left,
             _ => new And(left, right)
         };
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is And v
+            ? _left.IsEquivalentTo(v._left)
+                .And(_right.IsEquivalentTo(v._right))
+            : (new(), false);
     }
 }

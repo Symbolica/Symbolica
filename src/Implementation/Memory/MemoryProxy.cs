@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction.Memory;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
@@ -56,5 +57,12 @@ internal sealed class MemoryProxy : IMemoryProxy
     public IExpression Read(ISpace space, IExpression address, Bits size)
     {
         return _memory.Read(space, address, size);
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IMemoryProxy other)
+    {
+        return other is MemoryProxy mp
+            ? _memory.IsEquivalentTo(mp._memory)
+            : (new(), false);
     }
 }

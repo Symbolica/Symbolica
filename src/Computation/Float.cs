@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
@@ -77,4 +78,6 @@ internal abstract record Float : IValue
             }
             : symbolic(left, right);
     }
+
+    public abstract (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other);
 }

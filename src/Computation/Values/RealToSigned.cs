@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -23,5 +24,13 @@ internal sealed record RealToSigned : BitVector
     public override bool Equals(IValue? other)
     {
         return Equals(other as RealToSigned);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is RealToSigned v
+            ? _value.IsEquivalentTo(v._value)
+                .And((new(), Size == v.Size))
+            : (new(), false);
     }
 }

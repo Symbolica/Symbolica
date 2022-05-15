@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Computation.Values.Constants;
@@ -90,5 +91,14 @@ internal sealed record Write : BitVector
             : buffer is Write w
                 ? w.LayerWrite(collectionFactory, space, offset, value)
                 : new Write(buffer, offset, value);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is Write v
+            ? _writeBuffer.IsEquivalentTo(v._writeBuffer)
+                .And(_writeMask.IsEquivalentTo(v._writeMask))
+                .And(_writeOffset.IsEquivalentTo(v._writeOffset))
+            : (new(), false);
     }
 }

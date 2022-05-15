@@ -1,6 +1,8 @@
-﻿namespace Symbolica.Implementation.System;
+﻿using Symbolica.Expression;
 
-public interface IFile
+namespace Symbolica.Implementation.System;
+
+public interface IFile : IMergeable<IExpression, IFile>
 {
     long LastAccessTime { get; }
     long LastModifiedTime { get; }

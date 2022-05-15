@@ -1,6 +1,8 @@
-﻿namespace Symbolica.Abstraction;
+﻿using Symbolica.Expression;
 
-public interface IBasicBlock
+namespace Symbolica.Abstraction;
+
+public interface IBasicBlock : IMergeable<IExpression, IBasicBlock>
 {
     BasicBlockId Id { get; }
 

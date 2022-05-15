@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
@@ -75,5 +76,12 @@ internal sealed class SystemProxy : ISystemProxy
     public int GetStatus(ISpace space, IMemory memory, int descriptor, IExpression address)
     {
         return _system.GetStatus(space, memory, descriptor, address);
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(ISystemProxy other)
+    {
+        return other is SystemProxy sp
+            ? _system.IsEquivalentTo(sp._system)
+            : (new(), false);
     }
 }

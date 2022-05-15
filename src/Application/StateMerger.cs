@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Symbolica.Implementation;
 
@@ -10,8 +11,10 @@ internal sealed class StateMerger
     private readonly List<IExecutable> _merged = new();
     private readonly BlockingCollection<IExecutable> _mergeQueue = new();
     private readonly Task _mergeTask;
+    private readonly List<IExecutable> _pastStates;
 
-    public StateMerger() => _mergeTask = Task.Run(MergeStates);
+    public StateMerger(IEnumerable<IExecutable> pastStates)
+        => (_mergeTask, _pastStates) = (Task.Run(MergeStates), pastStates.ToList());
 
     public void Complete()
     {
@@ -33,6 +36,7 @@ internal sealed class StateMerger
     {
         foreach (var state in _mergeQueue.GetConsumingEnumerable())
             // TODO: Actually attempt to merge this state
-            _merged.Add(state);
+            if (!_pastStates.Any(s => s.IsEquivalentTo(state)))
+                _merged.Add(state);
     }
 }

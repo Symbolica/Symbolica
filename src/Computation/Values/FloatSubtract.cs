@@ -1,5 +1,7 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -34,5 +36,13 @@ internal sealed record FloatSubtract : Float
             (l, r) => new ConstantSingle(l - r),
             (l, r) => new ConstantDouble(l - r),
             (l, r) => new FloatSubtract(l, r));
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is FloatSubtract v
+            ? _left.IsEquivalentTo(v._left)
+                .And(_right.IsEquivalentTo(v._right))
+            : (new(), false);
     }
 }

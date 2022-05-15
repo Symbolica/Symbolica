@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
@@ -35,5 +36,13 @@ internal sealed record FloatToSigned : BitVector
             v => v is IRealValue r
                 ? new RealToSigned(size, r)
                 : new FloatToSigned(size, v));
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is FloatToSigned v
+            ? _value.IsEquivalentTo(v._value)
+                .And((new(), Size == v.Size))
+            : (new(), false);
     }
 }

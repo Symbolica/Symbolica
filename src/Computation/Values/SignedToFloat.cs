@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -36,5 +37,13 @@ internal sealed record SignedToFloat : Float
                 _ => new SignedToFloat(size, v)
             }
             : new SignedToFloat(size, value);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is SignedToFloat v
+            ? _value.IsEquivalentTo(v._value)
+                .And((new(), Size == v.Size))
+            : (new(), false);
     }
 }

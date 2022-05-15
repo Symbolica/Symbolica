@@ -378,4 +378,13 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
             Symbol.Create(size, name, assertions.Select(a => new Func<IValue, IValue>(
                 v => a(new Expression(collectionFactory, v)).As<Expression>()._value))));
     }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IExpression other)
+    {
+        return other is Expression e
+            ? _value
+                .IsEquivalentTo(e._value)
+                .MapSubs(s => new Expression(_collectionFactory, s) as IExpression)
+            : (new(), false);
+    }
 }

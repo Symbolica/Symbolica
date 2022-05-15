@@ -1,5 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -60,6 +62,13 @@ internal sealed record LogicalNot : Bool
         };
     }
 
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is LogicalNot v
+            ? _value.IsEquivalentTo(v._value)
+            : (new(), false);
+    }
+
     private sealed record Logical : Bool
     {
         public Logical(IValue value)
@@ -77,6 +86,13 @@ internal sealed record LogicalNot : Bool
         public override bool Equals(IValue? other)
         {
             return Equals(other as Logical);
+        }
+
+        public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+        {
+            return other is Logical v
+                ? Value.IsEquivalentTo(v.Value)
+                : (new(), false);
         }
 
         public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)

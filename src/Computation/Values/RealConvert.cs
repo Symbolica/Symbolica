@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Expression;
 
@@ -27,5 +28,13 @@ internal sealed record RealConvert : Float, IRealValue
     public override bool Equals(IValue? other)
     {
         return Equals(other as RealConvert);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is RealConvert v
+            ? _value.IsEquivalentTo(v._value)
+                .And((new(), Size == v.Size))
+            : (new(), false);
     }
 }

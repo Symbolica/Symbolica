@@ -1,4 +1,6 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Representation;
 
@@ -17,5 +19,13 @@ public sealed class BasicBlock : IBasicBlock
     public IInstruction GetInstruction(int index)
     {
         return _instructions[index];
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IBasicBlock other)
+    {
+        return other is BasicBlock b
+            ? Id.IsEquivalentTo(b.Id)
+                .And(_instructions.IsSequenceEquivalentTo<IExpression, IInstruction>(b._instructions))
+            : (new(), false);
     }
 }

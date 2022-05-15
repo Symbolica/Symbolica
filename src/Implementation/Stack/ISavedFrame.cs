@@ -1,6 +1,8 @@
-﻿namespace Symbolica.Implementation.Stack;
+﻿using Symbolica.Expression;
 
-internal interface ISavedFrame
+namespace Symbolica.Implementation.Stack;
+
+internal interface ISavedFrame : IMergeable<IExpression, ISavedFrame>
 {
     IPersistentFrame Restore(bool useJumpBuffer,
         IPersistentJumps jumps, IPersistentProgramCounter programCounter, IPersistentVariables variables);

@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack;
 
-internal interface IPersistentStack
+internal interface IPersistentStack : IMergeable<IExpression, IPersistentStack>
 {
     bool IsInitialFrame { get; }
     BasicBlockId PredecessorId { get; }

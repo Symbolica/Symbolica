@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -31,5 +33,13 @@ internal sealed record UnsignedRemainder : BitVector
         return left is IConstantValue l && right is IConstantValue r
             ? l.AsUnsigned().Remainder(r.AsUnsigned())
             : new UnsignedRemainder(left, right);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is UnsignedRemainder v
+            ? _left.IsEquivalentTo(v._left)
+                .And(_right.IsEquivalentTo(v._right))
+            : (new(), false);
     }
 }

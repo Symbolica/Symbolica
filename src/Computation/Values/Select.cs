@@ -1,4 +1,5 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -61,5 +62,14 @@ internal sealed record Select : IValue
             _ when trueValue.Equals(falseValue) => trueValue,
             _ => new Select(predicate, trueValue, falseValue)
         };
+    }
+
+    public (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is Select s
+            ? _predicate.IsEquivalentTo(s._predicate)
+                .And(_trueValue.IsEquivalentTo(s._trueValue))
+                .And(_falseValue.IsEquivalentTo(s._falseValue))
+            : (new(), false);
     }
 }

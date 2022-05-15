@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -63,6 +64,26 @@ internal sealed class State : IState, IExecutable
     public IMemory Memory => _memory;
     public IStack Stack => _stack;
     public ISystem System => _system;
+
+    public bool IsEquivalentTo(IExecutable other)
+    {
+        return other is State s && IsEquivalentTo(s);
+    }
+
+    private bool IsEquivalentTo(State other)
+    {
+        bool IsSubEqual(IExpression old, IExpression @new)
+        {
+            var equal = old.Equal(@new);
+            using var proposition = equal.GetProposition(other.Space);
+            return !proposition.CanBeFalse();
+        }
+        var (subs, isEquivalent) = _stack.IsEquivalentTo(other._stack)
+            .And(_memory.IsEquivalentTo(other._memory))
+            .And(_system.IsEquivalentTo(other._system));
+
+        return isEquivalent && subs.All(s => IsSubEqual(s.Item1, s.Item2));
+    }
 
     public IFunction GetFunction(FunctionId id)
     {

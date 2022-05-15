@@ -1,4 +1,6 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
+using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
 
 namespace Symbolica.Implementation.Stack;
@@ -39,5 +41,16 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
     {
         return new PersistentProgramCounter(definition,
             definition.Entry, null, -1);
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(
+            IPersistentProgramCounter other)
+    {
+        return other is PersistentProgramCounter ppc
+            ? _basicBlock.IsEquivalentTo(ppc._basicBlock)
+                .And(_definition.IsEquivalentTo(ppc._definition))
+                .And((new(), _index == ppc._index))
+                .And(Mergeable.IsNullableEquivalentTo<IExpression, BasicBlockId>(_predecessorId, ppc._predecessorId))
+            : (new(), false);
     }
 }

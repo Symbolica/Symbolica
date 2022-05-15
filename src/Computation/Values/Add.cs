@@ -1,5 +1,7 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -52,5 +54,13 @@ internal sealed record Add : BitVector
             (_, IConstantValue r) => ShortCircuit(left, r.AsUnsigned()),
             _ => new Add(left, right)
         };
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is Add v
+            ? _left.IsEquivalentTo(v._left)
+                .And(_right.IsEquivalentTo(v._right))
+            : (new(), false);
     }
 }

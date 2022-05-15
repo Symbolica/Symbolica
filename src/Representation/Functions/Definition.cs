@@ -68,4 +68,16 @@ public sealed class Definition : IDefinition
             entryId,
             basicBlocks.ToDictionary(b => b.Id));
     }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IDefinition other)
+    {
+        return other is Definition d
+            ? _basicBlocks.IsSequenceEquivalentTo<IExpression, BasicBlockId, IBasicBlock>(d._basicBlocks)
+                .And(_entryId.IsEquivalentTo(d._entryId))
+                .And((new(), _isVariadic == d._isVariadic))
+                .And(Id.IsEquivalentTo(d.Id))
+                .And((new(), Name == d.Name))
+                .And(Parameters.IsEquivalentTo(d.Parameters))
+            : (new(), false);
+    }
 }

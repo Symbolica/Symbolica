@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 
@@ -71,6 +72,11 @@ internal sealed record ConstantBool : Bool, IConstantValue
     public ConstantBool Not()
     {
         return new ConstantBool(!_value);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return (new(), Equals(other));
     }
 
     public static implicit operator bool(ConstantBool value)

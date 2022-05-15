@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -92,5 +93,10 @@ internal sealed record NormalFloat : Float
         return index == -1
             ? (BigInteger.Parse(value), exponent)
             : (BigInteger.Parse(value[..index] + value[(index + 1)..]), exponent - (value.Length - 1 - index));
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return (new(), Equals(other));
     }
 }

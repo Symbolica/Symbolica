@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Exceptions;
 using Symbolica.Computation.Values.Constants;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -52,5 +54,13 @@ internal sealed record FloatPower : Float, IRealValue
             (l, r) => new ConstantSingle(MathF.Pow(l, r)),
             (l, r) => new ConstantDouble(Math.Pow(l, r)),
             (l, r) => new FloatPower(l, r));
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is FloatPower v
+             ? _left.IsEquivalentTo(v._left)
+                 .And(_right.IsEquivalentTo(v._right))
+             : (new(), false);
     }
 }

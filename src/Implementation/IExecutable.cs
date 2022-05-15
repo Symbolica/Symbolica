@@ -9,4 +9,6 @@ public interface IExecutable
     public int Generation { get; }
 
     (ulong ExecutedInstructions, Status Status, IEnumerable<IExecutable> Forks) Run();
+
+    bool IsEquivalentTo(IExecutable state);
 }

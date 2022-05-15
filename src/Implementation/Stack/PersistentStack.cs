@@ -29,6 +29,7 @@ internal sealed class PersistentStack : IPersistentStack
     public bool IsInitialFrame => !_pushedFrames.Any();
     public BasicBlockId PredecessorId => _currentFrame.PredecessorId;
     public IInstruction Instruction => _currentFrame.Instruction;
+    private IEnumerable<IPersistentFrame> AllFrames => new[] { _currentFrame }.Concat(_pushedFrames);
 
     public IPersistentStack Wind(ISpace space, IMemory memory, ICaller caller, IInvocation invocation)
     {
@@ -127,6 +128,13 @@ internal sealed class PersistentStack : IPersistentStack
         return (address, new PersistentStack(_module, _frameFactory,
             _continuationFactory,
             _pushedFrames, _currentFrame.AddAllocation(address)));
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentStack other)
+    {
+        return other is PersistentStack ps
+            ? AllFrames.IsSequenceEquivalentTo<IExpression, IPersistentFrame>(ps.AllFrames)
+            : (new(), false);
     }
 
     private PersistentStack Pop(ISpace space, IMemory memory)

@@ -1,6 +1,8 @@
-﻿namespace Symbolica.Abstraction;
+﻿using Symbolica.Expression;
 
-public interface IDefinition : IFunction
+namespace Symbolica.Abstraction;
+
+public interface IDefinition : IFunction, IMergeable<IExpression, IDefinition>
 {
     string Name { get; }
     IBasicBlock Entry { get; }

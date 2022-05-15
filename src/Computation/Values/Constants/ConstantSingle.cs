@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
@@ -83,5 +84,10 @@ internal sealed record ConstantSingle : Float, IConstantValue
         return value.Size == (Bits) 32U
             ? new ConstantSingle(BitConverter.Int32BitsToSingle((int) (BigInteger) value))
             : throw new InconsistentExpressionSizesException(value.Size, (Bits) 32U);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return (new(), Equals(other));
     }
 }

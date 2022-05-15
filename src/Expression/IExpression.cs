@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Symbolica.Expression;
 
-public interface IExpression : IEquatable<IExpression>
+public interface IExpression : IEquatable<IExpression>, IMergeable<IExpression, IExpression>
 {
     Bits Size { get; }
     bool IsSymbolic { get; }

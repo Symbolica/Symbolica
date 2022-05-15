@@ -399,4 +399,13 @@ public sealed class Address : IAddress
             ? new Address(exprFactory, a._offsets.Concat(offsets).ToArray())
             : new Address(exprFactory, new[] { (indexedType, baseAddress) }.Concat(offsets).ToArray());
     }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IExpression other)
+    {
+        return other is Address a
+            ? _offsets.IsSequenceEquivalentTo(
+                    a._offsets,
+                    (x, y) => x.Item2.IsEquivalentTo(y.Item2).And(x.Item1.IsEquivalentTo(y.Item1)))
+            : (new(), false);
+    }
 }

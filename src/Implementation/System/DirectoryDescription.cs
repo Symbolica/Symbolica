@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using Symbolica.Abstraction;
@@ -57,5 +58,12 @@ internal sealed class DirectoryDescription : IPersistentDescription
             .Expression);
 
         return address;
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentDescription other)
+    {
+        return other is DirectoryDescription dd
+            ? _directory.IsEquivalentTo(dd._directory)
+            : (new(), false);
     }
 }

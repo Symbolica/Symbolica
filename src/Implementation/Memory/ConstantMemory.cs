@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
@@ -136,5 +137,30 @@ internal sealed class ConstantMemory : IPersistentMemory
 
         return new ConstantMemory(alignment, blockFactory, collectionFactory,
             exprFactory, alignment, collectionFactory.CreatePersistentList<Allocation>().Add(nullAllocation));
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentMemory other)
+    {
+        static IEnumerable<Allocation> ValidAllocations(ConstantMemory memory)
+        {
+            return memory._allocations.Where(a => a.Block.IsValid);
+        }
+
+        (HashSet<(IExpression, IExpression)> subs, bool) AreAllocationsValidBy(
+            ConstantMemory other,
+            Func<Allocation, Allocation, (HashSet<(IExpression, IExpression)> subs, bool)> f)
+        {
+            return ValidAllocations(this).IsSequenceEquivalentTo(ValidAllocations(other), f);
+        }
+
+        return other is ConstantMemory cm
+            ? AreAllocationsValidBy(cm, (a, b) => (new(), a.Address == b.Address))
+                .And((new(), _alignment == cm._alignment))
+                .And(
+                    AreAllocationsValidBy(
+                        cm,
+                        (a, b) => a.Block.Data.IsEquivalentTo(b.Block.Data)
+                            .And((new(), a.Block.Section == b.Block.Section))))
+            : (new(), false);
     }
 }

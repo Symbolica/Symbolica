@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.Numerics;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed record Range(IValue Min, IValue Max)
+internal sealed record Range(IValue Min, IValue Max) : IMergeable<IValue, Range>
 {
     internal bool IsDisjoint(Range other)
     {
@@ -46,6 +48,14 @@ internal sealed record Range(IValue Min, IValue Max)
         return ((BigInteger) minMax.AsUnsigned() + 1) >= maxMin.AsUnsigned()
             ? (new(min, max))
             : null;
+    }
+
+    public (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(Range other)
+    {
+        return other is Range v
+            ? Min.IsEquivalentTo(v.Min)
+                .And(Max.IsEquivalentTo(v.Max))
+            : (new(), false);
     }
 }
 

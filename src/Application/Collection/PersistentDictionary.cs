@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Symbolica.Collection;
@@ -24,5 +26,15 @@ internal sealed class PersistentDictionary<TKey, TValue> : IPersistentDictionary
     public IPersistentDictionary<TKey, TValue> SetItem(TKey key, TValue value)
     {
         return new PersistentDictionary<TKey, TValue>(_dictionary.SetItem(key, value));
+    }
+
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    {
+        return _dictionary.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return (_dictionary as IEnumerable).GetEnumerator();
     }
 }

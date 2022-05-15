@@ -56,5 +56,14 @@ internal sealed class X86VariadicAbi : IVariadicAbi
                 .Write(space, 0, _address ?? _exprFactory.CreateZero(_exprFactory.PointerSize))
                 .Expression;
         }
+
+        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IVaList other)
+        {
+            return other is VaList v
+                ? _address is not null && v._address is not null
+                    ? _address.IsEquivalentTo(v._address)
+                    : (new(), _address is null && v._address is null)
+                : (new(), false);
+        }
     }
 }

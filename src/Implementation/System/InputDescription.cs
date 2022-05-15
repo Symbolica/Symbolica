@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -39,5 +40,10 @@ internal sealed class InputDescription : IPersistentDescription
             .Expression);
 
         return 0;
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentDescription other)
+    {
+        return (new(), other is InputDescription);
     }
 }

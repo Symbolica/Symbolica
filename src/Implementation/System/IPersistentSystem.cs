@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
-internal interface IPersistentSystem
+internal interface IPersistentSystem : IMergeable<IExpression, IPersistentSystem>
 {
     (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemory memory);
     (int, IPersistentSystem) Open(string path);

@@ -26,8 +26,18 @@ internal sealed class AggregateBlock : IPersistentBlock
     public bool IsValid => true;
     public IExpression Offset { get; }
     public Bytes Size { get; }
-
     public Section Section { get; }
+
+    public IExpression Data =>
+        _allocations.Aggregate(
+            _exprFactory.CreateZero(Size.ToBits()),
+            (buffer, alloc) =>
+                buffer.Or(
+                    alloc.Block.Data
+                        // Something in SQLite does a symbolic read from a buffer of addresses
+                        // This "works", but then leads to dumb read on a mega struct
+                        .ZeroExtend(Size.ToBits())
+                        .ShiftLeft(GetOffset(alloc.Block.Offset))));
 
     public IPersistentBlock Move(IExpression address, Bits size)
     {
@@ -73,7 +83,7 @@ internal sealed class AggregateBlock : IPersistentBlock
 
         var data = value.Size == Size.ToBits()
             ? value
-            : Data().Write(space, GetOffset(relativeAddress), value);
+            : Data.Write(space, GetOffset(relativeAddress), value);
 
         // if (data.IsSymbolic)
         //     Debugger.Break();
@@ -106,26 +116,13 @@ internal sealed class AggregateBlock : IPersistentBlock
             return Result<IExpression>.Failure(proposition.CreateFalseSpace());
 
         var value = size == Size.ToBits()
-            ? Data()
-            : Data().Read(space, GetOffset(relativeAddress), size);
+            ? Data
+            : Data.Read(space, GetOffset(relativeAddress), size);
 
         if (value.IsSymbolic)
             Debugger.Break();
 
         return Result<IExpression>.Success(value);
-    }
-
-    public IExpression Data()
-    {
-        return _allocations.Aggregate(
-            _exprFactory.CreateZero(Size.ToBits()),
-            (buffer, alloc) =>
-                buffer.Or(
-                    alloc.Block.Data()
-                        // Something in SQLite does a symbolic read from a buffer of addresses
-                        // This "works", but then leads to dumb read on a mega struct
-                        .ZeroExtend(Size.ToBits())
-                        .ShiftLeft(GetOffset(alloc.Block.Offset))));
     }
 
     private IExpression IsFullyInside(IExpression address, Bytes size)

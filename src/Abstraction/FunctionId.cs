@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public readonly struct FunctionId : IEquatable<FunctionId>
+public readonly struct FunctionId : IEquatable<FunctionId>, IMergeable<IExpression, FunctionId>
 {
     private readonly ulong _value;
 
@@ -49,5 +51,10 @@ public readonly struct FunctionId : IEquatable<FunctionId>
     public override string ToString()
     {
         return _value.ToString();
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(FunctionId other)
+    {
+        return (new(), Equals(other));
     }
 }

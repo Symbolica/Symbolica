@@ -1,8 +1,9 @@
 ﻿using Symbolica.Abstraction;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack;
 
-internal interface IPersistentProgramCounter
+internal interface IPersistentProgramCounter : IMergeable<IExpression, IPersistentProgramCounter>
 {
     BasicBlockId PredecessorId { get; }
     IInstruction Instruction { get; }

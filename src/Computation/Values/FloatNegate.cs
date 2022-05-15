@@ -1,5 +1,7 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -30,5 +32,12 @@ internal sealed record FloatNegate : Float
             v => new ConstantSingle(-v),
             v => new ConstantDouble(-v),
             v => new FloatNegate(v));
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is FloatNegate v
+            ? _value.IsEquivalentTo(v._value)
+            : (new(), false);
     }
 }

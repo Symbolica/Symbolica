@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
@@ -33,5 +34,13 @@ internal sealed record FloatToUnsigned : BitVector
             v => ConstantUnsigned.Create(size, (BigInteger) v),
             v => ConstantUnsigned.Create(size, (BigInteger) v),
             v => new FloatToUnsigned(size, v));
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is FloatToUnsigned v
+            ? _value.IsEquivalentTo(v._value)
+                .And((new(), Size == v.Size))
+            : (new(), false);
     }
 }

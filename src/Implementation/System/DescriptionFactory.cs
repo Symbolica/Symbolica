@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -84,6 +85,11 @@ internal sealed class DescriptionFactory : IDescriptionFactory
         public int GetStatus(ISpace space, IMemory memory, IStruct stat, IExpression address)
         {
             return -1;
+        }
+
+        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentDescription other)
+        {
+            return (new(), other is InvalidDescription);
         }
     }
 }

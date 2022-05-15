@@ -1,6 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -95,5 +97,13 @@ internal sealed record Equal : Bool
         return left is IConstantValue l && right is IConstantValue r
             ? l.AsUnsigned().Equal(r.AsUnsigned())
             : new Equal(left, right);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is Equal v
+            ? Left.IsEquivalentTo(v.Left)
+                .And(Right.IsEquivalentTo(v.Right))
+            : (new(), false);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack;
@@ -84,5 +85,12 @@ internal sealed class StackProxy : IStackProxy
         _stack = stack;
 
         return address;
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IStackProxy stack)
+    {
+        return stack is IPersistentStack ps
+            ? _stack.IsEquivalentTo(ps)
+            : (new(), false);
     }
 }

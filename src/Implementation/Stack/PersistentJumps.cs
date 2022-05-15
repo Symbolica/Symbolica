@@ -1,4 +1,5 @@
-﻿using Symbolica.Collection;
+﻿using System.Collections.Generic;
+using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack;
@@ -31,7 +32,14 @@ internal sealed class PersistentJumps : IPersistentJumps
         return new PersistentJumps(collectionFactory.CreatePersistentStack<Point>());
     }
 
-    private readonly struct Point
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentJumps other)
+    {
+        return other is PersistentJumps pj
+            ? _points.IsSequenceEquivalentTo<IExpression, Point>(pj._points)
+            : (new(), false);
+    }
+
+    private readonly struct Point : IMergeable<IExpression, Point>
     {
         private readonly IExpression _continuation;
         private readonly bool _useJumpBuffer;
@@ -44,6 +52,14 @@ internal sealed class PersistentJumps : IPersistentJumps
         }
 
         public ISavedFrame Frame { get; }
+
+        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Point other)
+        {
+            return other is Point p && _useJumpBuffer == other._useJumpBuffer
+                ? _continuation.IsEquivalentTo(other._continuation)
+                    .And(Frame.IsEquivalentTo(other.Frame))
+                : (new(), false);
+        }
 
         public bool IsMatch(ISpace space, IExpression continuation, bool useJumpBuffer)
         {

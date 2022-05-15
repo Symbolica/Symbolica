@@ -105,4 +105,9 @@ internal sealed record ConstantBitVector : BitVector, IConstantValue
     {
         return (int) (uint) size.ToBytes();
     }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return (new(), Equals(other));
+    }
 }

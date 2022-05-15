@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public readonly struct BasicBlockId : IEquatable<BasicBlockId>
+public readonly struct BasicBlockId : IEquatable<BasicBlockId>, IMergeable<IExpression, BasicBlockId>
 {
     private readonly ulong _value;
 
@@ -49,5 +51,10 @@ public readonly struct BasicBlockId : IEquatable<BasicBlockId>
     public override string ToString()
     {
         return _value.ToString();
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(BasicBlockId other)
+    {
+        return (new(), Equals(other));
     }
 }

@@ -1,6 +1,8 @@
+using Symbolica.Expression;
+
 namespace Symbolica.Abstraction;
 
-public interface IParameters
+public interface IParameters : IMergeable<IExpression, IParameters>
 {
     int Count { get; }
 

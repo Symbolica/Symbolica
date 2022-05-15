@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -65,5 +67,13 @@ internal sealed record InRange : Bool
         }
         merged = null;
         return false;
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is InRange v
+            ? _value.IsEquivalentTo(v._value)
+                .And(_range.IsEquivalentTo(v._range))
+            : (new(), false);
     }
 }

@@ -51,4 +51,13 @@ public sealed class StructType : IStructType
         return new Struct(exprFactory, offsets, sizes,
             initializer(size));
     }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IType other)
+    {
+        return other is StructType st
+            ? _offsets.IsSequenceEquivalentTo<IExpression, Bytes>(st._offsets, (a, b) => (new(), a == b))
+                .And(_types.IsSequenceEquivalentTo<IExpression, IType>(st._types))
+                .And((new(), Size == st.Size))
+            : (new(), false);
+    }
 }

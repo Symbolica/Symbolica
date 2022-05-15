@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
 
-internal interface IPersistentMemory
+internal interface IPersistentMemory : IMergeable<IExpression, IPersistentMemory>
 {
     (IExpression, IPersistentMemory) Allocate(Section section, Bits size);
     (IExpression, IPersistentMemory) Move(ISpace space, Section section, IExpression address, Bits size);

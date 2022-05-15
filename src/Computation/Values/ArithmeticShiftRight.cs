@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -35,5 +37,13 @@ internal sealed record ArithmeticShiftRight : BitVector
             (IConstantValue l, _) when l.AsUnsigned().IsZero => l,
             _ => new ArithmeticShiftRight(left, right)
         };
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is ArithmeticShiftRight v
+            ? _left.IsEquivalentTo(v._left)
+                .And(_right.IsEquivalentTo(v._right))
+            : (new(), false);
     }
 }

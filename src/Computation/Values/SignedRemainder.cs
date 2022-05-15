@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -31,5 +33,13 @@ internal sealed record SignedRemainder : BitVector
         return left is IConstantValue l && right is IConstantValue r
             ? l.AsSigned().Remainder(r.AsSigned())
             : new SignedRemainder(left, right);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is SignedRemainder v
+            ? _left.IsEquivalentTo(v._left)
+                .And(_right.IsEquivalentTo(v._right))
+            : (new(), false);
     }
 }

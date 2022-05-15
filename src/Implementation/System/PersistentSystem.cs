@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Collection;
@@ -200,7 +201,17 @@ internal sealed class PersistentSystem : IPersistentSystem
             .Add(descriptionFactory.CreateOutput());
     }
 
-    private readonly struct Handle
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(
+        IPersistentSystem other)
+    {
+        return other is PersistentSystem ps
+            ? _handles.IsSequenceEquivalentTo<IExpression, Handle>(ps._handles)
+                .And(_indices.IsSequenceEquivalentTo<IExpression, int>(ps._indices, (a, b) => (new(), a == b)))
+                .And(Mergeable.IsNullableEquivalentTo<IExpression, IExpression>(_threadAddress, ps._threadAddress))
+            : (new(), false);
+    }
+
+    private readonly struct Handle : IMergeable<IExpression, Handle>
     {
         public Handle(uint references, IPersistentDescription description)
         {
@@ -210,5 +221,11 @@ internal sealed class PersistentSystem : IPersistentSystem
 
         public uint References { get; }
         public IPersistentDescription Description { get; }
+
+        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Handle other)
+        {
+            return Description.IsEquivalentTo(other.Description)
+                .And((new(), References == other.References));
+        }
     }
 }

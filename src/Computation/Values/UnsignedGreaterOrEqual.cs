@@ -1,4 +1,6 @@
-﻿using Microsoft.Z3;
+﻿using System.Collections.Generic;
+using Microsoft.Z3;
+using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -30,5 +32,13 @@ internal sealed record UnsignedGreaterOrEqual : Bool
         return left is IConstantValue l && right is IConstantValue r
             ? l.AsUnsigned().GreaterOrEqual(r.AsUnsigned())
             : new UnsignedGreaterOrEqual(left, right);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is UnsignedGreaterOrEqual v
+            ? _left.IsEquivalentTo(v._left)
+                .And(_right.IsEquivalentTo(v._right))
+            : (new(), false);
     }
 }

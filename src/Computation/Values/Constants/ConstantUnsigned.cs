@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -183,5 +184,10 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
     private static BigInteger Normalize(Bits size, BigInteger value)
     {
         return value & ((BigInteger.One << (int) (uint) size) - BigInteger.One);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return (new(), Equals(other));
     }
 }

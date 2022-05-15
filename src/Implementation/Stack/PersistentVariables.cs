@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
@@ -46,5 +47,14 @@ internal sealed class PersistentVariables : IPersistentVariables
 
         return new PersistentVariables(variables,
             variables);
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(
+        IPersistentVariables other)
+    {
+        return other is PersistentVariables pv
+            ? _incomingVariables.IsSequenceEquivalentTo<IExpression, InstructionId, IExpression>(pv._incomingVariables)
+                .And(_variables.IsSequenceEquivalentTo<IExpression, InstructionId, IExpression>(pv._variables))
+            : (new(), false);
     }
 }

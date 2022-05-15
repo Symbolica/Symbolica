@@ -135,4 +135,25 @@ internal sealed class SymbolicMemory : IPersistentMemory
         return new SymbolicMemory(alignment, collectionFactory, blockFactory,
             exprFactory, collectionFactory.CreatePersistentList<IPersistentBlock>());
     }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentMemory other)
+    {
+        static IEnumerable<IPersistentBlock> ValidAllocations(SymbolicMemory memory)
+        {
+            return memory._blocks.Where(a => a.IsValid);
+        }
+
+        // TODO: This is relying on the order of allocations in both sides being equal, which could/should be relaxed
+        // but that will require being able to lookup blocks by equivalent symbolic address
+        return other is SymbolicMemory sm
+            ? (new HashSet<(IExpression, IExpression)>(), _alignment == sm._alignment)
+                .And(ValidAllocations(this)
+                    .IsSequenceEquivalentTo(
+                        ValidAllocations(sm),
+                        (a, b) => a.Offset
+                            .IsEquivalentTo(b.Offset)
+                            .And((new(), a.Section == b.Section))
+                            .And(a.Data.IsEquivalentTo(b.Data))))
+            : (new(), false);
+    }
 }

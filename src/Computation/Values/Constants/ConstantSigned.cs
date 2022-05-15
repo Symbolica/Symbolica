@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -136,5 +137,10 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
     {
         var msb = BigInteger.One << ((int) (uint) size - 1);
         return (value & (msb - BigInteger.One)) - (value & msb);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return (new(), Equals(other));
     }
 }

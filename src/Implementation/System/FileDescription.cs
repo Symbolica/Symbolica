@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -68,5 +69,13 @@ internal sealed class FileDescription : IPersistentDescription
     public static IPersistentDescription Create(IExpressionFactory exprFactory, IFile file)
     {
         return new FileDescription(exprFactory, file, 0L);
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentDescription other)
+    {
+        return other is FileDescription fd
+            ? _file.IsEquivalentTo(fd._file)
+                .And((new(), _offset == fd._offset))
+            : (new(), false);
     }
 }

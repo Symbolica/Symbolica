@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -11,6 +12,7 @@ internal sealed class StatePool : IDisposable
 {
     private readonly TaskCompletionSource _completed;
     private readonly SemaphoreSlim _throttler;
+    private readonly List<IExecutable> _pastStates;
 
     private StateMerger _merger;
     private Exception? _exception;
@@ -20,7 +22,8 @@ internal sealed class StatePool : IDisposable
 
     public StatePool(int maxParallelism)
     {
-        _merger = new();
+        _pastStates = new();
+        _merger = new(_pastStates);
         _completed = new();
         _exception = null;
         _statesToProcess = 0UL;
@@ -81,12 +84,13 @@ internal sealed class StatePool : IDisposable
         _merger.Complete();
         var merged = await _merger.GetMerged();
         var states = merged.Where(s => s.Generation < 3);
+        _pastStates.AddRange(states);
         foreach (var state in states)
             Add(state);
         if (!states.Any())
             _completed.SetResult();
         else
-            _merger = new();
+            _merger = new(_pastStates);
     }
 
     public async Task<(ulong, ulong, Exception?)> Wait()

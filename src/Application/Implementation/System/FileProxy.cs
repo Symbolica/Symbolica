@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
@@ -15,6 +17,12 @@ internal sealed class FileProxy : IFile
     public long LastAccessTime => new DateTimeOffset(_file.LastAccessTimeUtc).ToUnixTimeSeconds();
     public long LastModifiedTime => new DateTimeOffset(_file.LastWriteTimeUtc).ToUnixTimeSeconds();
     public long Size => _file.Length;
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IFile other)
+    {
+        // TODO: This might just be using reference equality on FileInfo
+        return (new(), other is FileProxy fp && _file.Equals(fp._file));
+    }
 
     public int Read(byte[] bytes, long offset, int count)
     {

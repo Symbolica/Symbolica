@@ -37,6 +37,7 @@ internal sealed class BlockFactory : IBlockFactory
         public IExpression Offset => throw new ImplementationException("Invalid block has no address.");
         public Bytes Size => throw new ImplementationException("Invalid block has no size.");
         public Section Section => throw new ImplementationException("Invalid block has no section.");
+        public IExpression Data => throw new NotImplementedException();
 
         public IPersistentBlock Move(IExpression address, Bits size)
         {
@@ -56,11 +57,6 @@ internal sealed class BlockFactory : IBlockFactory
         public Result<IExpression> TryRead(ISpace space, IAddress address, Bits size)
         {
             return Result<IExpression>.Failure(space);
-        }
-
-        public IExpression Data()
-        {
-            throw new NotImplementedException();
         }
     }
 }

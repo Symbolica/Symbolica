@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -29,4 +30,6 @@ internal abstract record Integer : IValue
         using var sort = Size.GetSort(solver);
         return solver.Context.MkFPToFP(bitVector, sort);
     }
+
+    public abstract (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other);
 }
