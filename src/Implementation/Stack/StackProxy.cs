@@ -89,8 +89,8 @@ internal sealed class StackProxy : IStackProxy
 
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IStackProxy stack)
     {
-        return stack is IPersistentStack ps
-            ? _stack.IsEquivalentTo(ps)
+        return stack is StackProxy sp
+            ? _stack.IsEquivalentTo(sp._stack)
             : (new(), false);
     }
 }

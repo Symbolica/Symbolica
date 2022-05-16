@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Symbolica.Abstraction;
@@ -182,5 +183,24 @@ internal sealed class AggregateBlock : IPersistentBlock
                allocation.Address == (Bytes) (uint) a.BaseAddress.GetSingleValue(space)
             ? SplitIndexedType(collectionFactory, exprFactory, space, allocation.Address, a.IndexedType, b)
             : allocation.Block;
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsDataEquivalentTo(IPersistentBlock other)
+    {
+        (HashSet<(IExpression, IExpression)> subs, bool) AreAllocationsValidBy(
+            AggregateBlock other,
+            Func<Allocation, Allocation, (HashSet<(IExpression, IExpression)> subs, bool)> f)
+        {
+            return _allocations.IsSequenceEquivalentTo(other._allocations, f);
+        }
+
+        return other is AggregateBlock b
+            ? AreAllocationsValidBy(b, (a, b) => (new(), a.Address == b.Address))
+                .And(
+                    AreAllocationsValidBy(
+                        b,
+                        (a, b) => a.Block.IsDataEquivalentTo(b.Block)
+                            .And((new(), a.Block.Section == b.Block.Section))))
+            : (new(), false);
     }
 }

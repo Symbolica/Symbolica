@@ -51,18 +51,12 @@ internal sealed class StatePool : IDisposable
                 stopwatch.Stop();
                 Console.WriteLine($"{stopwatch.Elapsed} {executedInstructions} {_executedInstructions}");
 
+                if (status == IExecutable.Status.Merging)
+                    _merger.Merge(executable);
+
                 foreach (var fork in forks)
                     if (_exception == null)
-                    {
-                        if (status == IExecutable.Status.Merging)
-                        {
-                            _merger.Merge(fork);
-                        }
-                        else
-                        {
-                            Add(fork);
-                        }
-                    }
+                        Add(fork);
             }
             catch (Exception exception)
             {
@@ -84,7 +78,7 @@ internal sealed class StatePool : IDisposable
         _merger.Complete();
         var merged = await _merger.GetMerged();
         var states = merged.Where(s => s.Generation < 3);
-        _pastStates.AddRange(states);
+        _pastStates.AddRange(states.Select(s => s.Clone()));
         foreach (var state in states)
             Add(state);
         if (!states.Any())

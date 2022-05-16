@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
 
@@ -127,5 +128,12 @@ internal sealed class PersistentBlock : IPersistentBlock
     private IExpression Read(ISpace space, IExpression offset, Bits size)
     {
         return Data.Read(space, offset, size);
+    }
+
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsDataEquivalentTo(IPersistentBlock other)
+    {
+        return other is PersistentBlock pb
+            ? Data.IsEquivalentTo(pb.Data)
+            : (new(), false);
     }
 }

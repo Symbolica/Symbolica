@@ -35,7 +35,7 @@ public sealed class ExecutableFactory
         var system = new SystemProxy(CreateSystem(module));
 
         return new State(new NoOp(), module, space,
-            globals, memory, stack, system);
+            globals, memory, stack, system, 0);
     }
 
     private IPersistentMemory CreateMemory(IModule module, Options options)

@@ -153,7 +153,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
                         (a, b) => a.Offset
                             .IsEquivalentTo(b.Offset)
                             .And((new(), a.Section == b.Section))
-                            .And(a.Data.IsEquivalentTo(b.Data))))
+                            .And(a.IsDataEquivalentTo(b))))
             : (new(), false);
     }
 }

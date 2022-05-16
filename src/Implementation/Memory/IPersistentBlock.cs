@@ -1,4 +1,5 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
 
@@ -16,4 +17,5 @@ internal interface IPersistentBlock
     bool CanFree(ISpace space, Section section, IExpression address);
     Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value);
     Result<IExpression> TryRead(ISpace space, IAddress address, Bits size);
+    (HashSet<(IExpression, IExpression)> subs, bool) IsDataEquivalentTo(IPersistentBlock other);
 }

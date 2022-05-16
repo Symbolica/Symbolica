@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Memory;
@@ -22,7 +21,7 @@ internal sealed class State : IState, IExecutable
     private IExecutable.Status _status;
 
     public State(IStateAction initialAction, IModule module, ISpace space,
-        IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system)
+        IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system, int generation)
     {
         _forks = new List<IExecutable>();
         _status = IExecutable.Status.NotStarted;
@@ -33,7 +32,7 @@ internal sealed class State : IState, IExecutable
         _memory = memory;
         _stack = stack;
         _system = system;
-        Generation = 0;
+        Generation = generation;
     }
 
     public (ulong, IExecutable.Status, IEnumerable<IExecutable>) Run()
@@ -52,11 +51,7 @@ internal sealed class State : IState, IExecutable
             ++executedInstructions;
         }
 
-        return (executedInstructions,
-            _status,
-            _status == IExecutable.Status.Merging
-                ? new[] { this }
-                : _forks);
+        return (executedInstructions, _status, _forks);
     }
 
     public int Generation { get; private set; }
@@ -139,6 +134,11 @@ internal sealed class State : IState, IExecutable
         _status = IExecutable.Status.Merging;
     }
 
+    public IExecutable Clone()
+    {
+        return Clone(Space, _initialAction);
+    }
+
     private State Clone(ISpace space, IStateAction initialAction)
     {
         return new State(
@@ -148,6 +148,7 @@ internal sealed class State : IState, IExecutable
             _globals,
             _memory.Clone(),
             _stack.Clone(),
-            _system.Clone());
+            _system.Clone(),
+            Generation);
     }
 }

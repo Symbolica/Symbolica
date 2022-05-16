@@ -159,7 +159,7 @@ internal sealed class ConstantMemory : IPersistentMemory
                 .And(
                     AreAllocationsValidBy(
                         cm,
-                        (a, b) => a.Block.Data.IsEquivalentTo(b.Block.Data)
+                        (a, b) => a.Block.IsDataEquivalentTo(b.Block)
                             .And((new(), a.Block.Section == b.Block.Section))))
             : (new(), false);
     }

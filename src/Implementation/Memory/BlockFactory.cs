@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
@@ -37,7 +37,7 @@ internal sealed class BlockFactory : IBlockFactory
         public IExpression Offset => throw new ImplementationException("Invalid block has no address.");
         public Bytes Size => throw new ImplementationException("Invalid block has no size.");
         public Section Section => throw new ImplementationException("Invalid block has no section.");
-        public IExpression Data => throw new NotImplementedException();
+        public IExpression Data => throw new ImplementationException("Invalid block has no data.");
 
         public IPersistentBlock Move(IExpression address, Bits size)
         {
@@ -57,6 +57,11 @@ internal sealed class BlockFactory : IBlockFactory
         public Result<IExpression> TryRead(ISpace space, IAddress address, Bits size)
         {
             return Result<IExpression>.Failure(space);
+        }
+
+        public (HashSet<(IExpression, IExpression)> subs, bool) IsDataEquivalentTo(IPersistentBlock other)
+        {
+            throw new ImplementationException("Invalid block has no data.");
         }
     }
 }
