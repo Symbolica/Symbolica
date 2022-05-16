@@ -37,4 +37,11 @@ internal sealed record RealConvert : Float, IRealValue
                 .And((new(), Size == v.Size))
             : (new(), false);
     }
+
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : this;
+    }
 }

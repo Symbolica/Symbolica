@@ -1,6 +1,10 @@
-﻿namespace Symbolica.Expression;
+﻿using System;
+using System.Collections.Generic;
 
-public interface ISpace
+namespace Symbolica.Expression;
+
+public interface ISpace : IEquatable<ISpace>
 {
     IExample GetExample();
+    ISpace Substitute(IReadOnlyDictionary<IExpression, IExpression> subs);
 }

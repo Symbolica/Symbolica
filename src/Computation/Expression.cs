@@ -12,19 +12,19 @@ namespace Symbolica.Computation;
 internal sealed class Expression : IExpression, IEquatable<Expression>
 {
     private readonly ICollectionFactory _collectionFactory;
-    private readonly IValue _value;
 
-    public Expression(ICollectionFactory collectionFactory,
-        IValue value)
+    public Expression(ICollectionFactory collectionFactory, IValue value)
     {
         _collectionFactory = collectionFactory;
-        _value = value;
+        Value = value;
     }
 
-    public Bits Size => _value.Size;
+    public Bits Size => Value.Size;
 
-    public bool IsTheOneThatIWant => _value is Or;
-    public bool IsSymbolic => _value is not IConstantValue;
+    public bool IsTheOneThatIWant => Value is Or;
+    public bool IsSymbolic => Value is not IConstantValue;
+
+    internal IValue Value { get; }
 
     public static bool operator ==(Expression? left, Expression? right)
     {
@@ -43,12 +43,12 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
 
     public override int GetHashCode()
     {
-        return _value.GetHashCode();
+        return Value.GetHashCode();
     }
 
     public bool Equals(Expression? other)
     {
-        return ReferenceEquals(this, other) || _value.Equals(other?._value);
+        return ReferenceEquals(this, other) || Value.Equals(other?.Value);
     }
 
     public bool Equals(IExpression? other)
@@ -66,19 +66,19 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
     {
         using var solver = ((IPersistentSpace) space).CreateSolver();
 
-        return solver.TryGetSingleValue(_value) ?? throw new IrreducibleSymbolicExpressionException();
+        return solver.TryGetSingleValue(Value) ?? throw new IrreducibleSymbolicExpressionException();
     }
 
     public BigInteger GetExampleValue(ISpace space)
     {
         using var solver = ((IPersistentSpace) space).CreateSolver();
 
-        return solver.GetExampleValue(_value);
+        return solver.GetExampleValue(Value);
     }
 
     public IProposition GetProposition(ISpace space)
     {
-        return Proposition.Create((IPersistentSpace) space, _value);
+        return Proposition.Create((IPersistentSpace) space, Value);
     }
 
     public IExpression Add(IExpression expression)
@@ -354,21 +354,21 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
     private IExpression Create(Func<IValue, IValue> func)
     {
         return new Expression(_collectionFactory,
-            func(_value));
+            func(Value));
     }
 
     private IExpression Create(IExpression y, Func<IValue, IValue, IValue> func)
     {
         return Size == y.Size
             ? new Expression(_collectionFactory,
-                func(_value, y.As<Expression>()._value))
+                func(Value, y.As<Expression>().Value))
             : throw new InconsistentExpressionSizesException(Size, y.Size);
     }
 
     private IExpression Create(IExpression y, IExpression z, Func<IValue, IValue, IValue, IValue> func)
     {
         return new Expression(_collectionFactory,
-            func(_value, y.As<Expression>()._value, z.As<Expression>()._value));
+            func(Value, y.As<Expression>().Value, z.As<Expression>().Value));
     }
 
     public static IExpression CreateSymbolic(ICollectionFactory collectionFactory,
@@ -376,14 +376,14 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
     {
         return new Expression(collectionFactory,
             Symbol.Create(size, name, assertions.Select(a => new Func<IValue, IValue>(
-                v => a(new Expression(collectionFactory, v)).As<Expression>()._value))));
+                v => a(new Expression(collectionFactory, v)).As<Expression>().Value))));
     }
 
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IExpression other)
     {
         return other is Expression e
-            ? _value
-                .IsEquivalentTo(e._value)
+            ? Value
+                .IsEquivalentTo(e.Value)
                 .MapSubs(s => new Expression(_collectionFactory, s) as IExpression)
             : (new(), false);
     }

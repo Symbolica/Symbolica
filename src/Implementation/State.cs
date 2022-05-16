@@ -65,19 +65,15 @@ internal sealed class State : IState, IExecutable
         return other is State s && IsEquivalentTo(s);
     }
 
-    private bool IsEquivalentTo(State other)
+    private bool IsEquivalentTo(State previous)
     {
-        bool IsSubEqual(IExpression old, IExpression @new)
-        {
-            var equal = old.Equal(@new);
-            using var proposition = equal.GetProposition(other.Space);
-            return !proposition.CanBeFalse();
-        }
-        var (subs, isEquivalent) = _stack.IsEquivalentTo(other._stack)
-            .And(_memory.IsEquivalentTo(other._memory))
-            .And(_system.IsEquivalentTo(other._system));
+        var (subs, isEquivalent) = _stack.IsEquivalentTo(previous._stack)
+            .And(_memory.IsEquivalentTo(previous._memory))
+            .And(_system.IsEquivalentTo(previous._system));
 
-        return isEquivalent && subs.All(s => IsSubEqual(s.Item1, s.Item2));
+        return isEquivalent
+            && Space.Substitute(subs.ToDictionary(x => x.Item1, x => x.Item2))
+                .Equals(previous.Space);
     }
 
     public IFunction GetFunction(FunctionId id)

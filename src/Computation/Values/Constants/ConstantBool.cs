@@ -83,4 +83,11 @@ internal sealed record ConstantBool : Bool, IConstantValue
     {
         return value._value;
     }
+
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : this;
+    }
 }

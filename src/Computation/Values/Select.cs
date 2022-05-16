@@ -72,4 +72,12 @@ internal sealed record Select : IValue
                 .And(_falseValue.IsEquivalentTo(s._falseValue))
             : (new(), false);
     }
+
+    public IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return Create(
+            _predicate.Substitute(subs),
+            _trueValue.Substitute(subs),
+            _falseValue.Substitute(subs));
+    }
 }

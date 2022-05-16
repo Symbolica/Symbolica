@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -53,5 +54,31 @@ internal sealed class PersistentSpace : IPersistentSpace
     public static ISpace Create(ICollectionFactory collectionFactory)
     {
         return new PersistentSpace(collectionFactory, collectionFactory.CreatePersistentStack<IValue>());
+    }
+
+    public bool Equals(ISpace? other)
+    {
+        return Equals(other as PersistentSpace);
+    }
+
+    public bool Equals(PersistentSpace? other)
+    {
+        return other is not null && _assertions.SequenceEqual(other._assertions);
+    }
+
+    public ISpace Substitute(IReadOnlyDictionary<IExpression, IExpression> subs)
+    {
+        var assertions = _assertions
+            .Reverse()
+            .Select(a =>
+                a.Substitute(
+                    subs.ToDictionary(
+                        x => x.Key.As<Expression>().Value,
+                        x => x.Value.As<Expression>().Value)))
+            .ToHashSet()
+            .Aggregate(
+                _collectionFactory.CreatePersistentStack<IValue>(),
+                (acc, a) => acc.Push(a));
+        return new PersistentSpace(_collectionFactory, assertions);
     }
 }

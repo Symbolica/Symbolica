@@ -57,5 +57,10 @@ internal sealed record Range(IValue Min, IValue Max) : IMergeable<IValue, Range>
                 .And(Max.IsEquivalentTo(v.Max))
             : (new(), false);
     }
+
+    public Range Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return new(Min.Substitute(subs), Max.Substitute(subs));
+    }
 }
 

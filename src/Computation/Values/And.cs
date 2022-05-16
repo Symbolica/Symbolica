@@ -66,4 +66,11 @@ internal sealed record And : BitVector
                 .And(_right.IsEquivalentTo(v._right))
             : (new(), false);
     }
+
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : Create(_left.Substitute(subs), _right.Substitute(subs));
+    }
 }

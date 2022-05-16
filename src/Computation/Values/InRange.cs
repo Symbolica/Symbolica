@@ -76,4 +76,11 @@ internal sealed record InRange : Bool
                 .And(_range.IsEquivalentTo(v._range))
             : (new(), false);
     }
+
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : new InRange(_value.Substitute(subs), _range.Substitute(subs));
+    }
 }

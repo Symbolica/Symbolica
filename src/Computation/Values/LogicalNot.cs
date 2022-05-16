@@ -69,6 +69,13 @@ internal sealed record LogicalNot : Bool
             : (new(), false);
     }
 
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : Create(_value.Substitute(subs));
+    }
+
     private sealed record Logical : Bool
     {
         public Logical(IValue value)
@@ -104,6 +111,13 @@ internal sealed record LogicalNot : Bool
             }
             merged = null;
             return false;
+        }
+
+        public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+        {
+            return subs.TryGetValue(this, out var sub)
+                ? sub
+                : Create(Value.Substitute(subs));
         }
     }
 }

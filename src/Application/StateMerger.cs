@@ -36,7 +36,7 @@ internal sealed class StateMerger
     {
         foreach (var state in _mergeQueue.GetConsumingEnumerable())
             // TODO: Actually attempt to merge this state
-            if (!_pastStates.Any(s => s.IsEquivalentTo(state)))
+            if (!_pastStates.Any(state.IsEquivalentTo))
                 _merged.Add(state);
     }
 }

@@ -45,4 +45,11 @@ internal sealed record FloatToSigned : BitVector
                 .And((new(), Size == v.Size))
             : (new(), false);
     }
+
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : Create(Size, _value.Substitute(subs));
+    }
 }

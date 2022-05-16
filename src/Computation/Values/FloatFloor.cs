@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
-using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -41,5 +40,12 @@ internal sealed record FloatFloor : Float
         return other is FloatFloor v
             ? _value.IsEquivalentTo(v._value)
             : (new(), false);
+    }
+
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : Create(_value.Substitute(subs));
     }
 }

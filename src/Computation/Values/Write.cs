@@ -101,4 +101,14 @@ internal sealed record Write : BitVector
                 .And(_writeOffset.IsEquivalentTo(v._writeOffset))
             : (new(), false);
     }
+
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : new Write(
+                _writeBuffer.Substitute(subs),
+                _writeOffset.Substitute(subs),
+                _writeValue.Substitute(subs));
+    }
 }

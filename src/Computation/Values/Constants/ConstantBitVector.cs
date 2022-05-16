@@ -110,4 +110,11 @@ internal sealed record ConstantBitVector : BitVector, IConstantValue
     {
         return (new(), Equals(other));
     }
+
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : this;
+    }
 }
