@@ -36,9 +36,15 @@ internal sealed class StatePool : IDisposable
         _throttler.Dispose();
     }
 
-    public void Add(IExecutable executable)
+    public void Add(params IExecutable[] executables)
     {
-        Interlocked.Increment(ref _statesToProcess);
+        Interlocked.Add(ref _statesToProcess, (ulong) executables.Length);
+        foreach (var executable in executables)
+            Run(executable);
+    }
+
+    private void Run(IExecutable executable)
+    {
         Task.Run(async () =>
         {
             await _throttler.WaitAsync();
@@ -54,9 +60,8 @@ internal sealed class StatePool : IDisposable
                 if (status == IExecutable.Status.Merging)
                     _merger.Merge(executable);
 
-                foreach (var fork in forks)
-                    if (_exception == null)
-                        Add(fork);
+                if (_exception == null)
+                    Add(forks.ToArray());
             }
             catch (Exception exception)
             {
@@ -65,10 +70,9 @@ internal sealed class StatePool : IDisposable
             finally
             {
                 Interlocked.Increment(ref _completedStates);
-                Interlocked.Decrement(ref _statesToProcess);
-                if (_statesToProcess == 0UL)
-                    await Merge();
                 _throttler.Release();
+                if (Interlocked.Decrement(ref _statesToProcess) == 0UL)
+                    await Merge();
             }
         });
     }
@@ -77,10 +81,9 @@ internal sealed class StatePool : IDisposable
     {
         _merger.Complete();
         var merged = await _merger.GetMerged();
-        var states = merged.Where(s => s.Generation < 3);
+        var states = merged.Where(s => s.Generation < 1).ToArray();
         _pastStates.AddRange(states.Select(s => s.Clone()));
-        foreach (var state in states)
-            Add(state);
+        Add(states);
         if (!states.Any())
             _completed.SetResult();
         else
