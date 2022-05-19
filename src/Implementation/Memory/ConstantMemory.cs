@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -74,6 +75,20 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     public IPersistentMemory Write(ISpace space, IExpression address, IExpression value)
     {
+        // This is the ptr to wthru buffer and it seems to cycle, but not exactly
+        // if (!address.IsSymbolic && address.GetSingleValue(space) == (736 + 0 + 64 + 200 + 13) && !value.IsSymbolic && value.GetSingleValue(space) != 0)
+        //     Debugger.Break();
+
+        // This seems to be vlSelf->iob_cache__DOT__cache_memory__DOT__genblk1__DOT__write_throught_buffer__DOT__fifo_ocupancy
+        // = __Vdly__iob_cache__DOT__cache_memory__DOT__genblk1__DOT__write_throught_buffer__DOT__fifo_ocupancy;
+        // in Viob_cache___024root___sequent__TOP__2
+        // if (!address.IsSymbolic && address.GetSingleValue(space) == (736 + 0 + 64 + 200 + 280) && !value.IsSymbolic && value.GetSingleValue(space) != 0)
+        //     Debugger.Break();
+
+        // In SEQUENT_TOP3 there is some logic that sets a register based on wstrb being even or odd
+        // if (address.GetSingleValue(space) == (736 + 0 + 64 + 1432 + 640 + 0 + 0))
+        //     Debugger.Break();
+
         var newAllocations = new List<KeyValuePair<int, Allocation>>();
 
         while (true)
@@ -162,5 +177,17 @@ internal sealed class ConstantMemory : IPersistentMemory
                         (a, b) => a.Block.IsDataEquivalentTo(b.Block)
                             .And((new(), a.Block.Section == b.Block.Section))))
             : (new(), false);
+    }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Alignment = (uint) _alignment,
+            Allocations = _allocations
+                .Where(a => a.Block.IsValid)
+                .Select(a => a.ToJson())
+                .ToArray()
+        };
     }
 }

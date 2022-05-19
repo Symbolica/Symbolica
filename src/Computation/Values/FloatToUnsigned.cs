@@ -50,4 +50,14 @@ internal sealed record FloatToUnsigned : BitVector
             ? sub
             : Create(Size, _value.Substitute(subs));
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Value = _value.ToJson()
+        };
+    }
 }

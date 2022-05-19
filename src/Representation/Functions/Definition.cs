@@ -80,4 +80,17 @@ public sealed class Definition : IDefinition
                 .And(Parameters.IsEquivalentTo(d.Parameters))
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            BasicBlocks = _basicBlocks.ToDictionary(b => b.Key.ToJson(), b => b.Value.ToJson()),
+            EntryId = _entryId.ToJson(),
+            Id = Id.ToJson(),
+            IsVariadic = _isVariadic,
+            Name,
+            Parameters = Parameters.ToJson()
+        };
+    }
 }

@@ -31,4 +31,9 @@ internal sealed class FileProxy : IFile
 
         return stream.Read(bytes, 0, count);
     }
+
+    public object ToJson()
+    {
+        return _file;
+    }
 }

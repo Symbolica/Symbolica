@@ -7,4 +7,5 @@ public interface ISpace : IEquatable<ISpace>
 {
     IExample GetExample();
     ISpace Substitute(IReadOnlyDictionary<IExpression, IExpression> subs);
+    object ToJson();
 }

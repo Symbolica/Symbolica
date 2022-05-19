@@ -15,4 +15,5 @@ public interface IState
     void Complete();
     void Fork(IExpression condition, IStateAction trueAction, IStateAction falseAction);
     void Merge();
+    object ToJson();
 }

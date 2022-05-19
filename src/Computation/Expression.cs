@@ -387,4 +387,9 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
                 .MapSubs(s => new Expression(_collectionFactory, s) as IExpression)
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return Value.ToJson();
+    }
 }

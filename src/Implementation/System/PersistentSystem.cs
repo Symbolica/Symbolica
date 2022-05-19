@@ -211,6 +211,16 @@ internal sealed class PersistentSystem : IPersistentSystem
             : (new(), false);
     }
 
+    public object ToJson()
+    {
+        return new
+        {
+            Handles = _handles.Select(h => h.ToJson()).ToArray(),
+            Indices = _indices.ToArray(),
+            ThreadAddress = _threadAddress?.ToJson()
+        };
+    }
+
     private readonly struct Handle : IMergeable<IExpression, Handle>
     {
         public Handle(uint references, IPersistentDescription description)
@@ -226,6 +236,15 @@ internal sealed class PersistentSystem : IPersistentSystem
         {
             return Description.IsEquivalentTo(other.Description)
                 .And((new(), References == other.References));
+        }
+
+        public object ToJson()
+        {
+            return new
+            {
+                References,
+                Description = Description.ToJson()
+            };
         }
     }
 }

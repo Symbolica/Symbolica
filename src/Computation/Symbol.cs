@@ -66,4 +66,9 @@ internal sealed record Symbol : BitVector
             ? sub
             : this;
     }
+
+    public override object ToJson()
+    {
+        return _name;
+    }
 }

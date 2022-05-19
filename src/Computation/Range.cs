@@ -62,5 +62,10 @@ internal sealed record Range(IValue Min, IValue Max) : IMergeable<IValue, Range>
     {
         return new(Min.Substitute(subs), Max.Substitute(subs));
     }
+
+    public object ToJson()
+    {
+        return this;
+    }
 }
 

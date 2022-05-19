@@ -46,4 +46,9 @@ internal sealed class OutputDescription : IPersistentDescription
     {
         return (new(), other is OutputDescription);
     }
+
+    public object ToJson()
+    {
+        return GetType().Name;
+    }
 }

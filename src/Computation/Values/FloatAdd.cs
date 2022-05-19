@@ -52,4 +52,15 @@ internal sealed record FloatAdd : Float
             ? sub
             : Create(_left.Substitute(subs), _right.Substitute(subs));
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Left = _left.ToJson(),
+            Right = _right.ToJson()
+        };
+    }
 }

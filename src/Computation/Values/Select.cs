@@ -80,4 +80,16 @@ internal sealed record Select : IValue
             _trueValue.Substitute(subs),
             _falseValue.Substitute(subs));
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Predicate = _predicate,
+            TrueValue = _trueValue,
+            FalseValue = _falseValue
+        };
+    }
 }

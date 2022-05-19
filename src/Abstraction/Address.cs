@@ -408,4 +408,13 @@ public sealed class Address : IAddress
                     (x, y) => x.Item2.IsEquivalentTo(y.Item2).And(x.Item1.IsEquivalentTo(y.Item1)))
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Offsets = _offsets.Select(o => o.Item2.ToJson()).ToArray()
+        };
+    }
 }

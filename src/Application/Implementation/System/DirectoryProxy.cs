@@ -29,6 +29,11 @@ internal sealed class DirectoryProxy : IDirectory
             && _names.Value.SequenceEqual(dp._names.Value));
     }
 
+    public object ToJson()
+    {
+        return _directory;
+    }
+
     private string[] GetNames()
     {
         return _directory.EnumerateFileSystemInfos()

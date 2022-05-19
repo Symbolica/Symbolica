@@ -60,4 +60,15 @@ public sealed class StructType : IStructType
                 .And((new(), Size == st.Size))
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Offsets = _offsets.Select(o => (uint) o).ToArray(),
+            Types = _types.Select(t => t.ToJson()).ToArray()
+        };
+    }
 }

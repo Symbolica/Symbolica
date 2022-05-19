@@ -57,4 +57,9 @@ public readonly struct InstructionId : IEquatable<InstructionId>, IMergeable<IEx
     {
         return (new(), Equals(other));
     }
+
+    public object ToJson()
+    {
+        return _value;
+    }
 }

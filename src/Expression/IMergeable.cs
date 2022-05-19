@@ -7,6 +7,7 @@ namespace Symbolica.Expression;
 public interface IMergeable<TSub, in T>
 {
     (HashSet<(TSub, TSub)> subs, bool) IsEquivalentTo(T other);
+    object ToJson();
 }
 
 public static class Mergeable

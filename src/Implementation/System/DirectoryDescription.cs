@@ -66,4 +66,12 @@ internal sealed class DirectoryDescription : IPersistentDescription
             ? _directory.IsEquivalentTo(dd._directory)
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Directory = _directory.ToJson()
+        };
+    }
 }

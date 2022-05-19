@@ -90,4 +90,9 @@ internal sealed record ConstantBool : Bool, IConstantValue
             ? sub
             : this;
     }
+
+    public override object ToJson()
+    {
+        return ((BigInteger) AsUnsigned()).ToString();
+    }
 }

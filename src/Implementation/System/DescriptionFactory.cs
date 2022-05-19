@@ -91,5 +91,10 @@ internal sealed class DescriptionFactory : IDescriptionFactory
         {
             return (new(), other is InvalidDescription);
         }
+
+        public object ToJson()
+        {
+            return GetType().Name;
+        }
     }
 }

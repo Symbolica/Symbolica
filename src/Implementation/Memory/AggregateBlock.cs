@@ -203,4 +203,15 @@ internal sealed class AggregateBlock : IPersistentBlock
                             .And((new(), a.Block.Section == b.Block.Section))))
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Offset = Offset.ToJson(),
+            Section = Section.ToString(),
+            Size = (uint) Size,
+            Allocations = _allocations.Select(a => a.ToJson()).ToArray()
+        };
+    }
 }

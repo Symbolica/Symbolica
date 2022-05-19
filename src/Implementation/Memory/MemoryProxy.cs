@@ -65,4 +65,9 @@ internal sealed class MemoryProxy : IMemoryProxy
             ? _memory.IsEquivalentTo(mp._memory)
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return _memory.ToJson();
+    }
 }

@@ -18,4 +18,5 @@ internal interface IPersistentBlock
     Result<IPersistentBlock> TryWrite(ISpace space, IAddress address, IExpression value);
     Result<IExpression> TryRead(ISpace space, IAddress address, Bits size);
     (HashSet<(IExpression, IExpression)> subs, bool) IsDataEquivalentTo(IPersistentBlock other);
+    object ToJson();
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
@@ -39,6 +40,11 @@ internal sealed class PersistentJumps : IPersistentJumps
             : (new(), false);
     }
 
+    public object ToJson()
+    {
+        return _points.Select(p => p.ToJson()).ToArray();
+    }
+
     private readonly struct Point : IMergeable<IExpression, Point>
     {
         private readonly IExpression _continuation;
@@ -64,6 +70,16 @@ internal sealed class PersistentJumps : IPersistentJumps
         public bool IsMatch(ISpace space, IExpression continuation, bool useJumpBuffer)
         {
             return _useJumpBuffer == useJumpBuffer && IsMatch(space, continuation);
+        }
+
+        public object ToJson()
+        {
+            return new
+            {
+                Continuation = _continuation.ToJson(),
+                Frame = Frame.ToJson(),
+                UseJumpBuffer = _useJumpBuffer
+            };
         }
 
         private bool IsMatch(ISpace space, IExpression continuation)

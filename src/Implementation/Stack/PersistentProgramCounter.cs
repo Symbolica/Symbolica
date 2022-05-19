@@ -53,4 +53,15 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
                 .And(Mergeable.IsNullableEquivalentTo<IExpression, BasicBlockId>(_predecessorId, ppc._predecessorId))
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            BasicBlock = _basicBlock.ToJson(),
+            Definition = _definition.ToJson(),
+            Index = _index,
+            PredecessorId = _predecessorId?.ToJson()
+        };
+    }
 }

@@ -65,5 +65,10 @@ internal sealed class X86VariadicAbi : IVariadicAbi
                     : (new(), _address is null && v._address is null)
                 : (new(), false);
         }
+
+        public object ToJson()
+        {
+            return new { Address = _address?.ToJson() };
+        }
     }
 }

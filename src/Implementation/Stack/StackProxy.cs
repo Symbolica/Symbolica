@@ -93,4 +93,9 @@ internal sealed class StackProxy : IStackProxy
             ? _stack.IsEquivalentTo(sp._stack)
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return _stack.ToJson();
+    }
 }

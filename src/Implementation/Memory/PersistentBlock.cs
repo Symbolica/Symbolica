@@ -136,4 +136,14 @@ internal sealed class PersistentBlock : IPersistentBlock
             ? Data.IsEquivalentTo(pb.Data)
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Offset = Offset.ToJson(),
+            Section = Section.ToString(),
+            Data = Data.ToJson()
+        };
+    }
 }

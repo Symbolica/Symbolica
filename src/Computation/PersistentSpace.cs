@@ -81,4 +81,9 @@ internal sealed class PersistentSpace : IPersistentSpace
                 (acc, a) => acc.Push(a));
         return new PersistentSpace(_collectionFactory, assertions);
     }
+
+    public object ToJson()
+    {
+        return _assertions.Select(a => a.ToJson()).ToArray();
+    }
 }

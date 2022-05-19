@@ -60,4 +60,14 @@ public sealed class ArrayType : IArrayType
                 .And((new(), _count == at._count))
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Count = _count,
+            ElementType = ElementType.ToJson()
+        };
+    }
 }

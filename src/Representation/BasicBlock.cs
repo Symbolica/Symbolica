@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -27,5 +28,14 @@ public sealed class BasicBlock : IBasicBlock
             ? Id.IsEquivalentTo(b.Id)
                 .And(_instructions.IsSequenceEquivalentTo<IExpression, IInstruction>(b._instructions))
             : (new(), false);
+    }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Id = Id.ToJson(),
+            Instructions = _instructions.Select(i => i.ToJson()).ToArray()
+        };
     }
 }

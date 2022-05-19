@@ -38,4 +38,13 @@ public sealed class SingleValueType : IType
             ? (new(), Size == svt.Size)
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size
+        };
+    }
 }

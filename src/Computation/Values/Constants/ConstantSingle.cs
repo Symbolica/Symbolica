@@ -97,4 +97,9 @@ internal sealed record ConstantSingle : Float, IConstantValue
             ? sub
             : this;
     }
+
+    public override object ToJson()
+    {
+        return ((BigInteger) AsUnsigned()).ToString();
+    }
 }

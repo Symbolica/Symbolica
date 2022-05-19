@@ -131,4 +131,17 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
             .And(_vaList.IsEquivalentTo(other._vaList))
             .And(_variables.IsEquivalentTo(other._variables));
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Allocations = _allocations.Select(a => a.ToJson()).ToArray(),
+            Formals = _formals.Select(f => f.ToJson()).ToArray(),
+            Jumps = _jumps.ToJson(),
+            ProgramCounter = _programCounter.ToJson(),
+            VaList = _vaList.ToJson(),
+            Variables = _variables.ToJson()
+        };
+    }
 }

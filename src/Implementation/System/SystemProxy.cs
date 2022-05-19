@@ -84,4 +84,9 @@ internal sealed class SystemProxy : ISystemProxy
             ? _system.IsEquivalentTo(sp._system)
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return _system.ToJson();
+    }
 }

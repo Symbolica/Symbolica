@@ -63,5 +63,10 @@ internal sealed class BlockFactory : IBlockFactory
         {
             throw new ImplementationException("Invalid block has no data.");
         }
+
+        public object ToJson()
+        {
+            return GetType().Name;
+        }
     }
 }

@@ -62,4 +62,14 @@ internal sealed record FloatConvert : Float
             ? sub
             : Create(Size, _value.Substitute(subs));
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Value = _value.ToJson()
+        };
+    }
 }

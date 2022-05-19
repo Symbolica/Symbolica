@@ -55,4 +55,15 @@ internal sealed record ShiftLeft : BitVector
             ? sub
             : Create(Left.Substitute(subs), Right.Substitute(subs));
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Left = Left.ToJson(),
+            Right = Right.ToJson()
+        };
+    }
 }

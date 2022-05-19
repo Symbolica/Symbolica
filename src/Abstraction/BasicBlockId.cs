@@ -57,4 +57,9 @@ public readonly struct BasicBlockId : IEquatable<BasicBlockId>, IMergeable<IExpr
     {
         return (new(), Equals(other));
     }
+
+    public object ToJson()
+    {
+        return _value;
+    }
 }

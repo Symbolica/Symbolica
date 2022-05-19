@@ -147,4 +147,15 @@ internal sealed class State : IState, IExecutable
             _system.Clone(),
             Generation);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Memory = _memory.ToJson(),
+            Stack = _stack.ToJson(),
+            System = _system.ToJson(),
+            Space = Space.ToJson()
+        };
+    }
 }

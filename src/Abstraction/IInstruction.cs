@@ -11,4 +11,6 @@ public interface IInstruction : IMergeable<IExpression, IInstruction>
 
     (HashSet<(IExpression, IExpression)> subs, bool) IMergeable<IExpression, IInstruction>.IsEquivalentTo(IInstruction other)
         => (new(), Id == other.Id);
+
+    object IMergeable<IExpression, IInstruction>.ToJson() => (ulong) Id;
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -25,5 +26,10 @@ public sealed class Parameters : IParameters
         return other is Parameters p
             ? _parameters.IsSequenceEquivalentTo<IExpression, Parameter>(p._parameters)
             : (new(), false);
+    }
+
+    public object ToJson()
+    {
+        return _parameters.Select(p => p.ToJson()).ToArray();
     }
 }

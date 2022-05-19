@@ -111,4 +111,16 @@ internal sealed record Write : BitVector
                 _writeOffset.Substitute(subs),
                 _writeValue.Substitute(subs));
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Buffer = _writeBuffer.ToJson(),
+            Offset = _writeOffset.ToJson(),
+            Value = _writeValue.ToJson()
+        };
+    }
 }

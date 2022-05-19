@@ -78,4 +78,13 @@ internal sealed class FileDescription : IPersistentDescription
                 .And((new(), _offset == fd._offset))
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            File = _file.ToJson(),
+            Offset = _offset
+        };
+    }
 }

@@ -16,4 +16,9 @@ public readonly struct Parameter : IMergeable<IExpression, Parameter>
     {
         return (new(), Size == other.Size);
     }
+
+    public object ToJson()
+    {
+        return new { Size = (uint) Size };
+    }
 }

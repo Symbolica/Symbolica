@@ -57,4 +57,9 @@ public readonly struct FunctionId : IEquatable<FunctionId>, IMergeable<IExpressi
     {
         return (new(), Equals(other));
     }
+
+    public object ToJson()
+    {
+        return _value;
+    }
 }

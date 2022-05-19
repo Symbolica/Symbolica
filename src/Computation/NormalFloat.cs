@@ -106,4 +106,13 @@ internal sealed record NormalFloat : Float
             ? sub
             : this;
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Size = (uint) Size,
+            Value = _value
+        };
+    }
 }

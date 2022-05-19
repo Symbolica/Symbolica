@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Z3;
-using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -76,6 +75,16 @@ internal sealed record LogicalNot : Bool
             : Create(_value.Substitute(subs));
     }
 
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Value = _value.ToJson()
+        };
+    }
+
     private sealed record Logical : Bool
     {
         public Logical(IValue value)
@@ -118,6 +127,16 @@ internal sealed record LogicalNot : Bool
             return subs.TryGetValue(this, out var sub)
                 ? sub
                 : Create(Value.Substitute(subs));
+        }
+
+        public override object ToJson()
+        {
+            return new
+            {
+                Type = GetType().Name,
+                Size = (uint) Size,
+                Value = Value.ToJson()
+            };
         }
     }
 }

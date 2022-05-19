@@ -156,4 +156,13 @@ internal sealed class SymbolicMemory : IPersistentMemory
                             .And(a.IsDataEquivalentTo(b))))
             : (new(), false);
     }
+
+    public object ToJson()
+    {
+        return new
+        {
+            Alignment = (uint) _alignment,
+            Allocations = _blocks.Where(a => a.IsValid).Select(a => a.ToJson()).ToArray()
+        };
+    }
 }

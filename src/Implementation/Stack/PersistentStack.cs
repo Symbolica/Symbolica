@@ -168,4 +168,9 @@ internal sealed class PersistentStack : IPersistentStack
             continuationFactory,
             collectionFactory.CreatePersistentStack<IPersistentFrame>(), frameFactory.CreateInitial(main));
     }
+
+    public object ToJson()
+    {
+        return AllFrames.Select(f => f.ToJson()).ToArray();
+    }
 }

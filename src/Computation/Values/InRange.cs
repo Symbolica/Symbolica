@@ -83,4 +83,15 @@ internal sealed record InRange : Bool
             ? sub
             : new InRange(_value.Substitute(subs), _range.Substitute(subs));
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Range = _range.ToJson(),
+            Value = _value.ToJson()
+        };
+    }
 }

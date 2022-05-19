@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -56,5 +57,14 @@ internal sealed class PersistentVariables : IPersistentVariables
             ? _incomingVariables.IsSequenceEquivalentTo<IExpression, InstructionId, IExpression>(pv._incomingVariables)
                 .And(_variables.IsSequenceEquivalentTo<IExpression, InstructionId, IExpression>(pv._variables))
             : (new(), false);
+    }
+
+    public object ToJson()
+    {
+        return new
+        {
+            IncomingVariables = _incomingVariables.ToDictionary(v => v.Key.ToJson(), v => v.Value.ToJson()),
+            Variables = _variables.ToDictionary(v => v.Key.ToJson(), v => v.Value.ToJson())
+        };
     }
 }

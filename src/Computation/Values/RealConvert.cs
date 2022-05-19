@@ -44,4 +44,14 @@ internal sealed record RealConvert : Float, IRealValue
             ? sub
             : this;
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Value = _value.ToJson()
+        };
+    }
 }

@@ -31,4 +31,13 @@ internal readonly struct Allocation : IComparable<Allocation>
 
         return (index, allocations.Get(index));
     }
+
+    internal object ToJson()
+    {
+        return new
+        {
+            Address = (uint) Address,
+            Block = Block.ToJson()
+        };
+    }
 }

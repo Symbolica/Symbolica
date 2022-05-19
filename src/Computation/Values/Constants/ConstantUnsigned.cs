@@ -197,4 +197,9 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
             ? sub
             : this;
     }
+
+    public override object ToJson()
+    {
+        return ((BigInteger) AsUnsigned()).ToString();
+    }
 }

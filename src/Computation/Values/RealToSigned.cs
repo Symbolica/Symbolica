@@ -40,4 +40,14 @@ internal sealed record RealToSigned : BitVector
             ? sub
             : this;
     }
+
+    public override object ToJson()
+    {
+        return new
+        {
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Value = _value.ToJson()
+        };
+    }
 }
