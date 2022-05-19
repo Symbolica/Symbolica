@@ -6,20 +6,21 @@ namespace Symbolica.Computation.Values;
 
 internal sealed record LogicalShiftRight : BitVector
 {
-    private readonly IValue _left;
-    private readonly IValue _right;
-
     private LogicalShiftRight(IValue left, IValue right)
         : base(left.Size)
     {
-        _left = left;
-        _right = right;
+        Left = left;
+        Right = right;
     }
+
+    internal IValue Left { get; }
+
+    internal IValue Right { get; }
 
     public override BitVecExpr AsBitVector(ISolver solver)
     {
-        using var left = _left.AsBitVector(solver);
-        using var right = _right.AsBitVector(solver);
+        using var left = Left.AsBitVector(solver);
+        using var right = Right.AsBitVector(solver);
         return solver.Context.MkBVLSHR(left, right);
     }
 
@@ -35,6 +36,7 @@ internal sealed record LogicalShiftRight : BitVector
             (IConstantValue l, IConstantValue r) => l.AsUnsigned().ShiftRight(r.AsUnsigned()),
             (_, IConstantValue r) when r.AsUnsigned().IsZero => left,
             (IConstantValue l, _) when l.AsUnsigned().IsZero => l,
+            (ShiftLeft sl, _) when right.Equals(sl.Right) => sl.Left,
             _ => new LogicalShiftRight(left, right)
         };
     }
@@ -42,8 +44,8 @@ internal sealed record LogicalShiftRight : BitVector
     public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
     {
         return other is LogicalShiftRight v
-            ? _left.IsEquivalentTo(v._left)
-                .And(_right.IsEquivalentTo(v._right))
+            ? Left.IsEquivalentTo(v.Left)
+                .And(Right.IsEquivalentTo(v.Right))
             : (new(), false);
     }
 
@@ -51,6 +53,6 @@ internal sealed record LogicalShiftRight : BitVector
     {
         return subs.TryGetValue(this, out var sub)
             ? sub
-            : Create(_left.Substitute(subs), _right.Substitute(subs));
+            : Create(Left.Substitute(subs), Right.Substitute(subs));
     }
 }
