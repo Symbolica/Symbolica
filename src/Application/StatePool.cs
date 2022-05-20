@@ -81,13 +81,15 @@ internal sealed class StatePool : IDisposable
     {
         _merger.Complete();
         var merged = await _merger.GetMerged();
-        var states = merged.Where(s => s.Generation < 1).ToArray();
-        _pastStates.AddRange(states.Select(s => s.Clone()));
-        Add(states);
+        var states = merged.Where(s => s.Generation < 3).ToArray();
         if (!states.Any())
             _completed.SetResult();
         else
+        {
+            _pastStates.AddRange(states.Select(s => s.Clone()));
             _merger = new(_pastStates);
+            Add(states);
+        }
     }
 
     public async Task<(ulong, ulong, Exception?)> Wait()
