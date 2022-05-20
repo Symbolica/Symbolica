@@ -12,6 +12,7 @@ public sealed class Definition : IDefinition
     private readonly IReadOnlyDictionary<BasicBlockId, IBasicBlock> _basicBlocks;
     private readonly BasicBlockId _entryId;
     private readonly bool _isVariadic;
+    private readonly Lazy<int> _equivalencyHash;
 
     private Definition(
         FunctionId id,
@@ -27,6 +28,19 @@ public sealed class Definition : IDefinition
         _isVariadic = isVariadic;
         _entryId = entryId;
         _basicBlocks = basicBlocks;
+        _equivalencyHash = new(() =>
+        {
+            var blocksHash = new HashCode();
+            foreach (var block in _basicBlocks)
+                blocksHash.Add(HashCode.Combine(block.Key.GetEquivalencyHash(), block.Value.GetEquivalencyHash()));
+            return HashCode.Combine(
+                blocksHash.ToHashCode(),
+                _entryId.GetEquivalencyHash(),
+                _isVariadic,
+                Id.GetEquivalencyHash(),
+                Name,
+                Parameters.GetEquivalencyHash());
+        });
     }
 
     public FunctionId Id { get; }
@@ -92,5 +106,10 @@ public sealed class Definition : IDefinition
             Name,
             Parameters = Parameters.ToJson()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

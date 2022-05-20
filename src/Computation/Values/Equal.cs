@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Microsoft.Z3;
@@ -122,5 +123,10 @@ internal sealed record Equal : Bool
             Left = _left.ToJson(),
             Right = _right.ToJson()
         };
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(GetType().Name, _left.GetEquivalencyHash(), _right.GetEquivalencyHash());
     }
 }

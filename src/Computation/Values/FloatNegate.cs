@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
@@ -56,5 +57,10 @@ internal sealed record FloatNegate : Float
             Size = (uint) Size,
             Value = _value.ToJson()
         };
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(GetType().Name, _value.GetEquivalencyHash());
     }
 }

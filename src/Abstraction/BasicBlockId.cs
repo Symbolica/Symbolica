@@ -62,4 +62,9 @@ public readonly struct BasicBlockId : IEquatable<BasicBlockId>, IMergeable<IExpr
     {
         return _value;
     }
+
+    public int GetEquivalencyHash()
+    {
+        return GetHashCode();
+    }
 }

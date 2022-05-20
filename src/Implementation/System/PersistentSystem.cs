@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -15,6 +16,7 @@ internal sealed class PersistentSystem : IPersistentSystem
     private readonly IPersistentList<int> _indices;
     private readonly IModule _module;
     private readonly IExpression? _threadAddress;
+    private readonly Lazy<int> _equivalencyHash;
 
     private PersistentSystem(IModule module, IDescriptionFactory descriptionFactory,
         IExpressionFactory exprFactory, IExpression? threadAddress,
@@ -26,6 +28,21 @@ internal sealed class PersistentSystem : IPersistentSystem
         _threadAddress = threadAddress;
         _indices = indices;
         _handles = handles;
+        _equivalencyHash = new(() =>
+        {
+            var handlesHash = new HashCode();
+            foreach (var handle in _handles)
+                handlesHash.Add(handle.GetEquivalencyHash());
+
+            var indicesHash = new HashCode();
+            foreach (var index in _indices)
+                indicesHash.Add(index);
+
+            return HashCode.Combine(
+                handlesHash.ToHashCode(),
+                indicesHash.ToHashCode(),
+                _threadAddress?.GetEquivalencyHash());
+        });
     }
 
     public (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemory memory)
@@ -221,12 +238,25 @@ internal sealed class PersistentSystem : IPersistentSystem
         };
     }
 
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
+    }
+
     private readonly struct Handle : IMergeable<IExpression, Handle>
     {
+        private readonly Lazy<int> _equivalencyHash;
+
         public Handle(uint references, IPersistentDescription description)
         {
             References = references;
             Description = description;
+            _equivalencyHash = CreateEquivalencyHash(references, description);
+        }
+
+        private static Lazy<int> CreateEquivalencyHash(uint references, IPersistentDescription description)
+        {
+            return new(() => HashCode.Combine(description.GetEquivalencyHash(), references));
         }
 
         public uint References { get; }
@@ -245,6 +275,11 @@ internal sealed class PersistentSystem : IPersistentSystem
                 References,
                 Description = Description.ToJson()
             };
+        }
+
+        public int GetEquivalencyHash()
+        {
+            return _equivalencyHash.Value;
         }
     }
 }

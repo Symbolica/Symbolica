@@ -71,4 +71,9 @@ internal sealed record Symbol : BitVector
     {
         return _name;
     }
+
+    public override int GetEquivalencyHash()
+    {
+        return 0;
+    }
 }

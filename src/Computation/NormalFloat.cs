@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
@@ -114,5 +115,10 @@ internal sealed record NormalFloat : Float
             Size = (uint) Size,
             Value = _value
         };
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(Size, _value);
     }
 }

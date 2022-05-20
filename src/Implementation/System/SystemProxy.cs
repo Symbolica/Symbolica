@@ -89,4 +89,9 @@ internal sealed class SystemProxy : ISystemProxy
     {
         return _system.ToJson();
     }
+
+    public int GetEquivalencyHash()
+    {
+        return _system.GetEquivalencyHash();
+    }
 }

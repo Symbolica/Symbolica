@@ -17,6 +17,7 @@ internal sealed class ConstantMemory : IPersistentMemory
     private readonly ICollectionFactory _collectionFactory;
     private readonly IExpressionFactory _exprFactory;
     private readonly Bytes _nextAddress;
+    private readonly Lazy<int> _equivalencyHash;
 
     private ConstantMemory(Bytes alignment, IBlockFactory blockFactory, ICollectionFactory collectionFactory,
         IExpressionFactory exprFactory, Bytes nextAddress, IPersistentList<Allocation> allocations)
@@ -27,7 +28,17 @@ internal sealed class ConstantMemory : IPersistentMemory
         _exprFactory = exprFactory;
         _nextAddress = nextAddress;
         _allocations = allocations;
+        _equivalencyHash = new(() =>
+        {
+            var allocationsHash = new HashCode();
+            foreach (var allocation in ValidAllocations)
+                allocationsHash.Add(allocation.GetEquivalencyHash());
+
+            return HashCode.Combine(_alignment, allocationsHash.ToHashCode());
+        });
     }
+
+    private IEnumerable<Allocation> ValidAllocations => _allocations.Where(a => a.Block.IsValid);
 
     public (IExpression, IPersistentMemory) Allocate(Section section, Bits size)
     {
@@ -156,26 +167,9 @@ internal sealed class ConstantMemory : IPersistentMemory
 
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentMemory other)
     {
-        static IEnumerable<Allocation> ValidAllocations(ConstantMemory memory)
-        {
-            return memory._allocations.Where(a => a.Block.IsValid);
-        }
-
-        (HashSet<(IExpression, IExpression)> subs, bool) AreAllocationsValidBy(
-            ConstantMemory other,
-            Func<Allocation, Allocation, (HashSet<(IExpression, IExpression)> subs, bool)> f)
-        {
-            return ValidAllocations(this).IsSequenceEquivalentTo(ValidAllocations(other), f);
-        }
-
         return other is ConstantMemory cm
-            ? AreAllocationsValidBy(cm, (a, b) => (new(), a.Address == b.Address))
+            ? ValidAllocations.IsSequenceEquivalentTo<IExpression, Allocation>(cm.ValidAllocations)
                 .And((new(), _alignment == cm._alignment))
-                .And(
-                    AreAllocationsValidBy(
-                        cm,
-                        (a, b) => a.Block.IsDataEquivalentTo(b.Block)
-                            .And((new(), a.Block.Section == b.Block.Section))))
             : (new(), false);
     }
 
@@ -189,5 +183,10 @@ internal sealed class ConstantMemory : IPersistentMemory
                 .Select(a => a.ToJson())
                 .ToArray()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

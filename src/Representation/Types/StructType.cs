@@ -10,12 +10,28 @@ public sealed class StructType : IStructType
 {
     private readonly Bytes[] _offsets;
     private readonly IType[] _types;
+    private readonly Lazy<int> _equivalencyHash;
 
     public StructType(Bytes size, Bytes[] offsets, IType[] types)
     {
         Size = size;
         _offsets = offsets;
         _types = types;
+        _equivalencyHash = new(() =>
+        {
+            var offsetsHash = new HashCode();
+            foreach (var offset in _offsets)
+                offsetsHash.Add(offset.GetHashCode());
+
+            var typesHash = new HashCode();
+            foreach (var type in _types)
+                typesHash.Add(type.GetEquivalencyHash());
+
+            return HashCode.Combine(
+                offsetsHash.ToHashCode(),
+                typesHash.ToHashCode(),
+                Size.GetHashCode());
+        });
     }
 
     public Bytes Size { get; }
@@ -70,5 +86,10 @@ public sealed class StructType : IStructType
             Offsets = _offsets.Select(o => (uint) o).ToArray(),
             Types = _types.Select(t => t.ToJson()).ToArray()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

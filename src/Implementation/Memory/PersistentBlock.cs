@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
@@ -130,10 +131,12 @@ internal sealed class PersistentBlock : IPersistentBlock
         return Data.Read(space, offset, size);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsDataEquivalentTo(IPersistentBlock other)
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentBlock other)
     {
         return other is PersistentBlock pb
             ? Data.IsEquivalentTo(pb.Data)
+                .And((new(), Section == pb.Section))
+                .And(Offset.IsEquivalentTo(pb.Offset))
             : (new(), false);
     }
 
@@ -145,5 +148,10 @@ internal sealed class PersistentBlock : IPersistentBlock
             Section = Section.ToString(),
             Data = Data.ToJson()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return HashCode.Combine(Section, Offset.GetEquivalencyHash(), Data.GetEquivalencyHash());
     }
 }

@@ -10,11 +10,13 @@ namespace Symbolica.Representation.Types;
 public sealed class ArrayType : IArrayType
 {
     private readonly uint _count;
+    private readonly Lazy<int> _equivalencyHash;
 
     public ArrayType(uint count, IType elementType)
     {
         _count = count;
         ElementType = elementType;
+        _equivalencyHash = new(() => HashCode.Combine(ElementType.GetEquivalencyHash(), _count));
     }
 
     public Bytes Size => ElementType.Size * _count;
@@ -69,5 +71,10 @@ public sealed class ArrayType : IArrayType
             Count = _count,
             ElementType = ElementType.ToJson()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

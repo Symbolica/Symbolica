@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -65,5 +66,10 @@ internal sealed record ShiftLeft : BitVector
             Left = Left.ToJson(),
             Right = Right.ToJson()
         };
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(Left.GetEquivalencyHash(), Right.GetEquivalencyHash());
     }
 }

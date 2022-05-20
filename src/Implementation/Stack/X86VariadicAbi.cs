@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
@@ -60,10 +61,13 @@ internal sealed class X86VariadicAbi : IVariadicAbi
         public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IVaList other)
         {
             return other is VaList v
-                ? _address is not null && v._address is not null
-                    ? _address.IsEquivalentTo(v._address)
-                    : (new(), _address is null && v._address is null)
+                ? Mergeable.IsNullableEquivalentTo<IExpression, IExpression>(_address, v._address)
                 : (new(), false);
+        }
+
+        public int GetEquivalencyHash()
+        {
+            return HashCode.Combine(_address?.GetEquivalencyHash());
         }
 
         public object ToJson()

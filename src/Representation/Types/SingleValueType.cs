@@ -47,4 +47,9 @@ public sealed class SingleValueType : IType
             Size = (uint) Size
         };
     }
+
+    public int GetEquivalencyHash()
+    {
+        return Size.GetHashCode();
+    }
 }

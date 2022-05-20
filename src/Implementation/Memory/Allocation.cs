@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Symbolica.Collection;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
 
-internal readonly struct Allocation : IComparable<Allocation>
+internal readonly struct Allocation : IComparable<Allocation>, IMergeable<IExpression, Allocation>
 {
     public Allocation(Bytes address, IPersistentBlock block)
     {
@@ -32,7 +33,18 @@ internal readonly struct Allocation : IComparable<Allocation>
         return (index, allocations.Get(index));
     }
 
-    internal object ToJson()
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Allocation other)
+    {
+        return (new HashSet<(IExpression, IExpression)>(), Address == other.Address)
+            .And(Block.IsEquivalentTo(other.Block));
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return HashCode.Combine(Address, Block.GetEquivalencyHash());
+    }
+
+    public object ToJson()
     {
         return new
         {

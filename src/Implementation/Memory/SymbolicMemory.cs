@@ -15,6 +15,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
     private readonly IBlockFactory _blockFactory;
     private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<IPersistentBlock> _blocks;
+    private readonly Lazy<int> _equivalencyHash;
 
     private SymbolicMemory(Bytes alignment, ICollectionFactory collectionFactory, IBlockFactory blockFactory,
         IExpressionFactory exprFactory, IPersistentList<IPersistentBlock> blocks)
@@ -24,7 +25,17 @@ internal sealed class SymbolicMemory : IPersistentMemory
         _blockFactory = blockFactory;
         _exprFactory = exprFactory;
         _blocks = blocks;
+        _equivalencyHash = new(() =>
+        {
+            var blocksHash = new HashCode();
+            foreach (var block in ValidBlocks)
+                blocksHash.Add(block.GetEquivalencyHash());
+
+            return HashCode.Combine(alignment, blocksHash.ToHashCode());
+        });
     }
+
+    private IEnumerable<IPersistentBlock> ValidBlocks => _blocks.Where(a => a.IsValid);
 
     public (IExpression, IPersistentMemory) Allocate(Section section, Bits size)
     {
@@ -138,22 +149,12 @@ internal sealed class SymbolicMemory : IPersistentMemory
 
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentMemory other)
     {
-        static IEnumerable<IPersistentBlock> ValidAllocations(SymbolicMemory memory)
-        {
-            return memory._blocks.Where(a => a.IsValid);
-        }
 
         // TODO: This is relying on the order of allocations in both sides being equal, which could/should be relaxed
         // but that will require being able to lookup blocks by equivalent symbolic address
         return other is SymbolicMemory sm
             ? (new HashSet<(IExpression, IExpression)>(), _alignment == sm._alignment)
-                .And(ValidAllocations(this)
-                    .IsSequenceEquivalentTo(
-                        ValidAllocations(sm),
-                        (a, b) => a.Offset
-                            .IsEquivalentTo(b.Offset)
-                            .And((new(), a.Section == b.Section))
-                            .And(a.IsDataEquivalentTo(b))))
+                .And(ValidBlocks.IsSequenceEquivalentTo<IExpression, IPersistentBlock>(sm.ValidBlocks))
             : (new(), false);
     }
 
@@ -164,5 +165,10 @@ internal sealed class SymbolicMemory : IPersistentMemory
             Alignment = (uint) _alignment,
             Allocations = _blocks.Where(a => a.IsValid).Select(a => a.ToJson()).ToArray()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

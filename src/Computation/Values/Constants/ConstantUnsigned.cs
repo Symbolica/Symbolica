@@ -202,4 +202,9 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
     {
         return ((BigInteger) AsUnsigned()).ToString();
     }
+
+    public override int GetEquivalencyHash()
+    {
+        return ((BigInteger) AsUnsigned()).GetHashCode();
+    }
 }

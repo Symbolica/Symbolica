@@ -63,4 +63,9 @@ internal sealed record FloatRemainder : Float
             Right = _right.ToJson()
         };
     }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(GetType().Name, _left.GetEquivalencyHash(), _right.GetEquivalencyHash());
+    }
 }

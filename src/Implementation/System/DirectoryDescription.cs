@@ -74,4 +74,9 @@ internal sealed class DirectoryDescription : IPersistentDescription
             Directory = _directory.ToJson()
         };
     }
+
+    public int GetEquivalencyHash()
+    {
+        return _directory.GetEquivalencyHash();
+    }
 }

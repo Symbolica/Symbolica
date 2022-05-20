@@ -18,6 +18,11 @@ internal sealed class FileProxy : IFile
     public long LastModifiedTime => new DateTimeOffset(_file.LastWriteTimeUtc).ToUnixTimeSeconds();
     public long Size => _file.Length;
 
+    public int GetEquivalencyHash()
+    {
+        return _file.GetHashCode();
+    }
+
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IFile other)
     {
         // TODO: This might just be using reference equality on FileInfo

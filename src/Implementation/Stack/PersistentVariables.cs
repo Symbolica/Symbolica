@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
@@ -11,12 +12,27 @@ internal sealed class PersistentVariables : IPersistentVariables
 {
     private readonly IPersistentDictionary<InstructionId, IExpression> _incomingVariables;
     private readonly IPersistentDictionary<InstructionId, IExpression> _variables;
+    private readonly Lazy<int> _equivalencyHash;
 
     private PersistentVariables(IPersistentDictionary<InstructionId, IExpression> incomingVariables,
         IPersistentDictionary<InstructionId, IExpression> variables)
     {
         _incomingVariables = incomingVariables;
         _variables = variables;
+        _equivalencyHash = new(() =>
+        {
+            static int GetVariablesHash(IEnumerable<KeyValuePair<InstructionId, IExpression>> variables)
+            {
+                var hashCode = new HashCode();
+                foreach (var variable in variables)
+                    hashCode.Add(HashCode.Combine(
+                        variable.Key.GetEquivalencyHash(),
+                        variable.Value.GetEquivalencyHash()));
+                return hashCode.ToHashCode();
+            }
+
+            return HashCode.Combine(GetVariablesHash(_incomingVariables), GetVariablesHash(_variables));
+        });
     }
 
     public IExpression Get(InstructionId id, bool useIncomingValue)
@@ -38,16 +54,13 @@ internal sealed class PersistentVariables : IPersistentVariables
 
     public IPersistentVariables TransferBasicBlock()
     {
-        return new PersistentVariables(_variables,
-            _variables);
+        return new PersistentVariables(_variables, _variables);
     }
 
     public static IPersistentVariables Create(ICollectionFactory collectionFactory)
     {
         var variables = collectionFactory.CreatePersistentDictionary<InstructionId, IExpression>();
-
-        return new PersistentVariables(variables,
-            variables);
+        return new PersistentVariables(variables, variables);
     }
 
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(
@@ -66,5 +79,10 @@ internal sealed class PersistentVariables : IPersistentVariables
             IncomingVariables = _incomingVariables.ToDictionary(v => v.Key.ToJson(), v => v.Value.ToJson()),
             Variables = _variables.ToDictionary(v => v.Key.ToJson(), v => v.Value.ToJson())
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

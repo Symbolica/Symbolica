@@ -51,4 +51,9 @@ internal sealed class InputDescription : IPersistentDescription
     {
         return GetType().Name;
     }
+
+    public int GetEquivalencyHash()
+    {
+        return GetType().Name.GetHashCode();
+    }
 }

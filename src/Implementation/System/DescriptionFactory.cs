@@ -96,5 +96,10 @@ internal sealed class DescriptionFactory : IDescriptionFactory
         {
             return GetType().Name;
         }
+
+        public int GetEquivalencyHash()
+        {
+            return GetType().Name.GetHashCode();
+        }
     }
 }

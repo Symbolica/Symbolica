@@ -87,4 +87,9 @@ internal sealed class FileDescription : IPersistentDescription
             Offset = _offset
         };
     }
+
+    public int GetEquivalencyHash()
+    {
+        return HashCode.Combine(_file.GetEquivalencyHash(), _offset);
+    }
 }

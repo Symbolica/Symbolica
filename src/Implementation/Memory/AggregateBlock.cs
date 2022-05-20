@@ -13,6 +13,7 @@ internal sealed class AggregateBlock : IPersistentBlock
 {
     private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<Allocation> _allocations;
+    private readonly Lazy<int> _equivalencyHash;
 
     private AggregateBlock(IExpressionFactory exprFactory, Section section,
         IExpression offset, Bytes size, IPersistentList<Allocation> allocations)
@@ -22,6 +23,14 @@ internal sealed class AggregateBlock : IPersistentBlock
         Offset = offset;
         Size = size;
         _allocations = allocations;
+        _equivalencyHash = new(() =>
+        {
+            var allocationsHash = new HashCode();
+            foreach (var allocation in _allocations)
+                allocationsHash.Add(allocation.GetEquivalencyHash());
+
+            return HashCode.Combine(Section, Offset.GetEquivalencyHash(), Size, allocationsHash.ToHashCode());
+        });
     }
 
     public bool IsValid => true;
@@ -185,22 +194,13 @@ internal sealed class AggregateBlock : IPersistentBlock
             : allocation.Block;
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsDataEquivalentTo(IPersistentBlock other)
+    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentBlock other)
     {
-        (HashSet<(IExpression, IExpression)> subs, bool) AreAllocationsValidBy(
-            AggregateBlock other,
-            Func<Allocation, Allocation, (HashSet<(IExpression, IExpression)> subs, bool)> f)
-        {
-            return _allocations.IsSequenceEquivalentTo(other._allocations, f);
-        }
-
         return other is AggregateBlock b
-            ? AreAllocationsValidBy(b, (a, b) => (new(), a.Address == b.Address))
-                .And(
-                    AreAllocationsValidBy(
-                        b,
-                        (a, b) => a.Block.IsDataEquivalentTo(b.Block)
-                            .And((new(), a.Block.Section == b.Block.Section))))
+            ? Offset.IsEquivalentTo(b.Offset)
+                .And((new(), Section == b.Section))
+                .And((new(), Size == b.Size))
+                .And(_allocations.IsSequenceEquivalentTo<IExpression, Allocation>(b._allocations))
             : (new(), false);
     }
 
@@ -213,5 +213,10 @@ internal sealed class AggregateBlock : IPersistentBlock
             Size = (uint) Size,
             Allocations = _allocations.Select(a => a.ToJson()).ToArray()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

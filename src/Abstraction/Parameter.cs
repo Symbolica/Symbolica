@@ -12,6 +12,11 @@ public readonly struct Parameter : IMergeable<IExpression, Parameter>
 
     public Bits Size { get; }
 
+    public int GetEquivalencyHash()
+    {
+        return Size.GetHashCode();
+    }
+
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Parameter other)
     {
         return (new(), Size == other.Size);

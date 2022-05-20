@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
@@ -59,5 +60,10 @@ internal sealed record FloatToUnsigned : BitVector
             Size = (uint) Size,
             Value = _value.ToJson()
         };
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(GetType().Name, Size.GetHashCode(), _value.GetEquivalencyHash());
     }
 }

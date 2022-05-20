@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Z3;
@@ -93,5 +94,13 @@ internal sealed record InRange : Bool
             Range = _range.ToJson(),
             Value = _value.ToJson()
         };
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(
+            GetType().Name,
+            _value.GetEquivalencyHash(),
+            _range.GetEquivalencyHash());
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -32,6 +33,11 @@ internal sealed record RealToSigned : BitVector
             ? _value.IsEquivalentTo(v._value)
                 .And((new(), Size == v.Size))
             : (new(), false);
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(GetType().Name, Size, _value.GetEquivalencyHash());
     }
 
     public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)

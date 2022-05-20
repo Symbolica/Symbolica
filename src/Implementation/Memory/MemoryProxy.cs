@@ -70,4 +70,9 @@ internal sealed class MemoryProxy : IMemoryProxy
     {
         return _memory.ToJson();
     }
+
+    public int GetEquivalencyHash()
+    {
+        return _memory.GetEquivalencyHash();
+    }
 }

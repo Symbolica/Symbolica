@@ -12,11 +12,13 @@ namespace Symbolica.Computation;
 internal sealed class Expression : IExpression, IEquatable<Expression>
 {
     private readonly ICollectionFactory _collectionFactory;
+    private readonly Lazy<int> _equivalencyHash;
 
     public Expression(ICollectionFactory collectionFactory, IValue value)
     {
         _collectionFactory = collectionFactory;
         Value = value;
+        _equivalencyHash = new(() => Value.GetEquivalencyHash());
     }
 
     public Bits Size => Value.Size;
@@ -391,5 +393,10 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
     public object ToJson()
     {
         return Value.ToJson();
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

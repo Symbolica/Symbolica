@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -62,5 +63,10 @@ internal sealed record UnsignedToFloat : Float
             Size = (uint) Size,
             Value = _value.ToJson()
         };
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(GetType().Name, Size.GetHashCode(), _value.GetEquivalencyHash());
     }
 }

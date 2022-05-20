@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Z3;
 
@@ -85,6 +86,11 @@ internal sealed record LogicalNot : Bool
         };
     }
 
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(GetType().Name, _value.GetEquivalencyHash());
+    }
+
     private sealed record Logical : Bool
     {
         public Logical(IValue value)
@@ -137,6 +143,11 @@ internal sealed record LogicalNot : Bool
                 Size = (uint) Size,
                 Value = Value.ToJson()
             };
+        }
+
+        public override int GetEquivalencyHash()
+        {
+            return HashCode.Combine(GetType().Name, Value.GetEquivalencyHash());
         }
     }
 }

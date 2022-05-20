@@ -102,4 +102,9 @@ internal sealed record ConstantSingle : Float, IConstantValue
     {
         return ((BigInteger) AsUnsigned()).ToString();
     }
+
+    public override int GetEquivalencyHash()
+    {
+        return ((BigInteger) AsUnsigned()).GetHashCode();
+    }
 }

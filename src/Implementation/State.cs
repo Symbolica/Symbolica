@@ -76,6 +76,14 @@ internal sealed class State : IState, IExecutable
                 .Equals(previous.Space);
     }
 
+    public int GetEquivalencyHash()
+    {
+        return HashCode.Combine(
+            _stack.GetEquivalencyHash(),
+            _memory.GetEquivalencyHash(),
+            _system.GetEquivalencyHash());
+    }
+
     public IFunction GetFunction(FunctionId id)
     {
         return _module.GetFunction(id);

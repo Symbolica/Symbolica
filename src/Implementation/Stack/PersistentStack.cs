@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -14,6 +15,7 @@ internal sealed class PersistentStack : IPersistentStack
     private readonly IFrameFactory _frameFactory;
     private readonly IModule _module;
     private readonly IPersistentStack<IPersistentFrame> _pushedFrames;
+    private readonly Lazy<int> _equivalencyHash;
 
     private PersistentStack(IModule module, IFrameFactory frameFactory,
         IPersistentContinuationFactory continuationFactory,
@@ -24,6 +26,13 @@ internal sealed class PersistentStack : IPersistentStack
         _continuationFactory = continuationFactory;
         _pushedFrames = pushedFrames;
         _currentFrame = currentFrame;
+        _equivalencyHash = new(() =>
+        {
+            var hash = new HashCode();
+            foreach (var frame in AllFrames)
+                hash.Add(frame.GetEquivalencyHash());
+            return hash.ToHashCode();
+        });
     }
 
     public bool IsInitialFrame => !_pushedFrames.Any();
@@ -172,5 +181,10 @@ internal sealed class PersistentStack : IPersistentStack
     public object ToJson()
     {
         return AllFrames.Select(f => f.ToJson()).ToArray();
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

@@ -58,4 +58,9 @@ internal sealed record FloatCeiling : Float
             Value = _value.ToJson()
         };
     }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(GetType().Name, _value.GetEquivalencyHash());
+    }
 }

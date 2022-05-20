@@ -21,6 +21,11 @@ internal sealed class DirectoryProxy : IDirectory
     public long LastModifiedTime => new DateTimeOffset(_directory.LastWriteTimeUtc).ToUnixTimeSeconds();
     public string[] Names => _names.Value;
 
+    public int GetEquivalencyHash()
+    {
+        return _directory.GetHashCode();
+    }
+
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IDirectory other)
     {
         return (new(),

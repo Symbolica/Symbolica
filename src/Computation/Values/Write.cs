@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
@@ -122,5 +123,14 @@ internal sealed record Write : BitVector
             Offset = _writeOffset.ToJson(),
             Value = _writeValue.ToJson()
         };
+    }
+
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(
+            GetType().Name,
+            _writeBuffer.GetEquivalencyHash(),
+            _writeOffset.GetEquivalencyHash(),
+            _writeValue.GetEquivalencyHash());
     }
 }

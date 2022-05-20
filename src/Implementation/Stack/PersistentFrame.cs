@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -13,6 +14,7 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
     private readonly IPersistentProgramCounter _programCounter;
     private readonly IVaList _vaList;
     private readonly IPersistentVariables _variables;
+    private readonly Lazy<int> _equivalencyHash;
 
     public PersistentFrame(ICaller caller, IArguments formals, IVaList vaList,
         IPersistentJumps jumps, IPersistentProgramCounter programCounter,
@@ -25,6 +27,24 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
         _programCounter = programCounter;
         _variables = variables;
         _allocations = allocations;
+        _equivalencyHash = new(() =>
+        {
+            var allocationsHash = new HashCode();
+            foreach (var allocation in _allocations)
+                allocationsHash.Add(allocation.GetEquivalencyHash());
+
+            var formalsHash = new HashCode();
+            foreach (var formal in _formals)
+                formalsHash.Add(formal.GetEquivalencyHash());
+
+            return HashCode.Combine(
+                allocationsHash.ToHashCode(),
+                formalsHash.ToHashCode(),
+                _jumps.GetEquivalencyHash(),
+                _programCounter.GetEquivalencyHash(),
+                _vaList.GetEquivalencyHash(),
+                _variables.GetEquivalencyHash());
+        });
     }
 
     public ICaller Caller { get; }
@@ -143,5 +163,10 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
             VaList = _vaList.ToJson(),
             Variables = _variables.ToJson()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -8,10 +10,18 @@ namespace Symbolica.Implementation.Stack;
 internal sealed class PersistentJumps : IPersistentJumps
 {
     private readonly IPersistentStack<Point> _points;
+    private readonly Lazy<int> _equivalencyHash;
 
     private PersistentJumps(IPersistentStack<Point> points)
     {
         _points = points;
+        _equivalencyHash = new(() =>
+        {
+            var hash = new HashCode();
+            foreach (var point in _points)
+                hash.Add(point.GetEquivalencyHash());
+            return hash.ToHashCode();
+        });
     }
 
     public IPersistentJumps Add(IExpression continuation, bool useJumpBuffer, ISavedFrame frame)
@@ -45,6 +55,11 @@ internal sealed class PersistentJumps : IPersistentJumps
         return _points.Select(p => p.ToJson()).ToArray();
     }
 
+    public int GetEquivalencyHash()
+    {
+        return _equivalencyHash.Value;
+    }
+
     private readonly struct Point : IMergeable<IExpression, Point>
     {
         private readonly IExpression _continuation;
@@ -59,12 +74,29 @@ internal sealed class PersistentJumps : IPersistentJumps
 
         public ISavedFrame Frame { get; }
 
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Point other)
         {
-            return other is Point p && _useJumpBuffer == other._useJumpBuffer
-                ? _continuation.IsEquivalentTo(other._continuation)
-                    .And(Frame.IsEquivalentTo(other.Frame))
-                : (new(), false);
+            return _continuation.IsEquivalentTo(other._continuation)
+                .And(Frame.IsEquivalentTo(other.Frame))
+                .And((new(), _useJumpBuffer == other._useJumpBuffer));
+        }
+
+        public int GetEquivalencyHash()
+        {
+            return HashCode.Combine(
+                _continuation.GetEquivalencyHash(),
+                _useJumpBuffer,
+                Frame.GetEquivalencyHash());
         }
 
         public bool IsMatch(ISpace space, IExpression continuation, bool useJumpBuffer)
@@ -80,6 +112,11 @@ internal sealed class PersistentJumps : IPersistentJumps
                 Frame = Frame.ToJson(),
                 UseJumpBuffer = _useJumpBuffer
             };
+        }
+
+        public override string? ToString()
+        {
+            return base.ToString();
         }
 
         private bool IsMatch(ISpace space, IExpression continuation)

@@ -13,4 +13,6 @@ public interface IExecutable
     bool IsEquivalentTo(IExecutable state);
 
     IExecutable Clone();
+
+    int GetEquivalencyHash();
 }

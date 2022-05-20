@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
@@ -63,5 +64,14 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
             Index = _index,
             PredecessorId = _predecessorId?.ToJson()
         };
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return HashCode.Combine(
+            _basicBlock.GetEquivalencyHash(),
+            _definition.GetEquivalencyHash(),
+            _index,
+            _predecessorId?.GetEquivalencyHash());
     }
 }

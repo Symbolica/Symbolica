@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Symbolica.Expression;
@@ -66,6 +67,13 @@ internal sealed record Range(IValue Min, IValue Max) : IMergeable<IValue, Range>
     public object ToJson()
     {
         return this;
+    }
+
+    public int GetEquivalencyHash()
+    {
+        return HashCode.Combine(
+            Min.GetEquivalencyHash(),
+            Max.GetEquivalencyHash());
     }
 }
 

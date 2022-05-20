@@ -13,4 +13,6 @@ public interface IInstruction : IMergeable<IExpression, IInstruction>
         => (new(), Id == other.Id);
 
     object IMergeable<IExpression, IInstruction>.ToJson() => (ulong) Id;
+
+    int IMergeable<IExpression, IInstruction>.GetEquivalencyHash() => Id.GetEquivalencyHash();
 }

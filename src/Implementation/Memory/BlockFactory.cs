@@ -59,14 +59,19 @@ internal sealed class BlockFactory : IBlockFactory
             return Result<IExpression>.Failure(space);
         }
 
-        public (HashSet<(IExpression, IExpression)> subs, bool) IsDataEquivalentTo(IPersistentBlock other)
+        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentBlock other)
         {
-            throw new ImplementationException("Invalid block has no data.");
+            throw new ImplementationException("Invalid blocks are never equivalent.");
         }
 
         public object ToJson()
         {
             return GetType().Name;
+        }
+
+        public int GetEquivalencyHash()
+        {
+            return GetHashCode();
         }
     }
 }
