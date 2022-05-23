@@ -93,31 +93,33 @@ internal sealed class PersistentSpace : IPersistentSpace
 
     private bool TryMerge(PersistentSpace other, [MaybeNullWhen(false)] out ISpace merged)
     {
-        var (mergeFailed, mergedAssertions) = other._assertions.Reverse().Aggregate(
-            (mergeFailed: false, assertions: _collectionFactory.CreatePersistentStack<IValue>()),
-            (x, a) =>
-                !x.mergeFailed && TryMerge(a, out var mergedAssertion)
-                    ? (false, mergedAssertion is null
-                        ? x.assertions
-                        : x.assertions.Push(mergedAssertion))
-                    : (true, x.assertions));
-
-        merged = mergeFailed
-            ? null
-            : new PersistentSpace(_collectionFactory, mergedAssertions);
-        return !mergeFailed;
-    }
-
-    private bool TryMerge(IValue assertion, out IValue? merged)
-    {
-        foreach (var other in _assertions)
+        // Foreach assertion in other try and merge with one in this space and then add those to the merged space
+        // The merge is successful if the one side has no unmerged assertions left (i.e. it is the same or a subset of the other)
+        var unmerged = new List<IValue>();
+        var others = other._assertions.Reverse().ToList();
+        var mergedAssertions = _collectionFactory.CreatePersistentStack<IValue>();
+        foreach (var assertion in _assertions.Reverse())
         {
-            if (other.TryMerge(assertion, out merged))
-                return true;
+            var isAssertionMerged = false;
+            foreach (var otherAssertion in others)
+                if (assertion.TryMerge(otherAssertion, out var mergedAssertion))
+                {
+                    others.Remove(otherAssertion);
+                    isAssertionMerged = true;
+                    if (mergedAssertion is not null)
+                        mergedAssertions = mergedAssertions.Push(mergedAssertion);
+                    break;
+                }
+            if (!isAssertionMerged)
+                unmerged.Add(assertion);
         }
-
-        merged = null;
-        return false;
+        if (others.Any() && unmerged.Any())
+        {
+            merged = null;
+            return false;
+        }
+        merged = new PersistentSpace(_collectionFactory, mergedAssertions);
+        return true;
     }
 
     public object ToJson()

@@ -87,19 +87,17 @@ internal sealed class State : IState, IExecutable
 
     public bool TryMerge(IExecutable state, [MaybeNullWhen(false)] out IExecutable merged)
     {
-        if (state is State s)
-            return TryMerge(s, out merged);
         merged = null;
-        return false;
+        return state is State s && TryMerge(s, out merged);
     }
 
     private bool TryMerge(State other, [MaybeNullWhen(false)] out IExecutable merged)
     {
-        var (_, isEquivalent) = _stack.IsEquivalentTo(other._stack)
+        var (subs, isEquivalent) = _stack.IsEquivalentTo(other._stack)
             .And(_memory.IsEquivalentTo(other._memory))
             .And(_system.IsEquivalentTo(other._system));
 
-        if (isEquivalent && Space.TryMerge(other.Space, out var mergedSpace))
+        if (isEquivalent && !subs.Any() && Space.TryMerge(other.Space, out var mergedSpace))
         {
             merged = Clone(mergedSpace);
             return true;

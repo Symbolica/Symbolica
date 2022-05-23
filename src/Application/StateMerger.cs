@@ -1,9 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Symbolica.Implementation;
 
@@ -17,7 +14,7 @@ internal sealed class StateMerger
     private readonly ILookup<int, IExecutable> _pastStates;
 
     public StateMerger(IEnumerable<IExecutable> pastStates)
-        => (_mergeTask, _pastStates) = (Task.Run(MergeStates), CreatePastStates(pastStates));
+        => (_mergeTask, _pastStates) = (Task.Run(MergeStates), pastStates.ToLookup(s => s.GetEquivalencyHash()));
 
     public void Complete()
     {
@@ -33,25 +30,6 @@ internal sealed class StateMerger
     public void Merge(IExecutable state)
     {
         _mergeQueue.Add(state);
-    }
-
-    private static ILookup<int, IExecutable> CreatePastStates(IEnumerable<IExecutable> pastStates)
-    {
-        static void WriteState(int index, IExecutable state)
-        {
-            var example = string.Join("_", state.Space.GetExample()
-                .OrderBy(p => p.Key)
-                .Select(p => $"{p.Key}{p.Value}"));
-            File.WriteAllText(
-                $"gen{state.Generation}_hash_{state.GetEquivalencyHash()}_{example}.json",
-                JsonSerializer.Serialize(state.ToJson(), new JsonSerializerOptions { WriteIndented = true }));
-        }
-
-        var lookup = pastStates.ToLookup(s => s.GetEquivalencyHash());
-        foreach (var duplicateGroup in lookup.Where(g => g.Count() > 1))
-            foreach (var (duplicate, i) in duplicateGroup.Select((g, i) => (g, i)))
-                WriteState(i, duplicate);
-        return lookup;
     }
 
     private void MergeStates()
