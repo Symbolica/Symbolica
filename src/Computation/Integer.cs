@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -18,7 +17,7 @@ internal abstract record Integer : IValue
     public abstract BoolExpr AsBool(ISolver solver);
     public abstract bool Equals(IValue? other);
 
-    public virtual bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+    public virtual bool TryMerge(IValue value, out IValue? merged)
     {
         merged = value;
         return Equals(value);

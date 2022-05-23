@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Collection;
 using Symbolica.Expression;
@@ -25,7 +26,9 @@ internal sealed class PersistentSpace : IPersistentSpace
                 (merged: false, assertions: _collectionFactory.CreatePersistentStack<IValue>()),
                 (x, a) =>
                     !x.merged && a.TryMerge(assertion, out var mergedAssertion)
-                        ? (true, x.assertions.Push(mergedAssertion))
+                        ? (true, mergedAssertion is null
+                            ? x.assertions
+                            : x.assertions.Push(mergedAssertion))
                         : (x.merged, x.assertions.Push(a)));
             return merged
                 ? assertions
@@ -80,6 +83,41 @@ internal sealed class PersistentSpace : IPersistentSpace
                 _collectionFactory.CreatePersistentStack<IValue>(),
                 (acc, a) => acc.Push(a));
         return new PersistentSpace(_collectionFactory, assertions);
+    }
+
+    public bool TryMerge(ISpace other, [MaybeNullWhen(false)] out ISpace merged)
+    {
+        merged = null;
+        return other is PersistentSpace ps && TryMerge(ps, out merged);
+    }
+
+    private bool TryMerge(PersistentSpace other, [MaybeNullWhen(false)] out ISpace merged)
+    {
+        var (mergeFailed, mergedAssertions) = other._assertions.Reverse().Aggregate(
+            (mergeFailed: false, assertions: _collectionFactory.CreatePersistentStack<IValue>()),
+            (x, a) =>
+                !x.mergeFailed && TryMerge(a, out var mergedAssertion)
+                    ? (false, mergedAssertion is null
+                        ? x.assertions
+                        : x.assertions.Push(mergedAssertion))
+                    : (true, x.assertions));
+
+        merged = mergeFailed
+            ? null
+            : new PersistentSpace(_collectionFactory, mergedAssertions);
+        return !mergeFailed;
+    }
+
+    private bool TryMerge(IValue assertion, out IValue? merged)
+    {
+        foreach (var other in _assertions)
+        {
+            if (other.TryMerge(assertion, out merged))
+                return true;
+        }
+
+        merged = null;
+        return false;
     }
 
     public object ToJson()

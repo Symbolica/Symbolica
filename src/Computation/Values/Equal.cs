@@ -37,11 +37,12 @@ internal sealed record Equal : Bool
             : new InRange(_right, new Range(_left, _left));
     }
 
-    public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+    public override bool TryMerge(IValue value, out IValue? merged)
     {
         merged = null;
         return value switch
         {
+            LogicalNot not => not.TryMerge(this, out merged),
             Equal equal => TryMergeEqual(equal, out merged),
             InRange inRange =>
                 inRange.TryMerge(new InRange(_left, new Range(_right, _right)), out merged)
@@ -63,6 +64,12 @@ internal sealed record Equal : Bool
         static bool CanCreateRange(IValue x, IValue y, IConstantValue c1, IConstantValue c2)
         {
             return x.Equals(y) && BigInteger.Abs((BigInteger) c1.AsUnsigned() - (BigInteger) c2.AsUnsigned()) == 1;
+        }
+
+        if (Equals(equal))
+        {
+            merged = this;
+            return true;
         }
 
         var (result, value) = (_left, _right, equal._left, equal._right) switch

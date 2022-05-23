@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -20,11 +21,11 @@ internal sealed class State : IState, IExecutable
     private IPersistentGlobals _globals;
     private IExecutable.Status _status;
 
-    public State(IStateAction initialAction, IModule module, ISpace space,
+    public State(IExecutable.Status status, IStateAction initialAction, IModule module, ISpace space,
         IPersistentGlobals globals, IMemoryProxy memory, IStackProxy stack, ISystemProxy system, int generation)
     {
         _forks = new List<IExecutable>();
-        _status = IExecutable.Status.NotStarted;
+        _status = status;
         _initialAction = initialAction;
         _module = module;
         Space = space;
@@ -84,6 +85,29 @@ internal sealed class State : IState, IExecutable
             _system.GetEquivalencyHash());
     }
 
+    public bool TryMerge(IExecutable state, [MaybeNullWhen(false)] out IExecutable merged)
+    {
+        if (state is State s)
+            return TryMerge(s, out merged);
+        merged = null;
+        return false;
+    }
+
+    private bool TryMerge(State other, [MaybeNullWhen(false)] out IExecutable merged)
+    {
+        var (_, isEquivalent) = _stack.IsEquivalentTo(other._stack)
+            .And(_memory.IsEquivalentTo(other._memory))
+            .And(_system.IsEquivalentTo(other._system));
+
+        if (isEquivalent && Space.TryMerge(other.Space, out var mergedSpace))
+        {
+            merged = Clone(mergedSpace);
+            return true;
+        }
+        merged = null;
+        return false;
+    }
+
     public IFunction GetFunction(FunctionId id)
     {
         return _module.GetFunction(id);
@@ -140,12 +164,23 @@ internal sealed class State : IState, IExecutable
 
     public IExecutable Clone()
     {
-        return Clone(Space, _initialAction);
+        return Clone(Space, _status, _initialAction);
+    }
+
+    private State Clone(ISpace space)
+    {
+        return Clone(space, _status, _initialAction);
     }
 
     private State Clone(ISpace space, IStateAction initialAction)
     {
+        return Clone(space, IExecutable.Status.NotStarted, initialAction);
+    }
+
+    private State Clone(ISpace space, IExecutable.Status status, IStateAction initialAction)
+    {
         return new State(
+            status,
             initialAction,
             _module,
             space,

@@ -34,7 +34,7 @@ public sealed class ExecutableFactory
         var stack = new StackProxy(_exprFactory, CreateStack(module, options));
         var system = new SystemProxy(CreateSystem(module));
 
-        return new State(new NoOp(), module, space,
+        return new State(IExecutable.Status.NotStarted, new NoOp(), module, space,
             globals, memory, stack, system, 0);
     }
 

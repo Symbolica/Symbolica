@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Z3;
 
 namespace Symbolica.Computation.Values;
@@ -25,18 +24,26 @@ internal sealed record LogicalNot : Bool
         return Equals(other as LogicalNot);
     }
 
-    public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+    public override bool TryMerge(IValue value, out IValue? merged)
     {
-        if (value is LogicalNot not && _value.TryMerge(not._value, out var mergedLogical))
+        if (value is LogicalNot not && _value.TryMerge(not._value, out var mergedLogical) && mergedLogical is not null)
         {
             merged = Create(mergedLogical);
             return true;
         }
-        if (_value.Value is Bool assertion && value is Bool given && IsUnsatisfiable(given, assertion))
-        {
-            merged = given;
-            return true;
-        }
+        if (_value.Value is Bool assertion && value is Bool given)
+            if (IsUnsatisfiable(given, assertion))
+            {
+                // This value asserts some negation that is already covered by the domain of the incoming assertion
+                merged = given;
+                return true;
+            }
+            else if (assertion.Equals(given))
+            {
+                // This not is the opposite of the incoming value so they cancel out
+                merged = null;
+                return true;
+            }
         merged = null;
         return false;
     }
@@ -117,9 +124,9 @@ internal sealed record LogicalNot : Bool
                 : (new(), false);
         }
 
-        public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+        public override bool TryMerge(IValue value, out IValue? merged)
         {
-            if (value is Logical logical && Value.TryMerge(logical.Value, out var mergedLogical))
+            if (value is Logical logical && Value.TryMerge(logical.Value, out var mergedLogical) && mergedLogical is not null)
             {
                 merged = new Logical(mergedLogical);
                 return true;

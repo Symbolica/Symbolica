@@ -44,7 +44,7 @@ internal sealed record InRange : Bool
         return _range.IsDisjoint(other._range) && other._value.Equals(_value);
     }
 
-    public override bool TryMerge(IValue value, [MaybeNullWhen(false)] out IValue merged)
+    public override bool TryMerge(IValue value, out IValue? merged)
     {
         merged = null;
         return value switch
