@@ -63,7 +63,7 @@ public readonly struct FunctionId : IEquatable<FunctionId>, IMergeable<IExpressi
         return _value;
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return GetHashCode();
     }

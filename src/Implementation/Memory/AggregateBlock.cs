@@ -14,6 +14,7 @@ internal sealed class AggregateBlock : IPersistentBlock
     private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<Allocation> _allocations;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     private AggregateBlock(IExpressionFactory exprFactory, Section section,
         IExpression offset, Bytes size, IPersistentList<Allocation> allocations)
@@ -23,14 +24,21 @@ internal sealed class AggregateBlock : IPersistentBlock
         Offset = offset;
         Size = size;
         _allocations = allocations;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var allocationsHash = new HashCode();
             foreach (var allocation in _allocations)
-                allocationsHash.Add(allocation.GetEquivalencyHash());
+                allocationsHash.Add(allocation.GetEquivalencyHash(includeSubs));
 
-            return HashCode.Combine(Section, Offset.GetEquivalencyHash(), Size, allocationsHash.ToHashCode());
-        });
+            return HashCode.Combine(
+                Section,
+                Offset.GetEquivalencyHash(includeSubs),
+                Size,
+                allocationsHash.ToHashCode());
+        }
     }
 
     public bool IsValid => true;
@@ -215,8 +223,10 @@ internal sealed class AggregateBlock : IPersistentBlock
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

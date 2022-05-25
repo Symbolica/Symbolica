@@ -10,18 +10,22 @@ public sealed class Parameters : IParameters
 {
     private readonly Parameter[] _parameters;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     public Parameters(Parameter[] parameters)
     {
         _parameters = parameters;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var parametersHash = new HashCode();
             foreach (var parameter in _parameters)
-                parametersHash.Add(parameter.GetEquivalencyHash());
+                parametersHash.Add(parameter.GetEquivalencyHash(includeSubs));
 
             return parametersHash.ToHashCode();
-        });
+        }
     }
 
     public int Count => _parameters.Length;
@@ -31,9 +35,11 @@ public sealed class Parameters : IParameters
         return _parameters[index];
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 
     public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IParameters other)

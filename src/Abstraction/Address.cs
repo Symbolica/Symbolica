@@ -11,21 +11,28 @@ public sealed class Address : IAddress
     private readonly IExpressionFactory _exprFactory;
     private readonly (IType, IExpression)[] _offsets;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
     private IExpression Value => _offsets.Select(o => o.Item2).Aggregate((a, o) => a.Add(o));
 
     private Address(IExpressionFactory exprFactory, (IType, IExpression)[] offsets)
     {
         _exprFactory = exprFactory;
         _offsets = offsets;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(EquivalencyHash(false));
+        _mergeHash = new(EquivalencyHash(true));
+
+        Func<int> EquivalencyHash(bool includeSubs)
         {
-            var offsetsHash = new HashCode();
-            foreach (var offset in _offsets)
-                offsetsHash.Add(
-                    HashCode.Combine(offset.Item1.GetEquivalencyHash(),
-                    offset.Item2.GetEquivalencyHash()));
-            return offsetsHash.ToHashCode();
-        });
+            return () =>
+            {
+                var offsetsHash = new HashCode();
+                foreach (var offset in _offsets)
+                    offsetsHash.Add(
+                        HashCode.Combine(offset.Item1.GetEquivalencyHash(includeSubs),
+                        offset.Item2.GetEquivalencyHash(includeSubs)));
+                return offsetsHash.ToHashCode();
+            };
+        }
     }
 
     public IType IndexedType => _offsets.First().Item1;
@@ -428,8 +435,10 @@ public sealed class Address : IAddress
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

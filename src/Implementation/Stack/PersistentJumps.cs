@@ -11,17 +11,21 @@ internal sealed class PersistentJumps : IPersistentJumps
 {
     private readonly IPersistentStack<Point> _points;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     private PersistentJumps(IPersistentStack<Point> points)
     {
         _points = points;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var hash = new HashCode();
             foreach (var point in _points)
-                hash.Add(point.GetEquivalencyHash());
+                hash.Add(point.GetEquivalencyHash(includeSubs));
             return hash.ToHashCode();
-        });
+        }
     }
 
     public IPersistentJumps Add(IExpression continuation, bool useJumpBuffer, ISavedFrame frame)
@@ -55,9 +59,11 @@ internal sealed class PersistentJumps : IPersistentJumps
         return _points.Select(p => p.ToJson()).ToArray();
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 
     private readonly struct Point : IMergeable<IExpression, Point>
@@ -91,12 +97,12 @@ internal sealed class PersistentJumps : IPersistentJumps
                 .And((new(), _useJumpBuffer == other._useJumpBuffer));
         }
 
-        public int GetEquivalencyHash()
+        public int GetEquivalencyHash(bool includeSubs)
         {
             return HashCode.Combine(
-                _continuation.GetEquivalencyHash(),
+                _continuation.GetEquivalencyHash(includeSubs),
                 _useJumpBuffer,
-                Frame.GetEquivalencyHash());
+                Frame.GetEquivalencyHash(includeSubs));
         }
 
         public bool IsMatch(ISpace space, IExpression continuation, bool useJumpBuffer)

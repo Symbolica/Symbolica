@@ -20,7 +20,7 @@ public interface IExecutable
 
     IExecutable Clone();
 
-    int GetEquivalencyHash();
+    int GetEquivalencyHash(bool includeSubs);
 
     object ToJson();
 }

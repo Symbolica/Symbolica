@@ -65,9 +65,9 @@ internal sealed class X86VariadicAbi : IVariadicAbi
                 : (new(), false);
         }
 
-        public int GetEquivalencyHash()
+        public int GetEquivalencyHash(bool includeSubs)
         {
-            return HashCode.Combine(_address?.GetEquivalencyHash());
+            return HashCode.Combine(_address?.GetEquivalencyHash(includeSubs));
         }
 
         public object ToJson()

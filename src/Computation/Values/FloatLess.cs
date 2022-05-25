@@ -63,8 +63,11 @@ internal sealed record FloatLess : Bool
         };
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(GetType().Name, _left.GetEquivalencyHash(), _right.GetEquivalencyHash());
+        return HashCode.Combine(
+            GetType().Name,
+            _left.GetEquivalencyHash(includeSubs),
+            _right.GetEquivalencyHash(includeSubs));
     }
 }

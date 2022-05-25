@@ -75,8 +75,8 @@ internal sealed class DirectoryDescription : IPersistentDescription
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _directory.GetEquivalencyHash();
+        return _directory.GetEquivalencyHash(includeSubs);
     }
 }

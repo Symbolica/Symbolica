@@ -13,12 +13,14 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
 {
     private readonly ICollectionFactory _collectionFactory;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     public Expression(ICollectionFactory collectionFactory, IValue value)
     {
         _collectionFactory = collectionFactory;
         Value = value;
-        _equivalencyHash = new(() => Value.GetEquivalencyHash());
+        _equivalencyHash = new(() => Value.GetEquivalencyHash(false));
+        _mergeHash = new(() => Value.GetEquivalencyHash(true));
     }
 
     public Bits Size => Value.Size;
@@ -395,8 +397,10 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
         return Value.ToJson();
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

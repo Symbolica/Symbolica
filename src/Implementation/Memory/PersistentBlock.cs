@@ -150,8 +150,11 @@ internal sealed class PersistentBlock : IPersistentBlock
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(Section, Offset.GetEquivalencyHash(), Data.GetEquivalencyHash());
+        return HashCode.Combine(
+            Section,
+            Offset.GetEquivalencyHash(includeSubs),
+            Data.GetEquivalencyHash(includeSubs));
     }
 }

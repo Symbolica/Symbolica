@@ -88,8 +88,8 @@ internal sealed class FileDescription : IPersistentDescription
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(_file.GetEquivalencyHash(), _offset);
+        return HashCode.Combine(_file.GetEquivalencyHash(includeSubs), _offset);
     }
 }

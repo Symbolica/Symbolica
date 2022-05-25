@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -18,6 +17,7 @@ internal sealed class ConstantMemory : IPersistentMemory
     private readonly IExpressionFactory _exprFactory;
     private readonly Bytes _nextAddress;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     private ConstantMemory(Bytes alignment, IBlockFactory blockFactory, ICollectionFactory collectionFactory,
         IExpressionFactory exprFactory, Bytes nextAddress, IPersistentList<Allocation> allocations)
@@ -28,14 +28,17 @@ internal sealed class ConstantMemory : IPersistentMemory
         _exprFactory = exprFactory;
         _nextAddress = nextAddress;
         _allocations = allocations;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var allocationsHash = new HashCode();
             foreach (var allocation in ValidAllocations)
-                allocationsHash.Add(allocation.GetEquivalencyHash());
+                allocationsHash.Add(allocation.GetEquivalencyHash(includeSubs));
 
             return HashCode.Combine(_alignment, allocationsHash.ToHashCode());
-        });
+        }
     }
 
     private IEnumerable<Allocation> ValidAllocations => _allocations.Where(a => a.Block.IsValid);
@@ -185,8 +188,10 @@ internal sealed class ConstantMemory : IPersistentMemory
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

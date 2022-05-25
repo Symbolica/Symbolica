@@ -99,8 +99,8 @@ internal sealed class StackProxy : IStackProxy
         return _stack.ToJson();
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _stack.GetEquivalencyHash();
+        return _stack.GetEquivalencyHash(includeSubs);
     }
 }

@@ -13,6 +13,7 @@ public sealed class Definition : IDefinition
     private readonly BasicBlockId _entryId;
     private readonly bool _isVariadic;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     private Definition(
         FunctionId id,
@@ -28,19 +29,25 @@ public sealed class Definition : IDefinition
         _isVariadic = isVariadic;
         _entryId = entryId;
         _basicBlocks = basicBlocks;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var blocksHash = new HashCode();
             foreach (var block in _basicBlocks)
-                blocksHash.Add(HashCode.Combine(block.Key.GetEquivalencyHash(), block.Value.GetEquivalencyHash()));
+                blocksHash.Add(
+                    HashCode.Combine(
+                        block.Key.GetEquivalencyHash(includeSubs),
+                        block.Value.GetEquivalencyHash(includeSubs)));
             return HashCode.Combine(
                 blocksHash.ToHashCode(),
-                _entryId.GetEquivalencyHash(),
+                _entryId.GetEquivalencyHash(includeSubs),
                 _isVariadic,
-                Id.GetEquivalencyHash(),
+                Id.GetEquivalencyHash(includeSubs),
                 Name,
-                Parameters.GetEquivalencyHash());
-        });
+                Parameters.GetEquivalencyHash(includeSubs));
+        }
     }
 
     public FunctionId Id { get; }
@@ -108,8 +115,10 @@ public sealed class Definition : IDefinition
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

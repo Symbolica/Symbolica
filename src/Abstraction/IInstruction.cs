@@ -14,5 +14,5 @@ public interface IInstruction : IMergeable<IExpression, IInstruction>
 
     object IMergeable<IExpression, IInstruction>.ToJson() => (ulong) Id;
 
-    int IMergeable<IExpression, IInstruction>.GetEquivalencyHash() => Id.GetEquivalencyHash();
+    int IMergeable<IExpression, IInstruction>.GetEquivalencyHash(bool includeSubs) => Id.GetEquivalencyHash(includeSubs);
 }

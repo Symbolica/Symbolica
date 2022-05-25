@@ -35,9 +35,12 @@ internal sealed record RealToSigned : BitVector
             : (new(), false);
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(GetType().Name, Size, _value.GetEquivalencyHash());
+        return HashCode.Combine(
+            GetType().Name,
+            Size,
+            _value.GetEquivalencyHash(includeSubs));
     }
 
     public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)

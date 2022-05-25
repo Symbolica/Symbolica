@@ -18,7 +18,7 @@ internal sealed class FileProxy : IFile
     public long LastModifiedTime => new DateTimeOffset(_file.LastWriteTimeUtc).ToUnixTimeSeconds();
     public long Size => _file.Length;
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return _file.GetHashCode();
     }

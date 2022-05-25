@@ -16,6 +16,7 @@ internal sealed class SymbolicMemory : IPersistentMemory
     private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<IPersistentBlock> _blocks;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     private SymbolicMemory(Bytes alignment, ICollectionFactory collectionFactory, IBlockFactory blockFactory,
         IExpressionFactory exprFactory, IPersistentList<IPersistentBlock> blocks)
@@ -25,14 +26,17 @@ internal sealed class SymbolicMemory : IPersistentMemory
         _blockFactory = blockFactory;
         _exprFactory = exprFactory;
         _blocks = blocks;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var blocksHash = new HashCode();
             foreach (var block in ValidBlocks)
-                blocksHash.Add(block.GetEquivalencyHash());
+                blocksHash.Add(block.GetEquivalencyHash(includeSubs));
 
             return HashCode.Combine(alignment, blocksHash.ToHashCode());
-        });
+        }
     }
 
     private IEnumerable<IPersistentBlock> ValidBlocks => _blocks.Where(a => a.IsValid);
@@ -167,8 +171,10 @@ internal sealed class SymbolicMemory : IPersistentMemory
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

@@ -94,11 +94,11 @@ internal sealed record Select : IValue
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return HashCode.Combine(
-            _predicate.GetEquivalencyHash(),
-            _trueValue.GetEquivalencyHash(),
-            _falseValue.GetEquivalencyHash());
+            _predicate.GetEquivalencyHash(includeSubs),
+            _trueValue.GetEquivalencyHash(includeSubs),
+            _falseValue.GetEquivalencyHash(includeSubs));
     }
 }

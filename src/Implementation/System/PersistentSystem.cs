@@ -17,6 +17,7 @@ internal sealed class PersistentSystem : IPersistentSystem
     private readonly IModule _module;
     private readonly IExpression? _threadAddress;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     private PersistentSystem(IModule module, IDescriptionFactory descriptionFactory,
         IExpressionFactory exprFactory, IExpression? threadAddress,
@@ -28,11 +29,14 @@ internal sealed class PersistentSystem : IPersistentSystem
         _threadAddress = threadAddress;
         _indices = indices;
         _handles = handles;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var handlesHash = new HashCode();
             foreach (var handle in _handles)
-                handlesHash.Add(handle.GetEquivalencyHash());
+                handlesHash.Add(handle.GetEquivalencyHash(includeSubs));
 
             var indicesHash = new HashCode();
             foreach (var index in _indices)
@@ -41,8 +45,8 @@ internal sealed class PersistentSystem : IPersistentSystem
             return HashCode.Combine(
                 handlesHash.ToHashCode(),
                 indicesHash.ToHashCode(),
-                _threadAddress?.GetEquivalencyHash());
-        });
+                _threadAddress?.GetEquivalencyHash(includeSubs));
+        }
     }
 
     public (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemory memory)
@@ -238,25 +242,29 @@ internal sealed class PersistentSystem : IPersistentSystem
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 
     private readonly struct Handle : IMergeable<IExpression, Handle>
     {
         private readonly Lazy<int> _equivalencyHash;
+        private readonly Lazy<int> _mergeHash;
 
         public Handle(uint references, IPersistentDescription description)
         {
             References = references;
             Description = description;
-            _equivalencyHash = CreateEquivalencyHash(references, description);
+            _equivalencyHash = CreateEquivalencyHash(false, references, description);
+            _mergeHash = CreateEquivalencyHash(true, references, description);
         }
 
-        private static Lazy<int> CreateEquivalencyHash(uint references, IPersistentDescription description)
+        private static Lazy<int> CreateEquivalencyHash(bool includeSubs, uint references, IPersistentDescription description)
         {
-            return new(() => HashCode.Combine(description.GetEquivalencyHash(), references));
+            return new(() => HashCode.Combine(description.GetEquivalencyHash(includeSubs), references));
         }
 
         public uint References { get; }
@@ -277,9 +285,11 @@ internal sealed class PersistentSystem : IPersistentSystem
             };
         }
 
-        public int GetEquivalencyHash()
+        public int GetEquivalencyHash(bool includeSubs)
         {
-            return _equivalencyHash.Value;
+            return includeSubs
+                ? _mergeHash.Value
+                : _equivalencyHash.Value;
         }
     }
 }

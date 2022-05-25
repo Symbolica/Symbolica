@@ -93,9 +93,11 @@ internal sealed record LogicalNot : Bool
         };
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(GetType().Name, _value.GetEquivalencyHash());
+        return HashCode.Combine(
+            GetType().Name,
+            _value.GetEquivalencyHash(includeSubs));
     }
 
     private sealed record Logical : Bool
@@ -152,9 +154,11 @@ internal sealed record LogicalNot : Bool
             };
         }
 
-        public override int GetEquivalencyHash()
+        public override int GetEquivalencyHash(bool includeSubs)
         {
-            return HashCode.Combine(GetType().Name, Value.GetEquivalencyHash());
+            return HashCode.Combine(
+                GetType().Name,
+                Value.GetEquivalencyHash(includeSubs));
         }
     }
 }

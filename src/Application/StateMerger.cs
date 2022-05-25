@@ -14,7 +14,7 @@ internal sealed class StateMerger
     private readonly ILookup<int, IExecutable> _pastStates;
 
     public StateMerger(IEnumerable<IExecutable> pastStates)
-        => (_mergeTask, _pastStates) = (Task.Run(MergeStates), pastStates.ToLookup(s => s.GetEquivalencyHash()));
+        => (_mergeTask, _pastStates) = (Task.Run(MergeStates), pastStates.ToLookup(s => s.GetEquivalencyHash(false)));
 
     public void Complete()
     {
@@ -36,7 +36,7 @@ internal sealed class StateMerger
     {
         void Merge(IExecutable state)
         {
-            var hash = state.GetEquivalencyHash();
+            var hash = state.GetEquivalencyHash(true);
             var equivalent = _merged.TryGetValue(hash, out var eq)
                 ? eq
                 : new();
@@ -53,7 +53,7 @@ internal sealed class StateMerger
 
         bool HasBeenSeenBefore(IExecutable state)
         {
-            var hash = state.GetEquivalencyHash();
+            var hash = state.GetEquivalencyHash(false);
             return _pastStates.Contains(hash) && _pastStates[hash].Any(state.IsEquivalentTo);
         }
 

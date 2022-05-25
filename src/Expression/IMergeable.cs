@@ -6,7 +6,7 @@ namespace Symbolica.Expression;
 
 public interface IMergeable<TSub, in T>
 {
-    int GetEquivalencyHash();
+    int GetEquivalencyHash(bool includeSubs);
     (HashSet<(TSub, TSub)> subs, bool) IsEquivalentTo(T other);
     object ToJson();
 }

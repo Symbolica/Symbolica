@@ -156,7 +156,7 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
         return ((BigInteger) AsUnsigned()).ToString();
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
         return ((BigInteger) AsUnsigned()).GetHashCode();
     }

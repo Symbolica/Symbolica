@@ -11,12 +11,19 @@ public sealed class ArrayType : IArrayType
 {
     private readonly uint _count;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     public ArrayType(uint count, IType elementType)
     {
         _count = count;
         ElementType = elementType;
-        _equivalencyHash = new(() => HashCode.Combine(ElementType.GetEquivalencyHash(), _count));
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
+        {
+            return HashCode.Combine(ElementType.GetEquivalencyHash(includeSubs), _count);
+        }
     }
 
     public Bytes Size => ElementType.Size * _count;
@@ -73,8 +80,10 @@ public sealed class ArrayType : IArrayType
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

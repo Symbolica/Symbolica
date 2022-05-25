@@ -15,6 +15,7 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
     private readonly IVaList _vaList;
     private readonly IPersistentVariables _variables;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     public PersistentFrame(ICaller caller, IArguments formals, IVaList vaList,
         IPersistentJumps jumps, IPersistentProgramCounter programCounter,
@@ -27,24 +28,27 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
         _programCounter = programCounter;
         _variables = variables;
         _allocations = allocations;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var allocationsHash = new HashCode();
             foreach (var allocation in _allocations)
-                allocationsHash.Add(allocation.GetEquivalencyHash());
+                allocationsHash.Add(allocation.GetEquivalencyHash(includeSubs));
 
             var formalsHash = new HashCode();
             foreach (var formal in _formals)
-                formalsHash.Add(formal.GetEquivalencyHash());
+                formalsHash.Add(formal.GetEquivalencyHash(includeSubs));
 
             return HashCode.Combine(
                 allocationsHash.ToHashCode(),
                 formalsHash.ToHashCode(),
-                _jumps.GetEquivalencyHash(),
-                _programCounter.GetEquivalencyHash(),
-                _vaList.GetEquivalencyHash(),
-                _variables.GetEquivalencyHash());
-        });
+                _jumps.GetEquivalencyHash(includeSubs),
+                _programCounter.GetEquivalencyHash(includeSubs),
+                _vaList.GetEquivalencyHash(includeSubs),
+                _variables.GetEquivalencyHash(includeSubs));
+        }
     }
 
     public ICaller Caller { get; }
@@ -165,8 +169,10 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

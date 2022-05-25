@@ -72,8 +72,10 @@ internal sealed record Symbol : BitVector
         return _name;
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
-        return 0;
+        return includeSubs
+            ? _name.GetHashCode()
+            : 0;
     }
 }

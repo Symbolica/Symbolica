@@ -64,8 +64,11 @@ internal sealed record FloatToSigned : BitVector
         };
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(GetType().Name, Size.GetHashCode(), _value.GetEquivalencyHash());
+        return HashCode.Combine(
+            GetType().Name,
+            Size.GetHashCode(),
+            _value.GetEquivalencyHash(includeSubs));
     }
 }

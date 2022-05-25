@@ -13,26 +13,32 @@ internal sealed class PersistentVariables : IPersistentVariables
     private readonly IPersistentDictionary<InstructionId, IExpression> _incomingVariables;
     private readonly IPersistentDictionary<InstructionId, IExpression> _variables;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     private PersistentVariables(IPersistentDictionary<InstructionId, IExpression> incomingVariables,
         IPersistentDictionary<InstructionId, IExpression> variables)
     {
         _incomingVariables = incomingVariables;
         _variables = variables;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
-            static int GetVariablesHash(IEnumerable<KeyValuePair<InstructionId, IExpression>> variables)
+            int GetVariablesHash(IEnumerable<KeyValuePair<InstructionId, IExpression>> variables)
             {
                 var hashCode = new HashCode();
                 foreach (var variable in variables)
                     hashCode.Add(HashCode.Combine(
-                        variable.Key.GetEquivalencyHash(),
-                        variable.Value.GetEquivalencyHash()));
+                        variable.Key.GetEquivalencyHash(includeSubs),
+                        variable.Value.GetEquivalencyHash(includeSubs)));
                 return hashCode.ToHashCode();
             }
 
-            return HashCode.Combine(GetVariablesHash(_incomingVariables), GetVariablesHash(_variables));
-        });
+            return HashCode.Combine(
+                GetVariablesHash(_incomingVariables),
+                GetVariablesHash(_variables));
+        }
     }
 
     public IExpression Get(InstructionId id, bool useIncomingValue)
@@ -81,8 +87,10 @@ internal sealed class PersistentVariables : IPersistentVariables
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _equivalencyHash.Value
+            : _mergeHash.Value;
     }
 }

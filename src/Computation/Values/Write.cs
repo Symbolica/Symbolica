@@ -125,12 +125,12 @@ internal sealed record Write : BitVector
         };
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
         return HashCode.Combine(
             GetType().Name,
-            _writeBuffer.GetEquivalencyHash(),
-            _writeOffset.GetEquivalencyHash(),
-            _writeValue.GetEquivalencyHash());
+            _writeBuffer.GetEquivalencyHash(includeSubs),
+            _writeOffset.GetEquivalencyHash(includeSubs),
+            _writeValue.GetEquivalencyHash(includeSubs));
     }
 }

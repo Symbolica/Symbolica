@@ -65,8 +65,11 @@ internal sealed record SignedToFloat : Float
         };
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(GetType().Name, Size.GetHashCode(), _value.GetEquivalencyHash());
+        return HashCode.Combine(
+            GetType().Name,
+            Size,
+            _value.GetEquivalencyHash(includeSubs));
     }
 }

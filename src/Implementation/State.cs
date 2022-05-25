@@ -77,12 +77,12 @@ internal sealed class State : IState, IExecutable
                 .Equals(previous.Space);
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return HashCode.Combine(
-            _stack.GetEquivalencyHash(),
-            _memory.GetEquivalencyHash(),
-            _system.GetEquivalencyHash());
+            _stack.GetEquivalencyHash(includeSubs),
+            _memory.GetEquivalencyHash(includeSubs),
+            _system.GetEquivalencyHash(includeSubs));
     }
 
     public bool TryMerge(IExecutable state, [MaybeNullWhen(false)] out IExecutable merged)

@@ -12,7 +12,7 @@ public readonly struct Parameter : IMergeable<IExpression, Parameter>
 
     public Bits Size { get; }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return Size.GetHashCode();
     }

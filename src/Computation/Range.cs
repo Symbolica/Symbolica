@@ -69,11 +69,11 @@ internal sealed record Range(IValue Min, IValue Max) : IMergeable<IValue, Range>
         return this;
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return HashCode.Combine(
-            Min.GetEquivalencyHash(),
-            Max.GetEquivalencyHash());
+            Min.GetEquivalencyHash(includeSubs),
+            Max.GetEquivalencyHash(includeSubs));
     }
 }
 

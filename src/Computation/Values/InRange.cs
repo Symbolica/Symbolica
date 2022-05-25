@@ -96,11 +96,11 @@ internal sealed record InRange : Bool
         };
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
         return HashCode.Combine(
             GetType().Name,
-            _value.GetEquivalencyHash(),
-            _range.GetEquivalencyHash());
+            _value.GetEquivalencyHash(includeSubs),
+            _range.GetEquivalencyHash(includeSubs));
     }
 }

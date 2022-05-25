@@ -60,8 +60,10 @@ internal sealed record Not : BitVector
         };
     }
 
-    public override int GetEquivalencyHash()
+    public override int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(GetType().Name, _value.GetEquivalencyHash());
+        return HashCode.Combine(
+            GetType().Name,
+            _value.GetEquivalencyHash(includeSubs));
     }
 }

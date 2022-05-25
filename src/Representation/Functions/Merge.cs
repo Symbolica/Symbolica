@@ -26,9 +26,9 @@ internal sealed class Merge : IFunction
             .Select(p => $"{p.Key}{p.Value}"));
         Console.WriteLine(example);
 
-        using var stream = File.OpenWrite($"json_test_gen{state.Generation}_{example}.json");
-        using var writer = new StreamWriter(stream, Encoding.UTF8);
-        writer.Write(JsonSerializer.Serialize(state.ToJson(), new JsonSerializerOptions { WriteIndented = true }));
+        // using var stream = File.OpenWrite($"json_test_gen{state.Generation}_{example}.json");
+        // using var writer = new StreamWriter(stream, Encoding.UTF8);
+        // writer.Write(JsonSerializer.Serialize(state.ToJson(), new JsonSerializerOptions { WriteIndented = true }));
 
         state.Merge();
     }

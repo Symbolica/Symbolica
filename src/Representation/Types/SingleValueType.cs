@@ -48,7 +48,7 @@ public sealed class SingleValueType : IType
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return Size.GetHashCode();
     }

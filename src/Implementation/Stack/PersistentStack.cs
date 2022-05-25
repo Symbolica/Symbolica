@@ -16,6 +16,7 @@ internal sealed class PersistentStack : IPersistentStack
     private readonly IModule _module;
     private readonly IPersistentStack<IPersistentFrame> _pushedFrames;
     private readonly Lazy<int> _equivalencyHash;
+    private readonly Lazy<int> _mergeHash;
 
     private PersistentStack(IModule module, IFrameFactory frameFactory,
         IPersistentContinuationFactory continuationFactory,
@@ -26,13 +27,16 @@ internal sealed class PersistentStack : IPersistentStack
         _continuationFactory = continuationFactory;
         _pushedFrames = pushedFrames;
         _currentFrame = currentFrame;
-        _equivalencyHash = new(() =>
+        _equivalencyHash = new(() => EquivalencyHash(false));
+        _mergeHash = new(() => EquivalencyHash(true));
+
+        int EquivalencyHash(bool includeSubs)
         {
             var hash = new HashCode();
             foreach (var frame in AllFrames)
-                hash.Add(frame.GetEquivalencyHash());
+                hash.Add(frame.GetEquivalencyHash(includeSubs));
             return hash.ToHashCode();
-        });
+        }
     }
 
     public bool IsInitialFrame => !_pushedFrames.Any();
@@ -183,8 +187,10 @@ internal sealed class PersistentStack : IPersistentStack
         return AllFrames.Select(f => f.ToJson()).ToArray();
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return _equivalencyHash.Value;
+        return includeSubs
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }

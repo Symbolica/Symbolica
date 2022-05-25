@@ -52,7 +52,7 @@ internal sealed class OutputDescription : IPersistentDescription
         return GetType().Name;
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return GetType().Name.GetHashCode();
     }

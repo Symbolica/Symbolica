@@ -63,7 +63,7 @@ public readonly struct InstructionId : IEquatable<InstructionId>, IMergeable<IEx
         return _value;
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return GetHashCode();
     }

@@ -39,9 +39,9 @@ internal readonly struct Allocation : IComparable<Allocation>, IMergeable<IExpre
             .And(Block.IsEquivalentTo(other.Block));
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
-        return HashCode.Combine(Address, Block.GetEquivalencyHash());
+        return HashCode.Combine(Address, Block.GetEquivalencyHash(includeSubs));
     }
 
     public object ToJson()

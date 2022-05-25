@@ -66,12 +66,12 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
         };
     }
 
-    public int GetEquivalencyHash()
+    public int GetEquivalencyHash(bool includeSubs)
     {
         return HashCode.Combine(
-            _basicBlock.GetEquivalencyHash(),
-            _definition.GetEquivalencyHash(),
+            _basicBlock.GetEquivalencyHash(includeSubs),
+            _definition.GetEquivalencyHash(includeSubs),
             _index,
-            _predecessorId?.GetEquivalencyHash());
+            _predecessorId?.GetEquivalencyHash(includeSubs));
     }
 }
