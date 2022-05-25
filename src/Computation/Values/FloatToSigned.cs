@@ -70,7 +70,7 @@ internal sealed record FloatToSigned : BitVector
     {
         return HashCode.Combine(
             GetType().Name,
-            Size.GetHashCode(),
+            Size,
             _value.GetEquivalencyHash(includeSubs));
     }
 }

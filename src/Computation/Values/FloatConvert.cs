@@ -80,7 +80,7 @@ internal sealed record FloatConvert : Float
     {
         return HashCode.Combine(
             GetType().Name,
-            Size.GetHashCode(),
+            Size,
             _value.GetEquivalencyHash(includeSubs));
     }
 }

@@ -90,7 +90,7 @@ internal sealed class PersistentVariables : IPersistentVariables
     public int GetEquivalencyHash(bool includeSubs)
     {
         return includeSubs
-            ? _equivalencyHash.Value
-            : _mergeHash.Value;
+            ? _mergeHash.Value
+            : _equivalencyHash.Value;
     }
 }
