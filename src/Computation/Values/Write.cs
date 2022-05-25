@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
@@ -23,6 +24,8 @@ internal sealed record Write : BitVector
         _writeValue = writeValue;
         _writeMask = Mask(writeBuffer, writeOffset, writeValue.Size);
     }
+
+    public override ISet<IValue> Symbols => _writeBuffer.Symbols.Union(_writeOffset.Symbols).Union(_writeValue.Symbols).ToHashSet();
 
     public override BitVecExpr AsBitVector(ISolver solver)
     {

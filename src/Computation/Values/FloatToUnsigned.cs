@@ -17,6 +17,8 @@ internal sealed record FloatToUnsigned : BitVector
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => _value.Symbols;
+
     public override BitVecExpr AsBitVector(ISolver solver)
     {
         using var rounding = solver.Context.MkFPRTZ();

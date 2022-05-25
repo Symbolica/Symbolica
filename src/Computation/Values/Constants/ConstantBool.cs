@@ -14,6 +14,8 @@ internal sealed record ConstantBool : Bool, IConstantValue
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => new HashSet<IValue>();
+
     public override BoolExpr AsBool(ISolver solver)
     {
         return solver.Context.MkBool(_value);

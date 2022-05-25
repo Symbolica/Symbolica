@@ -19,6 +19,8 @@ internal sealed record ConstantUnsigned : BitVector, IConstantValue
     public bool IsZero => _value.IsZero;
     public bool IsOne => _value.IsOne;
 
+    public override ISet<IValue> Symbols => new HashSet<IValue>();
+
     public override BitVecExpr AsBitVector(ISolver solver)
     {
         return solver.Context.MkBV(_value.ToString(), (uint) Size);

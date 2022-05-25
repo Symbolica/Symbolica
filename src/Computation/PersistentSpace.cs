@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Collection;
@@ -113,7 +114,12 @@ internal sealed class PersistentSpace : IPersistentSpace
             if (!isAssertionMerged)
                 unmerged.Add(assertion);
         }
-        if (others.Any() && unmerged.Any())
+        // If there are common symbols left on both sides then we'll fail the merge as it means there
+        // are constraints for that symbol that should be merged and retained
+        // This could be made better by first trying to improve the merging above to cover more scenarios
+        // or falling back to just doing a disjunction here of the assertions that appear on both sides for
+        // a given symbol.
+        if (unmerged.SelectMany(a => a.Symbols).Intersect(others.SelectMany(a => a.Symbols)).Any())
         {
             merged = null;
             return false;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -19,6 +20,8 @@ internal sealed record Select : IValue
     }
 
     public Bits Size => _trueValue.Size;
+
+    public ISet<IValue> Symbols => _predicate.Symbols.Union(_trueValue.Symbols).Union(_falseValue.Symbols).ToHashSet();
 
     public BitVecExpr AsBitVector(ISolver solver)
     {

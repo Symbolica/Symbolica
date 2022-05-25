@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
@@ -16,6 +17,8 @@ internal sealed record FloatLessOrEqual : Bool
         _left = left;
         _right = right;
     }
+
+    public override ISet<IValue> Symbols => _left.Symbols.Union(_right.Symbols).ToHashSet();
 
     public override BoolExpr AsBool(ISolver solver)
     {

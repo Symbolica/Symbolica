@@ -16,6 +16,8 @@ internal sealed record NormalFloat : Float
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => new HashSet<IValue>();
+
     public override FPExpr AsFloat(ISolver solver)
     {
         using var sort = Size.GetSort(solver);

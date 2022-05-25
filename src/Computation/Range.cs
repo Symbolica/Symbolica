@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Symbolica.Expression;
 
@@ -7,6 +8,8 @@ namespace Symbolica.Computation;
 
 internal sealed record Range(IValue Min, IValue Max) : IMergeable<IValue, Range>
 {
+    internal IEnumerable<IValue> Symbols => Min.Symbols.Union(Max.Symbols).ToHashSet();
+
     internal bool IsDisjoint(Range other)
     {
         return Min is IConstantValue min1

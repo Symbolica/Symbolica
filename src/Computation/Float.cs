@@ -14,6 +14,7 @@ internal abstract record Float : IValue
     }
 
     public Bits Size { get; }
+    public abstract ISet<IValue> Symbols { get; }
 
     public BitVecExpr AsBitVector(ISolver solver)
     {

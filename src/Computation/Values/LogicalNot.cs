@@ -13,6 +13,8 @@ internal sealed record LogicalNot : Bool
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => _value.Symbols;
+
     public override BoolExpr AsBool(ISolver solver)
     {
         using var value = _value.AsBool(solver);
@@ -108,6 +110,8 @@ internal sealed record LogicalNot : Bool
         }
 
         internal IValue Value { get; }
+
+        public override ISet<IValue> Symbols => Value.Symbols;
 
         public override BoolExpr AsBool(ISolver solver)
         {

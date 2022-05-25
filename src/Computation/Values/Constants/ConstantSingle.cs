@@ -18,6 +18,8 @@ internal sealed record ConstantSingle : Float, IConstantValue
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => new HashSet<IValue>();
+
     public override FPExpr AsFloat(ISolver solver)
     {
         using var sort = Size.GetSort(solver);

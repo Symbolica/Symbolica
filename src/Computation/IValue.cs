@@ -8,6 +8,7 @@ namespace Symbolica.Computation;
 internal interface IValue : IEquatable<IValue>, IMergeable<IValue, IValue>
 {
     Bits Size { get; }
+    ISet<IValue> Symbols { get; }
 
     BitVecExpr AsBitVector(ISolver solver);
     BoolExpr AsBool(ISolver solver);

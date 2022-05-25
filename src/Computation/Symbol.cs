@@ -18,6 +18,8 @@ internal sealed record Symbol : BitVector
         _assertions = assertions;
     }
 
+    public override ISet<IValue> Symbols => new[] { this as IValue }.ToHashSet();
+
     public override BitVecExpr AsBitVector(ISolver solver)
     {
         solver.Assert(_name, _assertions);

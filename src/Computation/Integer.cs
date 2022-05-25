@@ -12,7 +12,7 @@ internal abstract record Integer : IValue
     }
 
     public Bits Size { get; }
-
+    public abstract ISet<IValue> Symbols { get; }
     public abstract BitVecExpr AsBitVector(ISolver solver);
     public abstract BoolExpr AsBool(ISolver solver);
     public abstract bool Equals(IValue? other);

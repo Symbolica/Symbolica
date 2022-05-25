@@ -15,6 +15,8 @@ internal sealed record FloatCeiling : Float
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => _value.Symbols;
+
     public override FPExpr AsFloat(ISolver solver)
     {
         using var rounding = solver.Context.MkFPRTP();

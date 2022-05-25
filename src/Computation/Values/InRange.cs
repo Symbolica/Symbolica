@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -16,6 +17,8 @@ internal sealed record InRange : Bool
         _value = value;
         _range = range;
     }
+
+    public override ISet<IValue> Symbols => _value.Symbols.Union(_range.Symbols).ToHashSet();
 
     public override BoolExpr AsBool(ISolver solver)
     {

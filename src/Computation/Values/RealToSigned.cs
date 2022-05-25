@@ -15,6 +15,8 @@ internal sealed record RealToSigned : BitVector
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => _value.Symbols;
+
     public override BitVecExpr AsBitVector(ISolver solver)
     {
         using var value = _value.AsReal(solver);

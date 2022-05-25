@@ -16,6 +16,8 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => new HashSet<IValue>();
+
     public override BitVecExpr AsBitVector(ISolver solver)
     {
         return AsUnsigned().AsBitVector(solver);

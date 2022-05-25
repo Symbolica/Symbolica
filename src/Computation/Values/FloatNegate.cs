@@ -16,6 +16,8 @@ internal sealed record FloatNegate : Float
         _value = value;
     }
 
+    public override ISet<IValue> Symbols => _value.Symbols;
+
     public override FPExpr AsFloat(ISolver solver)
     {
         using var value = _value.AsFloat(solver);

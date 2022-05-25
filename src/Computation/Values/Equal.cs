@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Expression;
@@ -17,6 +18,8 @@ internal sealed record Equal : Bool
         _left = left;
         _right = right;
     }
+
+    public override ISet<IValue> Symbols => _left.Symbols.Union(_right.Symbols).ToHashSet();
 
     public override BoolExpr AsBool(ISolver solver)
     {
