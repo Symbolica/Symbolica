@@ -21,10 +21,10 @@ internal sealed class Merge : IFunction
 
     public void Call(IExpressionFactory exprFactory, IState state, ICaller caller, IArguments arguments)
     {
-        var example = string.Join("_", state.Space.GetExample()
-            .OrderBy(p => p.Key)
-            .Select(p => $"{p.Key}{p.Value}"));
-        Console.WriteLine(example);
+        // var example = string.Join("_", state.Space.GetExample()
+        //     .OrderBy(p => p.Key)
+        //     .Select(p => $"{p.Key}{p.Value}"));
+        // Console.WriteLine(example);
 
         // using var stream = File.OpenWrite($"json_test_gen{state.Generation}_{example}.json");
         // using var writer = new StreamWriter(stream, Encoding.UTF8);

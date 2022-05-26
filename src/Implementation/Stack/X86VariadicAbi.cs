@@ -58,10 +58,12 @@ internal sealed class X86VariadicAbi : IVariadicAbi
                 .Expression;
         }
 
-        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IVaList other)
+        public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IVaList other)
         {
             return other is VaList v
-                ? Mergeable.IsNullableEquivalentTo<IExpression, IExpression>(_address, v._address)
+                ? Mergeable
+                    .IsNullableEquivalentTo<ExpressionSub, IExpression>(_address, v._address)
+                    .ToHashSet()
                 : (new(), false);
         }
 

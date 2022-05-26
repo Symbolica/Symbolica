@@ -59,7 +59,7 @@ internal sealed class BlockFactory : IBlockFactory
             return Result<IExpression>.Failure(space);
         }
 
-        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentBlock other)
+        public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentBlock other)
         {
             throw new ImplementationException("Invalid blocks are never equivalent.");
         }

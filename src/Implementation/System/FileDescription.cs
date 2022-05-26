@@ -71,7 +71,7 @@ internal sealed class FileDescription : IPersistentDescription
         return new FileDescription(exprFactory, file, 0L);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentDescription other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentDescription other)
     {
         return other is FileDescription fd
             ? _file.IsEquivalentTo(fd._file)

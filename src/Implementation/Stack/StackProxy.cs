@@ -87,7 +87,7 @@ internal sealed class StackProxy : IStackProxy
         return address;
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IStackProxy stack)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IStackProxy stack)
     {
         return stack is StackProxy sp
             ? _stack.IsEquivalentTo(sp._stack)

@@ -72,9 +72,9 @@ internal sealed class State : IState, IExecutable
             .And(_memory.IsEquivalentTo(previous._memory))
             .And(_system.IsEquivalentTo(previous._system));
 
-        return isEquivalent
-            && Space.Substitute(subs.ToDictionary(x => x.Item1, x => x.Item2))
-                .Equals(previous.Space);
+        if (isEquivalent)
+            return subs.All(s => Space.SubsAreEquivalent(s, previous.Space));
+        return false;
     }
 
     public int GetEquivalencyHash(bool includeSubs)

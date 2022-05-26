@@ -133,23 +133,26 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
                 variables, _allocations);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentFrame other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentFrame other)
     {
         return other is PersistentFrame pf
             ? IsEquivalentTo(pf)
             : (new(), false);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(ISavedFrame other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(ISavedFrame other)
     {
         return other is PersistentFrame pf
             ? IsEquivalentTo(pf)
             : (new(), false);
     }
 
-    private (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(PersistentFrame other)
+    private (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(PersistentFrame other)
     {
-        return _allocations.Concat(_formals).IsSequenceEquivalentTo<IExpression, IExpression>(other._allocations.Concat(other._formals))
+        return _allocations.Concat(_formals)
+            .IsSequenceEquivalentTo(
+                other._allocations.Concat(other._formals),
+                (x, y) => x.IsEquivalentTo(y).ToHashSet())
             .And(_jumps.IsEquivalentTo(other._jumps))
             .And(_programCounter.IsEquivalentTo(other._programCounter))
             .And(_vaList.IsEquivalentTo(other._vaList))

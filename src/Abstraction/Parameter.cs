@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public readonly struct Parameter : IMergeable<IExpression, Parameter>
+public readonly struct Parameter : IMergeable<ExpressionSubs, Parameter>
 {
     public Parameter(Bits size)
     {
@@ -17,7 +17,7 @@ public readonly struct Parameter : IMergeable<IExpression, Parameter>
         return Size.GetHashCode();
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Parameter other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(Parameter other)
     {
         return (new(), Size == other.Size);
     }

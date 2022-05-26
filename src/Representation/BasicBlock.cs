@@ -38,11 +38,11 @@ public sealed class BasicBlock : IBasicBlock
         return _instructions[index];
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IBasicBlock other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IBasicBlock other)
     {
         return other is BasicBlock b
             ? Id.IsEquivalentTo(b.Id)
-                .And(_instructions.IsSequenceEquivalentTo<IExpression, IInstruction>(b._instructions))
+                .And(_instructions.IsSequenceEquivalentTo<ExpressionSubs, IInstruction>(b._instructions))
             : (new(), false);
     }
 

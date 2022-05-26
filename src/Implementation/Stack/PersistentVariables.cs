@@ -69,12 +69,20 @@ internal sealed class PersistentVariables : IPersistentVariables
         return new PersistentVariables(variables, variables);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(
         IPersistentVariables other)
     {
+        static (HashSet<ExpressionSubs> subs, bool) IsVariableEquivalent(
+            KeyValuePair<InstructionId, IExpression> x,
+            KeyValuePair<InstructionId, IExpression> y)
+        {
+            return x.Key.IsEquivalentTo(y.Key)
+                .And(x.Value.IsEquivalentTo(y.Value).ToHashSet());
+        }
+
         return other is PersistentVariables pv
-            ? _incomingVariables.IsSequenceEquivalentTo<IExpression, InstructionId, IExpression>(pv._incomingVariables)
-                .And(_variables.IsSequenceEquivalentTo<IExpression, InstructionId, IExpression>(pv._variables))
+            ? _incomingVariables.IsSequenceEquivalentTo(pv._incomingVariables, IsVariableEquivalent)
+                .And(_variables.IsSequenceEquivalentTo(pv._variables, IsVariableEquivalent))
             : (new(), false);
     }
 

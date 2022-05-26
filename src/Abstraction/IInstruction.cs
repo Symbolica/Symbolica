@@ -3,16 +3,16 @@ using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public interface IInstruction : IMergeable<IExpression, IInstruction>
+public interface IInstruction : IMergeable<ExpressionSubs, IInstruction>
 {
     InstructionId Id { get; }
 
     void Execute(IExpressionFactory exprFactory, IState state);
 
-    (HashSet<(IExpression, IExpression)> subs, bool) IMergeable<IExpression, IInstruction>.IsEquivalentTo(IInstruction other)
+    (HashSet<ExpressionSubs> subs, bool) IMergeable<ExpressionSubs, IInstruction>.IsEquivalentTo(IInstruction other)
         => (new(), Id == other.Id);
 
-    object IMergeable<IExpression, IInstruction>.ToJson() => (ulong) Id;
+    object IMergeable<ExpressionSubs, IInstruction>.ToJson() => (ulong) Id;
 
-    int IMergeable<IExpression, IInstruction>.GetEquivalencyHash(bool includeSubs) => Id.GetEquivalencyHash(includeSubs);
+    int IMergeable<ExpressionSubs, IInstruction>.GetEquivalencyHash(bool includeSubs) => Id.GetEquivalencyHash(includeSubs);
 }

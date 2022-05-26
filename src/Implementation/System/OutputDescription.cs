@@ -42,7 +42,7 @@ internal sealed class OutputDescription : IPersistentDescription
         return 0;
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentDescription other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentDescription other)
     {
         return (new(), other is OutputDescription);
     }

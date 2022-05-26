@@ -1,8 +1,9 @@
-﻿using Symbolica.Expression;
+﻿using System.Collections.Generic;
+using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
-public interface IDirectory : IMergeable<IExpression, IDirectory>
+public interface IDirectory : IMergeable<ExpressionSubs, IDirectory>
 {
     long LastAccessTime { get; }
     long LastModifiedTime { get; }

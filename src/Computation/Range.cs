@@ -6,7 +6,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed record Range(IValue Min, IValue Max) : IMergeable<IValue, Range>
+internal sealed record Range(IValue Min, IValue Max) : IMergeable<(IValue, IValue), Range>
 {
     internal IEnumerable<IValue> Symbols => Min.Symbols.Union(Max.Symbols).ToHashSet();
 

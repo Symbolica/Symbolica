@@ -47,10 +47,10 @@ internal sealed class PersistentJumps : IPersistentJumps
         return new PersistentJumps(collectionFactory.CreatePersistentStack<Point>());
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentJumps other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentJumps other)
     {
         return other is PersistentJumps pj
-            ? _points.IsSequenceEquivalentTo<IExpression, Point>(pj._points)
+            ? _points.IsSequenceEquivalentTo<ExpressionSubs, Point>(pj._points)
             : (new(), false);
     }
 
@@ -66,7 +66,7 @@ internal sealed class PersistentJumps : IPersistentJumps
             : _equivalencyHash.Value;
     }
 
-    private readonly struct Point : IMergeable<IExpression, Point>
+    private readonly struct Point : IMergeable<ExpressionSubs, Point>
     {
         private readonly IExpression _continuation;
         private readonly bool _useJumpBuffer;
@@ -90,9 +90,9 @@ internal sealed class PersistentJumps : IPersistentJumps
             return base.GetHashCode();
         }
 
-        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Point other)
+        public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(Point other)
         {
-            return _continuation.IsEquivalentTo(other._continuation)
+            return _continuation.IsEquivalentTo(other._continuation).ToHashSet()
                 .And(Frame.IsEquivalentTo(other.Frame))
                 .And((new(), _useJumpBuffer == other._useJumpBuffer));
         }

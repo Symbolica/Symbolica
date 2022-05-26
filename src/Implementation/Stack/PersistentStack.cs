@@ -143,10 +143,10 @@ internal sealed class PersistentStack : IPersistentStack
             _pushedFrames, _currentFrame.AddAllocation(address)));
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentStack other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentStack other)
     {
         return other is PersistentStack ps
-            ? AllFrames.IsSequenceEquivalentTo<IExpression, IPersistentFrame>(ps.AllFrames)
+            ? AllFrames.IsSequenceEquivalentTo<ExpressionSubs, IPersistentFrame>(ps.AllFrames)
             : (new(), false);
     }
 

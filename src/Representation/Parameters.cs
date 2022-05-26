@@ -42,10 +42,10 @@ public sealed class Parameters : IParameters
             : _equivalencyHash.Value;
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IParameters other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IParameters other)
     {
         return other is Parameters p
-            ? _parameters.IsSequenceEquivalentTo<IExpression, Parameter>(p._parameters)
+            ? _parameters.IsSequenceEquivalentTo<ExpressionSubs, Parameter>(p._parameters)
             : (new(), false);
     }
 

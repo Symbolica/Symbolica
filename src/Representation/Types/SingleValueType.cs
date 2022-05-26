@@ -32,7 +32,7 @@ public sealed class SingleValueType : IType
         throw new InvalidIndexException();
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IType other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IType other)
     {
         return other is SingleValueType svt
             ? (new(), Size == svt.Size)

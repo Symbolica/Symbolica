@@ -23,7 +23,7 @@ internal sealed class FileProxy : IFile
         return _file.GetHashCode();
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IFile other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IFile other)
     {
         // TODO: This might just be using reference equality on FileInfo
         return (new(), other is FileProxy fp && _file.Equals(fp._file));

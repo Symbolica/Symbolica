@@ -4,7 +4,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public readonly struct InstructionId : IEquatable<InstructionId>, IMergeable<IExpression, InstructionId>
+public readonly struct InstructionId : IEquatable<InstructionId>, IMergeable<ExpressionSubs, InstructionId>
 {
     private readonly ulong _value;
 
@@ -53,7 +53,7 @@ public readonly struct InstructionId : IEquatable<InstructionId>, IMergeable<IEx
         return _value.ToString();
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(InstructionId other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(InstructionId other)
     {
         return (new(), Equals(other));
     }

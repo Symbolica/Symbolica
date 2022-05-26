@@ -4,54 +4,50 @@ using System.Linq;
 
 namespace Symbolica.Expression;
 
-public interface IMergeable<TSub, in T>
+public interface IMergeable<S, in T>
 {
     int GetEquivalencyHash(bool includeSubs);
-    (HashSet<(TSub, TSub)> subs, bool) IsEquivalentTo(T other);
+    (HashSet<S> subs, bool) IsEquivalentTo(T other);
     object ToJson();
 }
 
 public static class Mergeable
 {
-    public static (HashSet<(TSub, TSub)> subs, bool) IsEquivalentTo<TSub, K, V>(
+    public static (HashSet<S> subs, bool) IsEquivalentTo<S, K, V>(
         this KeyValuePair<K, V> self,
         KeyValuePair<K, V> other)
-        where K : IMergeable<TSub, K>
-        where V : IMergeable<TSub, V>
+        where K : IMergeable<S, K>
+        where V : IMergeable<S, V>
     {
         return self.Key.IsEquivalentTo(other.Key)
             .And(self.Value.IsEquivalentTo(other.Value));
     }
 
-    public static (HashSet<(TSub, TSub)> subs, bool) IsNullableEquivalentTo<TSub, T>(
-        T? self,
-        T? other)
-        where T : struct, IMergeable<TSub, T>
+    public static (HashSet<S> subs, bool) IsNullableEquivalentTo<S, T>(T? self, T? other)
+        where T : struct, IMergeable<S, T>
     {
         return self is not null && other is not null
             ? self.Value.IsEquivalentTo(other.Value)
             : (new(), self is null && other is null);
     }
 
-    public static (HashSet<(TSub, TSub)> subs, bool) IsNullableEquivalentTo<TSub, T>(
-        T? self,
-        T? other)
-        where T : class, IMergeable<TSub, T>
+    public static (HashSet<S> subs, bool) IsNullableEquivalentTo<S, T>(T? self, T? other)
+        where T : class, IMergeable<S, T>
     {
         return self is not null && other is not null
             ? self.IsEquivalentTo(other)
             : (new(), self is null && other is null);
     }
 
-    public static (HashSet<(TSub, TSub)> subs, bool) IsSequenceEquivalentTo<TSub, T>(
+    public static (HashSet<S> subs, bool) IsSequenceEquivalentTo<S, T>(
         this IEnumerable<T> self,
         IEnumerable<T> other,
-        Func<T, T, (HashSet<(TSub, TSub)> subs, bool)> isItemEquivalentTo)
+        Func<T, T, (HashSet<S> subs, bool)> isItemEquivalentTo)
     {
         return self
             .Zip(other)
             .Aggregate(
-                (new HashSet<(TSub, TSub)>(), true),
+                (new HashSet<S>(), true),
                 (acc, f) =>
                 {
                     if (acc.Item2)
@@ -64,41 +60,34 @@ public static class Mergeable
                 });
     }
 
-    public static (HashSet<(TSub, TSub)> subs, bool) IsSequenceEquivalentTo<TSub, T>(
+    public static (HashSet<S> subs, bool) IsSequenceEquivalentTo<S, T>(
         this IEnumerable<T> self,
         IEnumerable<T> other)
-        where T : IMergeable<TSub, T>
+        where T : IMergeable<S, T>
     {
         return self.IsSequenceEquivalentTo(other, (a, b) => a.IsEquivalentTo(b));
     }
 
-    public static (HashSet<(TSub, TSub)> subs, bool) IsSequenceEquivalentTo<TSub, K, V>(
+    public static (HashSet<S> subs, bool) IsSequenceEquivalentTo<S, K, V>(
         this IEnumerable<KeyValuePair<K, V>> self,
         IEnumerable<KeyValuePair<K, V>> other)
-        where K : IMergeable<TSub, K>
-        where V : IMergeable<TSub, V>
+        where K : IMergeable<S, K>
+        where V : IMergeable<S, V>
     {
-        return self.IsSequenceEquivalentTo(other, (a, b) => a.IsEquivalentTo<TSub, K, V>(b));
+        return self.IsSequenceEquivalentTo(other, (a, b) => a.IsEquivalentTo<S, K, V>(b));
     }
 
-    public static (HashSet<(TSub, TSub)> subs, bool) And<TSub>(
-        this (HashSet<(TSub, TSub)> subs, bool equivalent) self,
-        (HashSet<(TSub, TSub)> subs, bool equivalent) other)
+    public static (HashSet<S> subs, bool) And<S>(
+        this (HashSet<S> subs, bool) self,
+        (HashSet<S> subs, bool) other)
     {
-        if (self.equivalent && other.equivalent)
-        {
-            var subs = new HashSet<(TSub, TSub)>();
-            subs.UnionWith(self.subs);
-            subs.UnionWith(other.subs);
-            return (subs, true);
-        }
-        return (new(), false);
+        return self.Item2 && other.Item2
+            ? (self.subs.Union(other.subs).ToHashSet(), true)
+            : (new(), false);
     }
 
-    public static (HashSet<(RSub, RSub)> subs, bool) MapSubs<TSub, RSub>(
-        this (HashSet<(TSub, TSub)> subs, bool equivalent) self,
-        Func<TSub, RSub> mapper)
+    public static (HashSet<ExpressionSubs> subs, bool) ToHashSet(this (IEnumerable<ExpressionSub> subs, bool equivalent) self)
     {
-        return (new(self.subs.Select(s => (mapper(s.Item1), mapper(s.Item2)))), self.equivalent);
+        return (self.subs.Any() ? new[] { new ExpressionSubs(self.subs) }.ToHashSet() : new(), self.equivalent);
     }
 }

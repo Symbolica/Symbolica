@@ -59,7 +59,7 @@ internal sealed class MemoryProxy : IMemoryProxy
         return _memory.Read(space, address, size);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IMemoryProxy other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IMemoryProxy other)
     {
         return other is MemoryProxy mp
             ? _memory.IsEquivalentTo(mp._memory)

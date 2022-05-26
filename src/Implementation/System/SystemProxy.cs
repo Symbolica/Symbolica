@@ -78,7 +78,7 @@ internal sealed class SystemProxy : ISystemProxy
         return _system.GetStatus(space, memory, descriptor, address);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(ISystemProxy other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(ISystemProxy other)
     {
         return other is SystemProxy sp
             ? _system.IsEquivalentTo(sp._system)

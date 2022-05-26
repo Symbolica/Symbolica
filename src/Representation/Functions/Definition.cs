@@ -90,10 +90,10 @@ public sealed class Definition : IDefinition
             basicBlocks.ToDictionary(b => b.Id));
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IDefinition other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IDefinition other)
     {
         return other is Definition d
-            ? _basicBlocks.IsSequenceEquivalentTo<IExpression, BasicBlockId, IBasicBlock>(d._basicBlocks)
+            ? _basicBlocks.IsSequenceEquivalentTo<ExpressionSubs, BasicBlockId, IBasicBlock>(d._basicBlocks)
                 .And(_entryId.IsEquivalentTo(d._entryId))
                 .And((new(), _isVariadic == d._isVariadic))
                 .And(Id.IsEquivalentTo(d.Id))

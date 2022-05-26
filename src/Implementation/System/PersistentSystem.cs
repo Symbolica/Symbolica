@@ -222,13 +222,16 @@ internal sealed class PersistentSystem : IPersistentSystem
             .Add(descriptionFactory.CreateOutput());
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(
-        IPersistentSystem other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentSystem other)
     {
         return other is PersistentSystem ps
-            ? _handles.IsSequenceEquivalentTo<IExpression, Handle>(ps._handles)
-                .And(_indices.IsSequenceEquivalentTo<IExpression, int>(ps._indices, (a, b) => (new(), a == b)))
-                .And(Mergeable.IsNullableEquivalentTo<IExpression, IExpression>(_threadAddress, ps._threadAddress))
+            ? _handles.IsSequenceEquivalentTo<ExpressionSubs, Handle>(ps._handles)
+                .And(_indices.IsSequenceEquivalentTo<ExpressionSubs, int>(ps._indices, (a, b) => (new(), a == b)))
+                .And(
+                    Mergeable.IsNullableEquivalentTo<ExpressionSub, IExpression>(
+                        _threadAddress,
+                        ps._threadAddress)
+                    .ToHashSet())
             : (new(), false);
     }
 
@@ -249,7 +252,7 @@ internal sealed class PersistentSystem : IPersistentSystem
             : _equivalencyHash.Value;
     }
 
-    private readonly struct Handle : IMergeable<IExpression, Handle>
+    private readonly struct Handle : IMergeable<ExpressionSubs, Handle>
     {
         private readonly Lazy<int> _equivalencyHash;
         private readonly Lazy<int> _mergeHash;
@@ -270,7 +273,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         public uint References { get; }
         public IPersistentDescription Description { get; }
 
-        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Handle other)
+        public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(Handle other)
         {
             return Description.IsEquivalentTo(other.Description)
                 .And((new(), References == other.References));

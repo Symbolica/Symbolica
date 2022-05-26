@@ -60,7 +60,7 @@ internal sealed class DirectoryDescription : IPersistentDescription
         return address;
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentDescription other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentDescription other)
     {
         return other is DirectoryDescription dd
             ? _directory.IsEquivalentTo(dd._directory)

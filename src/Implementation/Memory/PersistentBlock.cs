@@ -131,12 +131,12 @@ internal sealed class PersistentBlock : IPersistentBlock
         return Data.Read(space, offset, size);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentBlock other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentBlock other)
     {
         return other is PersistentBlock pb
-            ? Data.IsEquivalentTo(pb.Data)
+            ? Data.IsEquivalentTo(pb.Data).ToHashSet()
                 .And((new(), Section == pb.Section))
-                .And(Offset.IsEquivalentTo(pb.Offset))
+                .And(Offset.IsEquivalentTo(pb.Offset).ToHashSet())
             : (new(), false);
     }
 

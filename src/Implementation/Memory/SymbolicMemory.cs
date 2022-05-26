@@ -151,14 +151,14 @@ internal sealed class SymbolicMemory : IPersistentMemory
             exprFactory, collectionFactory.CreatePersistentList<IPersistentBlock>());
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentMemory other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentMemory other)
     {
 
         // TODO: This is relying on the order of allocations in both sides being equal, which could/should be relaxed
         // but that will require being able to lookup blocks by equivalent symbolic address
         return other is SymbolicMemory sm
-            ? (new HashSet<(IExpression, IExpression)>(), _alignment == sm._alignment)
-                .And(ValidBlocks.IsSequenceEquivalentTo<IExpression, IPersistentBlock>(sm.ValidBlocks))
+            ? (new HashSet<ExpressionSubs>(), _alignment == sm._alignment)
+                .And(ValidBlocks.IsSequenceEquivalentTo<ExpressionSubs, IPersistentBlock>(sm.ValidBlocks))
             : (new(), false);
     }
 

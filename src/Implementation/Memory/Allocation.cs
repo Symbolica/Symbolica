@@ -5,7 +5,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
 
-internal readonly struct Allocation : IComparable<Allocation>, IMergeable<IExpression, Allocation>
+internal readonly struct Allocation : IComparable<Allocation>, IMergeable<ExpressionSubs, Allocation>
 {
     public Allocation(Bytes address, IPersistentBlock block)
     {
@@ -33,9 +33,9 @@ internal readonly struct Allocation : IComparable<Allocation>, IMergeable<IExpre
         return (index, allocations.Get(index));
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(Allocation other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(Allocation other)
     {
-        return (new HashSet<(IExpression, IExpression)>(), Address == other.Address)
+        return (new HashSet<ExpressionSubs>(), Address == other.Address)
             .And(Block.IsEquivalentTo(other.Block));
     }
 

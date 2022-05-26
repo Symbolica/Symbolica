@@ -202,13 +202,13 @@ internal sealed class AggregateBlock : IPersistentBlock
             : allocation.Block;
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentBlock other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentBlock other)
     {
         return other is AggregateBlock b
-            ? Offset.IsEquivalentTo(b.Offset)
+            ? Offset.IsEquivalentTo(b.Offset).ToHashSet()
                 .And((new(), Section == b.Section))
                 .And((new(), Size == b.Size))
-                .And(_allocations.IsSequenceEquivalentTo<IExpression, Allocation>(b._allocations))
+                .And(_allocations.IsSequenceEquivalentTo<ExpressionSubs, Allocation>(b._allocations))
             : (new(), false);
     }
 

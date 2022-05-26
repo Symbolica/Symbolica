@@ -383,12 +383,15 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
                 v => a(new Expression(collectionFactory, v)).As<Expression>().Value))));
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IExpression other)
+    public (HashSet<ExpressionSub> subs, bool) IsEquivalentTo(IExpression other)
     {
+        IExpression Create(IValue value) => new Expression(_collectionFactory, value);
+
+        (HashSet<ExpressionSub> subs, bool) CreateSubs((HashSet<(IValue, IValue)> subs, bool equivalent) self)
+            => (new(self.subs.Select(s => new ExpressionSub(Create(s.Item1), Create(s.Item2)))), self.equivalent);
+
         return other is Expression e
-            ? Value
-                .IsEquivalentTo(e.Value)
-                .MapSubs(s => new Expression(_collectionFactory, s) as IExpression)
+            ? CreateSubs(Value.IsEquivalentTo(e.Value))
             : (new(), false);
     }
 

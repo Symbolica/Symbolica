@@ -3,7 +3,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public interface IType : IMergeable<IExpression, IType>
+public interface IType : IMergeable<ExpressionSubs, IType>
 {
     Bytes Size { get; }
     IEnumerable<IType> Types { get; }

@@ -168,10 +168,10 @@ internal sealed class ConstantMemory : IPersistentMemory
             exprFactory, alignment, collectionFactory.CreatePersistentList<Allocation>().Add(nullAllocation));
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IPersistentMemory other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentMemory other)
     {
         return other is ConstantMemory cm
-            ? ValidAllocations.IsSequenceEquivalentTo<IExpression, Allocation>(cm.ValidAllocations)
+            ? ValidAllocations.IsSequenceEquivalentTo<ExpressionSubs, Allocation>(cm.ValidAllocations)
                 .And((new(), _alignment == cm._alignment))
             : (new(), false);
     }

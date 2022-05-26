@@ -62,7 +62,7 @@ public sealed class ArrayType : IArrayType
         return exprFactory.CreateConstant(exprFactory.PointerSize, elementSize).Multiply(index.SignExtend(exprFactory.PointerSize));
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IType other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IType other)
     {
         return other is ArrayType at
             ? ElementType.IsEquivalentTo(at.ElementType)

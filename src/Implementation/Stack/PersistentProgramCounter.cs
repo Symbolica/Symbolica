@@ -44,14 +44,14 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
             definition.Entry, null, -1);
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(
             IPersistentProgramCounter other)
     {
         return other is PersistentProgramCounter ppc
             ? _basicBlock.IsEquivalentTo(ppc._basicBlock)
                 .And(_definition.IsEquivalentTo(ppc._definition))
                 .And((new(), _index == ppc._index))
-                .And(Mergeable.IsNullableEquivalentTo<IExpression, BasicBlockId>(_predecessorId, ppc._predecessorId))
+                .And(Mergeable.IsNullableEquivalentTo<ExpressionSubs, BasicBlockId>(_predecessorId, ppc._predecessorId))
             : (new(), false);
     }
 

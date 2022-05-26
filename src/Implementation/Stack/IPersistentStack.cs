@@ -1,9 +1,10 @@
-﻿using Symbolica.Abstraction;
+﻿using System.Collections.Generic;
+using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Stack;
 
-internal interface IPersistentStack : IMergeable<IExpression, IPersistentStack>
+internal interface IPersistentStack : IMergeable<ExpressionSubs, IPersistentStack>
 {
     bool IsInitialFrame { get; }
     BasicBlockId PredecessorId { get; }

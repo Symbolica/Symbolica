@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Collection;
@@ -84,6 +83,42 @@ internal sealed class PersistentSpace : IPersistentSpace
                 _collectionFactory.CreatePersistentStack<IValue>(),
                 (acc, a) => acc.Push(a));
         return new PersistentSpace(_collectionFactory, assertions);
+    }
+
+    public bool SubsAreEquivalent(IEnumerable<ExpressionSub> subs, ISpace other)
+    {
+        return other is PersistentSpace ps && SubsAreEquivalent(
+            subs.Select(s => (s.New.As<Expression>().Value, s.Old.As<Expression>().Value)).ToHashSet(),
+            ps);
+    }
+
+    private bool SubsAreEquivalent(HashSet<(IValue, IValue)> subs, PersistentSpace other)
+    {
+        var leftAssertionsBySymbol = _assertions.SelectMany(a => a.Symbols.Select(s => (s, a))).ToLookup(x => x.s, x => x.a);
+        var rightAssertionsBySymbol = other._assertions.SelectMany(a => a.Symbols.Select(s => (s, a))).ToLookup(x => x.s, x => x.a);
+        bool SubIsEquivalent(IValue left, IValue right)
+        {
+            if (rightAssertionsBySymbol.Contains(right))
+            {
+                var leftAssertions = leftAssertionsBySymbol[left];
+                foreach (var rightAssertion in rightAssertionsBySymbol[right])
+                {
+                    var hasMatch = leftAssertions.Any(leftAssertion =>
+                    {
+                        var (assertionSubs, isEquivalent) = leftAssertion.IsEquivalentTo(rightAssertion);
+                        return isEquivalent && assertionSubs.IsSubsetOf(subs);
+                    });
+                    if (!hasMatch)
+                        return false;
+                }
+                return true;
+            }
+
+            // The old space had no constraints on the symbol, so whatever we have now is a sub space of the old one
+            // and has therefore be explored before
+            return true;
+        }
+        return subs.All(x => SubIsEquivalent(x.Item1, x.Item2));
     }
 
     public bool TryMerge(ISpace other, [MaybeNullWhen(false)] out ISpace merged)

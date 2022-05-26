@@ -72,11 +72,11 @@ public sealed class StructType : IStructType
             initializer(size));
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IType other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IType other)
     {
         return other is StructType st
-            ? _offsets.IsSequenceEquivalentTo<IExpression, Bytes>(st._offsets, (a, b) => (new(), a == b))
-                .And(_types.IsSequenceEquivalentTo<IExpression, IType>(st._types))
+            ? _offsets.IsSequenceEquivalentTo<ExpressionSubs, Bytes>(st._offsets, (a, b) => (new(), a == b))
+                .And(_types.IsSequenceEquivalentTo<ExpressionSubs, IType>(st._types))
                 .And((new(), Size == st.Size))
             : (new(), false);
     }

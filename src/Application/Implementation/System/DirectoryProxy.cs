@@ -26,7 +26,7 @@ internal sealed class DirectoryProxy : IDirectory
         return _directory.GetHashCode();
     }
 
-    public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IDirectory other)
+    public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IDirectory other)
     {
         return (new(),
             other is DirectoryProxy dp

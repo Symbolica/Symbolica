@@ -65,11 +65,11 @@ internal sealed class X64VariadicAbi : IVariadicAbi
                 .Expression;
         }
 
-        public (HashSet<(IExpression, IExpression)> subs, bool) IsEquivalentTo(IVaList other)
+        public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IVaList other)
         {
             return other is VaList v
                 ? _address is not null && v._address is not null
-                    ? _address.IsEquivalentTo(v._address)
+                    ? _address.IsEquivalentTo(v._address).ToHashSet()
                     : (new(), _address is null && v._address is null)
                 : (new(), false);
         }
