@@ -73,4 +73,9 @@ internal sealed record FloatGreaterOrEqual : Bool
             _left.GetEquivalencyHash(includeSubs),
             _right.GetEquivalencyHash(includeSubs));
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return Create(_left.RenameSymbols(renamer), _right.RenameSymbols(renamer));
+    }
 }

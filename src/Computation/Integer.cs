@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Expression;
 
@@ -34,4 +35,5 @@ internal abstract record Integer : IValue
     public abstract IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs);
     public abstract object ToJson();
     public abstract int GetEquivalencyHash(bool includeSubs);
+    public abstract IValue RenameSymbols(Func<string, string> renamer);
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
-using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
 
@@ -66,5 +65,10 @@ internal sealed record FloatNegate : Float
         return HashCode.Combine(
             GetType().Name,
             _value.GetEquivalencyHash(includeSubs));
+    }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return Create(_value.RenameSymbols(renamer));
     }
 }

@@ -102,6 +102,11 @@ internal sealed record LogicalNot : Bool
             _value.GetEquivalencyHash(includeSubs));
     }
 
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return Create(_value.RenameSymbols(renamer));
+    }
+
     private sealed record Logical : Bool
     {
         public Logical(IValue value)
@@ -163,6 +168,11 @@ internal sealed record LogicalNot : Bool
             return HashCode.Combine(
                 GetType().Name,
                 Value.GetEquivalencyHash(includeSubs));
+        }
+
+        public override IValue RenameSymbols(Func<string, string> renamer)
+        {
+            return Create(Value.RenameSymbols(renamer));
         }
     }
 }

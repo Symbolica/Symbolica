@@ -67,4 +67,9 @@ internal sealed record FloatFloor : Float
             GetType().Name,
             _value.GetEquivalencyHash(includeSubs));
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return Create(_value.RenameSymbols(renamer));
+    }
 }

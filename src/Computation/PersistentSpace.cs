@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Collection;
+using Symbolica.Computation.Values;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -92,33 +93,42 @@ internal sealed class PersistentSpace : IPersistentSpace
             ps);
     }
 
+    private IEnumerable<IValue> DependentSymbols(IValue symbol, ISet<IValue> ignoring)
+    {
+        return new[] { symbol }.Concat(
+            ignoring.Add(symbol)
+                ? _assertions
+                    .Where(a => a.Symbols.Contains(symbol))
+                    .SelectMany(a => a.Symbols)
+                    .SelectMany(s => DependentSymbols(s, ignoring))
+                : Enumerable.Empty<IValue>());
+    }
+
     private bool SubsAreEquivalent(HashSet<(IValue, IValue)> subs, PersistentSpace other)
     {
-        var leftAssertionsBySymbol = _assertions.SelectMany(a => a.Symbols.Select(s => (s, a))).ToLookup(x => x.s, x => x.a);
-        var rightAssertionsBySymbol = other._assertions.SelectMany(a => a.Symbols.Select(s => (s, a))).ToLookup(x => x.s, x => x.a);
-        bool SubIsEquivalent(IValue left, IValue right)
+        static string RenameOldSymbol(object x)
         {
-            if (rightAssertionsBySymbol.Contains(right))
-            {
-                var leftAssertions = leftAssertionsBySymbol[left];
-                foreach (var rightAssertion in rightAssertionsBySymbol[right])
-                {
-                    var hasMatch = leftAssertions.Any(leftAssertion =>
-                    {
-                        var (assertionSubs, isEquivalent) = leftAssertion.IsEquivalentTo(rightAssertion);
-                        return isEquivalent && assertionSubs.IsSubsetOf(subs);
-                    });
-                    if (!hasMatch)
-                        return false;
-                }
-                return true;
-            }
-
-            // The old space had no constraints on the symbol, so whatever we have now is a sub space of the old one
-            // and has therefore be explored before
-            return true;
+            return $"{x}-old";
         }
-        return subs.All(x => SubIsEquivalent(x.Item1, x.Item2));
+
+        if (!subs.Any())
+            return true;
+
+        var subsEqual = subs
+            .Select(s => Equal.Create(s.Item1, s.Item2.RenameSymbols(RenameOldSymbol)))
+            .Aggregate(LogicalAnd.Create);
+
+        var isStillRelevant = subs.SelectMany(s => other.DependentSymbols(s.Item2, new HashSet<IValue>())).ToHashSet();
+
+        var previousAssertions = other._assertions
+            .Where(a => a.Symbols.Any(isStillRelevant.Contains))
+            .Aggregate(LogicalAnd.Create)
+            .RenameSymbols(RenameOldSymbol);
+
+        var isNotSubSpace = LogicalAnd.Create(subsEqual, Not.Create(previousAssertions));
+
+        using var solver = CreateSolver();
+        return !solver.IsSatisfiable(isNotSubSpace);
     }
 
     public bool TryMerge(ISpace other, [MaybeNullWhen(false)] out ISpace merged)

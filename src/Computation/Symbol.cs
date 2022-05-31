@@ -58,7 +58,7 @@ internal sealed record Symbol : BitVector
     public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
     {
         return other is Symbol s
-            ? (_name == s._name ? new() : new(new List<(IValue, IValue)> { (this, s) }), true)
+            ? (new(new List<(IValue, IValue)> { (this, s) }), true)
             : (new(), false);
     }
 
@@ -79,5 +79,10 @@ internal sealed record Symbol : BitVector
         return includeSubs
             ? _name.GetHashCode()
             : 0;
+    }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return new Symbol(Size, renamer(_name), _assertions.Select(s => s.RenameSymbols(renamer)).ToArray());
     }
 }

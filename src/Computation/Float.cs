@@ -84,4 +84,5 @@ internal abstract record Float : IValue
     public abstract IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs);
     public abstract object ToJson();
     public abstract int GetEquivalencyHash(bool includeSubs);
+    public abstract IValue RenameSymbols(Func<string, string> renamer);
 }

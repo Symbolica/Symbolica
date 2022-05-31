@@ -136,4 +136,12 @@ internal sealed record Write : BitVector
             _writeOffset.GetEquivalencyHash(includeSubs),
             _writeValue.GetEquivalencyHash(includeSubs));
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return new Write(
+            _writeBuffer.RenameSymbols(renamer),
+            _writeOffset.RenameSymbols(renamer),
+            _writeValue.RenameSymbols(renamer));
+    }
 }

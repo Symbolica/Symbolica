@@ -104,4 +104,12 @@ internal sealed record Select : IValue
             _trueValue.GetEquivalencyHash(includeSubs),
             _falseValue.GetEquivalencyHash(includeSubs));
     }
+
+    public IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return Create(
+            _predicate.RenameSymbols(renamer),
+            _trueValue.RenameSymbols(renamer),
+            _falseValue.RenameSymbols(renamer));
+    }
 }

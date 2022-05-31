@@ -78,5 +78,10 @@ internal sealed record Range(IValue Min, IValue Max) : IMergeable<(IValue, IValu
             Min.GetEquivalencyHash(includeSubs),
             Max.GetEquivalencyHash(includeSubs));
     }
+
+    internal Range RenameSymbols(Func<string, string> renamer)
+    {
+        return new(Min.RenameSymbols(renamer), Max.RenameSymbols(renamer));
+    }
 }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Collection;
@@ -161,5 +162,10 @@ internal sealed record ConstantSigned : BitVector, IConstantValue
     public override int GetEquivalencyHash(bool includeSubs)
     {
         return ((BigInteger) AsUnsigned()).GetHashCode();
+    }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return this;
     }
 }

@@ -73,7 +73,7 @@ internal sealed class State : IState, IExecutable
             .And(_system.IsEquivalentTo(previous._system));
 
         if (isEquivalent)
-            return subs.All(s => Space.SubsAreEquivalent(s, previous.Space));
+            return Space.SubsAreEquivalent(subs.SelectMany(s => s).ToHashSet(), previous.Space);
         return false;
     }
 

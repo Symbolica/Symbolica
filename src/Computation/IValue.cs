@@ -15,4 +15,5 @@ internal interface IValue : IEquatable<IValue>, IMergeable<(IValue, IValue), IVa
     FPExpr AsFloat(ISolver solver);
     bool TryMerge(IValue value, out IValue? merged);
     IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs);
+    IValue RenameSymbols(Func<string, string> renamer);
 }

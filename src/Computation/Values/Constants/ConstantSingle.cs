@@ -109,4 +109,9 @@ internal sealed record ConstantSingle : Float, IConstantValue
     {
         return ((BigInteger) AsUnsigned()).GetHashCode();
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return this;
+    }
 }

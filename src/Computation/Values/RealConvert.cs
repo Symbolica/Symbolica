@@ -65,4 +65,9 @@ internal sealed record RealConvert : Float, IRealValue
             Value = _value.ToJson()
         };
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return this;
+    }
 }

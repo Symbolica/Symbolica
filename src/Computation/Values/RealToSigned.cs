@@ -61,4 +61,9 @@ internal sealed record RealToSigned : BitVector
             Value = _value.ToJson()
         };
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return this;
+    }
 }

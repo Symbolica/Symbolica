@@ -93,4 +93,9 @@ internal sealed record Add : BitVector
             _left.GetEquivalencyHash(includeSubs),
             _right.GetEquivalencyHash(includeSubs));
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return Create(_left.RenameSymbols(renamer), _right.RenameSymbols(renamer));
+    }
 }

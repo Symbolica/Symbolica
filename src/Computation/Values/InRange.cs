@@ -106,4 +106,9 @@ internal sealed record InRange : Bool
             _value.GetEquivalencyHash(includeSubs),
             _range.GetEquivalencyHash(includeSubs));
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return new InRange(_value.RenameSymbols(renamer), _range.RenameSymbols(renamer));
+    }
 }

@@ -123,4 +123,9 @@ internal sealed record NormalFloat : Float
     {
         return HashCode.Combine(Size, _value);
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return this;
+    }
 }

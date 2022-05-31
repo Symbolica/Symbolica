@@ -71,4 +71,9 @@ internal sealed record FloatToUnsigned : BitVector
             Size,
             _value.GetEquivalencyHash(includeSubs));
     }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return Create(Size, _value.RenameSymbols(renamer));
+    }
 }
