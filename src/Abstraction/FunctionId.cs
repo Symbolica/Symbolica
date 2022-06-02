@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public readonly struct FunctionId : IEquatable<FunctionId>, IMergeable<ExpressionSubs, FunctionId>
+public readonly struct FunctionId : IEquatable<FunctionId>, IEquivalent<ExpressionSubs, FunctionId>, IMergeable<FunctionId>
 {
     private readonly ulong _value;
 
@@ -63,8 +64,19 @@ public readonly struct FunctionId : IEquatable<FunctionId>, IMergeable<Expressio
         return _value;
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
         return GetHashCode();
+    }
+
+    public int GetMergeHash()
+    {
+        return GetHashCode();
+    }
+
+    public bool TryMerge(FunctionId other, IExpression predicate, [MaybeNullWhen(false)] out FunctionId merged)
+    {
+        merged = this;
+        return Equals(other);
     }
 }

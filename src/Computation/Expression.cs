@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using Symbolica.Collection;
@@ -13,14 +14,12 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
 {
     private readonly ICollectionFactory _collectionFactory;
     private readonly Lazy<int> _equivalencyHash;
-    private readonly Lazy<int> _mergeHash;
 
     public Expression(ICollectionFactory collectionFactory, IValue value)
     {
         _collectionFactory = collectionFactory;
         Value = value;
-        _equivalencyHash = new(() => Value.GetEquivalencyHash(false));
-        _mergeHash = new(() => Value.GetEquivalencyHash(true));
+        _equivalencyHash = new(() => Value.GetEquivalencyHash());
     }
 
     public Bits Size => Value.Size;
@@ -400,10 +399,20 @@ internal sealed class Expression : IExpression, IEquatable<Expression>
         return Value.ToJson();
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
+    }
+
+    public int GetMergeHash()
+    {
+        return 0;
+    }
+
+    public bool TryMerge(IExpression other, IExpression predicate, [MaybeNullWhen(false)] out IExpression merged)
+    {
+        // TODO: Ensure when predicate is true it represents the space containing this expression
+        merged = predicate.Select(this, other);
+        return true;
     }
 }

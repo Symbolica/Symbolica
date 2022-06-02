@@ -9,28 +9,36 @@ namespace Symbolica.Implementation.Stack;
 
 internal sealed class PersistentJumps : IPersistentJumps
 {
+    private readonly ICollectionFactory _collectionFactory;
     private readonly IPersistentStack<Point> _points;
     private readonly Lazy<int> _equivalencyHash;
     private readonly Lazy<int> _mergeHash;
 
-    private PersistentJumps(IPersistentStack<Point> points)
+    private PersistentJumps(ICollectionFactory collectionFactory, IPersistentStack<Point> points)
     {
+        _collectionFactory = collectionFactory;
         _points = points;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var hash = new HashCode();
             foreach (var point in _points)
-                hash.Add(point.GetEquivalencyHash(includeSubs));
+                hash.Add(point.GetEquivalencyHash());
             return hash.ToHashCode();
-        }
+        });
+        _mergeHash = new(() =>
+        {
+            var hash = new HashCode();
+            foreach (var point in _points)
+                hash.Add(point.GetMergeHash());
+            return hash.ToHashCode();
+        });
     }
 
     public IPersistentJumps Add(IExpression continuation, bool useJumpBuffer, ISavedFrame frame)
     {
-        return new PersistentJumps(_points.Push(new Point(continuation, useJumpBuffer, frame)));
+        return new PersistentJumps(
+            _collectionFactory,
+            _points.Push(new Point(continuation, useJumpBuffer, frame)));
     }
 
     public Result<ISavedFrame> TryGet(ISpace space, IExpression continuation, bool useJumpBuffer)
@@ -44,7 +52,9 @@ internal sealed class PersistentJumps : IPersistentJumps
 
     public static IPersistentJumps Create(ICollectionFactory collectionFactory)
     {
-        return new PersistentJumps(collectionFactory.CreatePersistentStack<Point>());
+        return new PersistentJumps(
+            collectionFactory,
+            collectionFactory.CreatePersistentStack<Point>());
     }
 
     public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IPersistentJumps other)
@@ -59,14 +69,30 @@ internal sealed class PersistentJumps : IPersistentJumps
         return _points.Select(p => p.ToJson()).ToArray();
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
     }
 
-    private readonly struct Point : IMergeable<ExpressionSubs, Point>
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IPersistentJumps other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentJumps merged)
+    {
+        if (other is PersistentJumps pj && _points.TryMerge(pj._points, predicate, out var mergedPoints))
+        {
+            merged = new PersistentJumps(
+                _collectionFactory,
+                _collectionFactory.CreatePersistentStack(mergedPoints));
+            return true;
+        }
+        merged = null;
+        return false;
+    }
+
+    private readonly struct Point : IEquivalent<ExpressionSubs, Point>, IMergeable<Point>
     {
         private readonly IExpression _continuation;
         private readonly bool _useJumpBuffer;
@@ -97,12 +123,12 @@ internal sealed class PersistentJumps : IPersistentJumps
                 .And((new(), _useJumpBuffer == other._useJumpBuffer));
         }
 
-        public int GetEquivalencyHash(bool includeSubs)
+        public int GetEquivalencyHash()
         {
             return HashCode.Combine(
-                _continuation.GetEquivalencyHash(includeSubs),
+                _continuation.GetEquivalencyHash(),
                 _useJumpBuffer,
-                Frame.GetEquivalencyHash(includeSubs));
+                Frame.GetEquivalencyHash());
         }
 
         public bool IsMatch(ISpace space, IExpression continuation, bool useJumpBuffer)
@@ -118,6 +144,28 @@ internal sealed class PersistentJumps : IPersistentJumps
                 Frame = Frame.ToJson(),
                 UseJumpBuffer = _useJumpBuffer
             };
+        }
+
+        public int GetMergeHash()
+        {
+            return HashCode.Combine(
+                _continuation.GetMergeHash(),
+                _useJumpBuffer,
+                Frame.GetMergeHash());
+        }
+
+        public bool TryMerge(Point other, IExpression predicate, out Point merged)
+        {
+            if (_continuation.TryMerge(other._continuation, predicate, out var mergedContinuation)
+                && _useJumpBuffer == other._useJumpBuffer
+                && Frame.TryMerge(other.Frame, predicate, out var mergedFrame))
+            {
+                merged = new Point(mergedContinuation, _useJumpBuffer, mergedFrame);
+                return true;
+            }
+
+            merged = new();
+            return false;
         }
 
         public override string? ToString()

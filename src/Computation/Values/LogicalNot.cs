@@ -95,11 +95,11 @@ internal sealed record LogicalNot : Bool
         };
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         return HashCode.Combine(
             GetType().Name,
-            _value.GetEquivalencyHash(includeSubs));
+            _value.GetEquivalencyHash());
     }
 
     public override IValue RenameSymbols(Func<string, string> renamer)
@@ -163,11 +163,11 @@ internal sealed record LogicalNot : Bool
             };
         }
 
-        public override int GetEquivalencyHash(bool includeSubs)
+        public override int GetEquivalencyHash()
         {
             return HashCode.Combine(
                 GetType().Name,
-                Value.GetEquivalencyHash(includeSubs));
+                Value.GetEquivalencyHash());
         }
 
         public override IValue RenameSymbols(Func<string, string> renamer)

@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
-public interface IFile : IMergeable<ExpressionSubs, IFile>
+public interface IFile : IEquivalent<ExpressionSubs, IFile>, IMergeable<IFile>
 {
     long LastAccessTime { get; }
     long LastModifiedTime { get; }

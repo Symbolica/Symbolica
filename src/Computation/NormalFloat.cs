@@ -119,7 +119,7 @@ internal sealed record NormalFloat : Float
         };
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         return HashCode.Combine(Size, _value);
     }

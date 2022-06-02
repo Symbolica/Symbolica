@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
 
@@ -71,8 +72,25 @@ internal sealed class MemoryProxy : IMemoryProxy
         return _memory.ToJson();
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return _memory.GetEquivalencyHash(includeSubs);
+        return _memory.GetEquivalencyHash();
+    }
+
+    public int GetMergeHash()
+    {
+        return _memory.GetMergeHash();
+    }
+
+    public bool TryMerge(IMemoryProxy other, IExpression predicate, [MaybeNullWhen(false)] out IMemoryProxy merged)
+    {
+        if (other is MemoryProxy mp && _memory.TryMerge(mp._memory, predicate, out var mergedMemory))
+        {
+            merged = new MemoryProxy(mergedMemory);
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

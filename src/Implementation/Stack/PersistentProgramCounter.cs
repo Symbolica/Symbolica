@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 using Symbolica.Implementation.Exceptions;
@@ -51,7 +52,7 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
             ? _basicBlock.IsEquivalentTo(ppc._basicBlock)
                 .And(_definition.IsEquivalentTo(ppc._definition))
                 .And((new(), _index == ppc._index))
-                .And(Mergeable.IsNullableEquivalentTo<ExpressionSubs, BasicBlockId>(_predecessorId, ppc._predecessorId))
+                .And(Equivalent.IsNullableEquivalentTo<ExpressionSubs, BasicBlockId>(_predecessorId, ppc._predecessorId))
             : (new(), false);
     }
 
@@ -66,12 +67,36 @@ internal sealed class PersistentProgramCounter : IPersistentProgramCounter
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
         return HashCode.Combine(
-            _basicBlock.GetEquivalencyHash(includeSubs),
-            _definition.GetEquivalencyHash(includeSubs),
+            _basicBlock.GetEquivalencyHash(),
+            _definition.GetEquivalencyHash(),
             _index,
-            _predecessorId?.GetEquivalencyHash(includeSubs));
+            _predecessorId?.GetEquivalencyHash());
+    }
+
+    public int GetMergeHash()
+    {
+        return HashCode.Combine(
+            _basicBlock.GetMergeHash(),
+            _definition.GetMergeHash(),
+            _index,
+            _predecessorId?.GetMergeHash());
+    }
+
+    public bool TryMerge(IPersistentProgramCounter other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentProgramCounter merged)
+    {
+        if (other is PersistentProgramCounter ppc
+            && _basicBlock.TryMerge(ppc._basicBlock, predicate, out var mergedBasicBlock)
+            && _definition.TryMerge(ppc._definition, predicate, out var mergedDefinition)
+            && _index == ppc._index
+            && Mergeable.TryMergeNullable(_predecessorId, ppc._predecessorId, predicate, out var mergedPredecessorId))
+        {
+            merged = new PersistentProgramCounter(mergedDefinition, mergedBasicBlock, mergedPredecessorId, _index);
+            return true;
+        }
+        merged = null;
+        return false;
     }
 }

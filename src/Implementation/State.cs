@@ -77,12 +77,12 @@ internal sealed class State : IState, IExecutable
         return false;
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
         return HashCode.Combine(
-            _stack.GetEquivalencyHash(includeSubs),
-            _memory.GetEquivalencyHash(includeSubs),
-            _system.GetEquivalencyHash(includeSubs));
+            _stack.GetEquivalencyHash(),
+            _memory.GetEquivalencyHash(),
+            _system.GetEquivalencyHash());
     }
 
     public bool TryMerge(IExecutable state, [MaybeNullWhen(false)] out IExecutable merged)
@@ -93,15 +93,30 @@ internal sealed class State : IState, IExecutable
 
     private bool TryMerge(State other, [MaybeNullWhen(false)] out IExecutable merged)
     {
-        var (subs, isEquivalent) = _stack.IsEquivalentTo(other._stack)
-            .And(_memory.IsEquivalentTo(other._memory))
-            .And(_system.IsEquivalentTo(other._system));
+        merged = null;
+        return Space.TryMerge(other.Space, out var result)
+            && TryMerge(other, result.Merged, result.Predicate, out merged);
+    }
 
-        if (isEquivalent && !subs.Any() && Space.TryMerge(other.Space, out var mergedSpace))
+    private bool TryMerge(State other, ISpace mergedSpace, IExpression predicate, [MaybeNullWhen(false)] out IExecutable merged)
+    {
+        if (_stack.TryMerge(other._stack, predicate, out var mergedStack)
+            && _memory.TryMerge(other._memory, predicate, out var mergedMemory)
+            && _system.TryMerge(other._system, predicate, out var mergedSystem))
         {
-            merged = Clone(mergedSpace);
+            merged = new State(
+                _status,
+                _initialAction,
+                _module,
+                mergedSpace,
+                _globals,
+                mergedMemory,
+                mergedStack,
+                mergedSystem,
+                Generation);
             return true;
         }
+
         merged = null;
         return false;
     }
@@ -163,11 +178,6 @@ internal sealed class State : IState, IExecutable
     public IExecutable Clone()
     {
         return Clone(Space, _status, _initialAction);
-    }
-
-    private State Clone(ISpace space)
-    {
-        return Clone(space, _status, _initialAction);
     }
 
     private State Clone(ISpace space, IStateAction initialAction)

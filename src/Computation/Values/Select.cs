@@ -97,12 +97,12 @@ internal sealed record Select : IValue
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
         return HashCode.Combine(
-            _predicate.GetEquivalencyHash(includeSubs),
-            _trueValue.GetEquivalencyHash(includeSubs),
-            _falseValue.GetEquivalencyHash(includeSubs));
+            _predicate.GetEquivalencyHash(),
+            _trueValue.GetEquivalencyHash(),
+            _falseValue.GetEquivalencyHash());
     }
 
     public IValue RenameSymbols(Func<string, string> renamer)

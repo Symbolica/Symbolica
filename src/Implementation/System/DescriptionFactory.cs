@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -97,9 +98,20 @@ internal sealed class DescriptionFactory : IDescriptionFactory
             return GetType().Name;
         }
 
-        public int GetEquivalencyHash(bool includeSubs)
+        public int GetEquivalencyHash()
         {
             return GetType().Name.GetHashCode();
+        }
+
+        public int GetMergeHash()
+        {
+            return GetType().Name.GetHashCode();
+        }
+
+        public bool TryMerge(IPersistentDescription other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentDescription merged)
+        {
+            merged = this;
+            return other is InvalidDescription;
         }
     }
 }

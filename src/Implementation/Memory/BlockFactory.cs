@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
@@ -69,9 +71,20 @@ internal sealed class BlockFactory : IBlockFactory
             return GetType().Name;
         }
 
-        public int GetEquivalencyHash(bool includeSubs)
+        public int GetEquivalencyHash()
         {
-            return GetHashCode();
+            return HashCode.Combine(GetType().Name);
+        }
+
+        public int GetMergeHash()
+        {
+            return HashCode.Combine(GetType().Name);
+        }
+
+        public bool TryMerge(IPersistentBlock other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentBlock merged)
+        {
+            merged = this;
+            return other is InvalidBlock;
         }
     }
 }

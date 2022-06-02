@@ -1,9 +1,8 @@
-using System.Collections.Generic;
 using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public interface IParameters : IMergeable<ExpressionSubs, IParameters>
+public interface IParameters : IEquivalent<ExpressionSubs, IParameters>, IMergeable<IParameters>
 {
     int Count { get; }
 

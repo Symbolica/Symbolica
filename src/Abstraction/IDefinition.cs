@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using Symbolica.Expression;
+﻿using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public interface IDefinition : IFunction, IMergeable<ExpressionSubs, IDefinition>
+public interface IDefinition : IFunction, IEquivalent<ExpressionSubs, IDefinition>, IMergeable<IDefinition>
 {
     string Name { get; }
     IBasicBlock Entry { get; }

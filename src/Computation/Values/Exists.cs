@@ -73,16 +73,16 @@ internal sealed record Exists : Bool
         };
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         var symbolsHash = new HashCode();
         foreach (var symbol in _symbols)
-            symbolsHash.Add(symbol.GetEquivalencyHash(includeSubs));
+            symbolsHash.Add(symbol.GetEquivalencyHash());
 
         return HashCode.Combine(
             GetType().Name,
             symbolsHash.ToHashCode(),
-            _value.GetEquivalencyHash(includeSubs));
+            _value.GetEquivalencyHash());
     }
 
     public override IValue RenameSymbols(Func<string, string> renamer)

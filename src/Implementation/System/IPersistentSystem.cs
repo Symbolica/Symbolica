@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
-internal interface IPersistentSystem : IMergeable<ExpressionSubs, IPersistentSystem>
+internal interface IPersistentSystem : IEquivalent<ExpressionSubs, IPersistentSystem>, IMergeable<IPersistentSystem>
 {
     (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemory memory);
     (int, IPersistentSystem) Open(string path);

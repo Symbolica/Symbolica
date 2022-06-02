@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
@@ -10,7 +11,11 @@ internal sealed class PersistentBlock : IPersistentBlock
 {
     private readonly IExpressionFactory _exprFactory;
 
-    public PersistentBlock(IExpressionFactory exprFactory, Section section, IExpression offset, IExpression data)
+    public PersistentBlock(
+        IExpressionFactory exprFactory,
+        Section section,
+        IExpression offset,
+        IExpression data)
     {
         _exprFactory = exprFactory;
         Section = section;
@@ -150,11 +155,34 @@ internal sealed class PersistentBlock : IPersistentBlock
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
         return HashCode.Combine(
             Section,
-            Offset.GetEquivalencyHash(includeSubs),
-            Data.GetEquivalencyHash(includeSubs));
+            Offset.GetEquivalencyHash(),
+            Data.GetEquivalencyHash());
+    }
+
+    public int GetMergeHash()
+    {
+        return HashCode.Combine(
+            Section,
+            Offset.GetMergeHash(),
+            Data.GetMergeHash());
+    }
+
+    public bool TryMerge(IPersistentBlock other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentBlock merged)
+    {
+        if (other is PersistentBlock pb
+            && Section == pb.Section
+            && Offset.TryMerge(pb.Offset, predicate, out var mergedOffset)
+            && Data.TryMerge(pb.Data, predicate, out var mergedData))
+        {
+            merged = new PersistentBlock(_exprFactory, Section, mergedOffset, mergedData);
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

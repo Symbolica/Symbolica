@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Symbolica.Implementation;
@@ -79,13 +81,25 @@ internal sealed class StatePool : IDisposable
 
     private async Task Merge()
     {
+        static void WriteState(string name, IExecutable state)
+        {
+            var example = string.Join("_", state.Space.GetExample()
+                .OrderBy(p => p.Key)
+                .Select(p => $"{p.Key}{p.Value}"));
+            File.WriteAllText(
+                $"{name}_gen{state.Generation}_hash({state.GetEquivalencyHash(true)}).json",
+                JsonSerializer.Serialize(state.ToJson(), new JsonSerializerOptions { WriteIndented = true }));
+        }
+
         _merger.Complete();
         var merged = await _merger.GetMerged();
-        var states = merged.Where(s => s.Generation < 3).ToArray();
+        var states = merged.Where(s => s.Generation < 150).ToArray();
         if (!states.Any())
             _completed.SetResult();
         else
         {
+            foreach (var duplicate in states.ToLookup(s => s.GetEquivalencyHash(true)).Where(g => g.Count() > 1).SelectMany(x => x))
+                WriteState("mergeDup", duplicate);
             _pastStates.AddRange(states.Select(s => s.Clone()));
             _merger = new(_pastStates);
             Add(states);
@@ -95,7 +109,6 @@ internal sealed class StatePool : IDisposable
     public async Task<(ulong, ulong, Exception?)> Wait()
     {
         await _completed.Task;
-
         return (_completedStates, _executedInstructions, _exception);
     }
 }

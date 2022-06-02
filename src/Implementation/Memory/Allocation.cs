@@ -5,7 +5,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
 
-internal readonly struct Allocation : IComparable<Allocation>, IMergeable<ExpressionSubs, Allocation>
+internal readonly struct Allocation : IComparable<Allocation>, IEquivalent<ExpressionSubs, Allocation>, IMergeable<Allocation>
 {
     public Allocation(Bytes address, IPersistentBlock block)
     {
@@ -39,9 +39,9 @@ internal readonly struct Allocation : IComparable<Allocation>, IMergeable<Expres
             .And(Block.IsEquivalentTo(other.Block));
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return HashCode.Combine(Address, Block.GetEquivalencyHash(includeSubs));
+        return HashCode.Combine(Address, Block.GetEquivalencyHash());
     }
 
     public object ToJson()
@@ -51,5 +51,22 @@ internal readonly struct Allocation : IComparable<Allocation>, IMergeable<Expres
             Address = (uint) Address,
             Block = Block.ToJson()
         };
+    }
+
+    public int GetMergeHash()
+    {
+        return HashCode.Combine(Address, Block.GetMergeHash());
+    }
+
+    public bool TryMerge(Allocation other, IExpression predicate, out Allocation merged)
+    {
+        if (Address == other.Address && Block.TryMerge(other.Block, predicate, out var mergedBlock))
+        {
+            merged = new Allocation(Address, mergedBlock);
+            return true;
+        }
+
+        merged = new();
+        return true;
     }
 }

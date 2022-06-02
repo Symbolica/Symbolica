@@ -1,30 +1,119 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Symbolica.Expression;
 
-public interface IMergeable<S, in T>
+public interface IEquivalent<S, in T>
 {
-    int GetEquivalencyHash(bool includeSubs);
+    int GetEquivalencyHash();
     (HashSet<S> subs, bool) IsEquivalentTo(T other);
     object ToJson();
 }
 
+public interface IMergeable<T>
+{
+    int GetMergeHash();
+    bool TryMerge(T other, IExpression predicate, [MaybeNullWhen(false)] out T merged);
+}
+
 public static class Mergeable
+{
+    public delegate bool Merger<T>(T self, T other, IExpression predicate, [MaybeNullWhen(false)] out T merged);
+
+    public static bool TryMerge<T>(
+        this IEnumerable<T> self,
+        IEnumerable<T> others,
+        IExpression predicate,
+        Merger<T> merger,
+        [MaybeNullWhen(false)] out IEnumerable<T> merged)
+    {
+        merged = null;
+        var mergedList = new List<T>();
+        if (self.Count() != others.Count())
+            return false;
+
+        foreach (var (x, y) in self.Zip(others))
+            if (merger(x, y, predicate, out var z))
+                mergedList.Add(z);
+            else
+                return false;
+
+        merged = mergedList;
+        return true;
+    }
+
+    public static bool TryMerge<T>(
+        this IEnumerable<T> self,
+        IEnumerable<T> others,
+        IExpression predicate,
+        [MaybeNullWhen(false)] out IEnumerable<T> merged)
+        where T : IMergeable<T>
+    {
+        return self.TryMerge(
+            others,
+            predicate,
+            (T x, T y, IExpression predicate, [MaybeNullWhen(false)] out T mergedItem) => x.TryMerge(y, predicate, out mergedItem),
+            out merged);
+    }
+
+    public static bool TryMerge<K, V>(
+        this IEnumerable<KeyValuePair<K, V>> self,
+        IEnumerable<KeyValuePair<K, V>> others,
+        IExpression predicate,
+        [MaybeNullWhen(false)] out IEnumerable<KeyValuePair<K, V>> merged)
+        where K : IMergeable<K>
+        where V : IMergeable<V>
+    {
+        return self.TryMerge(
+            others,
+            predicate,
+            (KeyValuePair<K, V> x, KeyValuePair<K, V> y, IExpression predicate, out KeyValuePair<K, V> mergedItem) =>
+            {
+                if (x.Key.TryMerge(y.Key, predicate, out var mergedKey)
+                    && x.Value.TryMerge(y.Value, predicate, out var mergedValue))
+                {
+                    mergedItem = new(mergedKey, mergedValue);
+                    return true;
+                }
+                mergedItem = new();
+                return false;
+            },
+            out merged);
+    }
+
+    public static bool TryMergeNullable<T>(T? self, T? other, IExpression predicate, out T? merged)
+        where T : class, IMergeable<T>
+    {
+        merged = null;
+        return self is not null && other is not null && self.TryMerge(other, predicate, out merged)
+            || self is null && other is null;
+    }
+
+    public static bool TryMergeNullable<T>(T? self, T? other, IExpression predicate, out T merged)
+        where T : struct, IMergeable<T>
+    {
+        merged = new();
+        return self is not null && other is not null && self.Value.TryMerge(other.Value, predicate, out merged)
+            || self is null && other is null;
+    }
+}
+
+public static class Equivalent
 {
     public static (HashSet<S> subs, bool) IsEquivalentTo<S, K, V>(
         this KeyValuePair<K, V> self,
         KeyValuePair<K, V> other)
-        where K : IMergeable<S, K>
-        where V : IMergeable<S, V>
+        where K : IEquivalent<S, K>
+        where V : IEquivalent<S, V>
     {
         return self.Key.IsEquivalentTo(other.Key)
             .And(self.Value.IsEquivalentTo(other.Value));
     }
 
     public static (HashSet<S> subs, bool) IsNullableEquivalentTo<S, T>(T? self, T? other)
-        where T : struct, IMergeable<S, T>
+        where T : struct, IEquivalent<S, T>
     {
         return self is not null && other is not null
             ? self.Value.IsEquivalentTo(other.Value)
@@ -32,7 +121,7 @@ public static class Mergeable
     }
 
     public static (HashSet<S> subs, bool) IsNullableEquivalentTo<S, T>(T? self, T? other)
-        where T : class, IMergeable<S, T>
+        where T : class, IEquivalent<S, T>
     {
         return self is not null && other is not null
             ? self.IsEquivalentTo(other)
@@ -63,7 +152,7 @@ public static class Mergeable
     public static (HashSet<S> subs, bool) IsSequenceEquivalentTo<S, T>(
         this IEnumerable<T> self,
         IEnumerable<T> other)
-        where T : IMergeable<S, T>
+        where T : IEquivalent<S, T>
     {
         return self.IsSequenceEquivalentTo(other, (a, b) => a.IsEquivalentTo(b));
     }
@@ -71,8 +160,8 @@ public static class Mergeable
     public static (HashSet<S> subs, bool) IsSequenceEquivalentTo<S, K, V>(
         this IEnumerable<KeyValuePair<K, V>> self,
         IEnumerable<KeyValuePair<K, V>> other)
-        where K : IMergeable<S, K>
-        where V : IMergeable<S, V>
+        where K : IEquivalent<S, K>
+        where V : IEquivalent<S, V>
     {
         return self.IsSequenceEquivalentTo(other, (a, b) => a.IsEquivalentTo<S, K, V>(b));
     }

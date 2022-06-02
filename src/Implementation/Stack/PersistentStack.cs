@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -10,6 +11,7 @@ namespace Symbolica.Implementation.Stack;
 
 internal sealed class PersistentStack : IPersistentStack
 {
+    private readonly ICollectionFactory _collectionFactory;
     private readonly IPersistentContinuationFactory _continuationFactory;
     private readonly IPersistentFrame _currentFrame;
     private readonly IFrameFactory _frameFactory;
@@ -18,25 +20,32 @@ internal sealed class PersistentStack : IPersistentStack
     private readonly Lazy<int> _equivalencyHash;
     private readonly Lazy<int> _mergeHash;
 
-    private PersistentStack(IModule module, IFrameFactory frameFactory,
+    private PersistentStack(IModule module,
+        IFrameFactory frameFactory,
+        ICollectionFactory collectionFactory,
         IPersistentContinuationFactory continuationFactory,
         IPersistentStack<IPersistentFrame> pushedFrames, IPersistentFrame currentFrame)
     {
         _module = module;
         _frameFactory = frameFactory;
+        _collectionFactory = collectionFactory;
         _continuationFactory = continuationFactory;
         _pushedFrames = pushedFrames;
         _currentFrame = currentFrame;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var hash = new HashCode();
             foreach (var frame in AllFrames)
-                hash.Add(frame.GetEquivalencyHash(includeSubs));
+                hash.Add(frame.GetEquivalencyHash());
             return hash.ToHashCode();
-        }
+        });
+        _mergeHash = new(() =>
+        {
+            var hash = new HashCode();
+            foreach (var frame in AllFrames)
+                hash.Add(frame.GetMergeHash());
+            return hash.ToHashCode();
+        });
     }
 
     public bool IsInitialFrame => !_pushedFrames.Any();
@@ -47,7 +56,7 @@ internal sealed class PersistentStack : IPersistentStack
     public IPersistentStack Wind(ISpace space, IMemory memory, ICaller caller, IInvocation invocation)
     {
         return new PersistentStack(_module, _frameFactory,
-            _continuationFactory,
+            _collectionFactory, _continuationFactory,
             _pushedFrames.Push(_currentFrame), _frameFactory.Create(space, memory, caller, invocation));
     }
 
@@ -64,7 +73,7 @@ internal sealed class PersistentStack : IPersistentStack
         memory.Write(space, address, continuation);
 
         return new PersistentStack(_module, _frameFactory,
-            continuationFactory,
+            _collectionFactory, continuationFactory,
             _pushedFrames, _currentFrame.Save(continuation, useJumpBuffer));
     }
 
@@ -87,7 +96,7 @@ internal sealed class PersistentStack : IPersistentStack
                     .SkipLast(currentFrame.GetAllocations().Count()));
 
                 return new PersistentStack(_module, _frameFactory,
-                    _continuationFactory,
+                    _collectionFactory, _continuationFactory,
                     stack._pushedFrames, currentFrame);
             }
 
@@ -101,14 +110,14 @@ internal sealed class PersistentStack : IPersistentStack
     public IPersistentStack TransferBasicBlock(BasicBlockId id)
     {
         return new PersistentStack(_module, _frameFactory,
-            _continuationFactory,
+            _collectionFactory, _continuationFactory,
             _pushedFrames, _currentFrame.TransferBasicBlock(id));
     }
 
     public IPersistentStack MoveNextInstruction()
     {
         return new PersistentStack(_module, _frameFactory,
-            _continuationFactory,
+            _collectionFactory, _continuationFactory,
             _pushedFrames, _currentFrame.MoveNextInstruction());
     }
 
@@ -130,7 +139,7 @@ internal sealed class PersistentStack : IPersistentStack
     public IPersistentStack SetVariable(InstructionId id, IExpression variable)
     {
         return new PersistentStack(_module, _frameFactory,
-            _continuationFactory,
+            _collectionFactory, _continuationFactory,
             _pushedFrames, _currentFrame.SetVariable(id, variable));
     }
 
@@ -139,7 +148,7 @@ internal sealed class PersistentStack : IPersistentStack
         var address = memory.Allocate(Section.Stack, size);
 
         return (address, new PersistentStack(_module, _frameFactory,
-            _continuationFactory,
+            _collectionFactory, _continuationFactory,
             _pushedFrames, _currentFrame.AddAllocation(address)));
     }
 
@@ -155,7 +164,7 @@ internal sealed class PersistentStack : IPersistentStack
         Free(space, memory, _currentFrame.GetAllocations());
 
         return new PersistentStack(_module, _frameFactory,
-            _continuationFactory,
+            _collectionFactory, _continuationFactory,
             _pushedFrames.Pop(out var currentFrame), currentFrame);
     }
 
@@ -178,7 +187,7 @@ internal sealed class PersistentStack : IPersistentStack
         var main = module.GetMain();
 
         return new PersistentStack(module, frameFactory,
-            continuationFactory,
+            collectionFactory, continuationFactory,
             collectionFactory.CreatePersistentStack<IPersistentFrame>(), frameFactory.CreateInitial(main));
     }
 
@@ -187,10 +196,33 @@ internal sealed class PersistentStack : IPersistentStack
         return AllFrames.Select(f => f.ToJson()).ToArray();
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
+    }
+
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IPersistentStack other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentStack merged)
+    {
+        if (other is PersistentStack ps
+            && _currentFrame.TryMerge(ps._currentFrame, predicate, out var mergedCurrentFrame)
+            && _pushedFrames.TryMerge(ps._pushedFrames, predicate, out var mergedPushedFrames))
+        {
+            merged = new PersistentStack(
+                _module,
+                _frameFactory,
+                _collectionFactory,
+                _continuationFactory,
+                _collectionFactory.CreatePersistentStack(mergedPushedFrames),
+                mergedCurrentFrame);
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

@@ -76,12 +76,12 @@ internal sealed record FloatConvert : Float
         };
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         return HashCode.Combine(
             GetType().Name,
             Size,
-            _value.GetEquivalencyHash(includeSubs));
+            _value.GetEquivalencyHash());
     }
 
     public override IValue RenameSymbols(Func<string, string> renamer)

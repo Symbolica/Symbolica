@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
@@ -46,8 +48,37 @@ internal sealed class FrameFactory : IFrameFactory
         public Bits Size => (Bits) 16U;
         public IAttributes ReturnAttributes => new InitialReturnAttributes();
 
+        public int GetEquivalencyHash()
+        {
+            return HashCode.Combine(GetType().Name);
+        }
+
+        public int GetMergeHash()
+        {
+            return HashCode.Combine(GetType().Name);
+        }
+
+        public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(ICaller other)
+        {
+            return (new(), other is InitialCaller);
+        }
+
         public void Return(IState state)
         {
+        }
+
+        public object ToJson()
+        {
+            return new
+            {
+                Type = GetType().Name
+            };
+        }
+
+        public bool TryMerge(ICaller other, IExpression predicate, [MaybeNullWhen(false)] out ICaller merged)
+        {
+            merged = this;
+            return other is InitialCaller;
         }
 
         private sealed class InitialReturnAttributes : IAttributes
@@ -66,6 +97,35 @@ internal sealed class FrameFactory : IFrameFactory
         public IEnumerator<IExpression> GetEnumerator()
         {
             return Enumerable.Empty<IExpression>().GetEnumerator();
+        }
+
+        public int GetEquivalencyHash()
+        {
+            return HashCode.Combine(GetType().Name);
+        }
+
+        public int GetMergeHash()
+        {
+            return HashCode.Combine(GetType().Name);
+        }
+
+        public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IArguments other)
+        {
+            return (new(), other is InitialArguments);
+        }
+
+        public object ToJson()
+        {
+            return new
+            {
+                Type = GetType().Name
+            };
+        }
+
+        public bool TryMerge(IArguments other, IExpression predicate, [MaybeNullWhen(false)] out IArguments merged)
+        {
+            merged = this;
+            return other is InitialArguments;
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -28,17 +29,22 @@ internal sealed class ConstantMemory : IPersistentMemory
         _exprFactory = exprFactory;
         _nextAddress = nextAddress;
         _allocations = allocations;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var allocationsHash = new HashCode();
             foreach (var allocation in ValidAllocations)
-                allocationsHash.Add(allocation.GetEquivalencyHash(includeSubs));
+                allocationsHash.Add(allocation.GetEquivalencyHash());
 
             return HashCode.Combine(_alignment, allocationsHash.ToHashCode());
-        }
+        });
+        _mergeHash = new(() =>
+        {
+            var allocationsHash = new HashCode();
+            foreach (var allocation in _allocations)
+                allocationsHash.Add(allocation.GetMergeHash());
+
+            return HashCode.Combine(_alignment, allocationsHash.ToHashCode());
+        });
     }
 
     private IEnumerable<Allocation> ValidAllocations => _allocations.Where(a => a.Block.IsValid);
@@ -181,17 +187,38 @@ internal sealed class ConstantMemory : IPersistentMemory
         return new
         {
             Alignment = (uint) _alignment,
-            Allocations = _allocations
-                .Where(a => a.Block.IsValid)
-                .Select(a => a.ToJson())
-                .ToArray()
+            Allocations = _allocations.Select(a => a.ToJson()).ToArray()
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
+    }
+
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IPersistentMemory other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentMemory merged)
+    {
+        if (other is ConstantMemory cm
+            && _alignment == cm._alignment
+            && _allocations.TryMerge(cm._allocations, predicate, out var mergedAllocations))
+        {
+            merged = new ConstantMemory(
+                _alignment,
+                _blockFactory,
+                _collectionFactory,
+                _exprFactory,
+                _nextAddress < cm._nextAddress ? _nextAddress : cm._nextAddress,
+                _collectionFactory.CreatePersistentList(mergedAllocations)
+            );
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

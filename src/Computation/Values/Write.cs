@@ -128,13 +128,13 @@ internal sealed record Write : BitVector
         };
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         return HashCode.Combine(
             GetType().Name,
-            _writeBuffer.GetEquivalencyHash(includeSubs),
-            _writeOffset.GetEquivalencyHash(includeSubs),
-            _writeValue.GetEquivalencyHash(includeSubs));
+            _writeBuffer.GetEquivalencyHash(),
+            _writeOffset.GetEquivalencyHash(),
+            _writeValue.GetEquivalencyHash());
     }
 
     public override IValue RenameSymbols(Func<string, string> renamer)

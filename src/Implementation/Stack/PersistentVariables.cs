@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Collection;
@@ -10,28 +11,32 @@ namespace Symbolica.Implementation.Stack;
 
 internal sealed class PersistentVariables : IPersistentVariables
 {
+    private readonly ICollectionFactory _collectionFactory;
     private readonly IPersistentDictionary<InstructionId, IExpression> _incomingVariables;
     private readonly IPersistentDictionary<InstructionId, IExpression> _variables;
     private readonly Lazy<int> _equivalencyHash;
     private readonly Lazy<int> _mergeHash;
 
-    private PersistentVariables(IPersistentDictionary<InstructionId, IExpression> incomingVariables,
+    private PersistentVariables(
+        ICollectionFactory collectionFactory,
+        IPersistentDictionary<InstructionId, IExpression> incomingVariables,
         IPersistentDictionary<InstructionId, IExpression> variables)
     {
+        _collectionFactory = collectionFactory;
         _incomingVariables = incomingVariables;
         _variables = variables;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
+        _equivalencyHash = new(() => CreateHash(k => k.GetEquivalencyHash(), v => v.GetEquivalencyHash()));
+        _mergeHash = new(() => CreateHash(k => k.GetMergeHash(), v => v.GetMergeHash()));
 
-        int EquivalencyHash(bool includeSubs)
+        int CreateHash(Func<InstructionId, int> createKeyHash, Func<IExpression, int> createValueHash)
         {
             int GetVariablesHash(IEnumerable<KeyValuePair<InstructionId, IExpression>> variables)
             {
                 var hashCode = new HashCode();
                 foreach (var variable in variables)
                     hashCode.Add(HashCode.Combine(
-                        variable.Key.GetEquivalencyHash(includeSubs),
-                        variable.Value.GetEquivalencyHash(includeSubs)));
+                        createKeyHash(variable.Key),
+                        createValueHash(variable.Value)));
                 return hashCode.ToHashCode();
             }
 
@@ -54,19 +59,21 @@ internal sealed class PersistentVariables : IPersistentVariables
 
     public IPersistentVariables Set(InstructionId instructionId, IExpression variable)
     {
-        return new PersistentVariables(_incomingVariables,
+        return new PersistentVariables(
+            _collectionFactory,
+            _incomingVariables,
             _variables.SetItem(instructionId, variable));
     }
 
     public IPersistentVariables TransferBasicBlock()
     {
-        return new PersistentVariables(_variables, _variables);
+        return new PersistentVariables(_collectionFactory, _variables, _variables);
     }
 
     public static IPersistentVariables Create(ICollectionFactory collectionFactory)
     {
         var variables = collectionFactory.CreatePersistentDictionary<InstructionId, IExpression>();
-        return new PersistentVariables(variables, variables);
+        return new PersistentVariables(collectionFactory, variables, variables);
     }
 
     public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(
@@ -95,10 +102,30 @@ internal sealed class PersistentVariables : IPersistentVariables
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
+    }
+
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IPersistentVariables other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentVariables merged)
+    {
+        if (other is PersistentVariables pv
+            && _incomingVariables.TryMerge(pv._incomingVariables, predicate, out var mergedIncomingVariables)
+            && _variables.TryMerge(pv._variables, predicate, out var mergedVariables))
+        {
+            merged = new PersistentVariables(
+                _collectionFactory,
+                _collectionFactory.CreatePersistentDictionary(mergedIncomingVariables),
+                _collectionFactory.CreatePersistentDictionary(mergedVariables));
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

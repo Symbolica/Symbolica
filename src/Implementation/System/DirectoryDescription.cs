@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Text;
 using Symbolica.Abstraction;
@@ -75,8 +76,26 @@ internal sealed class DirectoryDescription : IPersistentDescription
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return _directory.GetEquivalencyHash(includeSubs);
+        return _directory.GetEquivalencyHash();
+    }
+
+    public int GetMergeHash()
+    {
+        return _directory.GetMergeHash();
+    }
+
+    public bool TryMerge(IPersistentDescription other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentDescription merged)
+    {
+        if (other is DirectoryDescription dd
+            && _directory.TryMerge(dd._directory, predicate, out var mergedDirectory))
+        {
+            merged = new DirectoryDescription(_exprFactory, mergedDirectory);
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

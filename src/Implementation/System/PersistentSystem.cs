@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -10,6 +11,7 @@ namespace Symbolica.Implementation.System;
 
 internal sealed class PersistentSystem : IPersistentSystem
 {
+    private readonly ICollectionFactory _collectionFactory;
     private readonly IDescriptionFactory _descriptionFactory;
     private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<Handle> _handles;
@@ -19,24 +21,23 @@ internal sealed class PersistentSystem : IPersistentSystem
     private readonly Lazy<int> _equivalencyHash;
     private readonly Lazy<int> _mergeHash;
 
-    private PersistentSystem(IModule module, IDescriptionFactory descriptionFactory,
+    private PersistentSystem(IModule module,
+        ICollectionFactory collectionFactory, IDescriptionFactory descriptionFactory,
         IExpressionFactory exprFactory, IExpression? threadAddress,
         IPersistentList<int> indices, IPersistentList<Handle> handles)
     {
         _module = module;
+        _collectionFactory = collectionFactory;
         _descriptionFactory = descriptionFactory;
         _exprFactory = exprFactory;
         _threadAddress = threadAddress;
         _indices = indices;
         _handles = handles;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var handlesHash = new HashCode();
             foreach (var handle in _handles)
-                handlesHash.Add(handle.GetEquivalencyHash(includeSubs));
+                handlesHash.Add(handle.GetEquivalencyHash());
 
             var indicesHash = new HashCode();
             foreach (var index in _indices)
@@ -45,8 +46,24 @@ internal sealed class PersistentSystem : IPersistentSystem
             return HashCode.Combine(
                 handlesHash.ToHashCode(),
                 indicesHash.ToHashCode(),
-                _threadAddress?.GetEquivalencyHash(includeSubs));
-        }
+                _threadAddress?.GetEquivalencyHash());
+        });
+
+        _mergeHash = new(() =>
+        {
+            var handlesHash = new HashCode();
+            foreach (var handle in _handles)
+                handlesHash.Add(handle.GetMergeHash());
+
+            var indicesHash = new HashCode();
+            foreach (var index in _indices)
+                indicesHash.Add(index);
+
+            return HashCode.Combine(
+                handlesHash.ToHashCode(),
+                indicesHash.ToHashCode(),
+                _threadAddress?.GetMergeHash());
+        });
     }
 
     public (IExpression, IPersistentSystem) GetThreadAddress(ISpace space, IMemory memory)
@@ -89,7 +106,7 @@ internal sealed class PersistentSystem : IPersistentSystem
 
         var (result, description) = handle.Description.Seek(offset, whence);
 
-        return (result, new PersistentSystem(_module, _descriptionFactory,
+        return (result, new PersistentSystem(_module, _collectionFactory, _descriptionFactory,
             _exprFactory, _threadAddress, _indices, _handles.SetItem(index, new Handle(handle.References, description))));
     }
 
@@ -149,7 +166,7 @@ internal sealed class PersistentSystem : IPersistentSystem
         var threadAddress = memory.Allocate(Section.Global, thread.Expression.Size);
         memory.Write(space, threadAddress, thread.Expression);
 
-        return (threadAddress, new PersistentSystem(_module, _descriptionFactory,
+        return (threadAddress, new PersistentSystem(_module, _collectionFactory, _descriptionFactory,
             _exprFactory, threadAddress, _indices, _handles));
     }
 
@@ -168,10 +185,10 @@ internal sealed class PersistentSystem : IPersistentSystem
 
         foreach (var (value, descriptor) in _indices.Select((v, d) => (v, d)))
             if (value == 0)
-                return (descriptor, new PersistentSystem(_module, _descriptionFactory,
+                return (descriptor, new PersistentSystem(_module, _collectionFactory, _descriptionFactory,
                     _exprFactory, _threadAddress, _indices.SetItem(descriptor, _handles.Count), _handles.Add(handle)));
 
-        return (_indices.Count, new PersistentSystem(_module, _descriptionFactory,
+        return (_indices.Count, new PersistentSystem(_module, _collectionFactory, _descriptionFactory,
             _exprFactory, _threadAddress, _indices.Add(_handles.Count), _handles.Add(handle)));
     }
 
@@ -181,10 +198,10 @@ internal sealed class PersistentSystem : IPersistentSystem
 
         foreach (var (value, descriptor) in _indices.Select((v, d) => (v, d)))
             if (value == 0)
-                return (descriptor, new PersistentSystem(_module, _descriptionFactory,
+                return (descriptor, new PersistentSystem(_module, _collectionFactory, _descriptionFactory,
                     _exprFactory, _threadAddress, _indices.SetItem(descriptor, index), _handles.SetItem(index, handle)));
 
-        return (_indices.Count, new PersistentSystem(_module, _descriptionFactory,
+        return (_indices.Count, new PersistentSystem(_module, _collectionFactory, _descriptionFactory,
             _exprFactory, _threadAddress, _indices.Add(index), _handles.SetItem(index, handle)));
     }
 
@@ -194,7 +211,7 @@ internal sealed class PersistentSystem : IPersistentSystem
             ? _descriptionFactory.CreateInvalid()
             : description);
 
-        return new PersistentSystem(_module, _descriptionFactory,
+        return new PersistentSystem(_module, _collectionFactory, _descriptionFactory,
             _exprFactory, _threadAddress, _indices.SetItem(descriptor, 0), _handles.SetItem(index, handle));
     }
 
@@ -210,7 +227,10 @@ internal sealed class PersistentSystem : IPersistentSystem
     {
         var invalidHandle = new Handle(0U, descriptionFactory.CreateInvalid());
 
-        var system = new PersistentSystem(module, descriptionFactory,
+        var system = new PersistentSystem(
+            module,
+            collectionFactory,
+            descriptionFactory,
             exprFactory,
             null,
             collectionFactory.CreatePersistentList<int>(),
@@ -228,7 +248,7 @@ internal sealed class PersistentSystem : IPersistentSystem
             ? _handles.IsSequenceEquivalentTo<ExpressionSubs, Handle>(ps._handles)
                 .And(_indices.IsSequenceEquivalentTo<ExpressionSubs, int>(ps._indices, (a, b) => (new(), a == b)))
                 .And(
-                    Mergeable.IsNullableEquivalentTo<ExpressionSub, IExpression>(
+                    Equivalent.IsNullableEquivalentTo<ExpressionSub, IExpression>(
                         _threadAddress,
                         ps._threadAddress)
                     .ToHashSet())
@@ -245,14 +265,40 @@ internal sealed class PersistentSystem : IPersistentSystem
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
     }
 
-    private readonly struct Handle : IMergeable<ExpressionSubs, Handle>
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IPersistentSystem other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentSystem merged)
+    {
+        if (other is PersistentSystem ps
+            && _handles.TryMerge(ps._handles, predicate, out var mergedHandles)
+            && _indices.SequenceEqual(ps._indices)
+            && Mergeable.TryMergeNullable(_threadAddress, ps._threadAddress, predicate, out var mergedThreadAddress))
+        {
+            // TODO: Check handles get repopulated in the correct order
+            merged = new PersistentSystem(
+                _module,
+                _collectionFactory,
+                _descriptionFactory,
+                _exprFactory,
+                mergedThreadAddress,
+                _indices,
+                _collectionFactory.CreatePersistentList(mergedHandles));
+            return true;
+        }
+
+        merged = null;
+        return false;
+    }
+
+    private readonly struct Handle : IEquivalent<ExpressionSubs, Handle>, IMergeable<Handle>
     {
         private readonly Lazy<int> _equivalencyHash;
         private readonly Lazy<int> _mergeHash;
@@ -261,13 +307,8 @@ internal sealed class PersistentSystem : IPersistentSystem
         {
             References = references;
             Description = description;
-            _equivalencyHash = CreateEquivalencyHash(false, references, description);
-            _mergeHash = CreateEquivalencyHash(true, references, description);
-        }
-
-        private static Lazy<int> CreateEquivalencyHash(bool includeSubs, uint references, IPersistentDescription description)
-        {
-            return new(() => HashCode.Combine(description.GetEquivalencyHash(includeSubs), references));
+            _equivalencyHash = new(() => HashCode.Combine(description.GetEquivalencyHash(), references));
+            _mergeHash = new(() => HashCode.Combine(description.GetMergeHash(), references));
         }
 
         public uint References { get; }
@@ -288,11 +329,26 @@ internal sealed class PersistentSystem : IPersistentSystem
             };
         }
 
-        public int GetEquivalencyHash(bool includeSubs)
+        public int GetEquivalencyHash()
         {
-            return includeSubs
-                ? _mergeHash.Value
-                : _equivalencyHash.Value;
+            return _equivalencyHash.Value;
+        }
+
+        public int GetMergeHash()
+        {
+            return _mergeHash.Value;
+        }
+
+        public bool TryMerge(Handle other, IExpression predicate, out Handle merged)
+        {
+            if (References == other.References
+                && Description.TryMerge(other.Description, predicate, out var mergedDescription))
+            {
+                merged = new Handle(References, mergedDescription);
+                return true;
+            }
+            merged = new();
+            return false;
         }
     }
 }

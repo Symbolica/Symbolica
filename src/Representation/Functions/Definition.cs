@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -29,25 +30,38 @@ public sealed class Definition : IDefinition
         _isVariadic = isVariadic;
         _entryId = entryId;
         _basicBlocks = basicBlocks;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var blocksHash = new HashCode();
             foreach (var block in _basicBlocks)
                 blocksHash.Add(
                     HashCode.Combine(
-                        block.Key.GetEquivalencyHash(includeSubs),
-                        block.Value.GetEquivalencyHash(includeSubs)));
+                        block.Key.GetEquivalencyHash(),
+                        block.Value.GetEquivalencyHash()));
             return HashCode.Combine(
                 blocksHash.ToHashCode(),
-                _entryId.GetEquivalencyHash(includeSubs),
+                _entryId.GetEquivalencyHash(),
                 _isVariadic,
-                Id.GetEquivalencyHash(includeSubs),
+                Id.GetEquivalencyHash(),
                 Name,
-                Parameters.GetEquivalencyHash(includeSubs));
-        }
+                Parameters.GetEquivalencyHash());
+        });
+        _mergeHash = new(() =>
+        {
+            var blocksHash = new HashCode();
+            foreach (var block in _basicBlocks)
+                blocksHash.Add(
+                    HashCode.Combine(
+                        block.Key.GetMergeHash(),
+                        block.Value.GetMergeHash()));
+            return HashCode.Combine(
+                blocksHash.ToHashCode(),
+                _entryId.GetMergeHash(),
+                _isVariadic,
+                Id.GetMergeHash(),
+                Name,
+                Parameters.GetMergeHash());
+        });
     }
 
     public FunctionId Id { get; }
@@ -115,10 +129,36 @@ public sealed class Definition : IDefinition
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
+    }
+
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IDefinition other, IExpression predicate, [MaybeNullWhen(false)] out IDefinition merged)
+    {
+        if (other is Definition d
+            && _basicBlocks.TryMerge(d._basicBlocks, predicate, out var mergedBasicBlocks)
+            && _entryId.TryMerge(d._entryId, predicate, out var mergedEntryId)
+            && _isVariadic == d._isVariadic
+            && Id.TryMerge(d.Id, predicate, out var mergedId)
+            && Name == d.Name
+            && Parameters.TryMerge(d.Parameters, predicate, out var mergedParameters))
+        {
+            merged = new Definition(
+                mergedId,
+                Name,
+                mergedParameters,
+                _isVariadic,
+                mergedEntryId,
+                mergedBasicBlocks.ToDictionary(x => x.Key, x => x.Value));
+            return true;
+        }
+        merged = null;
+        return false;
     }
 }

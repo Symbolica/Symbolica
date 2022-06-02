@@ -34,6 +34,6 @@ internal abstract record Integer : IValue
     public abstract (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other);
     public abstract IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs);
     public abstract object ToJson();
-    public abstract int GetEquivalencyHash(bool includeSubs);
+    public abstract int GetEquivalencyHash();
     public abstract IValue RenameSymbols(Func<string, string> renamer);
 }

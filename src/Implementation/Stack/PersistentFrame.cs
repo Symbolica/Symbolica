@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -28,27 +28,28 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
         _programCounter = programCounter;
         _variables = variables;
         _allocations = allocations;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
-            var allocationsHash = new HashCode();
-            foreach (var allocation in _allocations)
-                allocationsHash.Add(allocation.GetEquivalencyHash(includeSubs));
-
-            var formalsHash = new HashCode();
-            foreach (var formal in _formals)
-                formalsHash.Add(formal.GetEquivalencyHash(includeSubs));
-
             return HashCode.Combine(
-                allocationsHash.ToHashCode(),
-                formalsHash.ToHashCode(),
-                _jumps.GetEquivalencyHash(includeSubs),
-                _programCounter.GetEquivalencyHash(includeSubs),
-                _vaList.GetEquivalencyHash(includeSubs),
-                _variables.GetEquivalencyHash(includeSubs));
-        }
+                _allocations.GetEquivalencyHash(),
+                Caller.GetEquivalencyHash(),
+                _formals.GetEquivalencyHash(),
+                _jumps.GetEquivalencyHash(),
+                _programCounter.GetEquivalencyHash(),
+                _vaList.GetEquivalencyHash(),
+                _variables.GetEquivalencyHash());
+        });
+        _mergeHash = new(() =>
+        {
+            return HashCode.Combine(
+                _allocations.GetMergeHash(),
+                Caller.GetMergeHash(),
+                _formals.GetMergeHash(),
+                _jumps.GetMergeHash(),
+                _programCounter.GetMergeHash(),
+                _vaList.GetMergeHash(),
+                _variables.GetMergeHash());
+        });
     }
 
     public ICaller Caller { get; }
@@ -149,10 +150,9 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
 
     private (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(PersistentFrame other)
     {
-        return _allocations.Concat(_formals)
-            .IsSequenceEquivalentTo(
-                other._allocations.Concat(other._formals),
-                (x, y) => x.IsEquivalentTo(y).ToHashSet())
+        return _allocations.IsEquivalentTo(other._allocations)
+            .And(_formals.IsEquivalentTo(other._formals))
+            .And(Caller.IsEquivalentTo(other.Caller))
             .And(_jumps.IsEquivalentTo(other._jumps))
             .And(_programCounter.IsEquivalentTo(other._programCounter))
             .And(_vaList.IsEquivalentTo(other._vaList))
@@ -163,8 +163,9 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
     {
         return new
         {
-            Allocations = _allocations.Select(a => a.ToJson()).ToArray(),
-            Formals = _formals.Select(f => f.ToJson()).ToArray(),
+            Allocations = _allocations.ToJson(),
+            Caller = Caller.ToJson(),
+            Formals = _formals.ToJson(),
             Jumps = _jumps.ToJson(),
             ProgramCounter = _programCounter.ToJson(),
             VaList = _vaList.ToJson(),
@@ -172,10 +173,52 @@ internal sealed class PersistentFrame : IPersistentFrame, ISavedFrame
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
+    }
+
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IPersistentFrame other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentFrame merged)
+    {
+        merged = null;
+        return other is PersistentFrame pf
+            && TryMerge(pf, predicate, out merged);
+    }
+
+    public bool TryMerge(ISavedFrame other, IExpression predicate, [MaybeNullWhen(false)] out ISavedFrame merged)
+    {
+        merged = null;
+        return other is PersistentFrame pf
+            && TryMerge(pf, predicate, out merged);
+    }
+
+    private bool TryMerge(PersistentFrame other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentFrame merged)
+    {
+        if (_allocations.TryMerge(other._allocations, predicate, out var mergedAllocations)
+            && Caller.TryMerge(other.Caller, predicate, out var mergedCaller)
+            && _formals.TryMerge(other._formals, predicate, out var mergedFormals)
+            && _jumps.TryMerge(other._jumps, predicate, out var mergedJumps)
+            && _programCounter.TryMerge(other._programCounter, predicate, out var mergedProgramCounter)
+            && _vaList.TryMerge(other._vaList, predicate, out var mergedVaList)
+            && _variables.TryMerge(other._variables, predicate, out var mergedVariables))
+        {
+            merged = new PersistentFrame(
+                mergedCaller,
+                mergedFormals,
+                mergedVaList,
+                mergedJumps,
+                mergedProgramCounter,
+                mergedVariables,
+                mergedAllocations);
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

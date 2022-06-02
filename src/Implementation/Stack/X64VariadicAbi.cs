@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -74,14 +75,38 @@ internal sealed class X64VariadicAbi : IVariadicAbi
                 : (new(), false);
         }
 
-        public int GetEquivalencyHash(bool includeSubs)
+        public int GetEquivalencyHash()
         {
-            return HashCode.Combine(_address?.GetEquivalencyHash(includeSubs));
+            return HashCode.Combine(_address?.GetEquivalencyHash());
         }
 
         public object ToJson()
         {
             return new { Address = _address?.ToJson() };
+        }
+
+        public int GetMergeHash()
+        {
+            return HashCode.Combine(_address?.GetMergeHash());
+        }
+
+        public bool TryMerge(IVaList other, IExpression predicate, [MaybeNullWhen(false)] out IVaList merged)
+        {
+            if (other is VaList vl)
+            {
+                if (_address is not null && vl._address is not null && _address.TryMerge(vl._address, predicate, out var mergedAddress))
+                {
+                    merged = new VaList(_exprFactory, mergedAddress);
+                    return true;
+                }
+                if (_address is null && vl._address is null)
+                {
+                    merged = new VaList(_exprFactory, null);
+                    return true;
+                }
+            }
+            merged = null;
+            return false;
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -26,17 +27,22 @@ internal sealed class SymbolicMemory : IPersistentMemory
         _blockFactory = blockFactory;
         _exprFactory = exprFactory;
         _blocks = blocks;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var blocksHash = new HashCode();
             foreach (var block in ValidBlocks)
-                blocksHash.Add(block.GetEquivalencyHash(includeSubs));
+                blocksHash.Add(block.GetEquivalencyHash());
 
             return HashCode.Combine(alignment, blocksHash.ToHashCode());
-        }
+        });
+        _mergeHash = new(() =>
+        {
+            var blocksHash = new HashCode();
+            foreach (var block in _blocks)
+                blocksHash.Add(block.GetMergeHash());
+
+            return HashCode.Combine(alignment, blocksHash.ToHashCode());
+        });
     }
 
     private IEnumerable<IPersistentBlock> ValidBlocks => _blocks.Where(a => a.IsValid);
@@ -171,10 +177,32 @@ internal sealed class SymbolicMemory : IPersistentMemory
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
+    }
+
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IPersistentMemory other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentMemory merged)
+    {
+        if (other is SymbolicMemory sm
+            && _alignment == sm._alignment
+            && _blocks.TryMerge(sm._blocks, predicate, out var mergedBlocks))
+        {
+            merged = new SymbolicMemory(
+                _alignment,
+                _collectionFactory,
+                _blockFactory,
+                _exprFactory,
+                _collectionFactory.CreatePersistentList(mergedBlocks));
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

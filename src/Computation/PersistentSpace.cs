@@ -177,4 +177,12 @@ internal sealed class PersistentSpace : IPersistentSpace
     {
         return _assertions.Select(a => a.ToJson()).ToArray();
     }
+
+    public bool TryMerge(ISpace space, [MaybeNullWhen(false)] out (ISpace Merged, IExpression Predicate) result)
+    {
+        // Create the union of the two spaces
+        // Build the predicate by determining that the assertions that are a subset of the current space (only consider those that aren't structurally equivalent to the ones in the union)
+        // The predicate is then the LogicalAnd of one sides disjoint assertions
+        // If there is an assertion on one side that is not disjoint from the other, but is a subspace of the union then fail the merge
+    }
 }

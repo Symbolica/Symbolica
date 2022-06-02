@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
 
@@ -99,8 +100,25 @@ internal sealed class StackProxy : IStackProxy
         return _stack.ToJson();
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return _stack.GetEquivalencyHash(includeSubs);
+        return _stack.GetEquivalencyHash();
+    }
+
+    public int GetMergeHash()
+    {
+        return _stack.GetMergeHash();
+    }
+
+    public bool TryMerge(IStackProxy other, IExpression predicate, [MaybeNullWhen(false)] out IStackProxy merged)
+    {
+        if (other is StackProxy sp && _stack.TryMerge(sp._stack, predicate, out var mergedStack))
+        {
+            merged = new StackProxy(_exprFactory, mergedStack);
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

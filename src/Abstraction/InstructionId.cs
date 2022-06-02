@@ -4,7 +4,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public readonly struct InstructionId : IEquatable<InstructionId>, IMergeable<ExpressionSubs, InstructionId>
+public readonly struct InstructionId : IEquatable<InstructionId>, IEquivalent<ExpressionSubs, InstructionId>, IMergeable<InstructionId>
 {
     private readonly ulong _value;
 
@@ -63,8 +63,19 @@ public readonly struct InstructionId : IEquatable<InstructionId>, IMergeable<Exp
         return _value;
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
         return GetHashCode();
+    }
+
+    public int GetMergeHash()
+    {
+        return GetHashCode();
+    }
+
+    public bool TryMerge(InstructionId other, IExpression predicate, out InstructionId merged)
+    {
+        merged = this;
+        return Equals(other);
     }
 }

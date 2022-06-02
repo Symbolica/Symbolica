@@ -41,12 +41,12 @@ internal sealed record RealConvert : Float, IRealValue
             : (new(), false);
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         return HashCode.Combine(
             GetType().Name,
             Size,
-            _value.GetEquivalencyHash(includeSubs));
+            _value.GetEquivalencyHash());
     }
 
     public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)

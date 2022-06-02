@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public readonly struct Parameter : IMergeable<ExpressionSubs, Parameter>
+public readonly struct Parameter : IEquivalent<ExpressionSubs, Parameter>, IMergeable<Parameter>
 {
     public Parameter(Bits size)
     {
@@ -12,7 +13,12 @@ public readonly struct Parameter : IMergeable<ExpressionSubs, Parameter>
 
     public Bits Size { get; }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
+    {
+        return Size.GetHashCode();
+    }
+
+    public int GetMergeHash()
     {
         return Size.GetHashCode();
     }
@@ -25,5 +31,11 @@ public readonly struct Parameter : IMergeable<ExpressionSubs, Parameter>
     public object ToJson()
     {
         return new { Size = (uint) Size };
+    }
+
+    public bool TryMerge(Parameter other, IExpression predicate, [MaybeNullWhen(false)] out Parameter merged)
+    {
+        merged = this;
+        return Size == other.Size;
     }
 }

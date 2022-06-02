@@ -99,7 +99,7 @@ internal sealed record ConstantBool : Bool, IConstantValue
         return ((BigInteger) AsUnsigned()).ToString();
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         return ((BigInteger) AsUnsigned()).GetHashCode();
     }

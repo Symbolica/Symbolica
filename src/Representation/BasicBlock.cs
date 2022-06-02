@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -16,19 +17,26 @@ public sealed class BasicBlock : IBasicBlock
     {
         Id = id;
         _instructions = instructions;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var instructionsHash = new HashCode();
             foreach (var instruction in _instructions)
-                instructionsHash.Add(instruction.GetEquivalencyHash(includeSubs));
+                instructionsHash.Add(instruction.GetEquivalencyHash());
 
             return HashCode.Combine(
-                Id.GetEquivalencyHash(includeSubs),
+                Id.GetEquivalencyHash(),
                 instructionsHash.ToHashCode());
-        }
+        });
+        _mergeHash = new(() =>
+        {
+            var instructionsHash = new HashCode();
+            foreach (var instruction in _instructions)
+                instructionsHash.Add(instruction.GetMergeHash());
+
+            return HashCode.Combine(
+                Id.GetMergeHash(),
+                instructionsHash.ToHashCode());
+        });
     }
 
     public BasicBlockId Id { get; }
@@ -46,11 +54,9 @@ public sealed class BasicBlock : IBasicBlock
             : (new(), false);
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
     }
 
     public object ToJson()
@@ -60,5 +66,24 @@ public sealed class BasicBlock : IBasicBlock
             Id = Id.ToJson(),
             Instructions = _instructions.Select(i => i.ToJson()).ToArray()
         };
+    }
+
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IBasicBlock other, IExpression predicate, [MaybeNullWhen(false)] out IBasicBlock merged)
+    {
+        if (other is BasicBlock bb
+            && Id.TryMerge(bb.Id, predicate, out var mergedId)
+            && _instructions.TryMerge(bb._instructions, predicate, out var mergedInstructions))
+        {
+            merged = new BasicBlock(mergedId, mergedInstructions.ToArray());
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

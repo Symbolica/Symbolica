@@ -64,12 +64,12 @@ internal sealed record SignedGreater : Bool
         };
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         return HashCode.Combine(
             GetType().Name,
-            _left.GetEquivalencyHash(includeSubs),
-            _right.GetEquivalencyHash(includeSubs));
+            _left.GetEquivalencyHash(),
+            _right.GetEquivalencyHash());
     }
 
     public override IValue RenameSymbols(Func<string, string> renamer)

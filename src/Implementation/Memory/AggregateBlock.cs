@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
@@ -11,34 +12,51 @@ namespace Symbolica.Implementation.Memory;
 
 internal sealed class AggregateBlock : IPersistentBlock
 {
+    private readonly ICollectionFactory _collectionFactory;
     private readonly IExpressionFactory _exprFactory;
     private readonly IPersistentList<Allocation> _allocations;
     private readonly Lazy<int> _equivalencyHash;
     private readonly Lazy<int> _mergeHash;
 
-    private AggregateBlock(IExpressionFactory exprFactory, Section section,
-        IExpression offset, Bytes size, IPersistentList<Allocation> allocations)
+    private AggregateBlock(
+        ICollectionFactory collectionFactory,
+        IExpressionFactory exprFactory,
+        Section section,
+        IExpression offset,
+        Bytes size,
+        IPersistentList<Allocation> allocations)
     {
+        _collectionFactory = collectionFactory;
         _exprFactory = exprFactory;
         Section = section;
         Offset = offset;
         Size = size;
         _allocations = allocations;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var allocationsHash = new HashCode();
             foreach (var allocation in _allocations)
-                allocationsHash.Add(allocation.GetEquivalencyHash(includeSubs));
+                allocationsHash.Add(allocation.GetEquivalencyHash());
 
             return HashCode.Combine(
                 Section,
-                Offset.GetEquivalencyHash(includeSubs),
+                Offset.GetEquivalencyHash(),
                 Size,
                 allocationsHash.ToHashCode());
-        }
+        });
+
+        _mergeHash = new(() =>
+        {
+            var allocationsHash = new HashCode();
+            foreach (var allocation in _allocations)
+                allocationsHash.Add(allocation.GetMergeHash());
+
+            return HashCode.Combine(
+                Section,
+                Offset.GetMergeHash(),
+                Size,
+                allocationsHash.ToHashCode());
+        });
     }
 
     public bool IsValid => true;
@@ -85,6 +103,7 @@ internal sealed class AggregateBlock : IPersistentBlock
         if (!result.CanBeFailure)
             return Result<IPersistentBlock>.Success(
                 new AggregateBlock(
+                    _collectionFactory,
                     _exprFactory,
                     Section,
                     Offset,
@@ -178,6 +197,7 @@ internal sealed class AggregateBlock : IPersistentBlock
     {
         return type.Types.Any()
             ? new AggregateBlock(
+                collectionFactory,
                 exprFactory,
                 block.Section,
                 exprFactory.CreateConstant(exprFactory.PointerSize, (uint) address),
@@ -223,10 +243,35 @@ internal sealed class AggregateBlock : IPersistentBlock
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
+    }
+
+    public int GetMergeHash()
+    {
+        return _mergeHash.Value;
+    }
+
+    public bool TryMerge(IPersistentBlock other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentBlock merged)
+    {
+        if (other is AggregateBlock ab
+            && Section == ab.Section
+            && Size == ab.Size
+            && Offset.TryMerge(ab.Offset, predicate, out var mergedOffset)
+            && _allocations.TryMerge(ab._allocations, predicate, out var mergedAllocations))
+        {
+            merged = new AggregateBlock(
+                _collectionFactory,
+                _exprFactory,
+                Section,
+                mergedOffset,
+                Size,
+                 _collectionFactory.CreatePersistentList(mergedAllocations));
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

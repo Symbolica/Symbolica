@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Expression;
 
 namespace Symbolica.Abstraction;
 
-public readonly struct BasicBlockId : IEquatable<BasicBlockId>, IMergeable<ExpressionSubs, BasicBlockId>
+public readonly struct BasicBlockId : IEquatable<BasicBlockId>, IEquivalent<ExpressionSubs, BasicBlockId>, IMergeable<BasicBlockId>
 {
     private readonly ulong _value;
 
@@ -63,8 +64,19 @@ public readonly struct BasicBlockId : IEquatable<BasicBlockId>, IMergeable<Expre
         return _value;
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
         return GetHashCode();
+    }
+
+    public int GetMergeHash()
+    {
+        return GetHashCode();
+    }
+
+    public bool TryMerge(BasicBlockId other, IExpression predicate, [MaybeNullWhen(false)] out BasicBlockId merged)
+    {
+        merged = this;
+        return Equals(other);
     }
 }

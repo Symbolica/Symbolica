@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.System;
 
-internal interface IPersistentDescription : IMergeable<ExpressionSubs, IPersistentDescription>
+internal interface IPersistentDescription : IEquivalent<ExpressionSubs, IPersistentDescription>, IMergeable<IPersistentDescription>
 {
     (long, IPersistentDescription) Seek(long offset, uint whence);
     int Read(ISpace space, IMemory memory, IExpression address, int count);

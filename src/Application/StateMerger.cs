@@ -16,7 +16,7 @@ internal sealed class StateMerger
     private readonly ILookup<int, IExecutable> _pastStates;
 
     public StateMerger(IEnumerable<IExecutable> pastStates)
-        => (_mergeTask, _pastStates) = (Task.Run(MergeStates), pastStates.ToLookup(s => s.GetEquivalencyHash(false)));
+        => (_mergeTask, _pastStates) = (Task.Run(MergeStates), pastStates.ToLookup(s => s.GetEquivalencyHash()));
 
     public void Complete()
     {
@@ -31,6 +31,7 @@ internal sealed class StateMerger
 
     public void Merge(IExecutable state)
     {
+        WriteState(state);
         _mergeQueue.Add(state);
     }
 
@@ -38,7 +39,7 @@ internal sealed class StateMerger
     {
         void Merge(IExecutable state)
         {
-            var hash = state.GetEquivalencyHash(true);
+            var hash = state.GetMergeHash();
             var mergeCandidates = _merged.TryGetValue(hash, out var eq)
                 ? eq
                 : new();
@@ -63,13 +64,13 @@ internal sealed class StateMerger
             .OrderBy(p => p.Key)
             .Select(p => $"{p.Key}{p.Value}"));
         File.WriteAllText(
-            $"hash({state.GetEquivalencyHash(false)})_gen{state.Generation}.json",
+            $"hash({state.GetEquivalencyHash()})_gen{state.Generation}_{example}.json",
             JsonSerializer.Serialize(state.ToJson(), new JsonSerializerOptions { WriteIndented = true }));
     }
 
     private bool HasBeenSeenBefore(IExecutable state)
     {
-        var hash = state.GetEquivalencyHash(false);
+        var hash = state.GetEquivalencyHash();
         if (_pastStates.Contains(hash))
         {
             WriteState(state);

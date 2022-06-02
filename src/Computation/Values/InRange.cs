@@ -99,12 +99,12 @@ internal sealed record InRange : Bool
         };
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         return HashCode.Combine(
             GetType().Name,
-            _value.GetEquivalencyHash(includeSubs),
-            _range.GetEquivalencyHash(includeSubs));
+            _value.GetEquivalencyHash(),
+            _range.GetEquivalencyHash());
     }
 
     public override IValue RenameSymbols(Func<string, string> renamer)

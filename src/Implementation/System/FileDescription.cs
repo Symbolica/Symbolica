@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
@@ -88,8 +89,28 @@ internal sealed class FileDescription : IPersistentDescription
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return HashCode.Combine(_file.GetEquivalencyHash(includeSubs), _offset);
+        return HashCode.Combine(_file.GetEquivalencyHash(), _offset);
+    }
+
+    public int GetMergeHash()
+    {
+        return HashCode.Combine(_file.GetEquivalencyHash(), _offset);
+    }
+
+    public bool TryMerge(IPersistentDescription other, IExpression predicate, [MaybeNullWhen(false)] out IPersistentDescription merged)
+    {
+        if (other is FileDescription fd
+            && _file.TryMerge(fd._file, predicate, out var mergedFile)
+            && _offset == fd._offset)
+
+        {
+            merged = new FileDescription(_exprFactory, mergedFile, _offset);
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using Symbolica.Abstraction;
+﻿using Symbolica.Abstraction;
 using Symbolica.Abstraction.Memory;
 using Symbolica.Expression;
 
 namespace Symbolica.Implementation.Memory;
 
-internal interface IPersistentBlock : IMergeable<ExpressionSubs, IPersistentBlock>
+internal interface IPersistentBlock : IEquivalent<ExpressionSubs, IPersistentBlock>, IMergeable<IPersistentBlock>
 {
     bool IsValid { get; }
     IExpression Offset { get; }

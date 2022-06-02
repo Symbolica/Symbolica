@@ -11,17 +11,13 @@ public sealed class StructType : IStructType
     private readonly Bytes[] _offsets;
     private readonly IType[] _types;
     private readonly Lazy<int> _equivalencyHash;
-    private readonly Lazy<int> _mergeHash;
 
     public StructType(Bytes size, Bytes[] offsets, IType[] types)
     {
         Size = size;
         _offsets = offsets;
         _types = types;
-        _equivalencyHash = new(() => EquivalencyHash(false));
-        _mergeHash = new(() => EquivalencyHash(true));
-
-        int EquivalencyHash(bool includeSubs)
+        _equivalencyHash = new(() =>
         {
             var offsetsHash = new HashCode();
             foreach (var offset in _offsets)
@@ -29,13 +25,13 @@ public sealed class StructType : IStructType
 
             var typesHash = new HashCode();
             foreach (var type in _types)
-                typesHash.Add(type.GetEquivalencyHash(includeSubs));
+                typesHash.Add(type.GetEquivalencyHash());
 
             return HashCode.Combine(
                 offsetsHash.ToHashCode(),
                 typesHash.ToHashCode(),
                 Size.GetHashCode());
-        }
+        });
     }
 
     public Bytes Size { get; }
@@ -92,10 +88,8 @@ public sealed class StructType : IStructType
         };
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return includeSubs
-            ? _mergeHash.Value
-            : _equivalencyHash.Value;
+        return _equivalencyHash.Value;
     }
 }

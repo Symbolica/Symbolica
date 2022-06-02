@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Symbolica.Abstraction;
 using Symbolica.Expression;
+using Symbolica.Implementation.Stack;
 
 namespace Symbolica.Implementation.System;
 
@@ -90,8 +92,25 @@ internal sealed class SystemProxy : ISystemProxy
         return _system.ToJson();
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
-        return _system.GetEquivalencyHash(includeSubs);
+        return _system.GetEquivalencyHash();
+    }
+
+    public int GetMergeHash()
+    {
+        return _system.GetMergeHash();
+    }
+
+    public bool TryMerge(ISystemProxy other, IExpression predicate, [MaybeNullWhen(false)] out ISystemProxy merged)
+    {
+        if (other is SystemProxy sp && _system.TryMerge(sp._system, predicate, out var mergedSystem))
+        {
+            merged = new SystemProxy(mergedSystem);
+            return true;
+        }
+
+        merged = null;
+        return false;
     }
 }

@@ -6,7 +6,7 @@ using Symbolica.Expression;
 
 namespace Symbolica.Computation;
 
-internal sealed record Range(IValue Min, IValue Max) : IMergeable<(IValue, IValue), Range>
+internal sealed record Range(IValue Min, IValue Max) : IEquivalent<(IValue, IValue), Range>
 {
     internal IEnumerable<IValue> Symbols => Min.Symbols.Union(Max.Symbols).ToHashSet();
 
@@ -72,11 +72,11 @@ internal sealed record Range(IValue Min, IValue Max) : IMergeable<(IValue, IValu
         return this;
     }
 
-    public int GetEquivalencyHash(bool includeSubs)
+    public int GetEquivalencyHash()
     {
         return HashCode.Combine(
-            Min.GetEquivalencyHash(includeSubs),
-            Max.GetEquivalencyHash(includeSubs));
+            Min.GetEquivalencyHash(),
+            Max.GetEquivalencyHash());
     }
 
     internal Range RenameSymbols(Func<string, string> renamer)

@@ -27,7 +27,7 @@ internal sealed record SymbolicUnsigned : BitVector
         return Equals(other as SymbolicUnsigned);
     }
 
-    public override int GetEquivalencyHash(bool includeSubs)
+    public override int GetEquivalencyHash()
     {
         throw new System.NotImplementedException();
     }
