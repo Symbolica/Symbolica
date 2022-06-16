@@ -22,5 +22,7 @@ public interface IExecutable
 
     int GetEquivalencyHash();
 
+    int GetMergeHash();
+
     object ToJson();
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Symbolica.Expression;
 
@@ -23,6 +24,11 @@ internal sealed class FileProxy : IFile
         return _file.GetHashCode();
     }
 
+    public int GetMergeHash()
+    {
+        return _file.GetHashCode();
+    }
+
     public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IFile other)
     {
         // TODO: This might just be using reference equality on FileInfo
@@ -40,5 +46,11 @@ internal sealed class FileProxy : IFile
     public object ToJson()
     {
         return _file;
+    }
+
+    public bool TryMerge(IFile other, IExpression predicate, [MaybeNullWhen(false)] out IFile merged)
+    {
+        merged = this;
+        return other is FileProxy fp && _file.Equals(fp._file);
     }
 }

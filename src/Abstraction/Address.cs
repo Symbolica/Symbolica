@@ -441,7 +441,7 @@ public sealed class Address : IAddress
 
     public bool TryMerge(IExpression other, IExpression predicate, [MaybeNullWhen(false)] out IExpression merged)
     {
-        merged = predicate.Select(this, other);
+        merged = Equals(other) ? this : predicate.Select(this, other);
         return true;
     }
 }

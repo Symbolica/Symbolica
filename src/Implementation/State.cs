@@ -85,6 +85,14 @@ internal sealed class State : IState, IExecutable
             _system.GetEquivalencyHash());
     }
 
+    public int GetMergeHash()
+    {
+        return HashCode.Combine(
+            _stack.GetMergeHash(),
+            _memory.GetMergeHash(),
+            _system.GetMergeHash());
+    }
+
     public bool TryMerge(IExecutable state, [MaybeNullWhen(false)] out IExecutable merged)
     {
         merged = null;

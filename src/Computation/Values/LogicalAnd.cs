@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
@@ -9,22 +10,27 @@ namespace Symbolica.Computation.Values;
 
 internal sealed record LogicalAnd : Bool
 {
-    private readonly IValue _left;
-    private readonly IValue _right;
+    private readonly ImmutableHashSet<IValue> _values;
 
-    private LogicalAnd(IValue left, IValue right)
+    private LogicalAnd(ImmutableHashSet<IValue> values)
     {
-        _left = left;
-        _right = right;
+        _values = values;
     }
 
-    public override ISet<IValue> Symbols => _left.Symbols.Union(_right.Symbols).ToHashSet();
+    public override ISet<IValue> Symbols => _values.SelectMany(c => c.Symbols).ToHashSet();
 
     public override BoolExpr AsBool(ISolver solver)
     {
-        using var left = _left.AsBool(solver);
-        using var right = _right.AsBool(solver);
-        return solver.Context.MkAnd(left, right);
+        var exprs = _values.Select(x => x.AsBool(solver));
+        try
+        {
+            return solver.Context.MkAnd(exprs);
+        }
+        finally
+        {
+            foreach (var expr in exprs)
+                expr.Dispose();
+        }
     }
 
     public override bool Equals(IValue? other)
@@ -32,27 +38,68 @@ internal sealed record LogicalAnd : Bool
         return Equals(other as LogicalAnd);
     }
 
-    private static IValue ShortCircuit(IValue left, ConstantBool right)
+    public bool Equals(LogicalAnd? other)
     {
-        return right
-            ? LogicalNot.Create(LogicalNot.Create(left))
-            : right;
+        return other is not null && _values.SequenceEqual(other._values);
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        foreach (var value in _values)
+            hash.Add(value);
+        return hash.ToHashCode();
+    }
+
+    public IValue DistributeUnderOr(IValue value)
+    {
+        return _values
+            .Select(conjunct => LogicalOr.Create(conjunct, value))
+            .Aggregate(Create);
+    }
+
+    public IValue DeMorgan()
+    {
+        return _values.Select(LogicalNot.Create).Aggregate(LogicalOr.Create);
     }
 
     public static IValue Create(IValue left, IValue right)
     {
-        return right is IConstantValue r
-            ? ShortCircuit(left, r.AsBool())
-            : left is IConstantValue l
-                ? ShortCircuit(right, l.AsBool())
-                : new LogicalAnd(left, right);
+        static IValue Create(ImmutableHashSet<IValue> conjuncts, IValue value)
+        {
+            static IValue Create(ImmutableHashSet<IValue> conjuncts)
+                => conjuncts.Count == 1
+                    ? conjuncts.Single()
+                    : new LogicalAnd(conjuncts);
+            return value switch
+            {
+                LogicalAnd and => conjuncts.Aggregate(and as IValue, LogicalAnd.Create),
+                LogicalOr o when conjuncts.Any(o.IsAbsorbedBy) => Create(conjuncts),
+                _ when conjuncts.Contains(LogicalNot.Create(value)) => new ConstantBool(false),
+                _ => Create(
+                    conjuncts
+                        .Add(value)
+                        .Where(v => !(v is LogicalOr or && or.IsAbsorbedBy(value)))
+                        .ToImmutableHashSet())
+            };
+        }
+
+        return (left, right) switch
+        {
+            (IConstantValue l, _) => l.AsBool() ? right : l,
+            (_, IConstantValue r) => r.AsBool() ? left : r,
+            (LogicalAnd and, _) => Create(and._values, right),
+            (_, LogicalAnd and) => Create(and._values, left),
+            (LogicalOr or, _) when or.IsAbsorbedBy(right) => right,
+            (_, LogicalOr or) when or.IsAbsorbedBy(left) => left,
+            _ => Create(new[] { left }.ToImmutableHashSet(), right)
+        };
     }
 
     public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
     {
-        return other is LogicalAnd v
-            ? _left.IsEquivalentTo(v._left)
-                .And(_right.IsEquivalentTo(v._right))
+        return other is LogicalAnd a
+            ? _values.IsSequenceEquivalentTo<(IValue, IValue), IValue>(a._values)
             : (new(), false);
     }
 
@@ -60,7 +107,7 @@ internal sealed record LogicalAnd : Bool
     {
         return subs.TryGetValue(this, out var sub)
             ? sub
-            : Create(_left.Substitute(subs), _right.Substitute(subs));
+            : _values.Select(v => v.Substitute(subs)).Aggregate(Create);
     }
 
     public override object ToJson()
@@ -69,21 +116,23 @@ internal sealed record LogicalAnd : Bool
         {
             Type = GetType().Name,
             Size = (uint) Size,
-            Left = _left.ToJson(),
-            Right = _right.ToJson()
+            Values = _values.Select(v => v.ToJson()).ToArray()
         };
     }
 
     public override int GetEquivalencyHash()
     {
+        var valuesHash = new HashCode();
+        foreach (var value in _values)
+            valuesHash.Add(value.GetEquivalencyHash());
+
         return HashCode.Combine(
             GetType().Name,
-            _left.GetEquivalencyHash(),
-            _right.GetEquivalencyHash());
+            valuesHash.ToHashCode());
     }
 
     public override IValue RenameSymbols(Func<string, string> renamer)
     {
-        return Create(_left.RenameSymbols(renamer), _right.RenameSymbols(renamer));
+        return _values.Select(v => v.RenameSymbols(renamer)).Aggregate(Create);
     }
 }

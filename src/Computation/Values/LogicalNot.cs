@@ -6,9 +6,9 @@ namespace Symbolica.Computation.Values;
 
 internal sealed record LogicalNot : Bool
 {
-    private readonly Logical _value;
+    private readonly Bool _value;
 
-    private LogicalNot(Logical value)
+    private LogicalNot(Bool value)
     {
         _value = value;
     }
@@ -33,14 +33,14 @@ internal sealed record LogicalNot : Bool
             merged = Create(mergedLogical);
             return true;
         }
-        if (_value.Value is Bool assertion && value is Bool given)
-            if (IsUnsatisfiable(given, assertion))
+        if (value is Bool given)
+            if (IsUnsatisfiable(given, _value))
             {
                 // This value asserts some negation that is already covered by the domain of the incoming assertion
                 merged = given;
                 return true;
             }
-            else if (assertion.Equals(given))
+            else if (_value.Equals(given))
             {
                 // This not is the opposite of the incoming value so they cancel out
                 merged = null;
@@ -66,8 +66,9 @@ internal sealed record LogicalNot : Bool
         {
             IConstantValue v => v.AsBool().Not(),
             LogicalNot v => v._value,
-            Logical v => new LogicalNot(v),
-            _ => new LogicalNot(new Logical(value))
+            LogicalAnd a => a.DeMorgan(),
+            LogicalOr o => o.DeMorgan(),
+            _ => new LogicalNot(Logical.Create(value))
         };
     }
 
@@ -109,18 +110,18 @@ internal sealed record LogicalNot : Bool
 
     private sealed record Logical : Bool
     {
-        public Logical(IValue value)
+        private readonly IValue _value;
+
+        private Logical(IValue value)
         {
-            Value = value;
+            _value = value;
         }
 
-        internal IValue Value { get; }
-
-        public override ISet<IValue> Symbols => Value.Symbols;
+        public override ISet<IValue> Symbols => _value.Symbols;
 
         public override BoolExpr AsBool(ISolver solver)
         {
-            return Value.AsBool(solver);
+            return _value.AsBool(solver);
         }
 
         public override bool Equals(IValue? other)
@@ -131,13 +132,13 @@ internal sealed record LogicalNot : Bool
         public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
         {
             return other is Logical v
-                ? Value.IsEquivalentTo(v.Value)
+                ? _value.IsEquivalentTo(v._value)
                 : (new(), false);
         }
 
         public override bool TryMerge(IValue value, out IValue? merged)
         {
-            if (value is Logical logical && Value.TryMerge(logical.Value, out var mergedLogical) && mergedLogical is not null)
+            if (value is Logical logical && _value.TryMerge(logical._value, out var mergedLogical) && mergedLogical is not null)
             {
                 merged = new Logical(mergedLogical);
                 return true;
@@ -150,7 +151,7 @@ internal sealed record LogicalNot : Bool
         {
             return subs.TryGetValue(this, out var sub)
                 ? sub
-                : Create(Value.Substitute(subs));
+                : Create(_value.Substitute(subs));
         }
 
         public override object ToJson()
@@ -159,7 +160,7 @@ internal sealed record LogicalNot : Bool
             {
                 Type = GetType().Name,
                 Size = (uint) Size,
-                Value = Value.ToJson()
+                Value = _value.ToJson()
             };
         }
 
@@ -167,12 +168,22 @@ internal sealed record LogicalNot : Bool
         {
             return HashCode.Combine(
                 GetType().Name,
-                Value.GetEquivalencyHash());
+                _value.GetEquivalencyHash());
         }
 
         public override IValue RenameSymbols(Func<string, string> renamer)
         {
-            return Create(Value.RenameSymbols(renamer));
+            return Create(_value.RenameSymbols(renamer));
         }
+
+        public static Bool Create(IValue value)
+        {
+            return value switch
+            {
+                Bool b => b,
+                _ => new Logical(value)
+            };
+        }
+
     }
 }

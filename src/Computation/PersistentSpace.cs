@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Symbolica.Collection;
 using Symbolica.Computation.Values;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation;
@@ -131,58 +132,114 @@ internal sealed class PersistentSpace : IPersistentSpace
         return !solver.IsSatisfiable(isNotSubSpace);
     }
 
-    public bool TryMerge(ISpace other, [MaybeNullWhen(false)] out ISpace merged)
-    {
-        merged = null;
-        return other is PersistentSpace ps && TryMerge(ps, out merged);
-    }
-
-    private bool TryMerge(PersistentSpace other, [MaybeNullWhen(false)] out ISpace merged)
-    {
-        // Foreach assertion in other try and merge with one in this space and then add those to the merged space
-        // The merge is successful if the one side has no unmerged assertions left (i.e. it is the same or a subset of the other)
-        var unmerged = new List<IValue>();
-        var others = other._assertions.Reverse().ToList();
-        var mergedAssertions = _collectionFactory.CreatePersistentStack<IValue>();
-        foreach (var assertion in _assertions.Reverse())
-        {
-            var isAssertionMerged = false;
-            foreach (var otherAssertion in others)
-                if (assertion.TryMerge(otherAssertion, out var mergedAssertion))
-                {
-                    others.Remove(otherAssertion);
-                    isAssertionMerged = true;
-                    if (mergedAssertion is not null)
-                        mergedAssertions = mergedAssertions.Push(mergedAssertion);
-                    break;
-                }
-            if (!isAssertionMerged)
-                unmerged.Add(assertion);
-        }
-        // If there are common symbols left on both sides then we'll fail the merge as it means there
-        // are constraints for that symbol that should be merged and retained
-        // This could be made better by first trying to improve the merging above to cover more scenarios
-        // or falling back to just doing a disjunction here of the assertions that appear on both sides for
-        // a given symbol.
-        if (unmerged.SelectMany(a => a.Symbols).Intersect(others.SelectMany(a => a.Symbols)).Any())
-        {
-            merged = null;
-            return false;
-        }
-        merged = new PersistentSpace(_collectionFactory, mergedAssertions);
-        return true;
-    }
-
     public object ToJson()
     {
         return _assertions.Select(a => a.ToJson()).ToArray();
     }
 
-    public bool TryMerge(ISpace space, [MaybeNullWhen(false)] out (ISpace Merged, IExpression Predicate) result)
+    public bool TryMerge(ISpace space, out (ISpace Merged, IExpression Predicate) result)
     {
         // Create the union of the two spaces
         // Build the predicate by determining that the assertions that are a subset of the current space (only consider those that aren't structurally equivalent to the ones in the union)
         // The predicate is then the LogicalAnd of one sides disjoint assertions
         // If there is an assertion on one side that is not disjoint from the other, but is a subspace of the union then fail the merge
+        result = default;
+        return space is PersistentSpace ps && TryMerge(ps, out result);
+    }
+
+    public bool TryMerge(PersistentSpace other, out (ISpace Merged, IExpression Predicate) result)
+    {
+        // var unmerged = new List<IValue>();
+        // var others = other._assertions.Reverse().ToList();
+        // var mergedAssertions = _collectionFactory.CreatePersistentStack<IValue>();
+        // foreach (var assertion in _assertions.Reverse())
+        // {
+        //     var isAssertionMerged = false;
+        //     foreach (var otherAssertion in others)
+        //         if (assertion.TryMerge(otherAssertion, out var mergedAssertion))
+        //         {
+        //             others.Remove(otherAssertion);
+        //             isAssertionMerged = true;
+        //             if (mergedAssertion is not null)
+        //                 mergedAssertions = mergedAssertions.Push(mergedAssertion);
+        //             break;
+        //         }
+        //     if (!isAssertionMerged)
+        //         unmerged.Add(assertion);
+        // }
+
+        IValue Conjunction(IEnumerable<IValue> assertions)
+        {
+            return assertions.Aggregate(new ConstantBool(true) as IValue, LogicalAnd.Create);
+        }
+
+        // Now unmerged and others are the difference between the two spaces
+        // Add one set to the merged lot and then try and prove that the other set is disjoint
+        // i.e. there are no value in that sub space that are in the combined space with the other
+        // If not disjoint then check whether either side is a subset of the other
+        bool IsDisjoint(
+            IPersistentStack<IValue> intersection,
+            IEnumerable<IValue> leftDiff,
+            IEnumerable<IValue> rightDiff)
+        {
+            var space = new PersistentSpace(_collectionFactory, intersection.PushMany(leftDiff));
+            var otherAssertions = Conjunction(intersection.Concat(rightDiff));
+            using var solver = space.CreateSolver();
+            return !solver.IsSatisfiable(otherAssertions);
+        }
+
+        bool IsSubSpace(
+            IPersistentStack<IValue> intersection,
+            IEnumerable<IValue> leftDiff,
+            IEnumerable<IValue> rightDiff)
+        {
+            var space = new PersistentSpace(_collectionFactory, intersection.PushMany(rightDiff));
+            var otherAssertions = Conjunction(intersection.Concat(leftDiff));
+            using var solver = space.CreateSolver();
+            return !solver.IsSatisfiable(LogicalNot.Create(otherAssertions));
+        }
+
+        var intersection = _collectionFactory.CreatePersistentStack(_assertions.Intersect(other._assertions));
+        var leftDiff = _assertions.Except(intersection);
+        var rightDiff = other._assertions.Except(intersection);
+
+        if (!leftDiff.Any() && !rightDiff.Any())
+            throw new Exception("Seems like these spaces are identical. Check for state equality before merging?");
+
+        if (IsSubSpace(intersection, leftDiff, rightDiff))
+        {
+            var mergedSpace = new PersistentSpace(
+                _collectionFactory,
+                intersection.PushMany(leftDiff));
+            result = (mergedSpace,
+                new Expression(
+                    _collectionFactory,
+                    Conjunction(rightDiff.Select(LogicalNot.Create))));
+            return true;
+        }
+
+        if (IsSubSpace(intersection, rightDiff, leftDiff))
+        {
+            var mergedSpace = new PersistentSpace(
+                _collectionFactory,
+                intersection.PushMany(rightDiff));
+            result = (mergedSpace, new Expression(_collectionFactory, Conjunction(leftDiff)));
+            return true;
+        }
+
+        if (IsDisjoint(intersection, leftDiff, rightDiff))
+        {
+            var disjunction = LogicalOr.Create(Conjunction(leftDiff), Conjunction(rightDiff));
+            var mergedSpace = new PersistentSpace(
+                _collectionFactory,
+                IsSubSpace(intersection, new[] { disjunction }, Enumerable.Empty<IValue>())
+                    ? intersection
+                    : intersection.Push(disjunction));
+            result = (mergedSpace, new Expression(_collectionFactory, Conjunction(leftDiff)));
+            return true;
+        }
+
+        result = default;
+        return false;
     }
 }

@@ -87,7 +87,7 @@ internal sealed class StatePool : IDisposable
                 .OrderBy(p => p.Key)
                 .Select(p => $"{p.Key}{p.Value}"));
             File.WriteAllText(
-                $"{name}_gen{state.Generation}_hash({state.GetEquivalencyHash(true)}).json",
+                $"{name}_gen{state.Generation}_hash({state.GetMergeHash()}).json",
                 JsonSerializer.Serialize(state.ToJson(), new JsonSerializerOptions { WriteIndented = true }));
         }
 
@@ -98,7 +98,7 @@ internal sealed class StatePool : IDisposable
             _completed.SetResult();
         else
         {
-            foreach (var duplicate in states.ToLookup(s => s.GetEquivalencyHash(true)).Where(g => g.Count() > 1).SelectMany(x => x))
+            foreach (var duplicate in states.ToLookup(s => s.GetMergeHash()).Where(g => g.Count() > 1).SelectMany(x => x))
                 WriteState("mergeDup", duplicate);
             _pastStates.AddRange(states.Select(s => s.Clone()));
             _merger = new(_pastStates);

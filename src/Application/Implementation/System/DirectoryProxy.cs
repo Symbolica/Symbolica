@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Symbolica.Expression;
@@ -26,6 +27,11 @@ internal sealed class DirectoryProxy : IDirectory
         return _directory.GetHashCode();
     }
 
+    public int GetMergeHash()
+    {
+        return _directory.GetHashCode();
+    }
+
     public (HashSet<ExpressionSubs> subs, bool) IsEquivalentTo(IDirectory other)
     {
         return (new(),
@@ -37,6 +43,14 @@ internal sealed class DirectoryProxy : IDirectory
     public object ToJson()
     {
         return _directory;
+    }
+
+    public bool TryMerge(IDirectory other, IExpression predicate, [MaybeNullWhen(false)] out IDirectory merged)
+    {
+        merged = this;
+        return other is DirectoryProxy dp
+            && _directory.Equals(dp._directory)
+            && _names.Value.SequenceEqual(dp._names.Value);
     }
 
     private string[] GetNames()

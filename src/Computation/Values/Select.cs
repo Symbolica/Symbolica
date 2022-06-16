@@ -63,7 +63,39 @@ internal sealed record Select : IValue
         return (predicate, trueValue, falseValue) switch
         {
             (IConstantValue p, _, _) => p.AsBool() ? trueValue : falseValue,
+            // (_, _, IConstantValue f) when f.AsUnsigned().IsZero
+            //     => And.Create(SignExtend.Create(trueValue.Size, predicate), trueValue),
+            // (_, IConstantValue t, _) when t.AsUnsigned().IsZero
+            //     => And.Create(SignExtend.Create(falseValue.Size, Not.Create(predicate)), trueValue),
+            (_, Select t, _) when predicate.Equals(t._predicate)
+                => Create(predicate, t._trueValue, falseValue),
+            (_, Select t, _) when predicate.Equals(LogicalNot.Create(t._predicate))
+                => Create(predicate, t._falseValue, falseValue),
+            (_, _, Select f) when predicate.Equals(f._predicate)
+                => Create(predicate, trueValue, f._falseValue),
+            (_, _, Select f) when predicate.Equals(LogicalNot.Create(f._predicate))
+                => Create(predicate, trueValue, f._trueValue),
+            (_, Select t, _) when t._falseValue.Equals(falseValue)
+                => Create(LogicalAnd.Create(predicate, t._predicate), t._trueValue, falseValue),
+            (_, Select t, _) when t._trueValue.Equals(falseValue)
+                => Create(LogicalAnd.Create(predicate, LogicalNot.Create(t._predicate)), t._falseValue, falseValue),
+            (_, _, Select _) when trueValue is not Select
+                => Create(LogicalNot.Create(predicate), falseValue, trueValue),
             _ when trueValue.Equals(falseValue) => trueValue,
+            (_, Select t, Select f) when t._trueValue.Equals(f._trueValue) && t._falseValue.Equals(f._falseValue)
+                => Create(
+                    LogicalOr.Create(
+                        LogicalAnd.Create(predicate, t._predicate),
+                        LogicalAnd.Create(LogicalNot.Create(predicate), f._predicate)),
+                    t._trueValue,
+                    t._falseValue),
+            (_, Select t, Select f) when t._trueValue.Equals(f._falseValue) && t._falseValue.Equals(f._trueValue)
+                => Create(
+                    LogicalOr.Create(
+                        LogicalAnd.Create(predicate, t._predicate),
+                        LogicalAnd.Create(LogicalNot.Create(predicate), LogicalNot.Create(f._predicate))),
+                    t._trueValue,
+                    t._falseValue),
             _ => new Select(predicate, trueValue, falseValue)
         };
     }
@@ -91,9 +123,9 @@ internal sealed record Select : IValue
         {
             Type = GetType().Name,
             Size = (uint) Size,
-            Predicate = _predicate,
-            TrueValue = _trueValue,
-            FalseValue = _falseValue
+            Predicate = _predicate.ToJson(),
+            TrueValue = _trueValue.ToJson(),
+            FalseValue = _falseValue.ToJson()
         };
     }
 
