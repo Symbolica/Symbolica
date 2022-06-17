@@ -20,13 +20,13 @@ internal sealed class BinaryTestData : TheoryData<
         };
 
         foreach (var left in Values())
-        foreach (var right in Values())
-        foreach (var left0 in types)
-        foreach (var right0 in types)
-        foreach (var left1 in types)
-        foreach (var right1 in types)
-            Add(left0(left), right0(right),
-                left1(left), right1(right));
+            foreach (var right in Values())
+                foreach (var left0 in types)
+                    foreach (var right0 in types)
+                        foreach (var left1 in types)
+                            foreach (var right1 in types)
+                                Add(left0(left), right0(right),
+                                    left1(left), right1(right));
     }
 
     private static IEnumerable<ConstantUnsigned> Values()

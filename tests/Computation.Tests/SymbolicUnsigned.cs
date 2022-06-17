@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Z3;
 using Symbolica.Computation.Values.Constants;
@@ -29,21 +30,26 @@ internal sealed record SymbolicUnsigned : BitVector
 
     public override int GetEquivalencyHash()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
+    }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        throw new NotImplementedException();
     }
 
     public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public override object ToJson()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 }

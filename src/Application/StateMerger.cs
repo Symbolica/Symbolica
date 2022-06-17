@@ -78,7 +78,8 @@ internal sealed class StateMerger
                 state.ToJson(),
                 new JsonSerializerOptions
                 {
-                    WriteIndented = true
+                    WriteIndented = true,
+                    MaxDepth = 256
                 }));
     }
 

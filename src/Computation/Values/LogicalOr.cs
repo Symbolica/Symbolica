@@ -10,9 +10,9 @@ namespace Symbolica.Computation.Values;
 
 internal sealed record LogicalOr : Bool
 {
-    private readonly ImmutableHashSet<IValue> _values;
+    private readonly ImmutableHashSet<Bool> _values;
 
-    private LogicalOr(ImmutableHashSet<IValue> values)
+    private LogicalOr(ImmutableHashSet<Bool> values)
     {
         _values = values;
     }
@@ -40,7 +40,7 @@ internal sealed record LogicalOr : Bool
 
     public bool Equals(LogicalOr? other)
     {
-        return other is not null && _values.SequenceEqual(other._values);
+        return other is not null && _values.SetEquals(other._values);
     }
 
     public override int GetHashCode()
@@ -51,42 +51,52 @@ internal sealed record LogicalOr : Bool
         return hash.ToHashCode();
     }
 
-    public bool IsAbsorbedBy(IValue value)
+    public bool IsAbsorbedBy(Bool value)
     {
         return _values.Contains(value);
     }
 
-    public IValue DeMorgan()
+    public Bool SimplifyUnderAnd(ImmutableHashSet<Bool> conjuncts)
+    {
+        return _values
+            .Except(conjuncts.Select(LogicalNot.Create).ToImmutableHashSet())
+            .Aggregate(new ConstantBool(false) as Bool, Create);
+    }
+
+    public Bool DeMorgan()
     {
         return _values.Select(LogicalNot.Create).Aggregate(LogicalAnd.Create);
     }
 
-    public static IValue Create(IValue left, IValue right)
+    public static Bool Create(IValue left, IValue right)
     {
-        static IValue Create(ImmutableHashSet<IValue> disjuncts, IValue value)
+        static Bool Create(ImmutableHashSet<Bool> disjuncts, Bool value)
         {
-            static IValue Create(ImmutableHashSet<IValue> disjuncts)
+            static Bool Create(ImmutableHashSet<Bool> disjuncts)
                 => disjuncts.Count == 1
                     ? disjuncts.Single()
                     : new LogicalOr(disjuncts);
             return value switch
             {
-                LogicalOr or => disjuncts.Aggregate(or as IValue, LogicalOr.Create),
+                LogicalOr or => disjuncts.Aggregate(or as Bool, LogicalOr.Create),
                 _ when disjuncts.Contains(LogicalNot.Create(value)) => new ConstantBool(true),
                 _ => Create(disjuncts.Add(value))
             };
         }
 
-        return (left, right) switch
+        static Bool ShortCircuit(Bool left, ConstantBool right) =>
+            right ? right : left;
+
+        return (Logical.Create(left), Logical.Create(right)) switch
         {
-            (IConstantValue l, _) => l.AsBool() ? l : right,
-            (_, IConstantValue r) => r.AsBool() ? r : left,
+            (IConstantValue l, var r) => ShortCircuit(r, l.AsBool()),
+            (var l, IConstantValue r) => ShortCircuit(l, r.AsBool()),
             (LogicalAnd l, LogicalAnd r) when l.Equals(r) => l,
             (LogicalAnd a, _) => a.DistributeUnderOr(right),
             (_, LogicalAnd a) => a.DistributeUnderOr(left),
-            (LogicalOr or, _) => Create(or._values, right),
-            (_, LogicalOr or) => Create(or._values, left),
-            _ => Create(new[] { left }.ToImmutableHashSet(), right)
+            (LogicalOr or, var r) => Create(or._values, r),
+            (var l, LogicalOr or) => Create(or._values, l),
+            var (l, r) => Create(new[] { l }.ToImmutableHashSet(), r)
         };
     }
 

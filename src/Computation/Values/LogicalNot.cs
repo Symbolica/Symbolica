@@ -60,7 +60,7 @@ internal sealed record LogicalNot : Bool
         };
     }
 
-    public static IValue Create(IValue value)
+    public static Bool Create(IValue value)
     {
         return value switch
         {
@@ -107,83 +107,83 @@ internal sealed record LogicalNot : Bool
     {
         return Create(_value.RenameSymbols(renamer));
     }
+}
 
-    private sealed record Logical : Bool
+internal sealed record Logical : Bool
+{
+    private readonly IValue _value;
+
+    private Logical(IValue value)
     {
-        private readonly IValue _value;
+        _value = value;
+    }
 
-        private Logical(IValue value)
+    public override ISet<IValue> Symbols => _value.Symbols;
+
+    public override BoolExpr AsBool(ISolver solver)
+    {
+        return _value.AsBool(solver);
+    }
+
+    public override bool Equals(IValue? other)
+    {
+        return Equals(other as Logical);
+    }
+
+    public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
+    {
+        return other is Logical v
+            ? _value.IsEquivalentTo(v._value)
+            : (new(), false);
+    }
+
+    public override bool TryMerge(IValue value, out IValue? merged)
+    {
+        if (value is Logical logical && _value.TryMerge(logical._value, out var mergedLogical) && mergedLogical is not null)
         {
-            _value = value;
+            merged = new Logical(mergedLogical);
+            return true;
         }
+        merged = null;
+        return false;
+    }
 
-        public override ISet<IValue> Symbols => _value.Symbols;
+    public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
+    {
+        return subs.TryGetValue(this, out var sub)
+            ? sub
+            : Create(_value.Substitute(subs));
+    }
 
-        public override BoolExpr AsBool(ISolver solver)
+    public override object ToJson()
+    {
+        return new
         {
-            return _value.AsBool(solver);
-        }
+            Type = GetType().Name,
+            Size = (uint) Size,
+            Value = _value.ToJson()
+        };
+    }
 
-        public override bool Equals(IValue? other)
+    public override int GetEquivalencyHash()
+    {
+        return HashCode.Combine(
+            GetType().Name,
+            _value.GetEquivalencyHash());
+    }
+
+    public override IValue RenameSymbols(Func<string, string> renamer)
+    {
+        return Create(_value.RenameSymbols(renamer));
+    }
+
+    public static Bool Create(IValue value)
+    {
+        return value switch
         {
-            return Equals(other as Logical);
-        }
-
-        public override (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)
-        {
-            return other is Logical v
-                ? _value.IsEquivalentTo(v._value)
-                : (new(), false);
-        }
-
-        public override bool TryMerge(IValue value, out IValue? merged)
-        {
-            if (value is Logical logical && _value.TryMerge(logical._value, out var mergedLogical) && mergedLogical is not null)
-            {
-                merged = new Logical(mergedLogical);
-                return true;
-            }
-            merged = null;
-            return false;
-        }
-
-        public override IValue Substitute(IReadOnlyDictionary<IValue, IValue> subs)
-        {
-            return subs.TryGetValue(this, out var sub)
-                ? sub
-                : Create(_value.Substitute(subs));
-        }
-
-        public override object ToJson()
-        {
-            return new
-            {
-                Type = GetType().Name,
-                Size = (uint) Size,
-                Value = _value.ToJson()
-            };
-        }
-
-        public override int GetEquivalencyHash()
-        {
-            return HashCode.Combine(
-                GetType().Name,
-                _value.GetEquivalencyHash());
-        }
-
-        public override IValue RenameSymbols(Func<string, string> renamer)
-        {
-            return Create(_value.RenameSymbols(renamer));
-        }
-
-        public static Bool Create(IValue value)
-        {
-            return value switch
-            {
-                Bool b => b,
-                _ => new Logical(value)
-            };
-        }
-
+            IConstantValue c => c.AsBool(),
+            Bool b => b,
+            _ => new Logical(value)
+        };
     }
 }

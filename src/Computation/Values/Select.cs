@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Z3;
+using Symbolica.Computation.Values.Constants;
 using Symbolica.Expression;
 
 namespace Symbolica.Computation.Values;
@@ -58,46 +59,69 @@ internal sealed record Select : IValue
         return Equals(value);
     }
 
-    public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
+    private static IValue CreateUnderPredicate(IValue pathPredicate, IValue predicate, IValue trueValue, IValue falseValue)
     {
-        return (predicate, trueValue, falseValue) switch
+        static IValue RecreateUnderPredicate(IValue pathPredicate, Select select)
         {
-            (IConstantValue p, _, _) => p.AsBool() ? trueValue : falseValue,
-            // (_, _, IConstantValue f) when f.AsUnsigned().IsZero
-            //     => And.Create(SignExtend.Create(trueValue.Size, predicate), trueValue),
-            // (_, IConstantValue t, _) when t.AsUnsigned().IsZero
-            //     => And.Create(SignExtend.Create(falseValue.Size, Not.Create(predicate)), trueValue),
-            (_, Select t, _) when predicate.Equals(t._predicate)
-                => Create(predicate, t._trueValue, falseValue),
-            (_, Select t, _) when predicate.Equals(LogicalNot.Create(t._predicate))
-                => Create(predicate, t._falseValue, falseValue),
-            (_, _, Select f) when predicate.Equals(f._predicate)
-                => Create(predicate, trueValue, f._falseValue),
-            (_, _, Select f) when predicate.Equals(LogicalNot.Create(f._predicate))
-                => Create(predicate, trueValue, f._trueValue),
-            (_, Select t, _) when t._falseValue.Equals(falseValue)
-                => Create(LogicalAnd.Create(predicate, t._predicate), t._trueValue, falseValue),
-            (_, Select t, _) when t._trueValue.Equals(falseValue)
-                => Create(LogicalAnd.Create(predicate, LogicalNot.Create(t._predicate)), t._falseValue, falseValue),
-            (_, _, Select _) when trueValue is not Select
-                => Create(LogicalNot.Create(predicate), falseValue, trueValue),
-            _ when trueValue.Equals(falseValue) => trueValue,
+            bool MustFollowBranch(IValue p, IValue notP)
+                => (p is IConstantValue c1 && c1.AsBool())
+                    || (notP is IConstantValue c2 && !c2.AsBool())
+                    || pathPredicate.Equals(p);
+
+            var and = LogicalAnd.Create(pathPredicate, select._predicate);
+            var andNot = LogicalAnd.Create(pathPredicate, LogicalNot.Create(select._predicate));
+            return MustFollowBranch(and, andNot)
+                ? CreateBranch(pathPredicate, select._trueValue)
+                : MustFollowBranch(andNot, and)
+                    ? CreateBranch(pathPredicate, select._falseValue)
+                    : CreateUnderPredicate(pathPredicate, select._predicate, select._trueValue, select._falseValue);
+        }
+
+        static IValue CreateBranch(IValue pathPredicate, IValue value)
+        {
+            return value switch
+            {
+                Select s => RecreateUnderPredicate(pathPredicate, s),
+                _ => value
+            };
+        }
+
+        return (predicate,
+            CreateBranch(LogicalAnd.Create(pathPredicate, predicate), trueValue),
+            CreateBranch(LogicalAnd.Create(pathPredicate, LogicalNot.Create(predicate)), falseValue)) switch
+        {
+            (IConstantValue p, var t, var f) => p.AsBool() ? t : f,
+            (_, Select t, var f) when t._falseValue.Equals(f)
+                => CreateUnderPredicate(pathPredicate, LogicalAnd.Create(predicate, t._predicate), t._trueValue, f),
+            (_, Select t, var f) when t._trueValue.Equals(f)
+                => CreateUnderPredicate(pathPredicate, LogicalAnd.Create(predicate, LogicalNot.Create(t._predicate)), t._falseValue, f),
+            (_, var t, Select f) when t is not Select
+                => CreateUnderPredicate(pathPredicate, LogicalNot.Create(predicate), f, t),
+            (_, var t, var f) when t.Equals(f) => t,
+            // These two should be covered by CantBranch clauses now
             (_, Select t, Select f) when t._trueValue.Equals(f._trueValue) && t._falseValue.Equals(f._falseValue)
-                => Create(
+                => CreateUnderPredicate(
+                    pathPredicate,
                     LogicalOr.Create(
                         LogicalAnd.Create(predicate, t._predicate),
                         LogicalAnd.Create(LogicalNot.Create(predicate), f._predicate)),
                     t._trueValue,
                     t._falseValue),
             (_, Select t, Select f) when t._trueValue.Equals(f._falseValue) && t._falseValue.Equals(f._trueValue)
-                => Create(
+                => CreateUnderPredicate(
+                    pathPredicate,
                     LogicalOr.Create(
                         LogicalAnd.Create(predicate, t._predicate),
                         LogicalAnd.Create(LogicalNot.Create(predicate), LogicalNot.Create(f._predicate))),
                     t._trueValue,
                     t._falseValue),
-            _ => new Select(predicate, trueValue, falseValue)
+            var (p, t, f) => new Select(p, t, f)
         };
+    }
+
+    public static IValue Create(IValue predicate, IValue trueValue, IValue falseValue)
+    {
+        return CreateUnderPredicate(new ConstantBool(true), predicate, trueValue, falseValue);
     }
 
     public (HashSet<(IValue, IValue)> subs, bool) IsEquivalentTo(IValue other)

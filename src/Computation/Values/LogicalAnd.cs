@@ -10,9 +10,9 @@ namespace Symbolica.Computation.Values;
 
 internal sealed record LogicalAnd : Bool
 {
-    private readonly ImmutableHashSet<IValue> _values;
+    private readonly ImmutableHashSet<Bool> _values;
 
-    private LogicalAnd(ImmutableHashSet<IValue> values)
+    private LogicalAnd(ImmutableHashSet<Bool> values)
     {
         _values = values;
     }
@@ -40,7 +40,7 @@ internal sealed record LogicalAnd : Bool
 
     public bool Equals(LogicalAnd? other)
     {
-        return other is not null && _values.SequenceEqual(other._values);
+        return other is not null && _values.SetEquals(other._values);
     }
 
     public override int GetHashCode()
@@ -51,48 +51,63 @@ internal sealed record LogicalAnd : Bool
         return hash.ToHashCode();
     }
 
-    public IValue DistributeUnderOr(IValue value)
+    public Bool DistributeUnderOr(IValue value)
     {
         return _values
             .Select(conjunct => LogicalOr.Create(conjunct, value))
             .Aggregate(Create);
     }
 
-    public IValue DeMorgan()
+    public Bool DeMorgan()
     {
         return _values.Select(LogicalNot.Create).Aggregate(LogicalOr.Create);
     }
 
-    public static IValue Create(IValue left, IValue right)
+    public static Bool Create(IValue left, IValue right)
     {
-        static IValue Create(ImmutableHashSet<IValue> conjuncts, IValue value)
+        static Bool Create(ImmutableHashSet<Bool> conjuncts, Bool value)
         {
-            static IValue Create(ImmutableHashSet<IValue> conjuncts)
-                => conjuncts.Count == 1
-                    ? conjuncts.Single()
-                    : new LogicalAnd(conjuncts);
-            return value switch
+            static Bool Create(ImmutableHashSet<Bool> conjuncts)
             {
-                LogicalAnd and => conjuncts.Aggregate(and as IValue, LogicalAnd.Create),
+                var cleaned = conjuncts.Remove(new ConstantBool(true));
+                return conjuncts.Contains(new ConstantBool(false))
+                    ? new ConstantBool(false)
+                    : cleaned.Count == 0
+                        ? new ConstantBool(true)
+                        : cleaned.Count == 1
+                            ? cleaned.Single()
+                            : new LogicalAnd(cleaned);
+            }
+
+            static Bool Simplify(ImmutableHashSet<Bool> conjuncts, Bool value) =>
+                value switch
+                {
+                    LogicalOr o => o.SimplifyUnderAnd(conjuncts),
+                    _ => value
+                };
+
+            return Simplify(conjuncts, value) switch
+            {
+                LogicalAnd and => conjuncts.Aggregate(and as Bool, LogicalAnd.Create),
                 LogicalOr o when conjuncts.Any(o.IsAbsorbedBy) => Create(conjuncts),
+                var v when conjuncts.Contains(LogicalNot.Create(v)) => new ConstantBool(false),
                 _ when conjuncts.Contains(LogicalNot.Create(value)) => new ConstantBool(false),
-                _ => Create(
+                var v => Create(
                     conjuncts
-                        .Add(value)
-                        .Where(v => !(v is LogicalOr or && or.IsAbsorbedBy(value)))
+                        .Add(v)
+                        .Where(c => !(c is LogicalOr or && or.IsAbsorbedBy(v)))
+                        .Select(c => Simplify(new[] { v }.ToImmutableHashSet(), c))
                         .ToImmutableHashSet())
             };
         }
 
-        return (left, right) switch
+        return (Logical.Create(left), Logical.Create(right)) switch
         {
-            (IConstantValue l, _) => l.AsBool() ? right : l,
-            (_, IConstantValue r) => r.AsBool() ? left : r,
-            (LogicalAnd and, _) => Create(and._values, right),
-            (_, LogicalAnd and) => Create(and._values, left),
-            (LogicalOr or, _) when or.IsAbsorbedBy(right) => right,
-            (_, LogicalOr or) when or.IsAbsorbedBy(left) => left,
-            _ => Create(new[] { left }.ToImmutableHashSet(), right)
+            (IConstantValue l, var r) => Create(new[] { r }.ToImmutableHashSet(), l.AsBool()),
+            (var l, IConstantValue r) => Create(new[] { l }.ToImmutableHashSet(), r.AsBool()),
+            (LogicalAnd and, var r) => Create(and._values, r),
+            (var l, LogicalAnd and) => Create(and._values, l),
+            var (l, r) => Create(new[] { l }.ToImmutableHashSet(), r)
         };
     }
 
