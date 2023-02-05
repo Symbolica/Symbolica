@@ -1,5 +1,43 @@
 # Symbolica
 
+Run your code forall inputs
+
+## What is Symbolica?
+Symbolica is a symbolic code executor hosted as a 'CI-like' service. We run your code, but instead of feeding it concrete inputs like 1 or "Hello World", we feed it symbols (variables) that represent all of the possible inputs to your program. This allows us to explore all the code paths at the same time, which allows us to do all kinds of interesting things, such as:
+
+- check if two different programs are logically equivalent
+- find out if any inputs lead to buffer overflows
+- detect inputs that cause undefined behaviour
+
+## Quickstart
+
+### Prerequisites
+
+- [Dotnet 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- [Docker](https://www.docker.com/)
+
+### Clone Symbolica
+
+```sh
+git clone https://github.com/Symbolica/Symbolica.git
+cd ./Symboica
+```
+
+### Set env variables
+Set the [latest versions](https://hub.docker.com/u/symbolica) of the Symbolica build and translate images.
+
+For example:
+```sh
+export SYMBOLICA_BUILD_IMAGE=symbolica/build:0.2.0-master0183
+export SYMBOLICA_TRANSLATE_IMAGE=symbolica/translate:0.2.0-master0183
+```
+
+### Run the example
+```sh
+dotnet run --project src/Application './example'
+```
+
+
 [![Build history](https://buildstats.info/github/chart/SymbolicaDev/Symbolica?branch=master)](https://github.com/SymbolicaDev/Symbolica/actions)
 
 ## NuGet Packages
